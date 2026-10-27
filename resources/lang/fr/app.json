@@ -1,0 +1,19 @@
+{
+  "name": "BFK School Meals",
+  "short_name": "School Meals",
+  "partner": "× {school}",
+  "tagline": "Les repas scolaires des familles de Britech School",
+  "school_year": "Année scolaire",
+  "school_year_value": "{start}–{end} · {school}",
+  "back_office": "Back-office",
+  "kitchen": "Cuisine",
+  "language": "Langue",
+  "logout": "Se déconnecter",
+  "open_menu": "Ouvrir le menu",
+  "close_menu": "Fermer le menu",
+  "notifications": "Notifications",
+  "coming_soon": "Bientôt disponible",
+  "help": "Aide",
+  "privacy": "Confidentialité",
+  "school_name": "Britech School"
+}

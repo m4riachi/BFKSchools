@@ -1,0 +1,19 @@
+{
+  "admin_dashboard": {
+    "title": "Tableau de bord",
+    "welcome": "Bonjour {name}",
+    "empty_title": "Le tableau de bord arrive bientôt",
+    "empty_body": "Les indicateurs de production, de commandes et de facturation apparaîtront ici dès que les menus et les commandes seront en place."
+  },
+  "kitchen_dashboard": {
+    "title": "Production du jour",
+    "empty_title": "Aucune production pour le moment",
+    "empty_body": "Les quantités par plat, la fiche allergies et les étiquettes apparaîtront ici dès que des commandes existeront."
+  },
+  "parent_home": {
+    "title": "Commandes de repas",
+    "hello": "Bonjour {name}",
+    "empty_title": "Aucun menu publié pour le moment",
+    "empty_body": "Nous vous enverrons un e-mail dès que le menu de la semaine sera publié et que les commandes seront ouvertes."
+  }
+}

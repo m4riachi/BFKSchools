@@ -1,0 +1,22 @@
+{
+  "main": "Navigation principale",
+  "dashboard": "Tableau de bord",
+  "families": "Familles",
+  "meals": "Repas",
+  "weekly_menus": "Menus de la semaine",
+  "holidays": "Jours fériés",
+  "orders": "Commandes",
+  "kitchen": "Cuisine",
+  "statements": "Relevés",
+  "settings": "Paramètres",
+  "kitchen_nav": "Navigation cuisine",
+  "production": "Production",
+  "allergies": "Allergies",
+  "labels": "Étiquettes",
+  "exports": "Exports",
+  "parent_nav": "Navigation",
+  "parent_orders": "Commandes",
+  "parent_history": "Historique",
+  "parent_statements": "Relevés",
+  "parent_account": "Compte"
+}

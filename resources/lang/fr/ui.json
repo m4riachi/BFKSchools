@@ -1,0 +1,22 @@
+{
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "close": "Fermer",
+  "save": "Enregistrer",
+  "delete": "Supprimer",
+  "loading": "Chargement…",
+  "search": "Rechercher",
+  "required": "obligatoire",
+  "select_placeholder": "Choisir…",
+  "confirm_title": "Confirmer l'action",
+  "confirm_body": "Voulez-vous vraiment continuer ?",
+  "empty_title": "Rien à afficher",
+  "empty_body": "Aucun élément pour le moment.",
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page {page}",
+    "summary": "{from}–{to} sur {total}"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "E_AUTHORIZATION_FAILURE": "Accès refusé.",
+  "E_INVALID_CREDENTIALS": "E-mail ou mot de passe incorrect.",
+  "E_UNAUTHORIZED_ACCESS": "Veuillez vous connecter.",
+  "E_TOO_MANY_REQUESTS": "Trop de requêtes. Réessayez plus tard.",
+  "forbidden": {
+    "title": "Accès refusé",
+    "body": "Vous n'avez pas accès à cette page."
+  },
+  "not_found": {
+    "title": "Page introuvable",
+    "body": "La page demandée n'existe pas."
+  },
+  "server_error": {
+    "title": "Une erreur est survenue",
+    "body": "Réessayez dans un instant. Si le problème persiste, contactez BFK."
+  },
+  "back_home": "Retour à l'accueil"
+}

@@ -1,0 +1,22 @@
+{
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "close": "Close",
+  "save": "Save",
+  "delete": "Delete",
+  "loading": "Loading…",
+  "search": "Search",
+  "required": "required",
+  "select_placeholder": "Choose…",
+  "confirm_title": "Confirm action",
+  "confirm_body": "Do you really want to continue?",
+  "empty_title": "Nothing to show",
+  "empty_body": "No items yet.",
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page}",
+    "summary": "{from}–{to} of {total}"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "shared": {
+    "messages": {
+      "required": "Le champ {field} est obligatoire.",
+      "string": "Le champ {field} doit être un texte.",
+      "email": "Saisissez une adresse e-mail valide.",
+      "minLength": "Le champ {field} doit contenir au moins {min} caractères.",
+      "maxLength": "Le champ {field} doit contenir au plus {max} caractères.",
+      "boolean": "Le champ {field} doit être vrai ou faux.",
+      "number": "Le champ {field} doit être un nombre.",
+      "enum": "La valeur du champ {field} n'est pas valide.",
+      "regex": "Le format du champ {field} n'est pas valide.",
+      "url": "Le champ {field} doit être une URL valide.",
+      "range": "Le champ {field} doit être compris entre {min} et {max}.",
+      "min": "Le champ {field} doit être au moins {min}.",
+      "max": "Le champ {field} doit être au plus {max}.",
+      "withoutDecimals": "Le champ {field} doit être un nombre entier."
+    },
+    "fields": {
+      "email": "e-mail",
+      "password": "mot de passe",
+      "locale": "langue"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "shared": {
+    "messages": {
+      "required": "The {field} field is required.",
+      "string": "The {field} field must be text.",
+      "email": "Enter a valid email address.",
+      "minLength": "The {field} field must have at least {min} characters.",
+      "maxLength": "The {field} field must have at most {max} characters.",
+      "boolean": "The {field} field must be true or false.",
+      "number": "The {field} field must be a number.",
+      "enum": "The selected {field} is invalid.",
+      "regex": "The {field} field format is invalid.",
+      "url": "The {field} field must be a valid URL.",
+      "range": "The {field} field must be between {min} and {max}.",
+      "min": "The {field} field must be at least {min}.",
+      "max": "The {field} field must be at most {max}.",
+      "withoutDecimals": "The {field} field must be a whole number."
+    },
+    "fields": {
+      "email": "email",
+      "password": "password",
+      "locale": "language"
+    }
+  }
+}

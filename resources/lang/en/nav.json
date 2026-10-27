@@ -1,0 +1,22 @@
+{
+  "main": "Main navigation",
+  "dashboard": "Dashboard",
+  "families": "Families",
+  "meals": "Meals",
+  "weekly_menus": "Weekly menus",
+  "holidays": "Holidays",
+  "orders": "Orders",
+  "kitchen": "Kitchen",
+  "statements": "Statements",
+  "settings": "Settings",
+  "kitchen_nav": "Kitchen navigation",
+  "production": "Production",
+  "allergies": "Allergies",
+  "labels": "Labels",
+  "exports": "Exports",
+  "parent_nav": "Main",
+  "parent_orders": "Orders",
+  "parent_history": "History",
+  "parent_statements": "Statements",
+  "parent_account": "Account"
+}

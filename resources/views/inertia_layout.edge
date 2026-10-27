@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="{{ i18n?.locale ?? 'fr' }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1F6F4A" />
+    <title data-inertia>
+      BFK School Meals
+    </title>
+
+    @vite(['inertia/app.ts'])
+    @inertiaHead()
+    @stack('dumper')
+  </head>
+
+  <body>
+    @inertia()
+  </body>
+
+</html>

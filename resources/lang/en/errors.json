@@ -1,0 +1,19 @@
+{
+  "E_AUTHORIZATION_FAILURE": "Access denied.",
+  "E_INVALID_CREDENTIALS": "Incorrect email or password.",
+  "E_UNAUTHORIZED_ACCESS": "Please sign in.",
+  "E_TOO_MANY_REQUESTS": "Too many requests. Please try again later.",
+  "forbidden": {
+    "title": "Access denied",
+    "body": "You don't have access to this page."
+  },
+  "not_found": {
+    "title": "Page not found",
+    "body": "The page you requested doesn't exist."
+  },
+  "server_error": {
+    "title": "Something went wrong",
+    "body": "Please try again in a moment. If the problem persists, contact BFK."
+  },
+  "back_home": "Back to home"
+}

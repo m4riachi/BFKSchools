@@ -1,0 +1,19 @@
+{
+  "admin_dashboard": {
+    "title": "Dashboard",
+    "welcome": "Hello {name}",
+    "empty_title": "The dashboard is coming soon",
+    "empty_body": "Production, order and billing figures will show here once menus and orders are in place."
+  },
+  "kitchen_dashboard": {
+    "title": "Today's production",
+    "empty_title": "No production yet",
+    "empty_body": "Quantities per meal, the allergy sheet and labels will show here once there are orders."
+  },
+  "parent_home": {
+    "title": "Lunch orders",
+    "hello": "Hello {name}",
+    "empty_title": "No menu published yet",
+    "empty_body": "We'll email you as soon as the weekly menu is published and ordering opens."
+  }
+}

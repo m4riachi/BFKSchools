@@ -1,0 +1,115 @@
+/*
+ * BFK School Meals design tokens — taken from the approved UI design
+ * ("BFK School Meals — UI Design.html"). Use the Tailwind utilities generated
+ * from these tokens (bg-canvas, text-ink, border-line, bg-brand, …) instead of
+ * raw hex values in components.
+ */
+@import 'tailwindcss';
+@import '@fontsource-variable/plus-jakarta-sans';
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* Surfaces */
+  --color-canvas: #f4f6f5; /* page background */
+  --color-surface: #ffffff; /* cards, sidebar, inputs */
+  --color-subtle: #f1f4f2; /* segmented controls, zebra rows */
+  --color-muted-bg: #e6eae8; /* neutral pills, locale switcher track */
+
+  /* Lines */
+  --color-line: #e2e7e4; /* card + sidebar borders */
+  --color-line-strong: #d5dcd8; /* secondary buttons */
+  --color-line-input: #c9d2cd; /* form inputs */
+  --color-line-soft: #eef2f0; /* table row dividers */
+
+  /* Text */
+  --color-ink: #14211b; /* headings, body */
+  --color-ink-2: #33433c; /* nav items, secondary text */
+  --color-ink-3: #45544d; /* descriptions */
+  --color-ink-4: #56655e; /* captions, labels, table headers */
+
+  /* Brand (green) */
+  --color-brand: #1f6f4a;
+  --color-brand-strong: #175a3b; /* active nav text, links */
+  --color-brand-deep: #0f4a2f; /* hover */
+  --color-brand-soft: #e6f2ec; /* active nav background, success pill */
+  --color-brand-tint: #dce5e0; /* avatars */
+
+  /* Status */
+  --color-warning: #8a4b08;
+  --color-warning-ink: #6e3c06;
+  --color-warning-soft: #fff4e5;
+  --color-danger: #a12a2a;
+  --color-danger-ink: #7e1f1f;
+  --color-danger-soft: #fdecec;
+  --color-danger-line: #f3c9c9;
+  --color-info: #2f4db3;
+  --color-info-soft: #eef1fb;
+  --color-info-line: #dce2f5;
+  --color-accent: #d9822b; /* unread dot */
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 10px; /* nav items */
+  --radius-lg: 12px; /* buttons, inputs */
+  --radius-xl: 14px; /* small cards */
+  --radius-2xl: 16px; /* cards */
+  --radius-3xl: 20px; /* auth card, bottom nav */
+
+  /* Shadows */
+  --shadow-pressed: 0 1px 2px rgba(20, 33, 27, 0.14); /* selected segment */
+  --shadow-overlay: 0 12px 32px rgba(20, 33, 27, 0.18); /* modals, toasts */
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  a {
+    @apply text-brand-strong;
+  }
+
+  a:hover {
+    @apply text-brand-deep;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  [v-cloak] {
+    display: none;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border-line rounded-2xl border;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* vue-sonner toasts (unstyled mode) */
+[data-sonner-toast] {
+  @apply bg-surface border-line text-ink flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold;
+  box-shadow: var(--shadow-overlay);
+}
+
+[data-sonner-toast][data-type='success'] [data-icon] {
+  @apply text-brand;
+}
+
+[data-sonner-toast][data-type='error'] {
+  @apply border-danger-line bg-danger-soft text-danger-ink;
+}
