@@ -1,0 +1,67 @@
+# BFK School Meals — Claude Code guide
+
+Web app for **BFK Resto × Britech School**: parents choose their children's weekly school lunches; BFK staff manage meals, holidays, weekly menus and kitchen production.
+
+- Full specification: `docs/PROJECT_BRIEF.md` (source of truth for features)
+- Schema and plan: `docs/ERD.md`, `docs/PLAN.md` (written in Phase 0)
+- Business decisions: `docs/DECISIONS.md` (answers to open questions — always read it)
+- Stack notes: `docs/STACK_NOTES.md` (AdonisJS 7 APIs and packages verified in Phases 0–1)
+
+## Stack
+AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setup lang="ts">`) · Tailwind · VineJS · Bouncer · Drive + sharp · Mail · i18n (FR/EN) · Luxon · Japa · Docker (PostgreSQL + Mailpit)
+
+## Commands
+<!-- bfk-foundation fills this section in Phase 1; keep it accurate afterwards -->
+- Start services: `docker compose up -d`
+- Dev server: TBD
+- Migrations / seed: TBD
+- Tests: TBD
+- Typecheck / lint: TBD
+- Build: TBD
+
+## Golden rules (never break)
+1. Time zone is `Africa/Casablanca`, always through the IANA zone name — never a hard-coded offset like `+01:00` (Morocco's offset changes).
+2. Business days (menu day, order day, holiday) are `date` columns handled as `YYYY-MM-DD` strings. Never `new Date()` / `Date.now()` in business logic — use the `Clock` service so tests can freeze time.
+3. Ordering rules live only in `OrderWindowService` and are enforced on the server. The UI only displays what the server decides.
+4. Prices come from the database and are snapshotted into `meal_order_items.unit_price`. Never trust a price, date, status or id sent by the browser without checking it.
+5. Every route is authorized with Bouncer. A parent can only reach their own children, orders, statements and notifications.
+6. Money is never computed with floats (use the format chosen in `docs/ERD.md`).
+7. Meals used by orders are never hard-deleted (soft delete).
+8. Every UI string and email goes through i18n (FR + EN). The back-office defaults to French.
+9. Thin controllers → services → models. Scheduled jobs call services and are idempotent.
+10. Check the official AdonisJS 7 docs before using an API; write anything surprising in `docs/STACK_NOTES.md`.
+
+## How the work is delegated (main session)
+Each phase has its own subagent in `.claude/agents/`. Phases run **one at a time** — never two builder agents in parallel (they touch the same files).
+
+| Phase | Agent |
+|---|---|
+| 0 Schema, stack check, plan | `bfk-architect` |
+| 1 Setup, Docker, auth, roles, layouts, i18n | `bfk-foundation` |
+| 2 Parents, children, subscriptions, invitations, CSV import | `bfk-families` |
+| 3 Meal catalog + photos | `bfk-meal-catalog` |
+| 4 Holidays | `bfk-holidays` |
+| 5 Weekly menus, scheduler, publication | `bfk-weekly-menus` |
+| 6 Parent ordering, modification rules, order jobs | `bfk-parent-ordering` |
+| 7 Dashboard + kitchen reports | `bfk-kitchen-dashboard` |
+| 8 Statements, notifications, emails | `bfk-statements-notifications` |
+| 9 Hardening, seeds, README, deployment | `bfk-hardening` |
+| After every phase | `bfk-qa-tester`, then `bfk-security-reviewer` |
+
+Loop for each phase:
+1. Delegate to the phase agent: "Implement Phase N". Pass along any decisions the user made since the last phase.
+2. If the agent returns **BLOCKED** with questions, ask the user, write the answers in `docs/DECISIONS.md`, then resume the same agent.
+3. Run `bfk-qa-tester`, then `bfk-security-reviewer` on the phase's changes.
+4. Failing checks or Critical/High findings → send them back to the phase agent (resume it), then repeat step 3.
+5. Commit: `feat(phase-N): <summary>`.
+6. Give the user a short summary and the manual test checklist, then **stop and wait** for their go.
+
+Phase 0 is special: after `bfk-architect` returns, show the user the ERD, the plan and the decisions to confirm, and wait for approval before Phase 1.
+
+## Rules for subagents
+- You start without the conversation history. Before writing anything, read your sections of `docs/PROJECT_BRIEF.md`, then `docs/ERD.md`, `docs/PLAN.md`, `docs/DECISIONS.md`, `docs/STACK_NOTES.md` and the existing code.
+- Stay inside your phase. If an earlier phase must change, make the smallest change and say so in your report.
+- You cannot ask the user questions. When a business decision is missing and `docs/DECISIONS.md` has no default for it, stop and return `BLOCKED:` with the exact questions and your recommended answers.
+- Do not commit — the main session commits after QA and review.
+- Before returning, run migrations, typecheck, lint and tests yourself.
+- Return this report: **Done** (what was built) · **Files** (main files touched) · **Migrations** · **Checks** (typecheck / lint / tests) · **Manual test checklist** · **Notes, risks, follow-ups for later phases**.
