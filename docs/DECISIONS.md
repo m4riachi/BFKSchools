@@ -21,7 +21,9 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D14 | Supplement quantity limit | answered | At most 5 per item per child per day (`supplement_max_quantity` = 5) |
 | D15 | Hosting provides Node 24? | pending | Needed before Phase 9. If the cPanel host has no Node 24 → VPS / Docker host |
 | D16 | Email delivery design | answered | `outbound_emails` outbox + `mail:dispatch` cron command, no queue package; invitations/resets sent directly. SMTP hourly limit still unknown (pending) |
+| D17 | Can a parent who was never invited set a password through "forgot password"? | answered | No — reset links are sent only to accounts that already set a password (accepted an invitation); others get the same generic response and no email |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
 2026-10-27 — Phase 0 approved; D1–D14 and D16 answered with the recommended answers (D5 cutoff: day before 18:00); D15 and the SMTP hourly limit pending
+2026-10-28 — D17 answered: password reset only for parents who already accepted an invitation

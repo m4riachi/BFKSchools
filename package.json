@@ -110,5 +110,8 @@
     "esbuild": true,
     "fsevents": true
   },
-  "prettier": "@adonisjs/prettier-config"
+  "prettier": "@adonisjs/prettier-config",
+  "overrides": {
+    "nodemailer": "^10.2.1"
+  }
 }

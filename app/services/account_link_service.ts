@@ -66,21 +66,22 @@ export default class AccountLinkService {
   }
 
   /**
-   * "Forgot password". Always resolves the same way, whether or not the
-   * email belongs to an account (no user enumeration). For an active
-   * account, issues a reset token and queues the email in memory
-   * (`sendLater`), so the response does not wait for SMTP either.
+   * "Forgot password" — the deferred part (see PasswordResetController,
+   * which schedules it after the response so known and unknown emails cost
+   * the same). Sends a reset link only to an active account that already
+   * set a password (D17: never-invited / not-yet-accepted accounts get
+   * nothing). Never throws for "no such account".
    */
   async requestPasswordReset(email: string, ip: string | null) {
     const user = await User.findByEmail(email)
-    if (!user || !user.isActive) return
+    if (!user || !user.isActive || !user.password) return
 
     const { token, record } = await db.transaction(async (trx) => {
       return this.tokens.issue(user, 'password_reset', { trx, ip })
     })
 
     try {
-      await mail.sendLater(
+      await mail.send(
         new AccountLinkMail(
           'password_reset',
           user,

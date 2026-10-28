@@ -47,6 +47,7 @@ export default defineConfig({
   providers: [
     () => import('@adonisjs/core/providers/app_provider'),
     () => import('#providers/time_provider'),
+    () => import('#providers/app_services_provider'),
     () => import('@adonisjs/core/providers/hash_provider'),
     {
       file: () => import('@adonisjs/core/providers/repl_provider'),

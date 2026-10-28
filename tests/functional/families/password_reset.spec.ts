@@ -9,18 +9,34 @@ import { KNOWN_DEVICE_COOKIE, knownDeviceHash } from '#support/known_device'
 import { LOGIN_LIMITS, PASSWORD_LINK_LIMITS } from '#start/limiter'
 import { freezeClock, restoreClock } from '#tests/helpers/clock'
 import { linkValid, pathOf } from '#tests/helpers/families'
+import app from '@adonisjs/core/services/app'
+import DeferredTasks from '#services/deferred_tasks'
+import UserTokenService from '#services/user_token_service'
+import User from '#models/user'
 
 const SENT =
   "Si un compte existe pour cette adresse, un e-mail avec un lien de réinitialisation vient d'être envoyé. Le lien est valable 60 minutes."
 const NEW_PASSWORD = 'Tajine2026!'
 
-function requestReset(client: any, email: string, ip = '203.0.113.7') {
+function postReset(client: any, email: string, ip = '203.0.113.7') {
   return client
     .post('/password/forgot')
     .header('x-forwarded-for', ip)
     .form({ email })
     .withCsrfToken()
     .redirects(0)
+}
+
+async function drainDeferred() {
+  const tasks = await app.container.make(DeferredTasks)
+  await tasks.drain()
+}
+
+/** Posts the form, then waits for the work deferred after the response. */
+async function requestReset(client: any, email: string, ip = '203.0.113.7') {
+  const response = await postReset(client, email, ip)
+  await drainDeferred()
+  return response
 }
 
 test.group('Families | password reset', (group) => {
@@ -35,15 +51,16 @@ test.group('Families | password reset', (group) => {
     }
   })
 
-  test('the response is the same for existing, unknown and inactive emails', async ({
+  test('the response is the same for existing, unknown, inactive and never-activated emails', async ({
     client,
     assert,
   }) => {
     const user = await UserFactory.apply('parent').create()
     const inactive = await UserFactory.apply('parent').apply('inactive').create()
+    const invited = await UserFactory.apply('parent').apply('invited').create()
 
     const responses = []
-    for (const email of [user.email, 'nobody@example.test', inactive.email]) {
+    for (const email of [user.email, 'nobody@example.test', inactive.email, invited.email]) {
       responses.push(await requestReset(client, email))
     }
     for (const response of responses) {
@@ -53,10 +70,88 @@ test.group('Families | password reset', (group) => {
       assert.isUndefined(response.flashMessage('error'))
     }
 
-    // Only the existing, active account gets an email (queued, not awaited)
-    assert.lengthOf(mails.queued(), 1)
+    // Only the existing, active account with a password gets an email
+    assert.lengthOf(mails.sent(), 1)
+    assert.deepEqual(mails.sent()[0].message.toJSON().message.to, [user.email])
+    const tokens = await UserToken.query().where('type', 'password_reset')
+    assert.deepEqual(
+      tokens.map((t) => t.userId),
+      [user.id]
+    )
+  })
+
+  test('the account lookup, token and email happen after the response', async ({
+    client,
+    assert,
+  }) => {
+    const user = await UserFactory.apply('parent').create()
+
+    const response = await postReset(client, user.email)
+    response.assertFlashMessage('success', SENT)
+    // Nothing account-specific ran on the request path
+    assert.lengthOf(await UserToken.all(), 0)
     assert.lengthOf(mails.sent(), 0)
-    assert.lengthOf(await UserToken.query().where('type', 'password_reset'), 1)
+
+    await drainDeferred()
+    assert.lengthOf(await UserToken.all(), 1)
+    assert.lengthOf(mails.sent(), 1)
+  })
+
+  test('D17: a parent who never set a password gets no token and no email', async ({
+    client,
+    assert,
+  }) => {
+    const invited = await UserFactory.apply('parent').apply('invited').create()
+    const response = await requestReset(client, invited.email)
+    response.assertFlashMessage('success', SENT)
+    assert.lengthOf(await UserToken.query().where('user_id', invited.id), 0)
+    assert.lengthOf(mails.sent(), 0)
+  })
+
+  test('errors in the deferred work are logged, never surfaced', async ({ client, assert }) => {
+    const user = await UserFactory.apply('parent').create()
+    const original = User.findByEmail
+    User.findByEmail = (() => Promise.reject(new Error('db down'))) as typeof User.findByEmail
+    try {
+      const response = await requestReset(client, user.email)
+      response.assertStatus(302)
+      response.assertFlashMessage('success', SENT)
+    } finally {
+      User.findByEmail = original
+    }
+    assert.lengthOf(mails.sent(), 0)
+  })
+
+  test('concurrent resets leave exactly one valid link', async ({ assert }) => {
+    const user = await UserFactory.apply('parent').create()
+    const tokens = await app.container.make(UserTokenService)
+
+    const issued = await Promise.all(
+      Array.from({ length: 5 }, () =>
+        db.transaction((trx) => tokens.issue(user, 'password_reset', { trx }))
+      )
+    )
+    assert.lengthOf(issued, 5)
+    const open = await UserToken.query()
+      .where('user_id', user.id)
+      .whereNull('used_at')
+      .whereNull('revoked_at')
+    assert.lengthOf(open, 1)
+  })
+
+  test('the database refuses a second open link of the same type', async ({ assert }) => {
+    const user = await UserFactory.apply('parent').create()
+    const row = (hash: string) => ({
+      user_id: user.id,
+      type: 'invitation',
+      token_hash: hash,
+      expires_at: new Date(Date.now() + 3_600_000),
+    })
+    await db.table('user_tokens').insert(row('a'.repeat(64)))
+    await assert.rejects(
+      () => db.table('user_tokens').insert(row('b'.repeat(64))),
+      /user_tokens_one_open_per_type/
+    )
   })
 
   test('the reset link works once, within 60 minutes, and logs the user in', async ({
@@ -67,7 +162,7 @@ test.group('Families | password reset', (group) => {
     const user = await UserFactory.apply('parent').merge({ locale: 'en' }).create()
 
     await requestReset(client, user.email)
-    const message = mails.queued()[0]
+    const message = mails.sent()[0]
     await message.buildWithContents()
     assert.equal(message.message.toJSON().message.subject, 'Reset your password')
     const path = pathOf(message)
@@ -96,7 +191,7 @@ test.group('Families | password reset', (group) => {
     const clock = freezeClock('2026-11-02T08:00')
     const user = await UserFactory.apply('parent').create()
     await requestReset(client, user.email)
-    const path = pathOf(mails.queued()[0])
+    const path = pathOf(mails.sent()[0])
 
     clock.travel({ minutes: 61 })
     const page = await client.get(path).withInertia()
@@ -107,7 +202,7 @@ test.group('Families | password reset', (group) => {
     const user = await UserFactory.apply('parent').create()
     await requestReset(client, user.email)
     await requestReset(client, user.email)
-    const [first, second] = mails.queued().map(pathOf)
+    const [first, second] = mails.sent().map(pathOf)
 
     assert.isFalse(await linkValid(client, first))
     assert.isTrue(await linkValid(client, second))
@@ -136,7 +231,7 @@ test.group('Families | password reset', (group) => {
 
     await requestReset(client, user.email)
     await client
-      .post(pathOf(mails.queued()[0]))
+      .post(pathOf(mails.sent()[0]))
       .form({ password: NEW_PASSWORD, password_confirmation: NEW_PASSWORD })
       .withCsrfToken()
       .redirects(0)
@@ -172,7 +267,7 @@ test.group('Families | password reset', (group) => {
     }
     const blocked = await requestReset(client, user.email, '198.51.100.9')
     assert.match(String(blocked.flashMessage('error')), /^Trop de demandes/)
-    assert.lengthOf(mails.queued(), 0)
+    assert.lengthOf(mails.sent(), 0)
 
     // Another IP is not affected
     const other = await requestReset(client, user.email, '198.51.100.10')
@@ -207,7 +302,7 @@ test.group('Families | password reset', (group) => {
       const response = await requestReset(client, user.email, `192.0.2.${i + 1}`)
       response.assertFlashMessage('success', SENT)
     }
-    assert.lengthOf(mails.queued(), limit)
+    assert.lengthOf(mails.sent(), limit)
   })
 
   test('the set-password endpoint is rate-limited per IP', async ({ client, assert }) => {

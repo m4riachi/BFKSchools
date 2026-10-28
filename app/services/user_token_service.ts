@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { inject } from '@adonisjs/core'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
-import type User from '#models/user'
+import User from '#models/user'
 import UserToken from '#models/user_token'
 import Clock from '#services/clock'
 import { USER_TOKEN_TTL_MINUTES, type UserTokenType } from '#enums/user_tokens'
@@ -32,6 +32,10 @@ export default class UserTokenService {
     options: { trx: TransactionClientContract; createdBy?: number | null; ip?: string | null }
   ): Promise<{ token: string; record: UserToken }> {
     const now = this.clock.now()
+    // Serialize issuing per user: concurrent resends/resets wait here, so
+    // revoke + insert never leave two open links (backed by the partial
+    // unique index user_tokens_one_open_per_type).
+    await User.query({ client: options.trx }).where('id', user.id).forUpdate().firstOrFail()
     await this.revokeOpen(user.id, options.trx, type)
 
     const token = randomBytes(32).toString('base64url')
