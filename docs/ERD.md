@@ -540,7 +540,7 @@ Phase 5 additions: CHECK `mail_key ~ '^[a-z0-9_]{1,60}$'`, `jsonb_typeof(payload
 | date | date | NN | | **UNIQUE `(child_id, date)`** |
 | weekly_menu_id | integer | NN | | FK → weekly_menus ON DELETE RESTRICT |
 | status | text | NN | `'active'` | CHECK `IN ('active','cancelled')` |
-| cancel_reason | text | null | | CHECK `IN ('absent','holiday','menu_change','staff','child_inactive')`; CHECK `(status = 'cancelled') = (cancel_reason IS NOT NULL)` |
+| cancel_reason | text | null | | CHECK `IN ('absent','holiday','menu_change','staff','child_inactive','subscription_ended')` (`subscription_ended` added in the Phase 6 review); CHECK `(status = 'cancelled') = (cancel_reason IS NOT NULL)` |
 | cancel_note | text | null | | free text from staff |
 | cancelled_at | timestamptz | null | | |
 | origin | text | NN | | CHECK `IN ('parent','staff','system')` — who created it (system = deadline auto-assign) |
@@ -584,7 +584,7 @@ Saving a day: inside the transaction, lock the order row (or the child row when 
 | created_at | timestamptz | NN | now() | append-only: no `updated_at`, the model never updates/deletes |
 
 Indexes: `(meal_order_id, created_at)`; `(child_id, date)`; `(created_at)`.
-Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` ≤ 500 chars, `before`/`after` are jsonb objects. `meal_orders`: CHECK `status = 'active' OR cancelled_at IS NOT NULL`, `cancel_note` ≤ 500. Holiday cancellations are audited as the admin who confirmed (`reason = 'holiday'`), or as `system` when the `holidays:generate` command runs without an actor; menu-change switches/cancels as the staff member (`reason` = `menu_item_removed:<itemId>`).
+Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` ≤ 500 chars, `before`/`after` are jsonb objects. `meal_orders`: CHECK `status = 'active' OR cancelled_at IS NOT NULL`, `cancel_note` ≤ 500. Phase 6 review: deactivating a child or parent cancels the child's orders dated **after today** (`child_inactive`, audited `staff_override` as the staff member, reason `child_inactive`; today's order is kept — the kitchen is preparing it); ending/shortening/deleting a subscription removes the subscription-meal line of future orders on uncovered dates (`reason = 'subscription_ended'`), cancelling orders left empty with `cancel_reason = 'subscription_ended'` (migration `1793600000004`; not locked by D24, the parent may re-order). Days cancelled `staff`/`child_inactive` are re-opened by staff only (D24). Staff change dates of the current month or later only (D23). Menu-change switches keep `min(original unit price, new meal price)` (D25). Holiday cancellations only touch orders dated after today (past dates can become holidays for the calendar; their served orders stay) and are audited as the admin who confirmed (`reason = 'holiday'`), or as `system` when the `holidays:generate` command runs without an actor; menu-change switches/cancels as the staff member (`reason` = `menu_item_removed:<itemId>`).
 
 **Lock order (Phase 6, everything that touches orders):** school row (`FOR SHARE` by orders/builder/jobs, `FOR UPDATE` by holiday writes) → weekly menu (`FOR SHARE` by orders, `FOR UPDATE` by the builder, publication and deadline job) → child row `FOR UPDATE` → order rows `FOR UPDATE` → capped menu items `FOR UPDATE` (id order) → meals `FOR SHARE`. So an order can't commit on a date that becomes a holiday, can't interleave with an item removal/default change or the deadline auto-assign, and two orders can't both take the last `max_quantity` portion.
 

@@ -45,6 +45,8 @@ export type DayView = {
   state: 'open' | 'locked' | 'holiday' | 'not_published' | 'no_meals'
   reason: string | null
   editable: boolean
+  /** Back-office: staff may change this day (server-computed). */
+  staffEditable: boolean
   editableUntil: string | null
   cutoffAt: string
   holidayNames: string[]

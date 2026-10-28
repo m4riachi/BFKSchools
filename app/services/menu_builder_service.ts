@@ -239,7 +239,18 @@ export default class MenuBuilderService {
       } else {
         await item.useTransaction(trx).delete()
       }
-      if (item.isDefault) await this.ensureDefault(trx, locked.id, item.date)
+      if (item.isDefault) {
+        if (locked.status !== 'published') {
+          await this.ensureDefault(trx, locked.id, item.date)
+        } else if (locked.orderDeadlineAt && locked.orderDeadlineAt > this.clock.now()) {
+          // D18: a published day's default changes only before the deadline,
+          // and the parents concerned are told.
+          const promoted = await this.ensureDefault(trx, locked.id, item.date)
+          if (promoted) await this.changes.notifyDefaultChange(trx, school, locked, promoted)
+        }
+        // After the deadline the day keeps no default: auto-assign (already
+        // run or not) skips it and reports it.
+      }
       return { item, outcome }
     })
   }
@@ -292,14 +303,21 @@ export default class MenuBuilderService {
     })
   }
 
-  /** Gives a day a default when it has subscription meals but none is the default. */
-  protected async ensureDefault(trx: TransactionClientContract, menuId: number, date: IsoDate) {
+  /**
+   * Gives a day a default when it has subscription meals but none is the
+   * default. Returns the promoted item (null when nothing changed).
+   */
+  protected async ensureDefault(
+    trx: TransactionClientContract,
+    menuId: number,
+    date: IsoDate
+  ): Promise<MenuItem | null> {
     const items = await this.currentItems(trx, menuId, date)
     const subscriptions = items.filter((item) => item.mealType === 'subscription')
-    if (!subscriptions.length || subscriptions.some((item) => item.isDefault)) return false
+    if (!subscriptions.length || subscriptions.some((item) => item.isDefault)) return null
     subscriptions[0].isDefault = true
     await subscriptions[0].useTransaction(trx).save()
-    return true
+    return subscriptions[0]
   }
 
   /* ------------------------------------------------------------------ */

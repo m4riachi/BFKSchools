@@ -180,7 +180,7 @@ Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 i
 - Phase 3 S3 CSP (fail-closed edge cases): stricter `S3_PUBLIC_ORIGIN` host validation; China regions, IP-literal endpoints and `AWS_USE_DUALSTACK_ENDPOINT`/`AWS_USE_FIPS_ENDPOINT`/`AWS_ENDPOINT_URL*` aren't mirrored — best fix: presign a dummy key at boot and assert its origin equals `s3PublicOrigin()`. Load one photo from the real bucket in a browser before launch.
 - ~~Phase 6 (from Phase 5 review): published-menu item changes, max below ordered, meal availability when ordering~~ — done in Phase 6 (D18: `MenuChangeService`; `checkSelection` refuses unavailable/removed/sold-out meals).
 - ~~Phase 5: a menu can be published after its order deadline~~ — D19 done in Phase 6 (refused; the job leaves it scheduled and warns once).
-- Phase 6: deactivating a child does not cancel its future orders (`cancel_reason = 'child_inactive'` exists but nothing writes it); the window refuses new changes (INACTIVE) and staff can cancel. Wire it in Phase 9 (or when ChildService changes).
+- ~~Phase 6: deactivating a child does not cancel its future orders~~ — done (review M3, `OrderCancellationService`: child/parent deactivation, subscription end/shortening/deletion).
 - Phase 6: the media route still serves any meal photo to any logged-in user (Phase 3 follow-up, unchanged).
 - Phase 6: `auto_assigned` notifications are in-app only (no email key in `email_notifications`).
 - Phase 5: daily jobs decide "week over" with the app time zone (`clock.today()`), not per school — fine for one Casablanca school; confirm per school with `weekEndsAt` before adding schools in other zones.

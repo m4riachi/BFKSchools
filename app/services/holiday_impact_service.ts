@@ -32,13 +32,24 @@ export default class HolidayImpactService {
     protected notifier: OrderNotifier
   ) {}
 
-  /** Active orders of the school's children on these dates. */
+  /**
+   * Only dates **after today** (school time zone) are affected: making a
+   * past date a holiday (calendar correction) never rewrites orders that
+   * were already served and billed (D23); today's orders are kept, as for
+   * deactivations (the kitchen is preparing them).
+   */
+  protected futureOnly(dates: IsoDate[]): IsoDate[] {
+    const today = this.clock.today()
+    return [...new Set(dates)].filter((date) => date > today).sort()
+  }
+
+  /** Active orders of the school's children on these dates (future dates only). */
   async countAffectedOrders(
     schoolId: number,
     dates: IsoDate[],
     client: QueryClientContract = db.connection()
   ): Promise<number> {
-    const unique = [...new Set(dates)]
+    const unique = this.futureOnly(dates)
     if (!unique.length) return 0
     let total = 0
     for (let start = 0; start < unique.length; start += 500) {
@@ -65,7 +76,7 @@ export default class HolidayImpactService {
     dates: IsoDate[],
     options: { trx?: TransactionClientContract; actor?: User | null } = {}
   ): Promise<HolidayCancellationResult> {
-    const unique = [...new Set(dates)].sort()
+    const unique = this.futureOnly(dates)
     if (!unique.length) return { cancelledOrders: 0, notifiedParents: 0 }
     const work = async (trx: TransactionClientContract) => {
       const now = this.clock.now().toISO()!

@@ -11,6 +11,7 @@ export const CANCEL_REASONS = [
   'menu_change',
   'staff',
   'child_inactive',
+  'subscription_ended',
 ] as const
 export type CancelReason = (typeof CANCEL_REASONS)[number]
 
@@ -55,10 +56,12 @@ export type OrderSnapshot = {
  */
 export const WINDOW_REASONS = [
   'PAST_DAY',
+  'NOT_SCHOOL_DAY',
   'HOLIDAY',
   'NOT_PUBLISHED',
   'NO_MEALS',
   'INACTIVE',
+  'CANCELLED_BY_STAFF',
   'AFTER_CUTOFF',
   'EDITS_DISABLED',
   'SAME_DAY_ONLY',

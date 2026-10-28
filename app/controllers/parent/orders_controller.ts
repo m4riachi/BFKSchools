@@ -17,6 +17,7 @@ import { mealName } from '#support/meal_display'
 import { weekBounds } from '#support/menu_display'
 import { homePathFor } from '#enums/roles'
 import { safeTranslate } from '#support/safe_translate'
+import OrderRuleException from '#exceptions/order_rule_exception'
 
 /** Weeks a parent can open around the current one. */
 const WEEKS_BEFORE = 4
@@ -184,6 +185,8 @@ export default class OrdersController {
     await bouncer.authorize('accessParentPortal')
     const date = this.date(ctx)
     const input = await request.validateUsing(applyAllValidator)
+    // Allergies are confirmed child by child, never for a whole family.
+    if (input.confirmAllergy) throw new OrderRuleException('APPLY_ALL_NO_CONFIRM')
     const user = auth.getUserOrFail()
     // Every id must be one of the parent's children: otherwise nothing is done (404).
     const mine = await Child.query()
@@ -200,7 +203,7 @@ export default class OrdersController {
         : {
             subscriptionMealId: input.subscriptionMealId ?? null,
             supplements: input.supplements ?? [],
-            confirmAllergy: input.confirmAllergy ?? false,
+            confirmAllergy: false,
           },
       input.childIds
     )

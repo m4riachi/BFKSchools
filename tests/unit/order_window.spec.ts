@@ -6,6 +6,7 @@ import {
   describeOption,
   evaluate,
   staffCanOverride,
+  staffMayChangeDate,
   type DayOption,
   type SelectionInput,
   type WindowInput,
@@ -43,6 +44,7 @@ function input(
     menu: { status: 'published' as const, orderDeadlineAt: at('2026-11-22T20:00') },
     hasMeals: true,
     isHoliday: false,
+    isSchoolDay: true,
     child: { isActive: true },
     parent: { isActive: true },
     ...rest,
@@ -259,6 +261,24 @@ const CASES: Case[] = [
   },
   { title: 'holiday', overrides: { isHoliday: true }, allowed: false, reason: 'HOLIDAY' },
   {
+    title: 'not a school day (weekday or school year)',
+    overrides: { isSchoolDay: false },
+    allowed: false,
+    reason: 'NOT_SCHOOL_DAY',
+  },
+  {
+    title: 'not a school day wins over a holiday',
+    overrides: { isSchoolDay: false, isHoliday: true },
+    allowed: false,
+    reason: 'NOT_SCHOOL_DAY',
+  },
+  {
+    title: 'D24: a day cancelled by staff is locked for the parent',
+    overrides: { staffCancelled: true },
+    allowed: false,
+    reason: 'CANCELLED_BY_STAFF',
+  },
+  {
     title: 'a past holiday is a past day',
     overrides: { date: MON, isHoliday: true, now: at('2026-11-24T08:00') },
     allowed: false,
@@ -360,6 +380,15 @@ test.group('OrderWindowService.evaluate', () => {
       assert.isFalse(staffCanOverride(reason, 'save'))
     }
     assert.isTrue(staffCanOverride('INACTIVE', 'cancel'))
+    assert.isTrue(staffCanOverride('CANCELLED_BY_STAFF', 'save'))
+    assert.isFalse(staffCanOverride('NOT_SCHOOL_DAY', 'save'))
+  })
+
+  test('D23: staff may change dates of the current month (school zone) or later', ({ assert }) => {
+    assert.isTrue(staffMayChangeDate('2026-11-01', '2026-11-30'))
+    assert.isTrue(staffMayChangeDate('2026-12-15', '2026-11-30'))
+    assert.isFalse(staffMayChangeDate('2026-10-31', '2026-11-01'))
+    assert.isFalse(staffMayChangeDate('2026-11-30', '2026-12-01'))
   })
 })
 

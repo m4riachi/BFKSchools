@@ -1,14 +1,17 @@
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import type { SelectionError, WindowReason } from '#enums/orders'
 
-export type OrderRule = WindowReason | SelectionError | 'REASON_REQUIRED'
+export type OrderRule =
+  WindowReason | SelectionError | 'REASON_REQUIRED' | 'STAFF_PERIOD_CLOSED' | 'APPLY_ALL_NO_CONFIRM'
 
 const WINDOW_RULES = new Set<string>([
   'PAST_DAY',
+  'NOT_SCHOOL_DAY',
   'HOLIDAY',
   'NOT_PUBLISHED',
   'NO_MEALS',
   'INACTIVE',
+  'CANCELLED_BY_STAFF',
   'AFTER_CUTOFF',
   'EDITS_DISABLED',
   'SAME_DAY_ONLY',

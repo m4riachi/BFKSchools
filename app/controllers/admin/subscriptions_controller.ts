@@ -23,19 +23,19 @@ export default class SubscriptionsController {
     return response.redirect(this.childUrl(child))
   }
 
-  async update({ params, request, response, bouncer, session, i18n }: HttpContext) {
+  async update({ params, request, response, bouncer, session, i18n, auth }: HttpContext) {
     const { child, subscription } = await this.findSubscription(params)
     await bouncer.with('ChildPolicy').authorize('manage', child)
     const input = await request.validateUsing(subscriptionValidator)
-    await this.subscriptions.update(subscription, input)
+    await this.subscriptions.update(subscription, input, auth.getUserOrFail())
     session.flash('success', i18n.t('families.flash.subscription_updated'))
     return response.redirect(this.childUrl(child))
   }
 
-  async destroy({ params, response, bouncer, session, i18n }: HttpContext) {
+  async destroy({ params, response, bouncer, session, i18n, auth }: HttpContext) {
     const { child, subscription } = await this.findSubscription(params)
     await bouncer.with('ChildPolicy').authorize('manage', child)
-    await this.subscriptions.delete(subscription)
+    await this.subscriptions.delete(subscription, auth.getUserOrFail())
     session.flash('success', i18n.t('families.flash.subscription_deleted'))
     return response.redirect(this.childUrl(child))
   }

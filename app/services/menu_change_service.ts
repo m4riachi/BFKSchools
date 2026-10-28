@@ -12,10 +12,17 @@ import OrderNotifier, { type Notice } from '#services/order_notifier'
 import { allergyConflicts } from '#services/order_window_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import type { MealType } from '#enums/meals'
-import type { IsoDate } from '#support/dates'
+import { isSchoolDay, type IsoDate } from '#support/dates'
 
 /** How the admin resolves the orders of an item removed from a published menu. */
-export type RemovalResolution = { mode: 'switch'; targetItemId: number } | { mode: 'cancel' }
+/**
+ * How the admin resolves the orders of an item removed from a published
+ * menu. `confirmedCount` = affected orders shown on the impact page: the
+ * removal is refused when more exist once the menu is locked (L6).
+ */
+export type RemovalResolution = ({ mode: 'switch'; targetItemId: number } | { mode: 'cancel' }) & {
+  confirmedCount?: number
+}
 
 export type AffectedOrder = {
   orderId: number
@@ -177,7 +184,10 @@ export default class MenuChangeService {
     const orderIds = orderRows.map((row) => Number(row.id))
 
     if (orderIds.length) {
-      if (!resolution) {
+      if (
+        !resolution ||
+        (resolution.confirmedCount !== undefined && orderIds.length > resolution.confirmedCount)
+      ) {
         throw new BusinessRuleException('menus.errors.remove_has_orders', {
           values: { count: orderIds.length },
         })
@@ -240,6 +250,17 @@ export default class MenuChangeService {
     let target: MenuItem | null = null
     let targetMeal: Meal | null = null
     if (resolution.mode === 'switch') {
+      // M1: never move orders onto a day that is no longer a school day
+      // (weekday removed or outside the school year): cancel them instead.
+      if (
+        !isSchoolDay(item.date, {
+          schoolDays: school.schoolDays,
+          schoolYearStart: school.schoolYearStart,
+          schoolYearEnd: school.schoolYearEnd,
+        })
+      ) {
+        throw new BusinessRuleException('menus.errors.not_school_day', { field: 'targetItemId' })
+      }
       target = await MenuItem.query({ client: trx })
         .withScopes((scopes) => scopes.current())
         .where('weekly_menu_id', menu.id)
@@ -282,7 +303,10 @@ export default class MenuChangeService {
     const supplementMax = this.settings.get(school).supplement_max_quantity
     const now = this.clock.now().toISO()!
     const entries: AuditEntry[] = []
-    const noticesByParent = new Map<number, { orderIds: number[]; children: string[] }>()
+    const noticesByParent = new Map<
+      number,
+      { orderIds: number[]; children: string[]; priceLowered: boolean }
+    >()
 
     for (const order of orders) {
       const orderId = Number(order.id)
@@ -291,27 +315,34 @@ export default class MenuChangeService {
       const before = orderSnapshot('active', null, current.map(toSnapshotLine))
       let after = current.filter((line) => line.id !== removed.id)
       let switched = false
+      let priceLowered = false
 
       const conflict =
         targetMeal !== null &&
         allergyConflicts(targetMeal.allergens, order.allergies ?? []).length > 0
       if (target && targetMeal && !conflict) {
         const existingTarget = current.find((line) => line.menu_item_id === target!.id)
+        // D25: the parent keeps the original price when the new meal costs
+        // more; a cheaper meal lowers it.
+        const price = Math.min(Number(removed.unit_price_cents), targetMeal.priceCents)
+        if (price < Number(removed.unit_price_cents)) priceLowered = true
         if (existingTarget) {
+          // One line per item: merged portions keep the lower of both prices.
           const quantity = Math.min(existingTarget.quantity + removed.quantity, supplementMax)
+          const merged = Math.min(Number(existingTarget.unit_price_cents), price)
           await trx
             .from('meal_order_items')
             .where('id', existingTarget.id)
-            .update({ quantity, updated_at: now })
+            .update({ quantity, unit_price_cents: merged, updated_at: now })
           await trx.from('meal_order_items').where('id', removed.id).delete()
           after = after.map((line) =>
-            line.id === existingTarget.id ? { ...line, quantity } : line
+            line.id === existingTarget.id ? { ...line, quantity, unit_price_cents: merged } : line
           )
         } else {
           await trx.from('meal_order_items').where('id', removed.id).update({
             menu_item_id: target.id,
             meal_id: target.mealId,
-            unit_price_cents: targetMeal.priceCents,
+            unit_price_cents: price,
             updated_at: now,
           })
           after = [
@@ -320,7 +351,7 @@ export default class MenuChangeService {
               ...removed,
               menu_item_id: target.id,
               meal_id: target.mealId,
-              unit_price_cents: targetMeal.priceCents,
+              unit_price_cents: price,
             },
           ]
         }
@@ -360,9 +391,14 @@ export default class MenuChangeService {
             : orderSnapshot('active', null, after.map(toSnapshotLine)),
         reason: `menu_item_removed:${item.id}`,
       })
-      const entry = noticesByParent.get(Number(order.parent_id)) ?? { orderIds: [], children: [] }
+      const entry = noticesByParent.get(Number(order.parent_id)) ?? {
+        orderIds: [],
+        children: [],
+        priceLowered: false,
+      }
       entry.orderIds.push(orderId)
       entry.children.push(String(order.first_name))
+      if (priceLowered) entry.priceLowered = true
       noticesByParent.set(Number(order.parent_id), entry)
     }
 
@@ -382,13 +418,18 @@ export default class MenuChangeService {
           targetMealId: target?.mealId ?? null,
           orderIds: entry.orderIds,
           children: entry.children,
+          priceLowered: entry.priceLowered,
+          newUnitPriceCents: entry.priceLowered && targetMeal ? targetMeal.priceCents : null,
         },
         payload: {
           kind: 'item_removed',
           weeklyMenuId: menu.id,
-          menuItemId: item.id,
-          targetItemId: target?.id ?? null,
+          // Ids of meals (never deleted), not of the item: it may be deleted below.
+          date: item.date,
+          mealId: item.mealId,
+          targetMealId: target?.mealId ?? null,
           orderIds: entry.orderIds,
+          priceLowered: entry.priceLowered,
         },
         dedupeKey: `menu_change:item:${item.id}`,
       })
@@ -429,7 +470,12 @@ export default class MenuChangeService {
     const notices: Notice[] = [...recipients.values()].map((recipient) => ({
       recipient,
       data: { kind: 'default_changed', weeklyMenuId: menu.id, date, mealId: item.mealId },
-      payload: { kind: 'default_changed', weeklyMenuId: menu.id, menuItemId: item.id },
+      payload: {
+        kind: 'default_changed',
+        weeklyMenuId: menu.id,
+        date: item.date,
+        mealId: item.mealId,
+      },
       dedupeKey: `menu_change:default:${item.id}:${stamp}`,
     }))
     return this.notifier.send(trx, school, 'menu_change', notices)

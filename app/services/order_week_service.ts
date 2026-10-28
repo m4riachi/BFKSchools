@@ -14,6 +14,8 @@ import SchoolSettingsService from '#services/school_settings_service'
 import {
   describeOption,
   evaluate,
+  staffCanOverride,
+  staffMayChangeDate,
   type DayOption,
   type SelectionRules,
 } from '#services/order_window_service'
@@ -29,6 +31,7 @@ export type DayState = 'open' | 'locked' | 'holiday' | 'not_published' | 'no_mea
 
 function stateOf(reason: WindowReason | null): DayState {
   if (reason === null) return 'open'
+  if (reason === 'NOT_SCHOOL_DAY') return 'no_meals'
   if (reason === 'HOLIDAY') return 'holiday'
   if (reason === 'NOT_PUBLISHED') return 'not_published'
   if (reason === 'NO_MEALS') return 'no_meals'
@@ -121,8 +124,12 @@ export default class OrderWeekService {
         now,
         zone,
         menu: menu ? { status: menu.status, orderDeadlineAt: menu.orderDeadlineAt } : null,
-        hasMeals: dayItems.length > 0 && day.state !== 'not_school_day',
+        hasMeals: dayItems.length > 0,
         isHoliday: day.state === 'holiday',
+        isSchoolDay: day.state !== 'not_school_day',
+        staffCancelled:
+          order?.status === 'cancelled' &&
+          (order.cancelReason === 'staff' || order.cancelReason === 'child_inactive'),
         settings,
         child: { isActive: child.isActive },
         parent: { isActive: parent.isActive },
@@ -176,9 +183,19 @@ export default class OrderWeekService {
         order?.status === 'active' ? lines.reduce((sum, line) => sum + line.lineTotalCents, 0) : 0
       return {
         date: day.date,
-        state: day.state === 'not_school_day' ? ('no_meals' as const) : stateOf(decision.reason),
+        state: stateOf(decision.reason),
         reason: decision.reason,
         editable: decision.allowed,
+        // Back-office: what staff may change (time locks overridable, D23
+        // current month only). Computed here so the UI never decides.
+        staffEditable:
+          decision.allowed ||
+          (decision.reason !== null &&
+            staffCanOverride(decision.reason, 'save') &&
+            staffMayChangeDate(day.date, this.clock.today()) &&
+            child.isActive &&
+            parent.isActive &&
+            dayItems.length > 0),
         editableUntil: decision.allowed ? (decision.editableUntil?.toISO() ?? null) : null,
         cutoffAt: decision.cutoffAt.toISO()!,
         holidayNames: day.holidayNames,

@@ -39,7 +39,11 @@ export const staffCancelValidator = vine.create({
   reason: reasonRule(),
 })
 
-/** "Same choice for all my children". */
+/**
+ * "Same choice for all my children". It never confirms an allergy
+ * (`confirmAllergy` is refused by the controller): a child whose allergen
+ * the meal contains gets an error and is ordered for separately.
+ */
 export const applyAllValidator = vine.create({
   ...selectionFields,
   absent: vine.boolean().optional(),
@@ -70,4 +74,6 @@ export const adminOrderListValidator = vine.create({
 export const menuItemRemovalValidator = vine.create({
   mode: vine.enum(['switch', 'cancel'] as const).optional(),
   targetItemId: idRule().optional(),
+  /** Affected orders shown on the impact page (refused if more exist now). */
+  confirmedCount: vine.number().withoutDecimals().range([0, 1_000_000]).optional(),
 })

@@ -54,8 +54,8 @@ const title = computed(() =>
 )
 const absent = computed(() => props.day.order?.status === 'cancelled')
 /** Staff may override time locks; structural locks stay closed. */
-const editable = computed(
-  () => props.day.editable || (props.mode === 'staff' && props.day.state === 'locked')
+const editable = computed(() =>
+  props.mode === 'staff' ? props.day.staffEditable : props.day.editable
 )
 const mains = computed(() => props.day.options.filter((o) => o.type === 'subscription'))
 const extras = computed(() => props.day.options.filter((o) => o.type === 'supplement'))

@@ -18,6 +18,7 @@ import {
   checkSelection,
   evaluate,
   staffCanOverride,
+  staffMayChangeDate,
   type DayOption,
   type SelectionRequest,
   type SelectionRules,
@@ -26,7 +27,7 @@ import {
 import OrderRuleException from '#exceptions/order_rule_exception'
 import { STAFF_ROLES } from '#enums/roles'
 import type { AuditAction, CancelReason, WindowReason } from '#enums/orders'
-import { isIsoDate, weekStart, type IsoDate } from '#support/dates'
+import { isIsoDate, isSchoolDay, weekStart, type IsoDate } from '#support/dates'
 import { schoolZone } from '#support/menu_display'
 
 /** A logged-in user acting on an order (parent of the child, or staff of the school). */
@@ -66,6 +67,8 @@ type DayContext = {
   order: MealOrder | null
   items: MenuItem[]
   isHoliday: boolean
+  isSchoolDay: boolean
+  date: IsoDate
   decision: WindowDecision
   staff: boolean
 }
@@ -175,6 +178,12 @@ export default class OrderService {
           .orderBy('id')
       : []
     const isHoliday = await this.holidays.isHoliday(school.id, date, trx)
+    // Same rule as MenuCalendar: a school weekday inside the school year.
+    const schoolDay = isSchoolDay(date, {
+      schoolDays: school.schoolDays,
+      schoolYearStart: school.schoolYearStart,
+      schoolYearEnd: school.schoolYearEnd,
+    })
     const decision = evaluate({
       date,
       now: this.clock.now(),
@@ -182,6 +191,10 @@ export default class OrderService {
       menu: menu ? { status: menu.status, orderDeadlineAt: menu.orderDeadlineAt } : null,
       hasMeals: items.length > 0,
       isHoliday,
+      isSchoolDay: schoolDay,
+      staffCancelled:
+        order?.status === 'cancelled' &&
+        (order.cancelReason === 'staff' || order.cancelReason === 'child_inactive'),
       settings: this.settings.get(school),
       child: { isActive: child.isActive },
       parent: { isActive: parent.isActive },
@@ -195,6 +208,8 @@ export default class OrderService {
       order,
       items,
       isHoliday,
+      isSchoolDay: schoolDay,
+      date,
       decision,
       staff: isStaff(actor.user),
     }
@@ -210,8 +225,13 @@ export default class OrderService {
     if (decision.allowed) return false
     const reason = decision.reason as WindowReason
     if (!context.staff || !staffCanOverride(reason, action)) throw new OrderRuleException(reason)
+    // D23: staff only change dates of the current month (school zone) or later.
+    if (!staffMayChangeDate(context.date, this.clock.today())) {
+      throw new OrderRuleException('STAFF_PERIOD_CLOSED')
+    }
     // Structural locks hidden behind a time lock (evaluate() stops at the
     // first reason): a past holiday, a past week never published, …
+    if (!context.isSchoolDay) throw new OrderRuleException('NOT_SCHOOL_DAY')
     if (context.isHoliday) throw new OrderRuleException('HOLIDAY')
     if (!context.menu || !['published', 'closed'].includes(context.menu.status)) {
       throw new OrderRuleException('NOT_PUBLISHED')

@@ -9,7 +9,9 @@
     "AFTER_CUTOFF": "Modifications closes pour ce jour (la cuisine prépare les repas)",
     "EDITS_DISABLED": "Les commandes de la semaine sont closes",
     "SAME_DAY_ONLY": "Après la clôture, seul le repas du jour peut être modifié, avant l'heure limite",
-    "NO_SUBSCRIPTION": "Pas d'abonnement actif à cette date"
+    "NO_SUBSCRIPTION": "Pas d'abonnement actif à cette date",
+    "NOT_SCHOOL_DAY": "Pas un jour d’école",
+    "CANCELLED_BY_STAFF": "Annulé par BFK : contactez BFK pour le rouvrir"
   },
   "errors": {
     "EMPTY_SELECTION": "Choisissez un plat ou un supplément, ou indiquez « pas de repas ce jour ».",
@@ -24,7 +26,9 @@
     "ALLERGY_BLOCKED": "Ce plat contient un allergène de votre enfant : il ne peut pas être choisi.",
     "ALLERGY_CONFIRM_REQUIRED": "Ce plat contient un allergène de votre enfant : confirmez votre choix.",
     "NOT_FOUND": "Enfant introuvable.",
-    "REASON_REQUIRED": "Indiquez la raison de la modification."
+    "REASON_REQUIRED": "Indiquez la raison de la modification.",
+    "STAFF_PERIOD_CLOSED": "Seuls les jours du mois en cours (ou à venir) peuvent être modifiés, même par l’équipe BFK.",
+    "APPLY_ALL_NO_CONFIRM": "« Même choix pour tous » ne confirme pas les allergies : choisissez ce plat enfant par enfant."
   },
   "flash": {
     "saved": "Choix enregistré.",
@@ -46,7 +50,8 @@
     "holiday": "Jour férié",
     "menu_change": "Changement de menu",
     "staff": "Annulé par BFK",
-    "child_inactive": "Enfant désactivé"
+    "child_inactive": "Enfant désactivé",
+    "subscription_ended": "Abonnement terminé"
   },
   "statuses": {
     "active": "Commandé",

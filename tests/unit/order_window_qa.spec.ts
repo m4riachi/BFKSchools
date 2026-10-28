@@ -25,6 +25,7 @@ function run(o: Partial<Omit<WindowInput, 'settings'>> & { settings?: Partial<S>
     menu: { status: 'published', orderDeadlineAt: L('2026-11-29T20:00') }, // Sun 20:00 local
     hasMeals: true,
     isHoliday: false,
+    isSchoolDay: true,
     child: { isActive: true },
     parent: { isActive: true },
     ...o,

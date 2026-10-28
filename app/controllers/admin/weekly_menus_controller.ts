@@ -348,13 +348,15 @@ export default class WeeklyMenusController {
     const school = await this.school(ctx)
     const menu = await this.menu(ctx, school)
     const input = await request.validateUsing(menuItemRemovalValidator)
+    // From the impact page the admin confirmed this many orders (0 if absent).
+    const confirmedCount = input.confirmedCount ?? 0
     const resolution =
       input.mode === 'switch'
         ? input.targetItemId
-          ? { mode: 'switch' as const, targetItemId: input.targetItemId }
+          ? { mode: 'switch' as const, targetItemId: input.targetItemId, confirmedCount }
           : null
         : input.mode === 'cancel'
-          ? { mode: 'cancel' as const }
+          ? { mode: 'cancel' as const, confirmedCount }
           : null
     if (input.mode === 'switch' && !input.targetItemId) {
       throw new BusinessRuleException('menus.errors.switch_target', { field: 'targetItemId' })

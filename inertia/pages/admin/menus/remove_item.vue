@@ -55,8 +55,8 @@ const day = computed(() =>
 function submit() {
   const data: Record<string, any> = props.affected.length
     ? mode.value === 'switch'
-      ? { mode: 'switch', targetItemId: target.value }
-      : { mode: 'cancel' }
+      ? { mode: 'switch', targetItemId: target.value, confirmedCount: props.affected.length }
+      : { mode: 'cancel', confirmedCount: props.affected.length }
     : {}
   router.delete(`/admin/menus/${props.week}/items/${props.item.id}`, {
     data,

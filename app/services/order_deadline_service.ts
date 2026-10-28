@@ -10,7 +10,20 @@ import MenuCalendar from '#services/menu_calendar'
 import SchoolSettingsService from '#services/school_settings_service'
 import OrderAuditService, { orderSnapshot } from '#services/order_audit_service'
 import OrderNotifier, { type Notice } from '#services/order_notifier'
-import { allergyConflicts } from '#services/order_window_service'
+import { allergyConflicts, cutoffFor } from '#services/order_window_service'
+import { schoolZone } from '#support/menu_display'
+import type { DateTime } from 'luxon'
+
+/**
+ * A deadline run later than this after `order_deadline_at` (cron stopped)
+ * no longer assigns days whose cutoff has passed (L7). The job runs every
+ * 5 minutes, so an on-time run is always inside it.
+ */
+export const LATE_RUN_GRACE_MINUTES = 30
+
+function latest(a: DateTime, b: DateTime) {
+  return a >= b ? a : b
+}
 import type { IsoDate } from '#support/dates'
 
 export type ReminderOutcome = { menuId: number; parents: number; emails: number }
@@ -24,6 +37,8 @@ export type DeadlineDayReport = {
     mealUnavailable?: boolean
     soldOut?: number
     allergy?: number
+    /** The job ran after the day's cutoff (and the deadline grace). */
+    cutoffPassed?: boolean
   }
 }
 
@@ -243,9 +258,22 @@ export default class OrderDeadlineService {
       if (outcome.autoAssign) {
         const today = this.clock.today()
         const openDates = await this.openDatesWithMeals(trx, school, menu)
-        const dates = openDates.filter((d) => d >= today)
+        const settings = this.settings.get(school)
+        const zone = schoolZone(school)
         const notices = new Map<number, { childName: string; date: IsoDate; mealId: number }[]>()
-        for (const date of dates) {
+        for (const date of openDates.filter((d) => d >= today)) {
+          // L7: a late run (cron stopped) must not add meals to a day the
+          // kitchen already locked. A day whose cutoff falls before the
+          // deadline (D5: Monday's cutoff Sunday 18:00 < deadline 20:00) is
+          // still assigned when the job runs on time (within the grace).
+          const lock = latest(
+            cutoffFor(date, settings, zone),
+            menu.orderDeadlineAt.plus({ minutes: LATE_RUN_GRACE_MINUTES })
+          )
+          if (now >= lock) {
+            outcome.days.push({ date, assigned: 0, skipped: { cutoffPassed: true } })
+            continue
+          }
           const report = await this.assignDay(trx, school, menu, date, notices)
           outcome.days.push(report)
           outcome.assigned += report.assigned
@@ -305,8 +333,9 @@ export default class OrderDeadlineService {
       return report
     }
 
-    const result = await trx.rawQuery(
-      `SELECT c.id, c.parent_id, c.first_name, c.allergies
+    const candidateSql = (ids: number[] | null) =>
+      trx.rawQuery(
+        `SELECT c.id, c.parent_id, c.first_name, c.allergies
          FROM children c
          JOIN users u ON u.id = c.parent_id
         WHERE c.school_id = ? AND c.is_active
@@ -316,10 +345,27 @@ export default class OrderDeadlineService {
              WHERE s.child_id = c.id AND s.status = 'active'
                AND s.start_date <= ?::date AND (s.end_date IS NULL OR s.end_date >= ?::date))
           AND NOT EXISTS (SELECT 1 FROM meal_orders o WHERE o.child_id = c.id AND o.date = ?::date)
+          ${ids ? 'AND c.id = ANY(?::int[])' : ''}
         ORDER BY c.id`,
-      [school.id, date, date, date]
-    )
-    let candidates: Candidate[] = result.rows
+        ids ? [school.id, date, date, date, ids] : [school.id, date, date, date]
+      )
+    const first = await candidateSql(null)
+    const found: Candidate[] = first.rows
+    if (!found.length) return report
+    // N4: lock the candidates FOR SHARE (id order) so a deactivation can't
+    // commit in between, then re-read who still qualifies (active child and
+    // parent, covering subscription, no order row).
+    await trx
+      .from('children')
+      .whereIn(
+        'id',
+        found.map((child) => child.id)
+      )
+      .orderBy('id')
+      .forShare()
+      .select('id')
+    const recheck = await candidateSql(found.map((child) => child.id))
+    let candidates: Candidate[] = recheck.rows
     const safe = candidates.filter(
       (child) => allergyConflicts(meal.allergens ?? [], child.allergies ?? []).length === 0
     )

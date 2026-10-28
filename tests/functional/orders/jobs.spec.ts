@@ -369,13 +369,23 @@ test.group('Orders jobs | published menu changes (D18)', (group) => {
       .delete(`/admin/menus/2026-11-23/items/${item.id}`)
       .loginAs(manager)
       .withCsrfToken()
-      .json({ mode: 'switch', targetItemId: altItem.id })
+      .json({ mode: 'switch', targetItemId: altItem.id, confirmedCount: 2 })
       .redirects(0)
     const switched = (await orderOf(a.child, TUE))!
     assert.equal(switched.status, 'active')
+    // D25: the new meal costs more (50 MAD) → the parent keeps 45 MAD.
     assert.deepEqual(
       switched.items.map((i) => [i.menuItemId, i.unitPriceCents]),
-      [[altItem.id, 5000]]
+      [[altItem.id, 4500]]
+    )
+    const switchAudit = await OrderAuditLog.query()
+      .where('child_id', a.child.id)
+      .where('action', 'menu_change_switch')
+      .firstOrFail()
+    assert.equal(switchAudit.before!.items[0].unitPriceCents, 4500)
+    assert.deepEqual(
+      switchAudit.after!.items.map((i) => [i.menuItemId, i.unitPriceCents]),
+      [[altItem.id, 4500]]
     )
     const lost = (await orderOf(allergic.child, TUE))!
     assert.equal(lost.status, 'cancelled')
@@ -396,7 +406,14 @@ test.group('Orders jobs | published menu changes (D18)', (group) => {
       ['menu_change_cancel', 'menu_change_switch']
     )
     assert.lengthOf(await Notification.query().where('type', 'menu_change'), 2)
-    assert.lengthOf(await OutboundEmail.query().where('mail_key', 'menu_change'), 2)
+    const changeEmails = await OutboundEmail.query().where('mail_key', 'menu_change')
+    assert.lengthOf(changeEmails, 2)
+    // The removed item is deleted: the email still renders (meal ids in the payload).
+    const { buildOutboxMail } = await import('#mails/outbox_registry')
+    for (const email of changeEmails) {
+      const built = await buildOutboxMail(email)
+      assert.property(built, 'mail', JSON.stringify(built))
+    }
   })
 
   test('cancel mode removes an extra; empty orders are cancelled', async ({ assert }) => {

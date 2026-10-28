@@ -48,11 +48,11 @@ export default class ChildrenController {
     })
   }
 
-  async update({ params, request, response, bouncer, session, i18n }: HttpContext) {
+  async update({ params, request, response, bouncer, session, i18n, auth }: HttpContext) {
     const { parent, child } = await this.findChild(params.parentId, params.id)
     await bouncer.with('ChildPolicy').authorize('manage', child)
     const input = await request.validateUsing(childValidator)
-    await this.children.update(child, input)
+    await this.children.update(child, input, auth.getUserOrFail())
     session.flash('success', i18n.t('families.flash.child_updated', { name: child.fullName }))
     return response.redirect(`/admin/parents/${parent.id}/children/${child.id}/edit`)
   }

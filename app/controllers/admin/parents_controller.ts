@@ -134,10 +134,10 @@ export default class ParentsController {
     return response.redirect(`/admin/parents/${parent.id}`)
   }
 
-  async deactivate({ params, response, bouncer, session, i18n }: HttpContext) {
+  async deactivate({ params, response, bouncer, session, i18n, auth }: HttpContext) {
     const parent = await this.findParent(params.id)
     await bouncer.with('ParentPolicy').authorize('manage', parent)
-    await this.parents.deactivate(parent)
+    await this.parents.deactivate(parent, auth.getUserOrFail())
     session.flash('success', i18n.t('families.flash.parent_deactivated'))
     return response.redirect(`/admin/parents/${parent.id}`)
   }

@@ -52,7 +52,8 @@
     "check": "Vous pouvez vérifier ou modifier vos choix dans l'espace parents, tant que le jour est ouvert.",
     "default_changed": "Le plat par défaut du {date} est maintenant « {meal} ».",
     "default_note": "Il sera servi à la clôture aux enfants abonnés sans choix pour ce jour.",
-    "action": "Voir mes commandes"
+    "action": "Voir mes commandes",
+    "price_lowered": "Le prix de ce repas passe à {price}."
   },
   "order_changed_by_staff": {
     "subject": "Commande de {child} modifiée par BFK",
@@ -61,5 +62,17 @@
     "cancelled": "Ce jour est maintenant sans repas.",
     "line": "{meal} × {qty}",
     "action": "Voir mes commandes"
+  },
+  "order_bulk_child_inactive": {
+    "subject": "{count, plural, one {# repas annulé : inscription désactivée} other {# repas annulés : inscription désactivée}}",
+    "title": "{count, plural, one {Un repas annulé} other {# repas annulés}}",
+    "action": "Voir mes commandes",
+    "intro": "{count, plural, one {Ce repas a été annulé car l’inscription de votre enfant a été désactivée :} other {Ces # repas ont été annulés car l’inscription de votre enfant a été désactivée :}}"
+  },
+  "order_bulk_subscription_ended": {
+    "subject": "{count, plural, one {Abonnement terminé : # jour modifié} other {Abonnement terminé : # jours modifiés}}",
+    "title": "{count, plural, one {Un jour modifié} other {# jours modifiés}}",
+    "action": "Voir mes commandes",
+    "intro": "{count, plural, one {L’abonnement ne couvre plus ce jour : le plat principal a été retiré :} other {L’abonnement ne couvre plus ces # jours : le plat principal a été retiré :}}"
   }
 }

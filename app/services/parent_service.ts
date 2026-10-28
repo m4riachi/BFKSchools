@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import User from '#models/user'
 import Clock from '#services/clock'
 import UserTokenService from '#services/user_token_service'
+import OrderCancellationService from '#services/order_cancellation_service'
 import { revokeRememberMeTokens } from '#services/account_security_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import type { AccessStatus, ParentFilter } from '#enums/parents'
@@ -32,7 +33,8 @@ function likePattern(search: string) {
 export default class ParentService {
   constructor(
     protected clock: Clock,
-    protected tokens: UserTokenService
+    protected tokens: UserTokenService,
+    protected cancellations: OrderCancellationService
   ) {}
 
   /**
@@ -168,13 +170,29 @@ export default class ParentService {
    * end on the next request (credentials version bump), remember-me tokens
    * and open links are deleted/revoked.
    */
-  async deactivate(parent: User) {
+  async deactivate(parent: User, actor: User | null = null) {
     this.assertParent(parent)
     if (!parent.isActive) return parent
     await db.transaction(async (trx) => {
+      // Their children's future orders are cancelled (child_inactive).
+      // Lock order as in OrderService: school, then children, then orders.
+      if (typeof parent.schoolId === 'number') {
+        await trx.from('schools').where('id', parent.schoolId).forShare().select('id')
+      }
+      const children = await trx
+        .from('children')
+        .where('parent_id', parent.id)
+        .orderBy('id')
+        .forUpdate()
+        .select('id')
       parent.useTransaction(trx)
       parent.isActive = false
       await parent.save()
+      await this.cancellations.cancelFutureOrders(
+        trx,
+        children.map((row) => Number(row.id)),
+        actor
+      )
       await this.tokens.revokeOpen(parent.id, trx)
       await revokeRememberMeTokens(parent.id, trx)
     })

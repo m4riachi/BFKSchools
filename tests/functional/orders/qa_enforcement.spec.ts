@@ -200,11 +200,17 @@ test.group('QA | deadline job edge cases', (group) => {
     const dates = (await MealOrder.query().where('child_id', child.id).orderBy('date')).map(
       (o) => o.date
     )
-    assert.deepEqual(dates, [WED, THU, '2026-11-27'])
+    // L7: Wednesday's cutoff (Tue 18:00) has passed too → skipped and reported.
+    assert.deepEqual(dates, [THU, '2026-11-27'])
+    if (first.acquired) {
+      assert.deepEqual(first.result[0].days.find((d) => d.date === WED)?.skipped, {
+        cutoffPassed: true,
+      })
+    }
     const second = await (await jobs()).applyDeadline()
     if (second.acquired) assert.lengthOf(second.result, 0)
-    assert.lengthOf(await MealOrder.query().where('child_id', child.id), 3)
-    assert.lengthOf(await OrderAuditLog.query().where('child_id', child.id), 3)
+    assert.lengthOf(await MealOrder.query().where('child_id', child.id), 2)
+    assert.lengthOf(await OrderAuditLog.query().where('child_id', child.id), 2)
   })
 
   test('the deadline job does not touch an unpublished (scheduled) week', async ({ assert }) => {

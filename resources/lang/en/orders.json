@@ -9,7 +9,9 @@
     "AFTER_CUTOFF": "Changes closed for this day (the kitchen is preparing)",
     "EDITS_DISABLED": "Ordering for this week is closed",
     "SAME_DAY_ONLY": "After the deadline, only today's meal can be changed, before the cutoff time",
-    "NO_SUBSCRIPTION": "No active subscription on this date"
+    "NO_SUBSCRIPTION": "No active subscription on this date",
+    "NOT_SCHOOL_DAY": "Not a school day",
+    "CANCELLED_BY_STAFF": "Cancelled by BFK: contact BFK to reopen it"
   },
   "errors": {
     "EMPTY_SELECTION": "Choose a meal or an extra, or select \"no meal this day\".",
@@ -24,7 +26,9 @@
     "ALLERGY_BLOCKED": "This meal contains one of your child's allergens: it can't be selected.",
     "ALLERGY_CONFIRM_REQUIRED": "This meal contains one of your child's allergens: please confirm.",
     "NOT_FOUND": "Child not found.",
-    "REASON_REQUIRED": "Give the reason for the change."
+    "REASON_REQUIRED": "Give the reason for the change.",
+    "STAFF_PERIOD_CLOSED": "Only days of the current month (or later) can be changed, even by BFK staff.",
+    "APPLY_ALL_NO_CONFIRM": "\"Same choice for all\" never confirms allergies: choose this meal child by child."
   },
   "flash": {
     "saved": "Choice saved.",
@@ -46,7 +50,8 @@
     "holiday": "Holiday",
     "menu_change": "Menu change",
     "staff": "Cancelled by BFK",
-    "child_inactive": "Child deactivated"
+    "child_inactive": "Child deactivated",
+    "subscription_ended": "Subscription ended"
   },
   "statuses": {
     "active": "Ordered",

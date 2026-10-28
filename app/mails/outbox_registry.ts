@@ -5,7 +5,6 @@ import WeeklyMenu from '#models/weekly_menu'
 import type OutboundEmail from '#models/outbound_email'
 import MenuPublishedMail from '#mails/menu_published_mail'
 import OrderNoticeMail, { type OrderNoticeContent } from '#mails/order_notice_mail'
-import MenuItem from '#models/menu_item'
 import OrderAuditLog from '#models/order_audit_log'
 import Meal from '#models/meal'
 import db from '@adonisjs/lucid/services/db'
@@ -13,8 +12,10 @@ import i18nManager from '@adonisjs/i18n/services/main'
 import app from '@adonisjs/core/services/app'
 import Clock from '#services/clock'
 import { isSafeEmail } from '#validators/rules'
+import { isIsoDate } from '#support/dates'
 import { isAppLocale, type AppLocale } from '#enums/locales'
 import { mealName } from '#support/meal_display'
+import { formatMad } from '#support/money'
 import { dayLabel, instantLabel, schoolZone, weekRangeLabel } from '#support/menu_display'
 
 /**
@@ -153,13 +154,14 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
   },
 
   async menu_change(row, recipient) {
-    const itemId = positiveId(row.payload.menuItemId)
-    const item = itemId ? await MenuItem.query().where('id', itemId).preload('meal').first() : null
-    if (!item) return { skip: 'item_unavailable' }
+    const mealId = positiveId(row.payload.mealId)
+    const changedMeal = mealId ? await Meal.find(mealId) : null
+    const day = row.payload.date
+    if (!changedMeal || !isIsoDate(day)) return { skip: 'meal_unavailable' }
     const locale = localeOf(row)
     const i18n = i18nManager.locale(locale)
-    const date = dayLabel(item.date, locale)
-    const meal = mealName(item.meal, locale)
+    const date = dayLabel(day, locale)
+    const meal = mealName(changedMeal, locale)
     if (row.payload.kind === 'default_changed') {
       return {
         mail: new OrderNoticeMail(
@@ -174,9 +176,8 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
     }
     const orders = await ordersOfRecipient(recipient.id, positiveIds(row.payload.orderIds))
     if (!orders.length) return { skip: 'orders_unavailable' }
-    const targetId = positiveId(row.payload.targetItemId)
-    const target = targetId ? await MenuItem.find(targetId) : null
-    const targetMeal = target ? await Meal.find(target.mealId) : null
+    const targetMealId = positiveId(row.payload.targetMealId)
+    const targetMeal = targetMealId ? await Meal.find(targetMealId) : null
     const children = [...new Set(orders.map((order) => order.childName))].join(', ')
     const paragraphs = [i18n.t('emails.menu_change.item_removed', { date, meal })]
     paragraphs.push(
@@ -184,6 +185,14 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
         ? i18n.t('emails.menu_change.switched', { meal: mealName(targetMeal, locale), children })
         : i18n.t('emails.menu_change.cancelled', { children })
     )
+    // D25: the price is mentioned only when it went down.
+    if (targetMeal && row.payload.priceLowered === true) {
+      paragraphs.push(
+        i18n.t('emails.menu_change.price_lowered', {
+          price: formatMad(targetMeal.priceCents, locale),
+        })
+      )
+    }
     paragraphs.push(i18n.t('emails.menu_change.check'))
     return {
       mail: new OrderNoticeMail(
@@ -195,6 +204,31 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
   },
 
   async order_changed_by_staff(row, recipient) {
+    // Bulk variant: a child (or parent) deactivated / a subscription ended.
+    // Own subject/title with the count; every child and day in the body.
+    if (row.payload.kind === 'child_inactive' || row.payload.kind === 'subscription_ended') {
+      const orders = await ordersOfRecipient(recipient.id, positiveIds(row.payload.orderIds))
+      if (!orders.length) return { skip: 'orders_unavailable' }
+      const locale = localeOf(row)
+      const i18n = i18nManager.locale(locale)
+      const key = `order_bulk_${String(row.payload.kind)}`
+      const count = orders.length
+      return {
+        mail: new OrderNoticeMail(
+          recipient,
+          locale,
+          notice(row, recipient, key, { count }, [
+            i18n.t(`emails.${key}.intro`, { count }),
+            ...orders.map((order) =>
+              i18n.t('emails.order_line', {
+                child: order.childName,
+                date: dayLabel(order.date, locale),
+              })
+            ),
+          ])
+        ),
+      }
+    }
     const auditId = positiveId(row.payload.auditId)
     const audit = auditId ? await OrderAuditLog.find(auditId) : null
     if (!audit) return { skip: 'audit_unavailable' }

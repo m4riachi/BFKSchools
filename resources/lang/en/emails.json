@@ -52,7 +52,8 @@
     "check": "You can check or change your choices in the parent portal while the day is open.",
     "default_changed": "The default meal on {date} is now \"{meal}\".",
     "default_note": "It will be served at the deadline to subscribed children without a choice for that day.",
-    "action": "See my orders"
+    "action": "See my orders",
+    "price_lowered": "The price of this meal is now {price}."
   },
   "order_changed_by_staff": {
     "subject": "{child}'s order changed by BFK",
@@ -61,5 +62,17 @@
     "cancelled": "This day now has no meal.",
     "line": "{meal} × {qty}",
     "action": "See my orders"
+  },
+  "order_bulk_child_inactive": {
+    "subject": "{count, plural, one {# meal cancelled: registration deactivated} other {# meals cancelled: registration deactivated}}",
+    "title": "{count, plural, one {One meal cancelled} other {# meals cancelled}}",
+    "action": "See my orders",
+    "intro": "{count, plural, one {This meal was cancelled because your child's registration was deactivated:} other {These # meals were cancelled because your child's registration was deactivated:}}"
+  },
+  "order_bulk_subscription_ended": {
+    "subject": "{count, plural, one {Subscription ended: # day changed} other {Subscription ended: # days changed}}",
+    "title": "{count, plural, one {One day changed} other {# days changed}}",
+    "action": "See my orders",
+    "intro": "{count, plural, one {The subscription no longer covers this day: the main meal was removed:} other {The subscription no longer covers these # days: the main meal was removed:}}"
   }
 }

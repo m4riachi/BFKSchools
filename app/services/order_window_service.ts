@@ -33,6 +33,13 @@ export type WindowInput = {
   /** The day has at least one (not removed) menu item. */
   hasMeals: boolean
   isHoliday: boolean
+  /** School weekday inside the school year (same rule as MenuCalendar). */
+  isSchoolDay: boolean
+  /**
+   * The day's order was cancelled by staff (`staff`) or for an inactive
+   * child (`child_inactive`): only staff can re-open it (D24).
+   */
+  staffCancelled?: boolean
   settings: WindowSettings
   child: { isActive: boolean }
   parent: { isActive: boolean }
@@ -69,8 +76,10 @@ function latest(a: DateTime, b: DateTime) {
 /**
  * Can the parent create / change / cancel the order of `date` right now?
  * Brief §5.6 is the source of truth; rules, in this order:
- * 1. locked when the day is past, a holiday, not on a published menu (or
- *    the published day has no meals), or the child or parent is inactive;
+ * 1. locked when the day is past, not a school day (weekday or school
+ *    year), a holiday, not on a published menu (or the published day has
+ *    no meals), the child or parent is inactive, or staff cancelled the
+ *    day (D24);
  * 2. before the week's `order_deadline_at`: free (create, change, cancel);
  * 3. after it: only with `allow_parent_edits`, then
  *    - `until_cutoff` → until the day's cutoff
@@ -96,10 +105,12 @@ export function evaluate(input: WindowInput): WindowDecision {
 
   // 1. Locked days
   if (date < today) return refuse('PAST_DAY')
+  if (!input.isSchoolDay) return refuse('NOT_SCHOOL_DAY')
   if (input.isHoliday) return refuse('HOLIDAY')
   if (!menu || menu.status !== 'published' || !deadline) return refuse('NOT_PUBLISHED')
   if (!input.hasMeals) return refuse('NO_MEALS')
   if (!input.child.isActive || !input.parent.isActive) return refuse('INACTIVE')
+  if (input.staffCancelled) return refuse('CANCELLED_BY_STAFF')
 
   // 2. Before the deadline: free. Announced end of the window: the later of
   // the deadline and the cutoff when changes stay open until the cutoff,
@@ -124,13 +135,28 @@ export function evaluate(input: WindowInput): WindowDecision {
 
 /**
  * Reasons staff (admin/manager) may override, with a mandatory reason that
- * is audited. Structural locks (holiday, nothing published, no meals) can't
- * be overridden: there is nothing to order. An inactive child or parent can
- * only be cancelled for, not ordered for.
+ * is audited. Structural locks (not a school day, holiday, nothing
+ * published, no meals) can't be overridden: there is nothing to order. An
+ * inactive child or parent can only be cancelled for, not ordered for.
+ * A day cancelled by staff (D24) is re-opened by staff.
  */
 export function staffCanOverride(reason: WindowReason, action: 'save' | 'cancel'): boolean {
-  if (['PAST_DAY', 'AFTER_CUTOFF', 'EDITS_DISABLED', 'SAME_DAY_ONLY'].includes(reason)) return true
+  if (
+    ['PAST_DAY', 'AFTER_CUTOFF', 'EDITS_DISABLED', 'SAME_DAY_ONLY', 'CANCELLED_BY_STAFF'].includes(
+      reason
+    )
+  ) {
+    return true
+  }
   return action === 'cancel' && reason === 'INACTIVE'
+}
+
+/**
+ * D23: staff change orders only for dates of the current calendar month
+ * (school time zone) or later; older dates are refused even for admins.
+ */
+export function staffMayChangeDate(date: IsoDate, today: IsoDate): boolean {
+  return date >= `${today.slice(0, 7)}-01`
 }
 
 /* ------------------------------------------------------------------------ */
@@ -339,6 +365,7 @@ export default class OrderWindowService {
   static checkSelection = checkSelection
   static describeOption = describeOption
   static staffCanOverride = staffCanOverride
+  static staffMayChangeDate = staffMayChangeDate
   static cutoffFor = cutoffFor
   static allergyConflicts = allergyConflicts
 }
