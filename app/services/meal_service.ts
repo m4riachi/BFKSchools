@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import type { QueryClientContract } from '@adonisjs/lucid/types/database'
 import i18nManager from '@adonisjs/i18n/services/main'
 import Meal from '#models/meal'
 import type User from '#models/user'
@@ -95,13 +96,26 @@ export default class MealService {
     })
   }
 
+  /**
+   * The meal row is locked `FOR UPDATE` while the type lock is checked and
+   * the change saved; MenuBuilderService takes the same row `FOR SHARE` when
+   * it adds the meal to a menu or a template. The two can't interleave, so a
+   * meal never changes type (or becomes inactive) under a menu item that is
+   * being inserted. Returns the saved (fresh) row.
+   */
   async update(meal: Meal, input: MealInput): Promise<Meal> {
-    if (input.type !== meal.type && (await this.isUsedOnMenus(meal.id))) {
-      throw new BusinessRuleException('meals.errors.type_locked', { field: 'type' })
-    }
-    meal.merge({ ...this.attributes(input), isActive: input.isActive ?? meal.isActive })
-    await meal.save()
-    return meal
+    return db.transaction(async (trx) => {
+      const locked = await Meal.query({ client: trx })
+        .where('id', meal.id)
+        .forUpdate()
+        .firstOrFail()
+      if (input.type !== locked.type && (await this.isUsedOnMenus(locked.id, trx))) {
+        throw new BusinessRuleException('meals.errors.type_locked', { field: 'type' })
+      }
+      locked.merge({ ...this.attributes(input), isActive: input.isActive ?? locked.isActive })
+      await locked.save()
+      return locked
+    })
   }
 
   /**
@@ -146,20 +160,25 @@ export default class MealService {
    * through order/statement relations. Photos and their files are kept.
    */
   async softDelete(meal: Meal) {
+    await db.transaction(async (trx) => {
+      const locked = await Meal.query({ client: trx })
+        .where('id', meal.id)
+        .forUpdate()
+        .firstOrFail()
+      locked.merge({ deletedAt: this.clock.now(), isActive: false })
+      await locked.save()
+    })
     meal.merge({ deletedAt: this.clock.now(), isActive: false })
-    await meal.save()
   }
 
   /**
-   * Whether the meal appears on a weekly menu or a menu template
-   * (docs/ERD.md: `meals.type` is locked once it does). The menu tables are
-   * created in Phase 5; until they exist the answer is "no".
+   * Whether the meal appears on a weekly menu (any status, removed items
+   * included) or a menu template (docs/ERD.md: `meals.type` is locked once
+   * it does).
    */
-  async isUsedOnMenus(mealId: number): Promise<boolean> {
+  async isUsedOnMenus(mealId: number, client: QueryClientContract = db.connection()) {
     for (const table of ['menu_items', 'menu_template_items']) {
-      const exists = await db.rawQuery('SELECT to_regclass(?) AS name', [`public.${table}`])
-      if (!exists.rows[0]?.name) continue
-      const used = await db.from(table).where('meal_id', mealId).select('meal_id').first()
+      const used = await client.from(table).where('meal_id', mealId).select('meal_id').first()
       if (used) return true
     }
     return false

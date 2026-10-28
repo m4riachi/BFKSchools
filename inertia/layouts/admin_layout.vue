@@ -24,12 +24,12 @@ const nav: NavItem[] = [
   { labelKey: 'nav.dashboard', href: '/admin', icon: 'dashboard', exact: true },
   { labelKey: 'nav.families', href: '/admin/parents', icon: 'families' },
   { labelKey: 'nav.meals', href: '/admin/meals', icon: 'meals' },
-  { labelKey: 'nav.weekly_menus', href: null, icon: 'calendar' },
+  { labelKey: 'nav.weekly_menus', href: '/admin/menus', icon: 'calendar' },
   { labelKey: 'nav.holidays', href: '/admin/holidays', icon: 'holidays' },
   { labelKey: 'nav.orders', href: null, icon: 'orders' },
   { labelKey: 'nav.kitchen', href: '/kitchen', icon: 'kitchen' },
   { labelKey: 'nav.statements', href: null, icon: 'statements' },
-  { labelKey: 'nav.settings', href: null, icon: 'settings', roles: ['admin'] },
+  { labelKey: 'nav.settings', href: '/admin/settings', icon: 'settings', roles: ['admin'] },
 ]
 
 const user = computed(() => page.props.user)

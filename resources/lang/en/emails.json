@@ -17,5 +17,13 @@
     "action": "Choose a new password",
     "expiry": "This link is valid until {date} and can only be used once.",
     "ignore": "If you did not ask for this, ignore this email: your password will not change."
+  },
+  "menu_published": {
+    "subject": "The menu for {week} is online",
+    "title": "Menu for {week}",
+    "intro": "The menu for {week} is published. Choose your children's lunches now.",
+    "deadline": "You can make your choices until {date}.",
+    "action": "Choose the meals",
+    "footer": "You receive this email because your family is registered for BFK school meals at Britech School."
   }
 }

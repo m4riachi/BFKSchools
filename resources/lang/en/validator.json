@@ -84,7 +84,17 @@
       "active": "active",
       "confirmImpact": "confirmation",
       "generateMoroccanHolidays": "Moroccan holidays",
-      "calendar": "calendar"
+      "calendar": "calendar",
+      "mealId": "meal",
+      "maxQuantity": "maximum quantity",
+      "publishAt": "publication",
+      "orderDeadlineAt": "order deadline",
+      "templateId": "template",
+      "description": "description",
+      "schoolDays": "school days",
+      "schoolYearStart": "school year start",
+      "schoolYearEnd": "school year end",
+      "monthlyFee": "monthly fee"
     }
   }
 }

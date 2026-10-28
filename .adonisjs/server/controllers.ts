@@ -13,7 +13,9 @@ export const controllers = {
     MealPhotos: () => import('#controllers/admin/meal_photos_controller'),
     Meals: () => import('#controllers/admin/meals_controller'),
     Parents: () => import('#controllers/admin/parents_controller'),
+    Settings: () => import('#controllers/admin/settings_controller'),
     Subscriptions: () => import('#controllers/admin/subscriptions_controller'),
+    WeeklyMenus: () => import('#controllers/admin/weekly_menus_controller'),
   },
   auth: {
     AccountLinks: () => import('#controllers/auth/account_links_controller'),

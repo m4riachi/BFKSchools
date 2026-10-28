@@ -117,17 +117,34 @@ Rules for every scheduled command:
 2. Idempotent: guarded by state columns (`published_at`, `reminder_sent_at`, `deadline_processed_at`) and/or `dedupe_key` unique constraints.
 3. No overlap: take a PostgreSQL advisory lock (`SELECT pg_try_advisory_lock(<hash of command name>)`) and exit if not acquired.
 
-Production crontab (documented in README, Phase 9):
+**Implemented in Phase 5.** Every scheduled command is a thin Ace command (`commands/*.ts`) calling `MenuJobs` (`app/services/menu_jobs.ts`), which wraps the work in `withAdvisoryLock(<command name>)` (`app/support/advisory_lock.ts`: `pg_try_advisory_xact_lock(hashtext(name))`; a second overlapping run logs "already running; skipped" and exits 0) and reads "now" from `Clock`. All of them are catch-up style and idempotent:
+
+| Command | Schedule | What it does | Idempotency |
+|---|---|---|---|
+| `menus:publish-due` | every 5 min | publishes every `scheduled` menu with `publish_at <= now` (several if runs were missed) **whose week is not over** (`week_start > today − 7` prefilter + exact `weekEndsAt(school zone) > now` check; never announces a past week; a menu published after its order deadline is still published, with a warning); one transaction per menu: lock row, still `scheduled`?, readiness (only "no times / deadline ≤ publish / no open day with meals" block the job — logged and left `scheduled`), `status = published`, `published_at = now`, one `notifications` row + one `outbound_emails` row per active parent of the school with ≥ 1 active child (emails only when `email_notifications.enabled && .menu_published` and the parent's `notification_prefs.menu_published !== false`) | row lock + `status = 'scheduled'` check; dedupe keys `menu_published:<menuId>` (per user) and `menu_published:<menuId>:user:<id>` |
+| `menus:close-past` | daily 02:15 | `published` → `closed` (+ `closed_at`) for weeks whose Sunday is over (`week_start <= today − 7`); `scheduled` menus of such weeks (never published) go back to `draft`, one warning each | status filter |
+| `menus:send-reminders` | every 5 min | **Phase 5 no-op** (reports due menus). Phase 6 implements it — see the INTEGRATION POINT in `MenuJobs.sendReminders` | `reminder_sent_at` |
+| `menus:apply-deadline` | every 5 min | **Phase 5 no-op** (reports due menus). Phase 6 implements it — see `MenuJobs.applyDeadline` | `deadline_processed_at` |
+| `mail:dispatch` | every minute | sends due `outbound_emails` (`pending`, `send_after <= now`, claimed `FOR UPDATE SKIP LOCKED` → `sending`, attempts + 1) within `MAIL_MAX_PER_RUN` (default 50) and `MAIL_MAX_PER_HOUR` (default 250, rolling hour of `sent_at`; **set it to the SMTP host's hourly limit**, D16 pending). Failure → `pending` again after 1/5/15/60 min, `failed` after 5 attempts; recipient deactivated / menu gone / unknown `mail_key` → `failed` with `skipped: <reason>`, never sent. Rows stuck in `sending` > 15 min (crashed run) go back to `pending`. Logs carry the row id, mail key, masked address (`maskEmail`) and an address-free error code (`safeMailError`: `code responseCode command`), never a body | status + `SKIP LOCKED` |
+| `holidays:generate` | daily 02:30 | Phase 4 generator for every school (creates rows only after a new school year is set) | `rule_key` + tombstones |
+
+**Production crontab** (on the server, as the app user; `node ace` runs from the **build folder** — `node ace build` copies `commands/` and `ace.js` there; adjust the path and the Node binary, e.g. `/opt/alt/alt-nodejs24/root/usr/bin/node` on cPanel, `$(which node)` elsewhere). Cron's own time zone doesn't matter (the jobs compare instants with `Clock` in Africa/Casablanca); the two daily lines just run at night server time:
 ```
-*/5 * * * *  cd /app && node ace menus:publish-due
-*/5 * * * *  cd /app && node ace menus:send-reminders
-*/5 * * * *  cd /app && node ace menus:apply-deadline
-*   * * * *  cd /app && node ace mail:dispatch
-15  2 * * *  cd /app && node ace menus:close-past
-30  2 * * *  cd /app && node ace holidays:generate   # daily is fine: idempotent (rule_key + tombstones); creates rows only after a new school year is set
+# BFK School Meals — scheduled jobs (docs/STACK_NOTES.md §7)
+SHELL=/bin/sh
+APP=/home/bfk/app/build
+NODE=/usr/bin/node
+*/5 * * * *  cd $APP && $NODE ace menus:publish-due     >> $APP/../logs/cron.log 2>&1
+*/5 * * * *  cd $APP && $NODE ace menus:send-reminders  >> $APP/../logs/cron.log 2>&1
+*/5 * * * *  cd $APP && $NODE ace menus:apply-deadline  >> $APP/../logs/cron.log 2>&1
+*   * * * *  cd $APP && $NODE ace mail:dispatch         >> $APP/../logs/cron.log 2>&1
+15  2 * * *  cd $APP && $NODE ace menus:close-past      >> $APP/../logs/cron.log 2>&1
+30  2 * * *  cd $APP && $NODE ace holidays:generate     >> $APP/../logs/cron.log 2>&1
 ```
-(`node ace` in production runs from the build folder: `cd build && node ace ...` — Phase 9 confirms.)
-Dev: run commands by hand, or an npm script `scheduler:dev` that loops `node ace <cmd>` every minute. Optional later: `adonisjs-scheduler` if hosted somewhere that allows a resident process.
+(cPanel "Cron Jobs" doesn't accept variables: write the full paths on each line.) The production `.env` must be readable from the build folder (copy it next to `build/bin/server.js`, as for the web process). Each run boots the app (~0.5–1 s) and exits; overlapping runs are harmless (advisory lock). If cron stops, nothing is lost: the next run publishes/sends everything that became due.
+
+**Development:** run a command by hand (`node ace menus:publish-due`, `node ace mail:dispatch`, …) or start **`node ace scheduler:dev`** (also `npm run scheduler:dev`) in a second terminal: it runs the every-5-minutes commands and `mail:dispatch` once a minute and the daily ones at start-up and when the date changes, until Ctrl+C (refused when `NODE_ENV=production`). With `MAIL_MAILER=log` the dispatched emails are written to the log (masked recipient; body with `MAIL_LOG_BODY=true`); with `MAIL_MAILER=smtp` they land in Mailpit. Tests never run cron: they call `MenuJobs` / the commands (`ace.create(Command, []).exec()`) with a frozen `Clock` and the fake mailer.
+Optional later: `adonisjs-scheduler` if hosted somewhere that allows a resident process.
 
 **Queue for emails:** none (see §5 outbox).
 
@@ -169,9 +186,9 @@ Dev: run commands by hand, or an npm script `scheduler:dev` that loops `node ace
 
 ## 11. Environment variables (planned)
 
-`TZ, PORT, HOST, APP_URL, APP_KEY, NODE_ENV, LOG_LEVEL, SESSION_DRIVER, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE, TRUST_PROXY, LIMITER_STORE, DRIVE_DISK, (S3_*), MAIL_MAILER, MAIL_LOG_BODY, SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, MAIL_FROM_ADDRESS, MAIL_FROM_NAME, MAIL_MAX_PER_RUN`
+`TZ, PORT, HOST, APP_URL, APP_KEY, NODE_ENV, LOG_LEVEL, SESSION_DRIVER, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE, TRUST_PROXY, LIMITER_STORE, DRIVE_DISK, (S3_*), MAIL_MAILER, MAIL_LOG_BODY, SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, MAIL_FROM_ADDRESS, MAIL_FROM_NAME, MAIL_MAX_PER_RUN, MAIL_MAX_PER_HOUR`
 
-Phase 1 status: everything up to `MAIL_FROM_NAME` exists in `start/env.ts` and `.env.example` (`TZ` is validated to be exactly `Africa/Casablanca`; `MAIL_MAILER` is `smtp | log`, `log` refused in production; `TRUST_PROXY` and `MAIL_LOG_BODY` optional). `DRIVE_DISK` + optional `S3_*` were added in Phase 3 (see §4); `MAIL_MAX_PER_RUN` comes with Phase 5.
+Phase 1 status: everything up to `MAIL_FROM_NAME` exists in `start/env.ts` and `.env.example` (`TZ` is validated to be exactly `Africa/Casablanca`; `MAIL_MAILER` is `smtp | log`, `log` refused in production; `TRUST_PROXY` and `MAIL_LOG_BODY` optional). `DRIVE_DISK` + optional `S3_*` were added in Phase 3 (see §4); `MAIL_MAX_PER_RUN` and `MAIL_MAX_PER_HOUR` (optional numbers, defaults 50 / 250, `config/outbox.ts`) in Phase 5.
 
 ## Surprises log
 
@@ -198,6 +215,13 @@ Phase 1 status: everything up to `MAIL_FROM_NAME` exists in `start/env.ts` and `
 - 2026-10-28 (Phase 4): **`net.BlockList` matches IPv4 addresses against an IPv6 `::ffff:0:0/96` rule** → adding that subnet blocks all of IPv4. `SafeHttpFetcher` leaves it out and unwraps IPv4-mapped addresses itself (canonical form from `new URL('http://[addr]/').hostname`, e.g. `::ffff:7f00:1`). WHATWG URL already normalizes `https://0x7f.1/` to `127.0.0.1`. The connection is pinned to the vetted address through `https.request`'s `lookup` option (Node may call it with `{ all: true }` → return an array).
 - 2026-10-28 (Phase 4): `vine.file({ extnames })` checks the extension **detected from the content** (file-type sniffing, fallback to the file name): a CSV or plain text renamed `.ics` is refused as `file.extname` before our parser sees it. The `file.extname` message in `validator.json` is CSV-specific (Phase 2), so the ICS upload field is named `calendar` with its own `calendar.file.extname` message.
 - 2026-10-28 (Phase 4): `withAdvisoryLock(name, work)` (`app/support/advisory_lock.ts`) = `pg_try_advisory_xact_lock(hashtext(name))` inside a transaction: no connection pinning, released at commit/rollback. The work itself may use other connections (the lock connection stays open until it finishes). Phase 5 can reuse it for every scheduled command.
+
+- 2026-10-28 (Phase 5): **bulk inserts with `ON CONFLICT … DO NOTHING` on a partial unique index** use `INSERT … SELECT … FROM jsonb_to_recordset(?::jsonb) AS r(col type, …) ON CONFLICT (user_id, dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING RETURNING id` (one bind parameter per batch; the `WHERE` lets PostgreSQL infer the partial index). Used by `NotificationService.notifyMany` and `OutboxService.enqueueMany`; `RETURNING id` counts what was really inserted.
+- 2026-10-28 (Phase 5): Lucid's `rawQuery` bindings type (`StrictValues`) excludes `null` although pg accepts it → cast the array `as RawQueryBindings` (`@adonisjs/lucid/types/querybuilder`). Luxon's `toISO()` is typed `string | null` → `toISO()!` for valid DateTimes.
+- 2026-10-28 (Phase 5): **row locks between the meal catalog and the menus**: `MealService.update`/`softDelete` lock the meal `FOR UPDATE`; `MenuBuilderService` locks the school `FOR SHARE` (holiday writes take it `FOR UPDATE`), the menu `FOR UPDATE`, then each meal `FOR SHARE` (`Meal.query({ client: trx }).withScopes(s => s.offerable()).forShare()`). Under READ COMMITTED a `FOR SHARE` that waited re-checks its `WHERE` on the new row version, so a meal deactivated meanwhile is not found ("meal unavailable"). Tested with two real connections (`truncate()` groups, not global transactions).
+- 2026-10-28 (Phase 5): Ace commands in tests: `import ace from '@adonisjs/core/services/ace'; const command = await ace.create(MenusPublishDue, []); await command.exec(); command.assertSucceeded()`. `this.kernel.exec(name, argv)` runs another command in-process (used by `scheduler:dev`, a `staysAlive` command).
+- 2026-10-28 (Phase 5 QA fix): menu weeks are limited to **years 2000–2100** (`isMonday`, `MENU_YEAR_MIN/MAX` in `app/services/menu_calendar.ts`): `/admin/menus/0001-01-01` used to 500 because prev/next/publish dates left PostgreSQL's date range. Every `:week` route and the `?week=` picker 404/ignore dates outside the window.
+- 2026-10-28 (Phase 5): flashing an object (`session.flash('menuReport', {...})`) works and is read back with `session.flashMessages.get('menuReport')` on the next request (used to show what copy/template skipped). Route params with a custom matcher (`:week` = `YYYY-MM-DD`) answer 404 at the router for other shapes — tests that fill every `/admin` route with `1` must give `week` a date.
 
 ## Holidays — sources (Phase 4)
 

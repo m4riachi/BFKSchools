@@ -17,5 +17,13 @@
     "action": "Choisir un nouveau mot de passe",
     "expiry": "Ce lien est valable jusqu'au {date} et ne peut être utilisé qu'une seule fois.",
     "ignore": "Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe ne changera pas."
+  },
+  "menu_published": {
+    "subject": "Le menu de la semaine {week} est en ligne",
+    "title": "Menu de la semaine {week}",
+    "intro": "Le menu de la semaine {week} est publié. Choisissez dès maintenant les déjeuners de vos enfants.",
+    "deadline": "Vous pouvez faire vos choix jusqu'au {date}.",
+    "action": "Choisir les repas",
+    "footer": "Vous recevez cet e-mail car votre famille est inscrite à la restauration BFK de Britech School."
   }
 }

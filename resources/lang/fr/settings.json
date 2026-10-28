@@ -1,0 +1,70 @@
+{
+  "title": "Paramètres",
+  "description": "Règles de l'école {school}. Les heures sont celles du Maroc (Africa/Casablanca).",
+  "save": "Enregistrer les paramètres",
+  "sections": {
+    "calendar": "Calendrier scolaire",
+    "calendar_hint": "Jours d'école et dates de l'année scolaire (les jours fériés sont générés dans cette période).",
+    "menus": "Publication des menus",
+    "menus_hint": "Valeurs proposées pour chaque nouvelle semaine ; modifiables semaine par semaine. Les semaines déjà créées gardent leurs horaires.",
+    "edits": "Modifications par les parents après la clôture",
+    "orders": "Commandes",
+    "holidays": "Jours fériés",
+    "notifications": "E-mails de notification",
+    "notifications_hint": "Les notifications dans l'application sont toujours créées ; ces réglages ne concernent que les e-mails.",
+    "billing": "Facturation"
+  },
+  "fields": {
+    "school_days": "Jours d'école",
+    "school_year_start": "Début de l'année scolaire",
+    "school_year_end": "Fin de l'année scolaire",
+    "publish_weekday": "Jour de publication (semaine précédente)",
+    "publish_time": "Heure de publication",
+    "deadline_weekday": "Jour de clôture des commandes (semaine précédente)",
+    "deadline_time": "Heure de clôture",
+    "reminder_hours_before_deadline": "Rappel avant la clôture (heures)",
+    "allow_parent_edits": "Autoriser les modifications après la clôture",
+    "edit_mode": "Mode de modification",
+    "edit_mode_until_cutoff": "Jusqu'à l'heure limite de chaque jour",
+    "edit_mode_same_day_only": "Le jour même uniquement",
+    "edit_cutoff_days_before": "Heure limite : nombre de jours avant",
+    "edit_cutoff_days_before_hint": "0 = le jour même, 1 = la veille.",
+    "edit_cutoff_time": "Heure limite",
+    "auto_assign_default_meal": "À la clôture, attribuer le plat par défaut aux enfants abonnés sans choix",
+    "allergy_rule": "Repas contenant un allergène de l'enfant",
+    "allergy_rule_block": "Bloquer la sélection",
+    "allergy_rule_warn_confirm": "Avertir et demander une confirmation",
+    "supplement_max_quantity": "Quantité maximale par supplément, par enfant et par jour",
+    "subscription_required_for_main_meal": "Le plat principal nécessite un abonnement actif",
+    "generate_moroccan_holidays": "Générer aussi les jours fériés marocains à date fixe",
+    "email_enabled": "Envoyer des e-mails aux parents",
+    "email_menu_published": "Menu de la semaine publié",
+    "email_deadline_reminder": "Rappel avant la clôture",
+    "email_holiday_cancellation": "Annulation pour jour férié",
+    "email_order_changed_by_staff": "Commande modifiée par BFK",
+    "email_menu_change": "Changement de menu",
+    "billing_mode": "Mode de facturation",
+    "billing_mode_per_meal": "Chaque repas d'abonnement à son prix",
+    "billing_mode_monthly_fee": "Forfait mensuel",
+    "monthly_fee": "Forfait mensuel (MAD)"
+  },
+  "weekdays": {
+    "1": "Lundi",
+    "2": "Mardi",
+    "3": "Mercredi",
+    "4": "Jeudi",
+    "5": "Vendredi",
+    "6": "Samedi",
+    "7": "Dimanche"
+  },
+  "errors": {
+    "invalid_date": "Date invalide.",
+    "school_year_range": "La fin doit être après le début (400 jours au plus).",
+    "deadline_before_publish": "La clôture doit être après la publication (dans la semaine précédente).",
+    "monthly_fee": "Montant invalide (2 décimales au plus).",
+    "monthly_fee_required": "Indiquez le forfait mensuel."
+  },
+  "flash": {
+    "saved": "Paramètres enregistrés."
+  }
+}

@@ -13,3 +13,4 @@
 /// <reference path="../../config/logger.ts" />
 /// <reference path="../../config/mail.ts" />
 /// <reference path="../../config/meals.ts" />
+/// <reference path="../../config/outbox.ts" />

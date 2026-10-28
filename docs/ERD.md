@@ -447,6 +447,7 @@ Phase 4 additions: CHECK `length(btrim(name)) BETWEEN 1 AND 120`, CHECK `rule_ke
 
 CHECK `status IN ('draft') OR (publish_at IS NOT NULL AND order_deadline_at IS NOT NULL)`; CHECK `status NOT IN ('published','closed') OR published_at IS NOT NULL`.
 Indexes: UNIQUE `(school_id, week_start)`; `(status, publish_at) WHERE status = 'scheduled'` (publish job); `(status, order_deadline_at) WHERE status = 'published'` (reminder/deadline jobs).
+Phase 5 additions: CHECK `notes` ≤ 2000 chars. App rules (MenuCalendar/MenuStatusService): the deadline is also before the end of the menu's week (Monday + 7 days 00:00, school zone); publish/deadline are editable while `draft`/`scheduled` only.
 Deleting a menu: only drafts with no orders (FK from `meal_orders` RESTRICT enforces it).
 
 ### menu_items — Phase 5
@@ -467,6 +468,7 @@ Constraints / indexes:
 - partial UNIQUE `(weekly_menu_id, date, meal_id) WHERE removed_at IS NULL`;
 - partial UNIQUE `(weekly_menu_id, date) WHERE is_default AND removed_at IS NULL` → at most one default per day ("exactly one when the day has subscription meals" is checked by the app when scheduling);
 - **hot:** `(weekly_menu_id, date)`; `(date)` for kitchen/date lookups; `(meal_id)`.
+- Phase 5 additions: CHECK `position >= 0`. Removing an item in Phase 5 = hard delete (no order items exist yet); removal from a **published** menu is refused until Phase 6.
 
 ### menu_templates — Phase 5
 | Column | Type | Null | Default | Notes |
@@ -491,6 +493,7 @@ Constraints / indexes:
 | max_quantity | integer | null | | |
 
 UNIQUE `(menu_template_id, weekday, meal_id)`; partial UNIQUE `(menu_template_id, weekday) WHERE is_default`.
+Phase 5 additions: CHECK `max_quantity IS NULL OR max_quantity > 0`, `position >= 0`; `menu_templates`: CHECK name 1–120 chars (trimmed), description ≤ 500; index `(meal_id)` on items.
 
 ### notifications — Phase 5 (table + `notify()`), UI in Phase 8
 | Column | Type | Null | Default | Notes |
@@ -504,6 +507,7 @@ UNIQUE `(menu_template_id, weekday, meal_id)`; partial UNIQUE `(menu_template_id
 | created_at | timestamptz | NN | now() | |
 
 Indexes: `(user_id, created_at DESC)`; `(user_id) WHERE read_at IS NULL` (unread badge).
+Phase 5 additions: CHECK `jsonb_typeof(data) = 'object'`, `dedupe_key` 1–200 chars. `created_at` is written from `Clock`.
 
 ### outbound_emails — Phase 5 (with the first bulk email); used by Phases 2, 6, 8 (addition to the brief)
 | Column | Type | Null | Default | Notes |
@@ -522,7 +526,8 @@ Indexes: `(user_id, created_at DESC)`; `(user_id) WHERE read_at IS NULL` (unread
 | dedupe_key | text | null | | partial UNIQUE `WHERE dedupe_key IS NOT NULL`, e.g. `reminder:42:user:7` |
 | created_at / updated_at | timestamptz | NN | now() | |
 
-Index `(status, send_after) WHERE status IN ('pending','sending')`. `mail:dispatch` picks rows with `FOR UPDATE SKIP LOCKED`. Why: `mail.sendLater` is in-memory (lost on restart) and `@adonisjs/queue` is experimental — see STACK_NOTES §5/§7. **Exception — invitation and password-reset mails bypass the outbox**: the raw token must never be persisted, so they are sent directly with `mail.send` right after the token's transaction commits; a failure is logged and the admin (or parent) uses "resend" / asks again.
+Index `(status, send_after) WHERE status IN ('pending','sending')`. `mail:dispatch` picks rows with `FOR UPDATE SKIP LOCKED`.
+Phase 5 additions: CHECK `mail_key ~ '^[a-z0-9_]{1,60}$'`, `jsonb_typeof(payload) = 'object'`, `status <> 'sent' OR sent_at IS NOT NULL`, `attempts` 0–100, `dedupe_key` 1–200 chars; index `(sent_at) WHERE sent_at IS NOT NULL` (rolling hourly cap). `send_after`/`sent_at`/`updated_at` are written from `Clock`. Skipped rows (recipient deactivated, menu gone, unknown key) end `failed` with `last_error = 'skipped: <reason>'`. Why: `mail.sendLater` is in-memory (lost on restart) and `@adonisjs/queue` is experimental — see STACK_NOTES §5/§7. **Exception — invitation and password-reset mails bypass the outbox**: the raw token must never be persisted, so they are sent directly with `mail.send` right after the token's transaction commits; a failure is logged and the admin (or parent) uses "resend" / asks again.
 
 ### meal_orders — Phase 6
 | Column | Type | Null | Default | Notes |

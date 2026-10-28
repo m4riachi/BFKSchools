@@ -84,7 +84,17 @@
       "active": "actif",
       "confirmImpact": "confirmation",
       "generateMoroccanHolidays": "jours fériés marocains",
-      "calendar": "calendrier"
+      "calendar": "calendrier",
+      "mealId": "repas",
+      "maxQuantity": "quantité maximale",
+      "publishAt": "publication",
+      "orderDeadlineAt": "clôture des commandes",
+      "templateId": "modèle",
+      "description": "description",
+      "schoolDays": "jours d'école",
+      "schoolYearStart": "début de l'année",
+      "schoolYearEnd": "fin de l'année",
+      "monthlyFee": "forfait mensuel"
     }
   }
 }

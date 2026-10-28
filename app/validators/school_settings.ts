@@ -46,3 +46,48 @@ export const schoolSettingsValidator = vine.create({
     })
     .optional(),
 })
+
+/**
+ * The admin settings screen (brief §6): every editable key at once. School
+ * days and the school year are columns of `schools`; the rest goes into
+ * `schools.settings` through SchoolSettingsService (which re-validates it
+ * with `schoolSettingsValidator`). `monthly_fee` is a MAD amount typed by the
+ * admin, converted to centimes by the service.
+ */
+export const schoolSettingsFormValidator = vine.create({
+  schoolDays: vine.array(weekday()).minLength(1).maxLength(7).distinct(),
+  schoolYearStart: vine
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/),
+  schoolYearEnd: vine
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/),
+  settings: vine.object({
+    publish_weekday: weekday(),
+    publish_time: time(),
+    deadline_weekday: weekday(),
+    deadline_time: time(),
+    reminder_hours_before_deadline: vine.number().withoutDecimals().range([1, 168]),
+    allow_parent_edits: vine.boolean(),
+    edit_mode: vine.enum(['until_cutoff', 'same_day_only'] as const),
+    edit_cutoff_days_before: vine.number().withoutDecimals().range([0, 7]),
+    edit_cutoff_time: time(),
+    auto_assign_default_meal: vine.boolean(),
+    allergy_rule: vine.enum(['block', 'warn_confirm'] as const),
+    generate_moroccan_holidays: vine.boolean(),
+    email_notifications: vine.object({
+      enabled: vine.boolean(),
+      menu_published: vine.boolean(),
+      deadline_reminder: vine.boolean(),
+      holiday_cancellation: vine.boolean(),
+      order_changed_by_staff: vine.boolean(),
+      menu_change: vine.boolean(),
+    }),
+    billing_mode: vine.enum(['per_meal', 'monthly_fee'] as const),
+    subscription_required_for_main_meal: vine.boolean(),
+    supplement_max_quantity: vine.number().withoutDecimals().range([1, 20]),
+  }),
+  monthlyFee: vine.string().trim().maxLength(20).nullable().optional(),
+})

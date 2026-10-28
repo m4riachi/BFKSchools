@@ -9,6 +9,7 @@ import MealPhotoService from '#services/meal_photo_service'
 import app from '@adonisjs/core/services/app'
 import { parseMadToCents } from '#support/money'
 import { createMeal, createStaff, photosOf, pngBuffer } from '#tests/helpers/meals'
+import { MON, addItem, setupMenuSchool } from '#tests/helpers/menus'
 
 const validMeal = {
   nameFr: 'Tajine',
@@ -401,45 +402,42 @@ test.group('Meals QA | type lock once used on a menu', (group) => {
     client,
     assert,
   }) => {
-    const exists = await db.rawQuery("SELECT to_regclass('public.menu_items') AS n")
-    if (exists.rows[0].n) return // real table exists (Phase 5): covered there
-    await db.rawQuery('CREATE TABLE menu_items (meal_id integer NOT NULL)')
-    try {
-      const manager = await createStaff('manager')
-      const meal = await createMeal({ type: 'subscription', category: 'main', nameFr: 'Locked' })
-      const body = { ...validMeal, nameFr: 'Renamed', type: 'supplement', category: 'main' }
+    // Phase 5: the real menu tables exist; the meal row lock is covered in
+    // tests/functional/menus/builder.spec.ts ("meal type lock").
+    const { school, manager: staff } = await setupMenuSchool()
+    const manager = await createStaff('manager')
+    const meal = await createMeal({ type: 'subscription', category: 'main', nameFr: 'Locked' })
+    const body = { ...validMeal, nameFr: 'Renamed', type: 'supplement', category: 'main' }
 
-      const free = await client
-        .put(`/admin/meals/${meal.id}`)
-        .loginAs(manager)
-        .json({ ...body, type: 'supplement' })
-        .withCsrfToken()
-        .redirects(0)
-      assert.equal(free.status(), 302)
-      assert.equal((await Meal.findOrFail(meal.id)).type, 'supplement', 'unlocked before use')
-      await Meal.query().where('id', meal.id).update({ type: 'subscription', nameFr: 'Locked' })
+    const free = await client
+      .put(`/admin/meals/${meal.id}`)
+      .loginAs(manager)
+      .json({ ...body, type: 'supplement' })
+      .withCsrfToken()
+      .redirects(0)
+    assert.equal(free.status(), 302)
+    assert.equal((await Meal.findOrFail(meal.id)).type, 'supplement', 'unlocked before use')
+    await Meal.query().where('id', meal.id).update({ type: 'subscription', nameFr: 'Locked' })
 
-      await db.table('menu_items').insert({ meal_id: meal.id })
-      await client
-        .put(`/admin/meals/${meal.id}`)
-        .loginAs(manager)
-        .json(body)
-        .withCsrfToken()
-        .redirects(0)
-      const stored = await Meal.findOrFail(meal.id)
-      assert.equal(stored.type, 'subscription')
-      assert.equal(stored.nameFr, 'Locked')
+    await addItem(school, staff, MON, await Meal.findOrFail(meal.id))
+    const refused = await client
+      .put(`/admin/meals/${meal.id}`)
+      .loginAs(manager)
+      .json(body)
+      .withCsrfToken()
+      .redirects(0)
+    assert.property(refused.flashMessage('inputErrorsBag'), 'type')
+    const stored = await Meal.findOrFail(meal.id)
+    assert.equal(stored.type, 'subscription')
+    assert.equal(stored.nameFr, 'Locked')
 
-      await client
-        .put(`/admin/meals/${meal.id}`)
-        .loginAs(manager)
-        .json({ ...body, type: 'subscription' })
-        .withCsrfToken()
-        .redirects(0)
-      assert.equal((await Meal.findOrFail(meal.id)).nameFr, 'Renamed')
-    } finally {
-      await db.rawQuery('DROP TABLE menu_items')
-    }
+    await client
+      .put(`/admin/meals/${meal.id}`)
+      .loginAs(manager)
+      .json({ ...body, type: 'subscription' })
+      .withCsrfToken()
+      .redirects(0)
+    assert.equal((await Meal.findOrFail(meal.id)).nameFr, 'Renamed')
   })
 })
 

@@ -62,8 +62,11 @@ export default class MealsController {
     await bouncer.with('MealPolicy').authorize('manage')
     const meal = await this.meals.findInCatalog(params.id)
     const input = await request.validateUsing(mealValidator)
-    await this.meals.update(meal, input)
-    session.flash('success', i18n.t('meals.flash.updated', { name: mealName(meal, i18n.locale) }))
+    const updated = await this.meals.update(meal, input)
+    session.flash(
+      'success',
+      i18n.t('meals.flash.updated', { name: mealName(updated, i18n.locale) })
+    )
     return response.redirect(`/admin/meals/${meal.id}/edit`)
   }
 

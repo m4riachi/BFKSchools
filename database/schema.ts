@@ -9,10 +9,11 @@ import type { AllergenCode } from '#enums/allergens'
 import { DateTime } from 'luxon'
 import type { HolidaySource } from '#enums/holidays'
 import type { MealCategory, MealType } from '#enums/meals'
+import type { NotificationType, OutboundEmailStatus, WeeklyMenuStatus } from '#enums/menus'
+import type { AppLocale } from '#enums/locales'
 import type { StoredSchoolSettings } from '#types/school_settings'
 import type { SubscriptionStatus } from '#enums/subscriptions'
 import type { UserTokenType } from '#enums/user_tokens'
-import type { AppLocale } from '#enums/locales'
 import type { Role } from '#enums/roles'
 
 export class ChildSchema extends BaseModel {
@@ -137,6 +138,125 @@ export class MealSchema extends BaseModel {
   declare type: MealType
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+}
+
+export class MenuItemSchema extends BaseModel {
+  static $columns = ['createdAt', 'date', 'id', 'isDefault', 'maxQuantity', 'mealId', 'mealType', 'position', 'removedAt', 'updatedAt', 'weeklyMenuId'] as const
+  $columns = MenuItemSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare date: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isDefault: boolean
+  @column()
+  declare maxQuantity: number | null
+  @column()
+  declare mealId: number
+  @column()
+  declare mealType: MealType
+  @column()
+  declare position: number
+  @column.dateTime()
+  declare removedAt: DateTime | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare weeklyMenuId: number
+}
+
+export class MenuTemplateItemSchema extends BaseModel {
+  static $columns = ['id', 'isDefault', 'maxQuantity', 'mealId', 'mealType', 'menuTemplateId', 'position', 'weekday'] as const
+  $columns = MenuTemplateItemSchema.$columns
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isDefault: boolean
+  @column()
+  declare maxQuantity: number | null
+  @column()
+  declare mealId: number
+  @column()
+  declare mealType: MealType
+  @column()
+  declare menuTemplateId: number
+  @column()
+  declare position: number
+  @column()
+  declare weekday: number
+}
+
+export class MenuTemplateSchema extends BaseModel {
+  static $columns = ['createdAt', 'createdBy', 'description', 'id', 'name', 'schoolId', 'updatedAt'] as const
+  $columns = MenuTemplateSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number | null
+  @column()
+  declare description: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare schoolId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class NotificationSchema extends BaseModel {
+  static $columns = ['createdAt', 'data', 'dedupeKey', 'id', 'readAt', 'type', 'userId'] as const
+  $columns = NotificationSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare data: Record<string, unknown>
+  @column()
+  declare dedupeKey: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare readAt: DateTime | null
+  @column()
+  declare type: NotificationType
+  @column()
+  declare userId: number
+}
+
+export class OutboundEmailSchema extends BaseModel {
+  static $columns = ['attempts', 'createdAt', 'dedupeKey', 'id', 'lastError', 'locale', 'mailKey', 'payload', 'sendAfter', 'sentAt', 'status', 'toEmail', 'updatedAt', 'userId'] as const
+  $columns = OutboundEmailSchema.$columns
+  @column()
+  declare attempts: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare dedupeKey: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare lastError: string | null
+  @column()
+  declare locale: AppLocale
+  @column()
+  declare mailKey: string
+  @column()
+  declare payload: Record<string, unknown>
+  @column.dateTime()
+  declare sendAfter: DateTime
+  @column.dateTime()
+  declare sentAt: DateTime | null
+  @column()
+  declare status: OutboundEmailStatus
+  @column()
+  declare toEmail: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare userId: number | null
 }
 
 export class RateLimitSchema extends BaseModel {
@@ -271,4 +391,39 @@ export class UserSchema extends BaseModel {
   declare schoolId: number | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+}
+
+export class WeeklyMenuSchema extends BaseModel {
+  static $columns = ['closedAt', 'createdAt', 'createdBy', 'deadlineProcessedAt', 'id', 'notes', 'orderDeadlineAt', 'publishAt', 'publishedAt', 'reminderSentAt', 'schoolId', 'status', 'updatedAt', 'updatedBy', 'weekStart'] as const
+  $columns = WeeklyMenuSchema.$columns
+  @column.dateTime()
+  declare closedAt: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number | null
+  @column.dateTime()
+  declare deadlineProcessedAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare notes: string | null
+  @column.dateTime()
+  declare orderDeadlineAt: DateTime | null
+  @column.dateTime()
+  declare publishAt: DateTime | null
+  @column.dateTime()
+  declare publishedAt: DateTime | null
+  @column.dateTime()
+  declare reminderSentAt: DateTime | null
+  @column()
+  declare schoolId: number
+  @column()
+  declare status: WeeklyMenuStatus
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare updatedBy: number | null
+  @column()
+  declare weekStart: string
 }

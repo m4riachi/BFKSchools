@@ -22,8 +22,12 @@ export default class SchoolPolicy extends BasePolicy {
     return user.schoolId === null || user.schoolId === school.id
   }
 
-  /** Only admins change school settings. */
+  /**
+   * Only admins **of this school** change its settings (Phase 5: an admin
+   * without a school no longer counts as "all schools" here, like every
+   * policy since Phase 2). Managers can't read or change settings.
+   */
   updateSettings(user: User, school: School): AuthorizerResponse {
-    return user.role === 'admin' && (user.schoolId === null || user.schoolId === school.id)
+    return user.role === 'admin' && typeof user.schoolId === 'number' && user.schoolId === school.id
   }
 }

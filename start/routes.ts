@@ -237,6 +237,49 @@ router
       .where('id', uuid)
       .as('holidays.import.confirm')
 
+    // Weekly menus (Phase 5). A week is addressed by its Monday (YYYY-MM-DD).
+    const week = { match: /^\d{4}-\d{2}-\d{2}$/ }
+    router.get('menus', [controllers.admin.WeeklyMenus, 'index']).as('menus.index')
+    router
+      .group(() => {
+        router.get('/', [controllers.admin.WeeklyMenus, 'show']).as('show')
+        router.post('items', [controllers.admin.WeeklyMenus, 'storeItem']).as('items.store')
+        router
+          .put('items/:id', [controllers.admin.WeeklyMenus, 'updateItem'])
+          .where('id', id)
+          .as('items.update')
+        router
+          .post('items/:id/default', [controllers.admin.WeeklyMenus, 'setDefault'])
+          .where('id', id)
+          .as('items.default')
+        router
+          .delete('items/:id', [controllers.admin.WeeklyMenus, 'destroyItem'])
+          .where('id', id)
+          .as('items.destroy')
+        router.post('copy-previous', [controllers.admin.WeeklyMenus, 'copyPrevious']).as('copy')
+        router
+          .post('apply-template', [controllers.admin.WeeklyMenus, 'applyTemplate'])
+          .as('templates.apply')
+        router
+          .post('save-template', [controllers.admin.WeeklyMenus, 'saveTemplate'])
+          .as('templates.save')
+        router.put('times', [controllers.admin.WeeklyMenus, 'updateTimes']).as('times')
+        router.post('schedule', [controllers.admin.WeeklyMenus, 'schedule']).as('schedule')
+        router.post('unschedule', [controllers.admin.WeeklyMenus, 'unschedule']).as('unschedule')
+        router.post('publish', [controllers.admin.WeeklyMenus, 'publish']).as('publish')
+      })
+      .prefix('menus/:week')
+      .where('week', week)
+      .as('menus')
+    router
+      .delete('menu-templates/:id', [controllers.admin.WeeklyMenus, 'destroyTemplate'])
+      .where('id', id)
+      .as('menu_templates.destroy')
+
+    // School settings (admin only, SchoolPolicy.updateSettings)
+    router.get('settings', [controllers.admin.Settings, 'show']).as('settings.show')
+    router.put('settings', [controllers.admin.Settings, 'update']).as('settings.update')
+
     // CSV import of families
     router.get('imports/families', [controllers.admin.FamilyImports, 'create']).as('imports.create')
     router

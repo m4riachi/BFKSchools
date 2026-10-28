@@ -1,6 +1,19 @@
-import type School from '#models/school'
 import type { SchoolSettings, StoredSchoolSettings } from '#types/school_settings'
-import { schoolSettingsValidator } from '#validators/school_settings'
+import db from '@adonisjs/lucid/services/db'
+import School from '#models/school'
+import BusinessRuleException from '#exceptions/business_rule_exception'
+import {
+  schoolSettingsValidator,
+  type schoolSettingsFormValidator,
+} from '#validators/school_settings'
+import { diffInDays, isIsoDate } from '#support/dates'
+import { parseMadToCents } from '#support/money'
+import type { Infer } from '@vinejs/vine/types'
+
+export type SchoolSettingsForm = Infer<typeof schoolSettingsFormValidator>
+
+/** Longest accepted school year (days): a year plus a margin. */
+const MAX_SCHOOL_YEAR_DAYS = 400
 
 /**
  * Code defaults for every settings key (docs/ERD.md, docs/DECISIONS.md).
@@ -81,5 +94,76 @@ export default class SchoolSettingsService {
     school.settings = next as StoredSchoolSettings
     await school.save()
     return next
+  }
+
+  /**
+   * The admin settings screen (brief §6): school days and school year
+   * (columns) plus every settings key, in one transaction with the school
+   * row locked. Cross-field rules: the year ends after it starts (≤ 400
+   * days), the default deadline comes after the default publication in the
+   * week before, and a monthly fee is required in `monthly_fee` billing mode.
+   * Changing the default times only affects weeks created afterwards.
+   */
+  async updateFromForm(school: School, input: SchoolSettingsForm): Promise<SchoolSettings> {
+    if (!isIsoDate(input.schoolYearStart)) {
+      throw new BusinessRuleException('settings.errors.invalid_date', { field: 'schoolYearStart' })
+    }
+    if (!isIsoDate(input.schoolYearEnd)) {
+      throw new BusinessRuleException('settings.errors.invalid_date', { field: 'schoolYearEnd' })
+    }
+    const length = diffInDays(input.schoolYearStart, input.schoolYearEnd)
+    if (length <= 0 || length > MAX_SCHOOL_YEAR_DAYS) {
+      throw new BusinessRuleException('settings.errors.school_year_range', {
+        field: 'schoolYearEnd',
+      })
+    }
+
+    const values = input.settings
+    const publishKey = `${values.publish_weekday}-${values.publish_time}`
+    const deadlineKey = `${values.deadline_weekday}-${values.deadline_time}`
+    if (deadlineKey <= publishKey) {
+      throw new BusinessRuleException('settings.errors.deadline_before_publish', {
+        field: 'settings.deadline_time',
+      })
+    }
+
+    let monthlyFeeCents: number | null = null
+    if (input.monthlyFee) {
+      monthlyFeeCents = parseMadToCents(input.monthlyFee)
+      if (monthlyFeeCents === null || monthlyFeeCents > 100_000_000) {
+        throw new BusinessRuleException('settings.errors.monthly_fee', { field: 'monthlyFee' })
+      }
+    }
+    if (values.billing_mode === 'monthly_fee' && !monthlyFeeCents) {
+      throw new BusinessRuleException('settings.errors.monthly_fee_required', {
+        field: 'monthlyFee',
+      })
+    }
+
+    return db.transaction(async (trx) => {
+      const locked = await School.query({ client: trx })
+        .where('id', school.id)
+        .forUpdate()
+        .firstOrFail()
+      locked.merge({
+        schoolDays: [...new Set(input.schoolDays)].sort((a, b) => a - b),
+        schoolYearStart: input.schoolYearStart,
+        schoolYearEnd: input.schoolYearEnd,
+      })
+      const changes = await schoolSettingsValidator.validate({
+        ...values,
+        monthly_fee_cents: monthlyFeeCents,
+      })
+      const next = deepMerge(this.get(locked), changes)
+      locked.settings = next as StoredSchoolSettings
+      await locked.save()
+      school.merge({
+        schoolDays: locked.schoolDays,
+        schoolYearStart: locked.schoolYearStart,
+        schoolYearEnd: locked.schoolYearEnd,
+        settings: locked.settings,
+      })
+      return next
+    })
   }
 }

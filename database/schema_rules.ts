@@ -118,5 +118,65 @@ export default {
         },
       },
     },
+    weekly_menus: {
+      columns: {
+        status: {
+          tsType: 'WeeklyMenuStatus',
+          imports: [{ source: '#enums/menus', typeImports: ['WeeklyMenuStatus'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    menu_items: {
+      columns: {
+        meal_type: {
+          tsType: 'MealType',
+          imports: [{ source: '#enums/meals', typeImports: ['MealType'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    menu_template_items: {
+      columns: {
+        meal_type: {
+          tsType: 'MealType',
+          imports: [{ source: '#enums/meals', typeImports: ['MealType'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    notifications: {
+      columns: {
+        type: {
+          tsType: 'NotificationType',
+          imports: [{ source: '#enums/menus', typeImports: ['NotificationType'] }],
+          decorators: [{ name: '@column' }],
+        },
+        data: {
+          tsType: 'Record<string, unknown>',
+          imports: [],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    outbound_emails: {
+      columns: {
+        status: {
+          tsType: 'OutboundEmailStatus',
+          imports: [{ source: '#enums/menus', typeImports: ['OutboundEmailStatus'] }],
+          decorators: [{ name: '@column' }],
+        },
+        locale: {
+          tsType: 'AppLocale',
+          imports: [{ source: '#enums/locales', typeImports: ['AppLocale'] }],
+          decorators: [{ name: '@column' }],
+        },
+        payload: {
+          tsType: 'Record<string, unknown>',
+          imports: [],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
   },
 } satisfies SchemaRules

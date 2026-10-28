@@ -1,0 +1,70 @@
+{
+  "title": "Settings",
+  "description": "Rules of {school}. Times are Morocco time (Africa/Casablanca).",
+  "save": "Save settings",
+  "sections": {
+    "calendar": "School calendar",
+    "calendar_hint": "School days and school year dates (holidays are generated within this period).",
+    "menus": "Menu publication",
+    "menus_hint": "Values proposed for each new week; editable week by week. Weeks already created keep their times.",
+    "edits": "Parent changes after the deadline",
+    "orders": "Orders",
+    "holidays": "Holidays",
+    "notifications": "Notification emails",
+    "notifications_hint": "In-app notifications are always created; these settings only affect emails.",
+    "billing": "Billing"
+  },
+  "fields": {
+    "school_days": "School days",
+    "school_year_start": "School year start",
+    "school_year_end": "School year end",
+    "publish_weekday": "Publication day (week before)",
+    "publish_time": "Publication time",
+    "deadline_weekday": "Order deadline day (week before)",
+    "deadline_time": "Deadline time",
+    "reminder_hours_before_deadline": "Reminder before the deadline (hours)",
+    "allow_parent_edits": "Allow changes after the deadline",
+    "edit_mode": "Change mode",
+    "edit_mode_until_cutoff": "Until each day's cutoff",
+    "edit_mode_same_day_only": "Same day only",
+    "edit_cutoff_days_before": "Cutoff: days before",
+    "edit_cutoff_days_before_hint": "0 = the same day, 1 = the day before.",
+    "edit_cutoff_time": "Cutoff time",
+    "auto_assign_default_meal": "At the deadline, give the default dish to subscribed children with no choice",
+    "allergy_rule": "Meal containing one of the child's allergens",
+    "allergy_rule_block": "Block the selection",
+    "allergy_rule_warn_confirm": "Warn and ask for confirmation",
+    "supplement_max_quantity": "Maximum quantity per supplement, per child and per day",
+    "subscription_required_for_main_meal": "The main dish requires an active subscription",
+    "generate_moroccan_holidays": "Also generate Moroccan fixed-date holidays",
+    "email_enabled": "Send emails to parents",
+    "email_menu_published": "Weekly menu published",
+    "email_deadline_reminder": "Reminder before the deadline",
+    "email_holiday_cancellation": "Holiday cancellation",
+    "email_order_changed_by_staff": "Order changed by BFK",
+    "email_menu_change": "Menu change",
+    "billing_mode": "Billing mode",
+    "billing_mode_per_meal": "Each subscription meal at its price",
+    "billing_mode_monthly_fee": "Monthly fee",
+    "monthly_fee": "Monthly fee (MAD)"
+  },
+  "weekdays": {
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday",
+    "7": "Sunday"
+  },
+  "errors": {
+    "invalid_date": "Invalid date.",
+    "school_year_range": "The end must be after the start (400 days at most).",
+    "deadline_before_publish": "The deadline must be after the publication (in the week before).",
+    "monthly_fee": "Invalid amount (2 decimals at most).",
+    "monthly_fee_required": "Enter the monthly fee."
+  },
+  "flash": {
+    "saved": "Settings saved."
+  }
+}

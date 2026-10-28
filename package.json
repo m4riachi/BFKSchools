@@ -14,7 +14,8 @@
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit && vue-tsc --noEmit --project inertia/tsconfig.json"
+    "typecheck": "tsc --noEmit && vue-tsc --noEmit --project inertia/tsconfig.json",
+    "scheduler:dev": "node ace scheduler:dev"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",

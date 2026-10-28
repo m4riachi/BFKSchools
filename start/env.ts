@@ -50,6 +50,10 @@ const env = await Env.create(new URL('../', import.meta.url), {
   SMTP_PORT: Env.schema.number.optional(),
   SMTP_USERNAME: Env.schema.string.optional(),
   SMTP_PASSWORD: Env.schema.string.optional(),
+  // Outbox (D16): emails sent per `mail:dispatch` run (cron: every minute)
+  // and per rolling hour (the SMTP host's hourly limit). See config/outbox.ts.
+  MAIL_MAX_PER_RUN: Env.schema.number.optional(),
+  MAIL_MAX_PER_HOUR: Env.schema.number.optional(),
 
   // File storage (meal photos). "fs" = local disk under storage/ (dev/test),
   // "s3" = any S3-compatible bucket (AWS S3, Cloudflare R2, MinIO, …) in

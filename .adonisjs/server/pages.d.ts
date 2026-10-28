@@ -16,10 +16,13 @@ declare module '@adonisjs/inertia/types' {
     'admin/imports/families': ExtractProps<(typeof import('../../inertia/pages/admin/imports/families.vue'))['default']>
     'admin/meals/form': ExtractProps<(typeof import('../../inertia/pages/admin/meals/form.vue'))['default']>
     'admin/meals/index': ExtractProps<(typeof import('../../inertia/pages/admin/meals/index.vue'))['default']>
+    'admin/menus/index': ExtractProps<(typeof import('../../inertia/pages/admin/menus/index.vue'))['default']>
+    'admin/menus/show': ExtractProps<(typeof import('../../inertia/pages/admin/menus/show.vue'))['default']>
     'admin/parents/create': ExtractProps<(typeof import('../../inertia/pages/admin/parents/create.vue'))['default']>
     'admin/parents/edit': ExtractProps<(typeof import('../../inertia/pages/admin/parents/edit.vue'))['default']>
     'admin/parents/index': ExtractProps<(typeof import('../../inertia/pages/admin/parents/index.vue'))['default']>
     'admin/parents/show': ExtractProps<(typeof import('../../inertia/pages/admin/parents/show.vue'))['default']>
+    'admin/settings': ExtractProps<(typeof import('../../inertia/pages/admin/settings.vue'))['default']>
     'auth/forgot_password': ExtractProps<(typeof import('../../inertia/pages/auth/forgot_password.vue'))['default']>
     'auth/login': ExtractProps<(typeof import('../../inertia/pages/auth/login.vue'))['default']>
     'auth/set_password': ExtractProps<(typeof import('../../inertia/pages/auth/set_password.vue'))['default']>

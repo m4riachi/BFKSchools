@@ -736,6 +736,214 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['confirm']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.menus.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/menus'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/menus').menuWeekQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.menus.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/menus/:week'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['show']>>>
+    }
+  }
+  'admin.menus.items.store': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/items'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/menus').menuItemCreateValidator)>>
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/menus').menuItemCreateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['storeItem']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['storeItem']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['storeItem']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.menus.items.update': {
+    methods: ["PUT"]
+    pattern: '/admin/menus/:week/items/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/menus').menuItemUpdateValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { week: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/menus').menuItemUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['updateItem']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['updateItem']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['updateItem']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.menus.items.default': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/items/:id/default'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { week: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['setDefault']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['setDefault']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['setDefault']>>>
+    }
+  }
+  'admin.menus.items.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/menus/:week/items/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { week: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>>
+    }
+  }
+  'admin.menus.copy': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/copy-previous'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['copyPrevious']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['copyPrevious']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['copyPrevious']>>>
+    }
+  }
+  'admin.menus.templates.apply': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/apply-template'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/menus').menuTemplateApplyValidator)>>
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/menus').menuTemplateApplyValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['applyTemplate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['applyTemplate']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['applyTemplate']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.menus.templates.save': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/save-template'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/menus').menuTemplateSaveValidator)>>
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/menus').menuTemplateSaveValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['saveTemplate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['saveTemplate']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['saveTemplate']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.menus.times': {
+    methods: ["PUT"]
+    pattern: '/admin/menus/:week/times'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/menus').menuTimesValidator)>>
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/menus').menuTimesValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['updateTimes']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['updateTimes']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['updateTimes']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.menus.schedule': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/schedule'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['schedule']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['schedule']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['schedule']>>>
+    }
+  }
+  'admin.menus.unschedule': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/unschedule'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['unschedule']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['unschedule']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['unschedule']>>>
+    }
+  }
+  'admin.menus.publish': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/publish'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['publish']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['publish']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['publish']>>>
+    }
+  }
+  'admin.menu_templates.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/menu-templates/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyTemplate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyTemplate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyTemplate']>>>
+    }
+  }
+  'admin.settings.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/settings'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['show']>>>
+    }
+  }
+  'admin.settings.update': {
+    methods: ["PUT"]
+    pattern: '/admin/settings'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/school_settings').schoolSettingsFormValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/school_settings').schoolSettingsFormValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.imports.create': {
     methods: ["GET","HEAD"]
     pattern: '/admin/imports/families'

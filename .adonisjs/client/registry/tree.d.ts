@@ -89,6 +89,32 @@ export interface ApiDefinition {
         confirm: typeof routes['admin.holidays.import.confirm']
       }
     }
+    menus: {
+      index: typeof routes['admin.menus.index']
+      show: typeof routes['admin.menus.show']
+      items: {
+        store: typeof routes['admin.menus.items.store']
+        update: typeof routes['admin.menus.items.update']
+        default: typeof routes['admin.menus.items.default']
+        destroy: typeof routes['admin.menus.items.destroy']
+      }
+      copy: typeof routes['admin.menus.copy']
+      templates: {
+        apply: typeof routes['admin.menus.templates.apply']
+        save: typeof routes['admin.menus.templates.save']
+      }
+      times: typeof routes['admin.menus.times']
+      schedule: typeof routes['admin.menus.schedule']
+      unschedule: typeof routes['admin.menus.unschedule']
+      publish: typeof routes['admin.menus.publish']
+    }
+    menuTemplates: {
+      destroy: typeof routes['admin.menu_templates.destroy']
+    }
+    settings: {
+      show: typeof routes['admin.settings.show']
+      update: typeof routes['admin.settings.update']
+    }
     imports: {
       create: typeof routes['admin.imports.create']
       template: typeof routes['admin.imports.template']
