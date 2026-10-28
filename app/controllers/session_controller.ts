@@ -14,7 +14,8 @@ import {
 import { homePathFor } from '#enums/roles'
 import LoginService from '#services/login_service'
 import InactiveAccountException from '#exceptions/inactive_account_exception'
-import { isKnownDevice, rememberKnownDevice } from '#support/known_device'
+import { isKnownDevice } from '#support/known_device'
+import { startUserSession } from '#support/login_session'
 import { maskEmail } from '#app/mail/log_transport'
 
 export default class SessionController {
@@ -29,7 +30,7 @@ export default class SessionController {
    */
   @inject()
   async store(ctx: HttpContext, loginService: LoginService) {
-    const { request, auth, response, session, i18n } = ctx
+    const { request, response, session, i18n } = ctx
     const ip = request.ip()
 
     const fail = (message: string) => {
@@ -46,9 +47,11 @@ export default class SessionController {
       const emailKey = loginKeys.email(email)
 
       await loginIpEmailLimiter().consume(ipEmailKey)
-      // A browser that already signed in to this account skips the per-email
-      // limit, so exhausting it cannot lock the real user out.
-      if (!isKnownDevice(request, email)) {
+      // A browser that already signed in to this account (with its current
+      // credentials) skips the per-email limit, so exhausting it cannot lock
+      // the real user out. Unknown emails never match.
+      const candidate = await loginService.findUser(email)
+      if (!candidate || !isKnownDevice(request, candidate)) {
         try {
           await loginEmailLimiter().consume(emailKey)
         } catch (error) {
@@ -63,14 +66,12 @@ export default class SessionController {
         }
       }
 
-      const user = await loginService.verifyCredentials(email, password)
+      const user = await loginService.verifyCredentials(email, password, candidate)
 
       await loginIpEmailLimiter().delete(ipEmailKey)
       await loginEmailLimiter().delete(emailKey)
 
-      rememberKnownDevice(ctx, email)
-
-      await auth.use('web').login(user, remember === true)
+      await startUserSession(ctx, user, remember === true)
       await loginService.recordLogin(user)
 
       return response.redirect(homePathFor(user.role))

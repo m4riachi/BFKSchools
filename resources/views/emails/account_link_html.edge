@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }}</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f6f5;font-family:Arial,Helvetica,sans-serif;color:#14211b;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f5;padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e2e7e4;border-radius:16px;">
+            <tr>
+              <td style="padding:28px 28px 8px;">
+                <div style="display:inline-block;background:#1f6f4a;color:#ffffff;font-weight:800;font-size:13px;letter-spacing:0.02em;border-radius:10px;padding:10px 12px;">BFK</div>
+                <h1 style="font-size:22px;line-height:1.3;margin:20px 0 8px;">{{ title }}</h1>
+                <p style="font-size:15px;line-height:1.55;margin:0 0 12px;">{{ greeting }}</p>
+                <p style="font-size:15px;line-height:1.55;margin:0 0 20px;color:#33433c;">{{ intro }}</p>
+                <p style="margin:0 0 20px;">
+                  <a href="{{ url }}" style="display:inline-block;background:#1f6f4a;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;border-radius:12px;padding:14px 22px;">{{ action }}</a>
+                </p>
+                <p style="font-size:13px;line-height:1.5;margin:0 0 12px;color:#56655e;">{{ expiry }}</p>
+                <p style="font-size:13px;line-height:1.5;margin:0 0 12px;color:#56655e;">{{ fallback }}<br /><span style="word-break:break-all;color:#175a3b;">{{ url }}</span></p>
+                <p style="font-size:13px;line-height:1.5;margin:0 0 24px;color:#56655e;">{{ ignore }}</p>
+                <p style="font-size:14px;line-height:1.5;margin:0 0 20px;">{{ signature }}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -5,7 +5,15 @@
 
 export const controllers = {
   admin: {
+    Children: () => import('#controllers/admin/children_controller'),
     Dashboard: () => import('#controllers/admin/dashboard_controller'),
+    FamilyImports: () => import('#controllers/admin/family_imports_controller'),
+    Parents: () => import('#controllers/admin/parents_controller'),
+    Subscriptions: () => import('#controllers/admin/subscriptions_controller'),
+  },
+  auth: {
+    AccountLinks: () => import('#controllers/auth/account_links_controller'),
+    PasswordReset: () => import('#controllers/auth/password_reset_controller'),
   },
   kitchen: {
     Dashboard: () => import('#controllers/kitchen/dashboard_controller'),

@@ -20,7 +20,7 @@ PostgreSQL 16+ (any currently supported major). Written in Phase 0; each phase c
 | Multi-school | `school_id` on `children`, `holidays`, `weekly_menus`, `menu_templates`, `meal_orders`. **Meals are a BFK-wide catalog (no `school_id`)**: BFK cooks for schools, the same dish can be served to several. | brief §4 "keep school_id"; catalog sharing is the natural model for a restaurant |
 | Guardians (D8) | `children.parent_id` (one parent). All "can this user see this child" checks go through one query scope `Child.visibleTo(user)` and one policy, so switching to a `child_guardians(child_id, user_id)` pivot later changes two places + one migration. | D8 default, alternative kept easy |
 
-### Allergen codes (EU 14) — `config/allergens.ts`, mirrored in the check constraints
+### Allergen codes (EU 14) — `app/enums/allergens.ts` (Phase 2: `ALLERGENS`, `ALLERGENS_SQL_ARRAY`), mirrored in the check constraints
 `gluten, crustaceans, eggs, fish, peanuts, soybeans, milk, nuts, celery, mustard, sesame, sulphites, lupin, molluscs`
 Labels (FR/EN) live in `resources/lang/*/allergens.json`. SQL literal used by both checks:
 ```sql
@@ -291,7 +291,7 @@ Default `publish_at` for a week = `(week_start − 7 days + (publish_weekday −
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
 | id | integer identity | NN | | |
-| school_id | integer | null | | FK → schools ON DELETE SET NULL. Staff may be tied to a school; `null` = all schools. Parents get their school through their children. |
+| school_id | integer | null | | FK → schools ON DELETE SET NULL. Phase 2: **required (app-level) for parents** — children get the parent's school. Staff: only Phase 1 `SchoolPolicy` treats `null` as all schools; Phase 2+ policies require staff to have a school and never treat `null` as "all". |
 | full_name | text | NN | | |
 | email | text | NN | | stored lower-cased by the model; **UNIQUE INDEX on `lower(email)`** |
 | phone | text | null | | E.164 when possible |
@@ -302,6 +302,7 @@ Default `publish_at` for a week = `(week_start − 7 days + (publish_weekday −
 | notification_prefs | jsonb | NN | `'{}'` | per-parent opt-outs, e.g. `{ "deadline_reminder": false }`. Cancellations can't be turned off (Phase 8). |
 | invited_at | timestamptz | null | | last invitation sent (list column "invited") |
 | last_login_at | timestamptz | null | | "never logged in" filter |
+| credentials_version | integer | NN | `0` | **added in Phase 2** (security follow-up). Bumped by the User model when the password or email changes or the account is deactivated; sessions (`auth_cv` session key) and the `bfk_kd` known-device cookie are bound to it. |
 | created_at / updated_at | timestamptz | NN | now() | |
 
 Indexes: `users_email_lower_unique (lower(email))`, `(role, is_active)`, trigram/`ILIKE` search on name/email/phone is a seq scan at this size — fine (a `pg_trgm` GIN index can be added in Phase 9 if needed).

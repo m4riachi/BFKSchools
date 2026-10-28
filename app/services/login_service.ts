@@ -14,10 +14,13 @@ export default class LoginService {
    * (invitation not accepted yet) still run a hash, so response time does
    * not reveal whether an account exists.
    *
+   * `preloaded` is the user row already looked up for `email` (the login
+   * controller needs it for the known-device check); omit it to look it up.
+   *
    * @throws E_INVALID_CREDENTIALS | InactiveAccountException
    */
-  async verifyCredentials(email: string, password: string): Promise<User> {
-    const user = await User.findByEmail(email)
+  async verifyCredentials(email: string, password: string, preloaded?: User | null): Promise<User> {
+    const user = preloaded === undefined ? await User.findByEmail(email) : preloaded
 
     if (!user || !user.password) {
       await hash.make(password)
@@ -33,6 +36,10 @@ export default class LoginService {
     }
 
     return user
+  }
+
+  findUser(email: string) {
+    return User.findByEmail(email)
   }
 
   async recordLogin(user: User) {

@@ -34,6 +34,84 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'password.forgot': {
+    methods: ["GET","HEAD"]
+    pattern: '/password/forgot'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth/password_reset_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth/password_reset_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth/password_reset_controller').default['create']>>>
+    }
+  }
+  'password.forgot.store': {
+    methods: ["POST"]
+    pattern: '/password/forgot'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/passwords').forgotPasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/passwords').forgotPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth/password_reset_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth/password_reset_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth/password_reset_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'invitation.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/invitation/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['showInvitation']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['showInvitation']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['showInvitation']>>>
+    }
+  }
+  'invitation.accept': {
+    methods: ["POST"]
+    pattern: '/invitation/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['acceptInvitation']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['acceptInvitation']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['acceptInvitation']>>>
+    }
+  }
+  'password.reset': {
+    methods: ["GET","HEAD"]
+    pattern: '/password/reset/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['showReset']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['showReset']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['showReset']>>>
+    }
+  }
+  'password.reset.store': {
+    methods: ["POST"]
+    pattern: '/password/reset/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['submitReset']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['submitReset']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['submitReset']>>>
+    }
+  }
   'locale.update': {
     methods: ["POST"]
     pattern: '/locale'
@@ -84,6 +162,292 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['show']>>>
+    }
+  }
+  'admin.parents.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/parents'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/families').parentListValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.parents.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/parents/create'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['create']>>>
+    }
+  }
+  'admin.parents.store': {
+    methods: ["POST"]
+    pattern: '/admin/parents'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/families').parentValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/families').parentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.parents.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/parents/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['show']>>>
+    }
+  }
+  'admin.parents.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/parents/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['edit']>>>
+    }
+  }
+  'admin.parents.update': {
+    methods: ["PUT"]
+    pattern: '/admin/parents/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/families').parentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/families').parentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.parents.deactivate': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/deactivate'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['deactivate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['deactivate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['deactivate']>>>
+    }
+  }
+  'admin.parents.activate': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/activate'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['activate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['activate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['activate']>>>
+    }
+  }
+  'admin.parents.invite': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/invitation'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['invite']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['invite']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['invite']>>>
+    }
+  }
+  'admin.children.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/parents/:parentId/children/create'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { parentId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['create']>>>
+    }
+  }
+  'admin.children.store': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:parentId/children'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/families').childValidator)>>
+      paramsTuple: [ParamValue]
+      params: { parentId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/families').childValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.children.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/parents/:parentId/children/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { parentId: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['edit']>>>
+    }
+  }
+  'admin.children.update': {
+    methods: ["PUT"]
+    pattern: '/admin/parents/:parentId/children/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/families').childValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { parentId: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/families').childValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.children.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/parents/:parentId/children/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { parentId: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/children_controller').default['destroy']>>>
+    }
+  }
+  'admin.children.subscriptions.store': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:parentId/children/:childId/subscriptions'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/families').subscriptionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { parentId: ParamValue; childId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/families').subscriptionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.children.subscriptions.update': {
+    methods: ["PUT"]
+    pattern: '/admin/parents/:parentId/children/:childId/subscriptions/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/families').subscriptionValidator)>>
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { parentId: ParamValue; childId: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/families').subscriptionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.children.subscriptions.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/parents/:parentId/children/:childId/subscriptions/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { parentId: ParamValue; childId: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['destroy']>>>
+    }
+  }
+  'admin.imports.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/imports/families'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['create']>>>
+    }
+  }
+  'admin.imports.template': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/imports/families/template'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['template']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['template']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['template']>>>
+    }
+  }
+  'admin.imports.upload': {
+    methods: ["POST"]
+    pattern: '/admin/imports/families'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/imports').importUploadValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/imports').importUploadValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['upload']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['upload']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['upload']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.imports.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/imports/families/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['show']>>>
+    }
+  }
+  'admin.imports.confirm': {
+    methods: ["POST"]
+    pattern: '/admin/imports/families/:id/confirm'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/imports').importConfirmValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/imports').importConfirmValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['confirm']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['confirm']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/family_imports_controller').default['confirm']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'kitchen.dashboard': {

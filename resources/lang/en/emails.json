@@ -1,0 +1,21 @@
+{
+  "greeting": "Hello {name},",
+  "signature": "The BFK School Meals team",
+  "link_fallback": "If the button does not work, copy this link into your browser:",
+  "invitation": {
+    "subject": "Your BFK School Meals access",
+    "title": "Welcome to BFK School Meals",
+    "intro": "BFK created an account for you to choose your children's school lunches at Britech School every week. Choose your password to activate your access.",
+    "action": "Choose my password",
+    "expiry": "This link is valid until {date} and can only be used once.",
+    "ignore": "If you were not expecting this email, you can ignore it."
+  },
+  "password_reset": {
+    "subject": "Reset your password",
+    "title": "Reset your password",
+    "intro": "We received a request to reset the password of your BFK School Meals account.",
+    "action": "Choose a new password",
+    "expiry": "This link is valid until {date} and can only be used once.",
+    "ignore": "If you did not ask for this, ignore this email: your password will not change."
+  }
+}

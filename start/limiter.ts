@@ -43,3 +43,40 @@ export const loginKeys = {
   ipEmail: (ip: string, email: string) => `login:ip_email:${rateLimitIpKey(ip)}:${email}`,
   email: (email: string) => `login:email:${email}`,
 }
+
+/*
+|--------------------------------------------------------------------------
+| Password reset and invitation links (separate from the login limiters)
+|--------------------------------------------------------------------------
+|
+| - request per IP     10 / 15 min: then "too many requests" (no enumeration:
+|                      counted the same for known and unknown emails).
+| - request per email   3 / 15 min: further requests answer exactly like a
+|                      normal one but send nothing (stops mail bombing a
+|                      victim without revealing anything).
+| - set-password per IP 20 / 15 min: link submissions (reset + invitation).
+|
+*/
+export const PASSWORD_LINK_LIMITS = {
+  requestIp: { requests: 10, duration: '15 mins' },
+  requestEmail: { requests: 3, duration: '15 mins' },
+  confirmIp: { requests: 20, duration: '15 mins' },
+} as const
+
+export function resetRequestIpLimiter() {
+  return limiter.use({ ...PASSWORD_LINK_LIMITS.requestIp })
+}
+
+export function resetRequestEmailLimiter() {
+  return limiter.use({ ...PASSWORD_LINK_LIMITS.requestEmail })
+}
+
+export function passwordLinkConfirmLimiter() {
+  return limiter.use({ ...PASSWORD_LINK_LIMITS.confirmIp })
+}
+
+export const passwordLinkKeys = {
+  requestIp: (ip: string) => `pwreset:ip:${rateLimitIpKey(ip)}`,
+  requestEmail: (email: string) => `pwreset:email:${email}`,
+  confirmIp: (ip: string) => `pwlink:confirm:ip:${rateLimitIpKey(ip)}`,
+}

@@ -1,12 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import factory from '@adonisjs/lucid/factories'
 import User from '#models/user'
+import { ChildFactory } from '#database/factories/child_factory'
 
 let sequence = 0
 
 /**
  * Users for tests. Default password: "secret-password".
- * States: admin, manager, kitchen, parent, inactive.
+ * States: admin, manager, kitchen, parent, inactive, invited (no password).
+ * Relation: children (`UserFactory.with('children', 2, (c) => c.merge({ schoolId }))`).
  */
 export const UserFactory = factory
   .define(User, () => {
@@ -19,6 +21,7 @@ export const UserFactory = factory
       locale: 'fr' as const,
       isActive: true,
       notificationPrefs: {},
+      credentialsVersion: 0,
     }
   })
   .state('admin', (user) => (user.role = 'admin'))
@@ -26,4 +29,6 @@ export const UserFactory = factory
   .state('kitchen', (user) => (user.role = 'kitchen'))
   .state('parent', (user) => (user.role = 'parent'))
   .state('inactive', (user) => (user.isActive = false))
+  .state('invited', (user) => (user.password = null))
+  .relation('children', () => ChildFactory)
   .build()

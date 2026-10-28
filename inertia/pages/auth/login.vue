@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Head, useForm, usePage } from '@inertiajs/vue3'
+import { Link } from '@adonisjs/inertia/vue'
 import GuestLayout from '~/layouts/guest_layout.vue'
 import TextInput from '~/components/ui/text_input.vue'
 import AppButton from '~/components/ui/app_button.vue'
@@ -86,10 +87,15 @@ function submit() {
         </template>
       </TextInput>
 
-      <label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-ink-2">
-        <input v-model="form.remember" type="checkbox" class="m-0 size-[18px] accent-brand" />
-        {{ t('auth.login.remember') }}
-      </label>
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-ink-2">
+          <input v-model="form.remember" type="checkbox" class="m-0 size-[18px] accent-brand" />
+          {{ t('auth.login.remember') }}
+        </label>
+        <Link href="/password/forgot" class="flex min-h-11 items-center text-sm font-semibold">
+          {{ t('auth.login.forgot') }}
+        </Link>
+      </div>
 
       <AppButton type="submit" size="lg" block :loading="form.processing">
         {{ form.processing ? t('auth.login.submitting') : t('auth.login.submit') }}

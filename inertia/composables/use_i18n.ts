@@ -37,5 +37,19 @@ export function useI18n() {
     return new Intl.DateTimeFormat(locale.value, { ...options, timeZone: 'UTC' }).format(date)
   }
 
-  return { t, locale, formatDate }
+  /**
+   * Formats an ISO instant (timestamptz) in the business time zone
+   * (always the IANA name, never a fixed offset).
+   */
+  function formatDateTime(
+    iso: string,
+    options: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' }
+  ) {
+    return new Intl.DateTimeFormat(locale.value, {
+      ...options,
+      timeZone: 'Africa/Casablanca',
+    }).format(new Date(iso))
+  }
+
+  return { t, locale, formatDate, formatDateTime }
 }

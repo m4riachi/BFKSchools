@@ -48,5 +48,42 @@ export default {
         },
       },
     },
+    user_tokens: {
+      columns: {
+        type: {
+          tsType: 'UserTokenType',
+          imports: [{ source: '#enums/user_tokens', typeImports: ['UserTokenType'] }],
+          decorators: [{ name: '@column' }],
+        },
+        token_hash: {
+          tsType: 'string',
+          imports: [],
+          decorators: [{ name: '@column', args: { serializeAs: null } }],
+        },
+        request_ip: {
+          tsType: 'string',
+          imports: [],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    children: {
+      columns: {
+        allergies: {
+          tsType: 'AllergenCode[]',
+          imports: [{ source: '#enums/allergens', typeImports: ['AllergenCode'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    subscriptions: {
+      columns: {
+        status: {
+          tsType: 'SubscriptionStatus',
+          imports: [{ source: '#enums/subscriptions', typeImports: ['SubscriptionStatus'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
   },
 } satisfies SchemaRules

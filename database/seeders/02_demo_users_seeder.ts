@@ -28,7 +28,9 @@ export default class DemoUsersSeeder extends BaseSeeder {
         ...demo,
         password: DEMO_PASSWORD,
         isActive: true,
-        schoolId: demo.role === 'parent' ? null : school.id,
+        // Phase 2: parents must belong to a school, and staff only manage
+        // families of their own school (null never means "all schools").
+        schoolId: school.id,
       })
       await user.save()
     }

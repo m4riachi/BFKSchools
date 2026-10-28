@@ -16,7 +16,7 @@ AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setu
 - Start services: `docker compose up -d` (PostgreSQL with `bfk_dev` + `bfk_test`, Mailpit UI on :8025). Without Docker, point `DB_*` in `.env` at any PostgreSQL 16+ with both databases and `btree_gist`.
 - Dev server: `npm run dev` (= `node ace serve --hmr`; port from `PORT` in `.env`; if busy it picks a random port — read the log)
 - Migrations: `node ace migration:run` · rollback `node ace migration:rollback` · status `node ace migration:status` · reset `node ace migration:fresh --seed` (regenerates `database/schema.ts`)
-- Seed: `node ace db:seed` (Britech School + one demo user per role, dev/test only, password `Demo1234!`: `admin@bfk.test`, `manager@bfk.test`, `kitchen@bfk.test`, `parent@bfk.test`)
+- Seed: `node ace db:seed` (Britech School + one demo user per role, dev/test only, password `Demo1234!`: `admin@bfk.test`, `manager@bfk.test`, `kitchen@bfk.test`, `parent@bfk.test` with two children; all tied to Britech School)
 - Tests: `npm test` (= `node ace test`; uses `.env.test` → `bfk_test`, memory session/limiter, fake mailer) · one suite `node ace test unit` / `node ace test functional` · one file `node ace test --files=tests/functional/auth.spec.ts`
 - Typecheck / lint: `npm run typecheck` · `npm run lint` (`npx eslint . --fix` to auto-format)
 - Codegen (routes/controllers/policies/pages indexes): `node ace codegen` (also runs on `serve`/`build`)

@@ -19,8 +19,35 @@ router
   .group(() => {
     router.get('login', [controllers.Session, 'create']).as('session.create')
     router.post('login', [controllers.Session, 'store']).as('session.store')
+    router.get('password/forgot', [controllers.auth.PasswordReset, 'create']).as('password.forgot')
+    router
+      .post('password/forgot', [controllers.auth.PasswordReset, 'store'])
+      .as('password.forgot.store')
   })
   .use(middleware.guest())
+
+/**
+ * Links from invitation / password-reset emails (guests or logged in: a
+ * successful submission logs in as the link's owner). Rate-limited in the
+ * controller; tokens are 43-char base64url strings.
+ */
+const tokenMatcher = { match: /^[A-Za-z0-9_-]{1,64}$/ }
+router
+  .get('invitation/:token', [controllers.auth.AccountLinks, 'showInvitation'])
+  .where('token', tokenMatcher)
+  .as('invitation.show')
+router
+  .post('invitation/:token', [controllers.auth.AccountLinks, 'acceptInvitation'])
+  .where('token', tokenMatcher)
+  .as('invitation.accept')
+router
+  .get('password/reset/:token', [controllers.auth.AccountLinks, 'showReset'])
+  .where('token', tokenMatcher)
+  .as('password.reset')
+router
+  .post('password/reset/:token', [controllers.auth.AccountLinks, 'submitReset'])
+  .where('token', tokenMatcher)
+  .as('password.reset.store')
 
 /**
  * Any visitor (guest or logged in) can switch the UI language.
@@ -48,9 +75,83 @@ router
 /**
  * Back-office: admin + manager
  */
+const id = router.matchers.number()
 router
   .group(() => {
     router.get('/', [controllers.admin.Dashboard, 'show']).as('dashboard')
+
+    // Families (Phase 2): parents, children, subscription periods
+    router.get('parents', [controllers.admin.Parents, 'index']).as('parents.index')
+    router.get('parents/create', [controllers.admin.Parents, 'create']).as('parents.create')
+    router.post('parents', [controllers.admin.Parents, 'store']).as('parents.store')
+    router
+      .get('parents/:id', [controllers.admin.Parents, 'show'])
+      .where('id', id)
+      .as('parents.show')
+    router
+      .get('parents/:id/edit', [controllers.admin.Parents, 'edit'])
+      .where('id', id)
+      .as('parents.edit')
+    router
+      .put('parents/:id', [controllers.admin.Parents, 'update'])
+      .where('id', id)
+      .as('parents.update')
+    router
+      .post('parents/:id/deactivate', [controllers.admin.Parents, 'deactivate'])
+      .where('id', id)
+      .as('parents.deactivate')
+    router
+      .post('parents/:id/activate', [controllers.admin.Parents, 'activate'])
+      .where('id', id)
+      .as('parents.activate')
+    router
+      .post('parents/:id/invitation', [controllers.admin.Parents, 'invite'])
+      .where('id', id)
+      .as('parents.invite')
+
+    router
+      .group(() => {
+        router.get('create', [controllers.admin.Children, 'create']).as('create')
+        router.post('/', [controllers.admin.Children, 'store']).as('store')
+        router.get(':id/edit', [controllers.admin.Children, 'edit']).where('id', id).as('edit')
+        router.put(':id', [controllers.admin.Children, 'update']).where('id', id).as('update')
+        router.delete(':id', [controllers.admin.Children, 'destroy']).where('id', id).as('destroy')
+
+        router
+          .post(':childId/subscriptions', [controllers.admin.Subscriptions, 'store'])
+          .where('childId', id)
+          .as('subscriptions.store')
+        router
+          .put(':childId/subscriptions/:id', [controllers.admin.Subscriptions, 'update'])
+          .where('childId', id)
+          .where('id', id)
+          .as('subscriptions.update')
+        router
+          .delete(':childId/subscriptions/:id', [controllers.admin.Subscriptions, 'destroy'])
+          .where('childId', id)
+          .where('id', id)
+          .as('subscriptions.destroy')
+      })
+      .prefix('parents/:parentId/children')
+      .where('parentId', id)
+      .as('children')
+
+    // CSV import of families
+    router.get('imports/families', [controllers.admin.FamilyImports, 'create']).as('imports.create')
+    router
+      .get('imports/families/template', [controllers.admin.FamilyImports, 'template'])
+      .as('imports.template')
+    router
+      .post('imports/families', [controllers.admin.FamilyImports, 'upload'])
+      .as('imports.upload')
+    router
+      .get('imports/families/:id', [controllers.admin.FamilyImports, 'show'])
+      .where('id', router.matchers.uuid())
+      .as('imports.show')
+    router
+      .post('imports/families/:id/confirm', [controllers.admin.FamilyImports, 'confirm'])
+      .where('id', router.matchers.uuid())
+      .as('imports.confirm')
   })
   .prefix('admin')
   .as('admin')

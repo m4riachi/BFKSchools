@@ -22,7 +22,7 @@ const { isActive } = useActiveNav()
  */
 const nav: NavItem[] = [
   { labelKey: 'nav.dashboard', href: '/admin', icon: 'dashboard', exact: true },
-  { labelKey: 'nav.families', href: null, icon: 'families' },
+  { labelKey: 'nav.families', href: '/admin/parents', icon: 'families' },
   { labelKey: 'nav.meals', href: null, icon: 'meals' },
   { labelKey: 'nav.weekly_menus', href: null, icon: 'calendar' },
   { labelKey: 'nav.holidays', href: null, icon: 'holidays' },

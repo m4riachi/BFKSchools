@@ -171,7 +171,7 @@ test.group('Auth | login rate limits', (group) => {
     const first = await login(client, victim.email, PASSWORD, '192.0.2.1')
     assert.equal(first.header('location'), '/')
     const cookie = first.cookie(KNOWN_DEVICE_COOKIE)
-    assert.deepEqual(cookie?.value, [knownDeviceHash(victim.email)])
+    assert.deepEqual(cookie?.value, [knownDeviceHash(victim)])
 
     await exhaustEmailBudget(client, victim.email)
 
@@ -186,6 +186,30 @@ test.group('Auth | login rate limits', (group) => {
     assert.equal(withCookie.header('location'), '/')
   })
 
+  test('a known-device cookie stops bypassing the limit after the credentials change', async ({
+    client,
+    assert,
+  }) => {
+    const victim = await UserFactory.apply('parent').create()
+    const first = await login(client, victim.email, PASSWORD, '192.0.2.1')
+    const cookie = first.cookie(KNOWN_DEVICE_COOKIE)!
+
+    // Password changed elsewhere (reset, invitation…): credentials version bumped
+    victim.password = 'Changed-password-2026'
+    await victim.save()
+    assert.equal(victim.credentialsVersion, 1)
+
+    await exhaustEmailBudget(client, victim.email)
+    const response = await login(
+      client,
+      victim.email,
+      'Changed-password-2026',
+      '192.0.2.1'
+    ).withEncryptedCookie(KNOWN_DEVICE_COOKIE, cookie.value)
+    assert.equal(response.header('location'), '/login')
+    assert.match(String(response.flashMessage('error')), /^Trop de tentatives/)
+  })
+
   test('a known-device cookie for account A does not bypass the limit for account B', async ({
     client,
     assert,
@@ -197,7 +221,7 @@ test.group('Auth | login rate limits', (group) => {
 
     const response = await login(client, accountB.email, PASSWORD, '192.0.2.1').withEncryptedCookie(
       KNOWN_DEVICE_COOKIE,
-      [knownDeviceHash(accountA.email)]
+      [knownDeviceHash(accountA)]
     )
     assert.equal(response.header('location'), '/login')
     assert.match(String(response.flashMessage('error')), /^Trop de tentatives/)
@@ -205,14 +229,14 @@ test.group('Auth | login rate limits', (group) => {
     // A forged (unencrypted) cookie is ignored too.
     const forged = await login(client, accountB.email, PASSWORD, '192.0.2.1').withPlainCookie(
       KNOWN_DEVICE_COOKIE,
-      [knownDeviceHash(accountB.email)]
+      [knownDeviceHash(accountB)]
     )
     assert.equal(forged.header('location'), '/login')
   })
 
   test('the IP+email limit still applies to known-device holders', async ({ client }) => {
     const user = await UserFactory.apply('admin').create()
-    const known = [knownDeviceHash(user.email)]
+    const known = [knownDeviceHash(user)]
 
     for (let attempt = 1; attempt <= 5; attempt++) {
       const response = await login(client, user.email, 'wrong').withEncryptedCookie(

@@ -5,10 +5,42 @@
  */
 
 import { BaseModel, column } from '@adonisjs/lucid/orm'
+import type { AllergenCode } from '#enums/allergens'
 import { DateTime } from 'luxon'
 import type { StoredSchoolSettings } from '#types/school_settings'
+import type { SubscriptionStatus } from '#enums/subscriptions'
+import type { UserTokenType } from '#enums/user_tokens'
 import type { AppLocale } from '#enums/locales'
 import type { Role } from '#enums/roles'
+
+export class ChildSchema extends BaseModel {
+  static $columns = ['allergies', 'className', 'createdAt', 'dietaryNotes', 'firstName', 'grade', 'id', 'isActive', 'lastName', 'parentId', 'schoolId', 'updatedAt'] as const
+  $columns = ChildSchema.$columns
+  @column()
+  declare allergies: AllergenCode[]
+  @column()
+  declare className: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare dietaryNotes: string | null
+  @column()
+  declare firstName: string
+  @column()
+  declare grade: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isActive: boolean
+  @column()
+  declare lastName: string
+  @column()
+  declare parentId: number
+  @column()
+  declare schoolId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
 
 export class RateLimitSchema extends BaseModel {
   static $columns = ['expire', 'key', 'points'] as const
@@ -63,11 +95,59 @@ export class SchoolSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class SubscriptionSchema extends BaseModel {
+  static $columns = ['childId', 'createdAt', 'endDate', 'id', 'notes', 'startDate', 'status', 'updatedAt'] as const
+  $columns = SubscriptionSchema.$columns
+  @column()
+  declare childId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare endDate: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare notes: string | null
+  @column()
+  declare startDate: string
+  @column()
+  declare status: SubscriptionStatus
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class UserTokenSchema extends BaseModel {
+  static $columns = ['createdAt', 'createdBy', 'expiresAt', 'id', 'requestIp', 'revokedAt', 'tokenHash', 'type', 'usedAt', 'userId'] as const
+  $columns = UserTokenSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number | null
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare requestIp: string | null
+  @column.dateTime()
+  declare revokedAt: DateTime | null
+  @column({ serializeAs: null })
+  declare tokenHash: string
+  @column()
+  declare type: UserTokenType
+  @column.dateTime()
+  declare usedAt: DateTime | null
+  @column()
+  declare userId: number
+}
+
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'role', 'schoolId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'credentialsVersion', 'email', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'role', 'schoolId', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare credentialsVersion: number
   @column()
   declare email: string
   @column()
