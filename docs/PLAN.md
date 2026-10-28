@@ -154,3 +154,15 @@ Phases 3 and 4 are independent of each other but run sequentially (one builder a
 
 ## Decisions to confirm before Phase 1
 Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 is not blocked by D1–D11 except where noted.
+
+## Deferred review follow-ups (Low, for Phase 9 unless a phase touches the code first)
+- Phase 1: TRUST_PROXY public-range check uses sample IPs only (wide ranges pass; Cloudflare ranges rejected) — check prefix lengths instead.
+- Phase 2: `setPassword` locks token then user while `issue()` locks user then tokens → possible deadlock; use the same lock order.
+- Phase 2: `invite()` checks `is_active`/`password` before the transaction; re-check after the lock.
+- Phase 2: `DeferredTasks` has no concurrency/queue cap; set SMTP connection/socket timeouts and a `drain()` timeout.
+- Phase 2: mail error logs may contain the full recipient in `err.response`; log only code/responseCode/command.
+- Phase 2: sessions without `auth_cv` adopt the current credentials version — adopt only via remember-me; forget the key on logout.
+- Phase 2: no DB constraint that `children.school_id` = parent's `school_id`.
+- Phase 2: CSV import errors and 403-vs-404 reveal accounts/parents in other schools — use generic messages / 404.
+- Phase 2: import confirm sends invitations synchronously; upload limits (route multipart limit ~1 MB, remove tmp file, cap pending imports).
+- Phase 2: import row errors prefixed with raw column keys instead of translated labels.
