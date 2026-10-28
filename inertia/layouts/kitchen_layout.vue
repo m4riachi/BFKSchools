@@ -19,9 +19,9 @@ const { isActive } = useActiveNav()
 
 const nav: NavItem[] = [
   { labelKey: 'nav.production', href: '/kitchen', exact: true },
-  { labelKey: 'nav.allergies', href: null },
-  { labelKey: 'nav.labels', href: null },
-  { labelKey: 'nav.exports', href: null },
+  { labelKey: 'nav.allergies', href: '/kitchen/allergies' },
+  { labelKey: 'nav.labels', href: '/kitchen/labels' },
+  { labelKey: 'nav.exports', href: '/kitchen/exports' },
   { labelKey: 'nav.meal_catalog', href: '/kitchen/meals' },
 ]
 
@@ -32,7 +32,7 @@ const isStaff = computed(() => user.value?.role === 'admin' || user.value?.role 
 <template>
   <div class="min-h-dvh bg-canvas">
     <header
-      class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-line bg-surface px-4 py-3 sm:px-8"
+      class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-line bg-surface px-4 py-3 sm:px-8 print:hidden"
     >
       <div class="flex flex-wrap items-center gap-x-7 gap-y-3">
         <div class="flex items-center gap-3">
@@ -93,7 +93,9 @@ const isStaff = computed(() => user.value?.role === 'admin' || user.value?.role 
       </div>
     </header>
 
-    <main class="mx-auto flex max-w-[1376px] flex-col gap-5 px-4 pt-7 pb-12 sm:px-8">
+    <main
+      class="mx-auto flex max-w-[1376px] flex-col gap-5 px-4 pt-7 pb-12 sm:px-8 print:max-w-none print:gap-3 print:p-0"
+    >
       <slot />
     </main>
   </div>

@@ -350,11 +350,17 @@ router
   .use([middleware.auth(), middleware.role({ roles: ['admin', 'manager'] })])
 
 /**
- * Kitchen area: admin + manager + kitchen (read-only)
+ * Kitchen area: admin + manager + kitchen (read-only — GET routes only;
+ * Phase 7 reports: production sheet, allergy sheet, labels PDF, exports).
  */
 router
   .group(() => {
     router.get('/', [controllers.kitchen.Dashboard, 'show']).as('dashboard')
+    router.get('allergies', [controllers.kitchen.Reports, 'allergies']).as('allergies')
+    router.get('labels', [controllers.kitchen.Reports, 'labels']).as('labels')
+    router.get('labels/pdf', [controllers.kitchen.Reports, 'labelsPdf']).as('labels.pdf')
+    router.get('exports', [controllers.kitchen.Reports, 'exports']).as('exports')
+    router.get('exports/download', [controllers.kitchen.Reports, 'download']).as('exports.download')
     router.get('meals', [controllers.kitchen.Meals, 'index']).as('meals.index')
     router.get('meals/:id', [controllers.kitchen.Meals, 'show']).where('id', id).as('meals.show')
   })

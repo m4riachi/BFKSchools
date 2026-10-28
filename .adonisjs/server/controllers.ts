@@ -25,6 +25,7 @@ export const controllers = {
   kitchen: {
     Dashboard: () => import('#controllers/kitchen/dashboard_controller'),
     Meals: () => import('#controllers/kitchen/meals_controller'),
+    Reports: () => import('#controllers/kitchen/reports_controller'),
   },
   Locale: () => import('#controllers/locale_controller'),
   Media: () => import('#controllers/media_controller'),

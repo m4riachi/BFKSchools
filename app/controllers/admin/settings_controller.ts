@@ -54,6 +54,7 @@ export default class SettingsController {
         billing_mode: values.billing_mode,
         subscription_required_for_main_meal: values.subscription_required_for_main_meal,
         supplement_max_quantity: values.supplement_max_quantity,
+        label_grid: { ...values.label_grid },
       },
       monthlyFee:
         values.monthly_fee_cents === null ? '' : centsToInput(values.monthly_fee_cents, locale),

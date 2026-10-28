@@ -88,6 +88,13 @@ export const schoolSettingsFormValidator = vine.create({
     billing_mode: vine.enum(['per_meal', 'monthly_fee'] as const),
     subscription_required_for_main_meal: vine.boolean(),
     supplement_max_quantity: vine.number().withoutDecimals().range([1, 20]),
+    /** Labels PDF grid (Phase 7). Optional so older clients keep working. */
+    label_grid: vine
+      .object({
+        cols: vine.number().withoutDecimals().range([1, 6]),
+        rows: vine.number().withoutDecimals().range([1, 20]),
+      })
+      .optional(),
   }),
   monthlyFee: vine.string().trim().maxLength(20).nullable().optional(),
 })

@@ -91,6 +91,11 @@ export type ScannedRoutes = {
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'kitchen.dashboard': { paramsTuple?: []; params?: {} }
+    'kitchen.allergies': { paramsTuple?: []; params?: {} }
+    'kitchen.labels': { paramsTuple?: []; params?: {} }
+    'kitchen.labels.pdf': { paramsTuple?: []; params?: {} }
+    'kitchen.exports': { paramsTuple?: []; params?: {} }
+    'kitchen.exports.download': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
@@ -125,6 +130,11 @@ export type ScannedRoutes = {
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'kitchen.dashboard': { paramsTuple?: []; params?: {} }
+    'kitchen.allergies': { paramsTuple?: []; params?: {} }
+    'kitchen.labels': { paramsTuple?: []; params?: {} }
+    'kitchen.labels.pdf': { paramsTuple?: []; params?: {} }
+    'kitchen.exports': { paramsTuple?: []; params?: {} }
+    'kitchen.exports.download': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
@@ -159,6 +169,11 @@ export type ScannedRoutes = {
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'kitchen.dashboard': { paramsTuple?: []; params?: {} }
+    'kitchen.allergies': { paramsTuple?: []; params?: {} }
+    'kitchen.labels': { paramsTuple?: []; params?: {} }
+    'kitchen.labels.pdf': { paramsTuple?: []; params?: {} }
+    'kitchen.exports': { paramsTuple?: []; params?: {} }
+    'kitchen.exports.download': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }

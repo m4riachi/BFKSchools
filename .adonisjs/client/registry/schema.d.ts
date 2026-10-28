@@ -1133,10 +1133,75 @@ export interface Registry {
       body: {}
       paramsTuple: []
       params: {}
-      query: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reports').reportDayValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'kitchen.allergies': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/allergies'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reports').reportDayValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['allergies']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['allergies']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['allergies']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'kitchen.labels': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/labels'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['labels']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['labels']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['labels']>>>
+    }
+  }
+  'kitchen.labels.pdf': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/labels/pdf'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reports').labelsQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['labelsPdf']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['labelsPdf']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['labelsPdf']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'kitchen.exports': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/exports'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['exports']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['exports']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['exports']>>>
+    }
+  }
+  'kitchen.exports.download': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/exports/download'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reports').exportQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['download']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['download']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'kitchen.meals.index': {

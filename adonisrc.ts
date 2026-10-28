@@ -138,6 +138,10 @@ export default defineConfig({
       pattern: 'resources/lang/**/*.{json,yaml,yml}',
       reloadServer: false,
     },
+    {
+      pattern: 'resources/fonts/*.{ttf,txt,md}',
+      reloadServer: false,
+    },
   ],
 
   hooks: {

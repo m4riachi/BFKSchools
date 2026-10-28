@@ -5,6 +5,7 @@ export const policies = {
   MenuPolicy: () => import('#policies/menu_policy'),
   OrderPolicy: () => import('#policies/order_policy'),
   ParentPolicy: () => import('#policies/parent_policy'),
+  ReportPolicy: () => import('#policies/report_policy'),
   SchoolPolicy: () => import('#policies/school_policy'),
 }
 

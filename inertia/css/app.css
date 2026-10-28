@@ -116,3 +116,44 @@
 [data-sonner-toast][data-type='error'] {
   @apply border-danger-line bg-danger-soft text-danger-ink;
 }
+
+/*
+ * Kitchen sheets (Phase 7): print on A4 without the app chrome. Layout
+ * headers, date pickers and buttons carry `print:hidden`; tables keep their
+ * header on every page and rows are never split.
+ */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body {
+    background: #fff;
+    font-size: 11px;
+  }
+
+  .card {
+    border-color: #b9c3be;
+    break-inside: avoid-page;
+  }
+
+  .print-table thead {
+    display: table-header-group;
+  }
+
+  .print-table tr {
+    break-inside: avoid;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Keep the danger / warning highlights when printing. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

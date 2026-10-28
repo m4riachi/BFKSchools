@@ -138,6 +138,13 @@ export interface ApiDefinition {
   }
   kitchen: {
     dashboard: typeof routes['kitchen.dashboard']
+    allergies: typeof routes['kitchen.allergies']
+    labels: typeof routes['kitchen.labels'] & {
+      pdf: typeof routes['kitchen.labels.pdf']
+    }
+    exports: typeof routes['kitchen.exports'] & {
+      download: typeof routes['kitchen.exports.download']
+    }
     meals: {
       index: typeof routes['kitchen.meals.index']
       show: typeof routes['kitchen.meals.show']

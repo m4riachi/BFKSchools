@@ -602,7 +602,7 @@ Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` 
 | unread notifications | `notifications (user_id) WHERE read_at IS NULL` |
 | outbox drain | `outbound_emails (status, send_after)` |
 
-Phase 7 runs `EXPLAIN ANALYZE` on the production/dashboard queries with seed data and adds indexes by migration if needed.
+Phase 7 runs `EXPLAIN ANALYZE` on the production/dashboard queries with seed data and adds indexes by migration if needed. **Done (Phase 7): no index needed** — every report query uses the indexes above plus `meal_order_items` UNIQUE `(meal_order_id, menu_item_id)` (timings in STACK_NOTES, Phase 7 surprises).
 
 ## 4. Derived (no table)
 - **Statements**: computed from `meal_order_items` of `active` orders (sum of `line_total_cents`), grouped by child / month. If `billing_mode = 'monthly_fee'`, subscription lines are replaced by `monthly_fee_cents` per subscribed child-month (proration rule to confirm if D1 changes).

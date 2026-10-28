@@ -32,7 +32,10 @@ declare module '@adonisjs/inertia/types' {
     'errors/forbidden': ExtractProps<(typeof import('../../inertia/pages/errors/forbidden.vue'))['default']>
     'errors/not_found': ExtractProps<(typeof import('../../inertia/pages/errors/not_found.vue'))['default']>
     'errors/server_error': ExtractProps<(typeof import('../../inertia/pages/errors/server_error.vue'))['default']>
+    'kitchen/allergies': ExtractProps<(typeof import('../../inertia/pages/kitchen/allergies.vue'))['default']>
     'kitchen/dashboard': ExtractProps<(typeof import('../../inertia/pages/kitchen/dashboard.vue'))['default']>
+    'kitchen/exports': ExtractProps<(typeof import('../../inertia/pages/kitchen/exports.vue'))['default']>
+    'kitchen/labels': ExtractProps<(typeof import('../../inertia/pages/kitchen/labels.vue'))['default']>
     'kitchen/meals/index': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/index.vue'))['default']>
     'kitchen/meals/show': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/show.vue'))['default']>
     'parent/orders/history': ExtractProps<(typeof import('../../inertia/pages/parent/orders/history.vue'))['default']>

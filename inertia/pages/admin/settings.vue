@@ -37,6 +37,7 @@ type Settings = {
   billing_mode: 'per_meal' | 'monthly_fee'
   subscription_required_for_main_meal: boolean
   supplement_max_quantity: number
+  label_grid: { cols: number; rows: number }
 }
 
 const props = defineProps<{
@@ -95,6 +96,10 @@ function submit() {
         reminder_hours_before_deadline: Number(data.settings.reminder_hours_before_deadline),
         edit_cutoff_days_before: Number(data.settings.edit_cutoff_days_before),
         supplement_max_quantity: Number(data.settings.supplement_max_quantity),
+        label_grid: {
+          cols: Number(data.settings.label_grid.cols),
+          rows: Number(data.settings.label_grid.rows),
+        },
       },
       monthlyFee: data.monthlyFee?.trim() ? data.monthlyFee.trim() : null,
     }))
@@ -285,6 +290,29 @@ function submit() {
             type="number"
             :label="t('settings.fields.supplement_max_quantity')"
             :error="err('settings.supplement_max_quantity')"
+            required
+          />
+        </div>
+      </section>
+
+      <section class="card flex flex-col gap-4 p-5">
+        <h2 class="text-lg font-bold">{{ t('settings.sections.kitchen') }}</h2>
+        <p class="text-sm text-ink-3">{{ t('settings.sections.kitchen_hint') }}</p>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <TextInput
+            id="label_grid_cols"
+            v-model="form.settings.label_grid.cols"
+            type="number"
+            :label="t('settings.fields.label_grid_cols')"
+            :error="err('settings.label_grid.cols')"
+            required
+          />
+          <TextInput
+            id="label_grid_rows"
+            v-model="form.settings.label_grid.rows"
+            type="number"
+            :label="t('settings.fields.label_grid_rows')"
+            :error="err('settings.label_grid.rows')"
             required
           />
         </div>

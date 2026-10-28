@@ -80,3 +80,23 @@ export const passwordLinkKeys = {
   requestEmail: (email: string) => `pwreset:email:${email}`,
   confirmIp: (ip: string) => `pwlink:confirm:ip:${rateLimitIpKey(ip)}`,
 }
+
+/*
+|--------------------------------------------------------------------------
+| Report downloads (Phase 7)
+|--------------------------------------------------------------------------
+|
+| Labels PDF and Excel/CSV exports are the heaviest authenticated requests
+| (bounded per file, but not in number): 30 downloads / min per user, then
+| 429. Pages of the kitchen area are not limited.
+|
+*/
+export const REPORT_DOWNLOAD_LIMITS = { requests: 30, duration: '1 min' } as const
+
+export function reportDownloadLimiter() {
+  return limiter.use({ ...REPORT_DOWNLOAD_LIMITS })
+}
+
+export const reportKeys = {
+  download: (userId: number) => `reports:download:${userId}`,
+}

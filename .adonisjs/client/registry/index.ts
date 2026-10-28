@@ -530,6 +530,36 @@ const routes = {
     tokens: [[0,"kitchen"]],
     types: placeholder as Registry['kitchen.dashboard']['types'],
   },
+  'kitchen.allergies': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/allergies',
+    tokens: [[0,"kitchen"],[0,"allergies"]],
+    types: placeholder as Registry['kitchen.allergies']['types'],
+  },
+  'kitchen.labels': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/labels',
+    tokens: [[0,"kitchen"],[0,"labels"]],
+    types: placeholder as Registry['kitchen.labels']['types'],
+  },
+  'kitchen.labels.pdf': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/labels/pdf',
+    tokens: [[0,"kitchen"],[0,"labels"],[0,"pdf"]],
+    types: placeholder as Registry['kitchen.labels.pdf']['types'],
+  },
+  'kitchen.exports': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/exports',
+    tokens: [[0,"kitchen"],[0,"exports"]],
+    types: placeholder as Registry['kitchen.exports']['types'],
+  },
+  'kitchen.exports.download': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/exports/download',
+    tokens: [[0,"kitchen"],[0,"exports"],[0,"download"]],
+    types: placeholder as Registry['kitchen.exports.download']['types'],
+  },
   'kitchen.meals.index': {
     methods: ["GET","HEAD"],
     pattern: '/kitchen/meals',

@@ -241,12 +241,12 @@ test.group('Menus | status transitions', (group) => {
 
     const closed = await status.close(published)
     for (const attempt of [
-      status.schedule(school, closed, manager),
-      status.unschedule(closed, manager),
-      status.publishNow(closed, manager),
-      status.close(closed),
+      () => status.schedule(school, closed, manager),
+      () => status.unschedule(closed, manager),
+      () => status.publishNow(closed, manager),
+      () => status.close(closed),
     ]) {
-      await expectRule(assert, attempt, 'menus.errors.invalid_transition')
+      await expectRule(assert, attempt(), 'menus.errors.invalid_transition')
     }
     assert.equal((await WeeklyMenu.findOrFail(draft.id)).status, 'closed')
   })

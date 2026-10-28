@@ -12,7 +12,9 @@
     "holidays": "Holidays",
     "notifications": "Notification emails",
     "notifications_hint": "In-app notifications are always created; these settings only affect emails.",
-    "billing": "Billing"
+    "billing": "Billing",
+    "kitchen": "Kitchen",
+    "kitchen_hint": "A4 label sheet layout (default 3 × 8, i.e. 70 × 37 mm)."
   },
   "fields": {
     "school_days": "School days",
@@ -47,7 +49,9 @@
     "billing_mode_per_meal": "Each subscription meal at its price",
     "billing_mode_monthly_fee": "Monthly fee",
     "monthly_fee": "Monthly fee (MAD)",
-    "edit_cutoff_days_before_not_applicable": "Not applicable in same-day mode: only today's meal can be changed, before the cutoff time."
+    "edit_cutoff_days_before_not_applicable": "Not applicable in same-day mode: only today's meal can be changed, before the cutoff time.",
+    "label_grid_cols": "Labels: columns per page (1–6)",
+    "label_grid_rows": "Labels: rows per page (1–20)"
   },
   "weekdays": {
     "1": "Monday",

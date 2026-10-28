@@ -12,7 +12,9 @@
     "holidays": "Jours fériés",
     "notifications": "E-mails de notification",
     "notifications_hint": "Les notifications dans l'application sont toujours créées ; ces réglages ne concernent que les e-mails.",
-    "billing": "Facturation"
+    "billing": "Facturation",
+    "kitchen": "Cuisine",
+    "kitchen_hint": "Format des planches d’étiquettes A4 (par défaut 3 × 8, soit 70 × 37 mm)."
   },
   "fields": {
     "school_days": "Jours d'école",
@@ -47,7 +49,9 @@
     "billing_mode_per_meal": "Chaque repas d'abonnement à son prix",
     "billing_mode_monthly_fee": "Forfait mensuel",
     "monthly_fee": "Forfait mensuel (MAD)",
-    "edit_cutoff_days_before_not_applicable": "Sans objet en mode « jour même » : seul le repas du jour peut être modifié, avant l’heure limite."
+    "edit_cutoff_days_before_not_applicable": "Sans objet en mode « jour même » : seul le repas du jour peut être modifié, avant l’heure limite.",
+    "label_grid_cols": "Étiquettes : colonnes par page (1 à 6)",
+    "label_grid_rows": "Étiquettes : lignes par page (1 à 20)"
   },
   "weekdays": {
     "1": "Lundi",
