@@ -15,8 +15,8 @@ Write a pure core function, for example `evaluate({ date, now, menu, isHoliday, 
 
 Rules, checked in this order:
 1. **Locked** when the date is before today, the date is a holiday, the date has no published menu, or the child or parent is inactive.
-2. **Kitchen lock**: each day locks at its cutoff = (date − `edit_cutoff_days_before` days) at `edit_cutoff_time`, in Africa/Casablanca. This applies even before the order deadline.
-3. **Before `order_deadline_at`**: creating, changing and cancelling are allowed (subject to rules 1 and 2).
+2. **Kitchen lock**: each day locks at its cutoff = (date − `edit_cutoff_days_before` days) at `edit_cutoff_time`, in Africa/Casablanca. Per D22 it applies only after the order deadline (brief §5.6).
+3. **Before `order_deadline_at`**: creating, changing and cancelling are allowed (subject to rule 1 only).
 4. **After the deadline**: allowed only if `allow_parent_edits` is true, and then:
    - `until_cutoff` → allowed until the day's cutoff;
    - `same_day_only` → allowed only when the date is today and now is before today's cutoff time.
