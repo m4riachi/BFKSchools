@@ -166,3 +166,8 @@ Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 i
 - Phase 2: CSV import errors and 403-vs-404 reveal accounts/parents in other schools — use generic messages / 404.
 - Phase 2: import confirm sends invitations synchronously; upload limits (route multipart limit ~1 MB, remove tmp file, cap pending imports).
 - Phase 2: import row errors prefixed with raw column keys instead of translated labels.
+- Phase 3: media route has no Bouncer check (add `MealPolicy.viewPhoto`; in Phase 6 consider limiting parents to published/ordered meals).
+- Phase 3: enforce upload body limit + timeout at the reverse proxy (empty-filename parts bypass the 49 MB count); cap concurrent sharp decodes and rate-limit uploads.
+- Phase 3: sharp `failOn: 'error'` → default `'warning'`; `money.ts` trim regex is quadratic (add a length guard before Phase 6 reuses it); require https `S3_ENDPOINT` in production.
+- Phase 3: `new Date()` for `updated_at` in `meal_photo_service.ts` → Clock / `now()`.
+- Phase 5: meal type lock is check-then-save — lock the meal row and take the same lock when inserting menu items.

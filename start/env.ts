@@ -8,7 +8,7 @@
 */
 
 import { Env } from '@adonisjs/core/env'
-import { assertSafeProductionEnv, parseTrustProxy } from '#support/env_guards'
+import { assertDriveEnv, assertSafeProductionEnv, parseTrustProxy } from '#support/env_guards'
 
 const env = await Env.create(new URL('../', import.meta.url), {
   // Node
@@ -50,9 +50,28 @@ const env = await Env.create(new URL('../', import.meta.url), {
   SMTP_PORT: Env.schema.number.optional(),
   SMTP_USERNAME: Env.schema.string.optional(),
   SMTP_PASSWORD: Env.schema.string.optional(),
+
+  // File storage (meal photos). "fs" = local disk under storage/ (dev/test),
+  // "s3" = any S3-compatible bucket (AWS S3, Cloudflare R2, MinIO, …) in
+  // production. The S3_* variables are required only when DRIVE_DISK=s3
+  // (checked by assertDriveEnv below).
+  DRIVE_DISK: Env.schema.enum(['fs', 's3'] as const),
+  S3_ACCESS_KEY_ID: Env.schema.string.optional(),
+  S3_SECRET_ACCESS_KEY: Env.schema.secret.optional(),
+  S3_REGION: Env.schema.string.optional(),
+  S3_BUCKET: Env.schema.string.optional(),
+  S3_ENDPOINT: Env.schema.string.optional({ format: 'url', tld: false }),
+  S3_FORCE_PATH_STYLE: Env.schema.boolean.optional(),
 })
 
 assertSafeProductionEnv({ NODE_ENV: env.get('NODE_ENV'), MAIL_MAILER: env.get('MAIL_MAILER') })
 parseTrustProxy(env.get('TRUST_PROXY'))
+assertDriveEnv({
+  DRIVE_DISK: env.get('DRIVE_DISK'),
+  S3_ACCESS_KEY_ID: env.get('S3_ACCESS_KEY_ID'),
+  S3_SECRET_ACCESS_KEY: env.get('S3_SECRET_ACCESS_KEY')?.release(),
+  S3_REGION: env.get('S3_REGION'),
+  S3_BUCKET: env.get('S3_BUCKET'),
+})
 
 export default env

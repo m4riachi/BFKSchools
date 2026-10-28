@@ -30,10 +30,26 @@ export function formatMad(cents: number, locale: Locale = 'fr'): string {
  * with at most 2 decimals.
  */
 export function parseMadToCents(input: string): number | null {
-  const normalized = input.replace(/[\s\u00A0\u202F]/g, '').replace(',', '.')
-  const match = /^(\d+)(?:\.(\d{1,2}))?$/.exec(normalized)
+  // Surrounding spaces are ignored; inside the number, a space (also NBSP or
+  // narrow NBSP) is only allowed as a thousands separator before groups of
+  // exactly 3 digits ("1 234,50"). "12 50", tabs and newlines are refused.
+  const trimmed = input.replace(/^[ \u00A0\u202F]+|[ \u00A0\u202F]+$/g, '')
+  const match = /^(\d{1,3}(?:[ \u00A0\u202F]\d{3})+|\d+)(?:[.,](\d{1,2}))?$/.exec(trimmed)
   if (!match) return null
 
-  const cents = Number(match[1]) * 100 + Number((match[2] ?? '').padEnd(2, '0'))
+  const whole = match[1].replace(/[ \u00A0\u202F]/g, '')
+  const cents = Number(whole) * 100 + Number((match[2] ?? '').padEnd(2, '0'))
   return Number.isSafeInteger(cents) ? cents : null
+}
+
+/**
+ * Centimes as the value of a price input ("12,50" in French, "12.50" in
+ * English), the reverse of `parseMadToCents`.
+ */
+export function centsToInput(cents: number, locale: Locale = 'fr'): string {
+  if (!Number.isSafeInteger(cents) || cents < 0) {
+    throw new TypeError(`Invalid amount in centimes: ${cents}`)
+  }
+  const digits = String(cents).padStart(3, '0')
+  return `${digits.slice(0, -2)}${locale === 'fr' ? ',' : '.'}${digits.slice(-2)}`
 }

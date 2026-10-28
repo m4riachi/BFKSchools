@@ -2,7 +2,7 @@ import { test } from '@japa/runner'
 import { rateLimitIpKey } from '#support/ip'
 import proxyaddr from 'proxy-addr'
 import { defineConfig } from '@adonisjs/core/http'
-import { assertSafeProductionEnv, parseTrustProxy } from '#support/env_guards'
+import { assertDriveEnv, assertSafeProductionEnv, parseTrustProxy } from '#support/env_guards'
 import type { TrustProxyFn } from '#support/env_guards'
 import { LogTransport, maskEmail } from '#app/mail/log_transport'
 import type { NodeMailerMessage } from '@adonisjs/mail/types'
@@ -25,6 +25,23 @@ test.group('Rate-limit IP key', () => {
 })
 
 test.group('Environment guards', () => {
+  test('DRIVE_DISK=s3 requires the bucket, region and credentials', ({ assert }) => {
+    assert.doesNotThrow(() => assertDriveEnv({ DRIVE_DISK: 'fs' }))
+    assert.throws(
+      () => assertDriveEnv({ DRIVE_DISK: 's3', S3_BUCKET: 'b' }),
+      /S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION/
+    )
+    assert.doesNotThrow(() =>
+      assertDriveEnv({
+        DRIVE_DISK: 's3',
+        S3_ACCESS_KEY_ID: 'a',
+        S3_SECRET_ACCESS_KEY: 's',
+        S3_REGION: 'auto',
+        S3_BUCKET: 'b',
+      })
+    )
+  })
+
   test('MAIL_MAILER=log is refused in production only', ({ assert }) => {
     assert.throws(
       () => assertSafeProductionEnv({ NODE_ENV: 'production', MAIL_MAILER: 'log' }),

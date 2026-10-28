@@ -18,5 +18,6 @@
   "parent_orders": "Commandes",
   "parent_history": "Historique",
   "parent_statements": "Relevés",
-  "parent_account": "Compte"
+  "parent_account": "Compte",
+  "meal_catalog": "Catalogue"
 }

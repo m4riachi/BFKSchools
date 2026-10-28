@@ -7,6 +7,7 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import type { AllergenCode } from '#enums/allergens'
 import { DateTime } from 'luxon'
+import type { MealCategory, MealType } from '#enums/meals'
 import type { StoredSchoolSettings } from '#types/school_settings'
 import type { SubscriptionStatus } from '#enums/subscriptions'
 import type { UserTokenType } from '#enums/user_tokens'
@@ -38,6 +39,72 @@ export class ChildSchema extends BaseModel {
   declare parentId: number
   @column()
   declare schoolId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class MealPhotoSchema extends BaseModel {
+  static $columns = ['createdAt', 'disk', 'height', 'id', 'isCover', 'mealId', 'path', 'position', 'sizeBytes', 'thumbPath', 'updatedAt', 'width'] as const
+  $columns = MealPhotoSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare disk: string
+  @column()
+  declare height: number | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isCover: boolean
+  @column()
+  declare mealId: number
+  @column()
+  declare path: string
+  @column()
+  declare position: number
+  @column()
+  declare sizeBytes: number | null
+  @column()
+  declare thumbPath: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare width: number | null
+}
+
+export class MealSchema extends BaseModel {
+  static $columns = ['allergens', 'category', 'createdAt', 'createdBy', 'deletedAt', 'descriptionEn', 'descriptionFr', 'externalRecipeRef', 'id', 'isActive', 'nameEn', 'nameFr', 'priceCents', 'tags', 'type', 'updatedAt'] as const
+  $columns = MealSchema.$columns
+  @column()
+  declare allergens: AllergenCode[]
+  @column()
+  declare category: MealCategory
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number | null
+  @column.dateTime()
+  declare deletedAt: DateTime | null
+  @column()
+  declare descriptionEn: string | null
+  @column()
+  declare descriptionFr: string | null
+  @column()
+  declare externalRecipeRef: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isActive: boolean
+  @column()
+  declare nameEn: string
+  @column()
+  declare nameFr: string
+  @column()
+  declare priceCents: number
+  @column()
+  declare tags: string[]
+  @column()
+  declare type: MealType
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }

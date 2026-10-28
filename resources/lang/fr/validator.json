@@ -30,7 +30,9 @@
       "strongPassword": "Le mot de passe doit contenir au moins 10 caractères, dont une lettre et un chiffre.",
       "file": "Choisissez un fichier.",
       "file.size": "Le fichier est trop volumineux (maximum {size}).",
-      "file.extname": "Le fichier doit être au format CSV."
+      "file.extname": "Le fichier doit être au format CSV.",
+      "madAmount": "Saisissez un montant valide avec au plus 2 décimales (par ex. 12,50).",
+      "madRange": "Le prix doit être compris entre 0,01 et 10 000,00 MAD."
     },
     "fields": {
       "email": "e-mail",
@@ -60,7 +62,18 @@
       "child_last_name": "child_last_name",
       "class_name": "class_name",
       "subscription_start": "subscription_start",
-      "subscription_end": "subscription_end"
+      "subscription_end": "subscription_end",
+      "nameFr": "nom (français)",
+      "nameEn": "nom (anglais)",
+      "descriptionFr": "description (français)",
+      "descriptionEn": "description (anglais)",
+      "type": "type",
+      "category": "catégorie",
+      "price": "prix",
+      "allergens": "allergènes",
+      "tags": "étiquettes",
+      "externalRecipeRef": "référence recette",
+      "ids": "photos"
     }
   }
 }

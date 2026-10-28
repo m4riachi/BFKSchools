@@ -8,6 +8,8 @@ export const controllers = {
     Children: () => import('#controllers/admin/children_controller'),
     Dashboard: () => import('#controllers/admin/dashboard_controller'),
     FamilyImports: () => import('#controllers/admin/family_imports_controller'),
+    MealPhotos: () => import('#controllers/admin/meal_photos_controller'),
+    Meals: () => import('#controllers/admin/meals_controller'),
     Parents: () => import('#controllers/admin/parents_controller'),
     Subscriptions: () => import('#controllers/admin/subscriptions_controller'),
   },
@@ -17,8 +19,10 @@ export const controllers = {
   },
   kitchen: {
     Dashboard: () => import('#controllers/kitchen/dashboard_controller'),
+    Meals: () => import('#controllers/kitchen/meals_controller'),
   },
   Locale: () => import('#controllers/locale_controller'),
+  Media: () => import('#controllers/media_controller'),
   parent: {
     Home: () => import('#controllers/parent/home_controller'),
   },

@@ -60,8 +60,10 @@ const bodyParserConfig = defineConfig({
 
     /**
      * Routes where multipart processing is handled manually.
+     * - meal photo upload: MealPhotosController buffers the files in memory
+     *   with per-file and per-route limits (MEAL_PHOTOS in config/meals.ts).
      */
-    processManually: [],
+    processManually: ['/admin/meals/:id/photos'],
 
     /**
      * Maximum accepted payload size for multipart requests.

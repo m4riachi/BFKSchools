@@ -138,6 +138,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
+  'media.meal_photo': {
+    methods: ["GET","HEAD"]
+    pattern: '/media/meal-photos/:id/:variant'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; variant: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/media_controller').default['mealPhoto']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/media_controller').default['mealPhoto']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/media_controller').default['mealPhoto']>>>
+    }
+  }
   'parent.home': {
     methods: ["GET","HEAD"]
     pattern: '/'
@@ -385,6 +398,149 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/subscriptions_controller').default['destroy']>>>
     }
   }
+  'admin.meals.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/meals'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['index']>>>
+    }
+  }
+  'admin.meals.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/meals/create'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['create']>>>
+    }
+  }
+  'admin.meals.store': {
+    methods: ["POST"]
+    pattern: '/admin/meals'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/meals').mealValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/meals').mealValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.meals.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/meals/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['edit']>>>
+    }
+  }
+  'admin.meals.update': {
+    methods: ["PUT"]
+    pattern: '/admin/meals/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/meals').mealValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/meals').mealValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.meals.duplicate': {
+    methods: ["POST"]
+    pattern: '/admin/meals/:id/duplicate'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['duplicate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['duplicate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['duplicate']>>>
+    }
+  }
+  'admin.meals.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/meals/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['destroy']>>>
+    }
+  }
+  'admin.meals.photos.store': {
+    methods: ["POST"]
+    pattern: '/admin/meals/:id/photos'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['store']>>>
+    }
+  }
+  'admin.meals.photos.reorder': {
+    methods: ["PUT"]
+    pattern: '/admin/meals/:id/photos/order'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/meals').mealPhotoOrderValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/meals').mealPhotoOrderValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['reorder']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['reorder']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['reorder']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.meals.photos.cover': {
+    methods: ["POST"]
+    pattern: '/admin/meals/:id/photos/:photoId/cover'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; photoId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['cover']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['cover']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['cover']>>>
+    }
+  }
+  'admin.meals.photos.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/meals/:id/photos/:photoId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; photoId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['destroy']>>>
+    }
+  }
   'admin.imports.create': {
     methods: ["GET","HEAD"]
     pattern: '/admin/imports/families'
@@ -461,6 +617,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/dashboard_controller').default['show']>>>
+    }
+  }
+  'kitchen.meals.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/meals'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['index']>>>
+    }
+  }
+  'kitchen.meals.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/meals/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['show']>>>
     }
   }
 }

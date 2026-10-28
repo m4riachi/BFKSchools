@@ -21,6 +21,7 @@ AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setu
 - Typecheck / lint: `npm run typecheck` · `npm run lint` (`npx eslint . --fix` to auto-format)
 - Codegen (routes/controllers/policies/pages indexes): `node ace codegen` (also runs on `serve`/`build`)
 - Build: `npm run build` (= `node ace build` → `build/`; run with `cd build && npm ci --omit=dev && node bin/server.js`)
+- File storage (meal photos): `DRIVE_DISK=fs` writes to `./storage` (gitignored; never served directly — photos go through `/media/meal-photos/:id/:variant`, logged-in users only). Production: `DRIVE_DISK=s3` + `S3_*` (any S3-compatible bucket, keep it private; see `.env.example`). Tests use `drive.fake('fs')`. Limits live in `config/meals.ts` (`MEAL_PHOTOS`).
 - Mail in dev: `MAIL_MAILER=smtp` sends to Mailpit (127.0.0.1:1025); `MAIL_MAILER=log` (no SMTP server; dev/test only, refused in production) logs subject + masked recipient; add `MAIL_LOG_BODY=true` to also log the body (invitation/reset links). `MAIL_LOG_BODY` is ignored in production. Tests always use `mail.fake()`.
 
 ## Golden rules (never break)

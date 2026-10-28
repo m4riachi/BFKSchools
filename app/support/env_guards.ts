@@ -22,6 +22,26 @@ export function assertSafeProductionEnv(values: { NODE_ENV: string; MAIL_MAILER:
 }
 
 /**
+ * DRIVE_DISK=s3 needs the bucket, region and credentials (the S3 variables
+ * are optional otherwise, so dev and test run without them).
+ */
+export function assertDriveEnv(values: {
+  DRIVE_DISK: string
+  S3_ACCESS_KEY_ID?: string
+  S3_SECRET_ACCESS_KEY?: string
+  S3_REGION?: string
+  S3_BUCKET?: string
+}) {
+  if (values.DRIVE_DISK !== 's3') return
+  const missing = (
+    ['S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_REGION', 'S3_BUCKET'] as const
+  ).filter((name) => !values[name])
+  if (missing.length) {
+    throw new Error(`DRIVE_DISK=s3 requires ${missing.join(', ')}.`)
+  }
+}
+
+/**
  * Public addresses that no trusted proxy list may contain. If one of them is
  * trusted, (almost) any client can set X-Forwarded-For and choose the IP used
  * by the login rate limiters (e.g. `0.0.0.0/1, 128.0.0.0/1`).

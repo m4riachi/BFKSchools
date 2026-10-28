@@ -11,6 +11,7 @@
 import { middleware } from '#start/kernel'
 import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
+import { dbIdMatcher } from '#support/route_matchers'
 
 /**
  * Guests
@@ -64,6 +65,17 @@ router
   .use(middleware.auth())
 
 /**
+ * Meal photos for any logged-in user (no storage key in the URL; see
+ * MediaController).
+ */
+router
+  .get('media/meal-photos/:id/:variant', [controllers.Media, 'mealPhoto'])
+  .where('id', dbIdMatcher)
+  .where('variant', { match: /^(full|thumb)$/ })
+  .as('media.meal_photo')
+  .use(middleware.auth())
+
+/**
  * Parent portal (mobile-first). Staff visiting "/" are redirected to their home.
  */
 router
@@ -75,7 +87,8 @@ router
 /**
  * Back-office: admin + manager
  */
-const id = router.matchers.number()
+/** Database ids: 1..2147483647 only (others → 404, never an int4 overflow). */
+const id = dbIdMatcher
 router
   .group(() => {
     router.get('/', [controllers.admin.Dashboard, 'show']).as('dashboard')
@@ -136,6 +149,41 @@ router
       .where('parentId', id)
       .as('children')
 
+    // Meal catalog (Phase 3). Delete = soft delete.
+    router.get('meals', [controllers.admin.Meals, 'index']).as('meals.index')
+    router.get('meals/create', [controllers.admin.Meals, 'create']).as('meals.create')
+    router.post('meals', [controllers.admin.Meals, 'store']).as('meals.store')
+    router.get('meals/:id/edit', [controllers.admin.Meals, 'edit']).where('id', id).as('meals.edit')
+    router.put('meals/:id', [controllers.admin.Meals, 'update']).where('id', id).as('meals.update')
+    router
+      .post('meals/:id/duplicate', [controllers.admin.Meals, 'duplicate'])
+      .where('id', id)
+      .as('meals.duplicate')
+    router
+      .delete('meals/:id', [controllers.admin.Meals, 'destroy'])
+      .where('id', id)
+      .as('meals.destroy')
+    // Photos. The upload route's multipart body is processed by the controller
+    // (config/bodyparser.ts `processManually` lists this exact pattern).
+    router
+      .post('meals/:id/photos', [controllers.admin.MealPhotos, 'store'])
+      .where('id', id)
+      .as('meals.photos.store')
+    router
+      .put('meals/:id/photos/order', [controllers.admin.MealPhotos, 'reorder'])
+      .where('id', id)
+      .as('meals.photos.reorder')
+    router
+      .post('meals/:id/photos/:photoId/cover', [controllers.admin.MealPhotos, 'cover'])
+      .where('id', id)
+      .where('photoId', id)
+      .as('meals.photos.cover')
+    router
+      .delete('meals/:id/photos/:photoId', [controllers.admin.MealPhotos, 'destroy'])
+      .where('id', id)
+      .where('photoId', id)
+      .as('meals.photos.destroy')
+
     // CSV import of families
     router.get('imports/families', [controllers.admin.FamilyImports, 'create']).as('imports.create')
     router
@@ -163,6 +211,8 @@ router
 router
   .group(() => {
     router.get('/', [controllers.kitchen.Dashboard, 'show']).as('dashboard')
+    router.get('meals', [controllers.kitchen.Meals, 'index']).as('meals.index')
+    router.get('meals/:id', [controllers.kitchen.Meals, 'show']).where('id', id).as('meals.show')
   })
   .prefix('kitchen')
   .as('kitchen')

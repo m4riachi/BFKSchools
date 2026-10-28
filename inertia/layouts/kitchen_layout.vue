@@ -22,6 +22,7 @@ const nav: NavItem[] = [
   { labelKey: 'nav.allergies', href: null },
   { labelKey: 'nav.labels', href: null },
   { labelKey: 'nav.exports', href: null },
+  { labelKey: 'nav.meal_catalog', href: '/kitchen/meals' },
 ]
 
 const user = computed(() => page.props.user)

@@ -383,6 +383,7 @@ Ready for payments later: a future `invoices`/`payments` pair can reference `sub
 
 **Soft-delete approach:** "Delete" in the back-office always sets `deleted_at` (and `is_active = false`); there is no hard delete in the app. No global `beforeFind` hook (it would hide deleted meals from order history and statements, which must still show them); instead explicit scopes `Meal.query().apply(s => s.catalog())` (= `deleted_at IS NULL`) used by the catalog and menu builder, and nothing on joins from orders. FKs from `menu_items`, `menu_template_items`, `meal_order_items` are `RESTRICT`, so even raw SQL can't remove a used meal. (The community soft-delete package is not v7-compatible — STACK_NOTES §2.)
 Indexes: `(type, category) WHERE deleted_at IS NULL`, `(is_active) WHERE deleted_at IS NULL`.
+Phase 3 additions: CHECK `deleted_at IS NULL OR NOT is_active` (a deleted meal is never active), CHECK `length(btrim(name_fr|name_en)) > 0`. The app also requires `price_cents > 0` (validator; the DB keeps `>= 0`). Photos of a soft-deleted meal are kept (rows and files) for history; they can no longer be changed.
 
 ### meal_photos — Phase 3
 | Column | Type | Null | Default | Notes |
@@ -399,6 +400,7 @@ Indexes: `(type, category) WHERE deleted_at IS NULL`, `(is_active) WHERE deleted
 | created_at / updated_at | timestamptz | NN | now() | |
 
 Index `(meal_id, position)`. Deleting a photo row deletes both files (after commit).
+Phase 3 additions: UNIQUE `path`, UNIQUE `thumb_path`, CHECK `position >= 0`, CHECK width/height/size_bytes > 0 when set. Keys are random UUIDs (never the client's file name); the browser only sees `/media/meal-photos/<id>/<full|thumb>`.
 
 ### holidays — Phase 4
 | Column | Type | Null | Default | Notes |

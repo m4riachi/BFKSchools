@@ -22,6 +22,9 @@ export interface ApiDefinition {
   locale: {
     update: typeof routes['locale.update']
   }
+  media: {
+    mealPhoto: typeof routes['media.meal_photo']
+  }
   parent: {
     home: typeof routes['parent.home']
   }
@@ -50,6 +53,21 @@ export interface ApiDefinition {
         destroy: typeof routes['admin.children.subscriptions.destroy']
       }
     }
+    meals: {
+      index: typeof routes['admin.meals.index']
+      create: typeof routes['admin.meals.create']
+      store: typeof routes['admin.meals.store']
+      edit: typeof routes['admin.meals.edit']
+      update: typeof routes['admin.meals.update']
+      duplicate: typeof routes['admin.meals.duplicate']
+      destroy: typeof routes['admin.meals.destroy']
+      photos: {
+        store: typeof routes['admin.meals.photos.store']
+        reorder: typeof routes['admin.meals.photos.reorder']
+        cover: typeof routes['admin.meals.photos.cover']
+        destroy: typeof routes['admin.meals.photos.destroy']
+      }
+    }
     imports: {
       create: typeof routes['admin.imports.create']
       template: typeof routes['admin.imports.template']
@@ -60,5 +78,9 @@ export interface ApiDefinition {
   }
   kitchen: {
     dashboard: typeof routes['kitchen.dashboard']
+    meals: {
+      index: typeof routes['kitchen.meals.index']
+      show: typeof routes['kitchen.meals.show']
+    }
   }
 }

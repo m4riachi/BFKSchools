@@ -1,0 +1,167 @@
+{
+  "duplicate_suffix": "(copy)",
+  "types": {
+    "subscription": "Subscription",
+    "supplement": "Supplement"
+  },
+  "types_plural": {
+    "all": "All",
+    "subscription": "Subscription",
+    "supplement": "Supplements"
+  },
+  "categories": {
+    "all": "All categories",
+    "main": "Main course",
+    "starter": "Starter",
+    "dessert": "Dessert",
+    "drink": "Drink",
+    "snack": "Snack"
+  },
+  "active_filters": {
+    "all": "Active and inactive",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "tags": {
+    "vegetarian": "Vegetarian",
+    "vegan": "Vegan",
+    "halal": "Halal",
+    "spicy": "Spicy",
+    "gluten_free": "Gluten-free"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "list": {
+    "title": "Meal catalog",
+    "kitchen_title": "Meal catalog",
+    "description": "{count, plural, =0 {No meals} one {# meal} other {# meals}}",
+    "kitchen_description": "Read-only: ingredients, allergens and photos.",
+    "new": "New meal",
+    "search_label": "Search meals",
+    "search_placeholder": "Name or recipe reference…",
+    "type_filter": "Meal type",
+    "category_filter": "Category",
+    "active_filter": "Status",
+    "view_label": "View",
+    "view_grid": "Grid",
+    "view_list": "List",
+    "empty_title": "No meals yet",
+    "empty_body": "Create the first meal of the catalog.",
+    "no_results_title": "No matching meals",
+    "no_results_body": "Change the search or the filters.",
+    "photos_count": "{count, plural, =0 {No photo} one {# photo} other {# photos}}",
+    "no_photo": "No photo",
+    "edit": "Edit",
+    "view": "View",
+    "edit_label": "Edit {name}",
+    "view_label_meal": "View {name}",
+    "columns": {
+      "meal": "Meal",
+      "type": "Type",
+      "category": "Category",
+      "price": "Price",
+      "allergens": "Allergens",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "allergens_more": "+{count}",
+    "no_allergens": "None"
+  },
+  "form": {
+    "create_title": "New meal",
+    "edit_title": "Edit “{name}”",
+    "back": "Back to the catalog",
+    "details": "Details",
+    "name_fr": "Name (French)",
+    "name_en": "Name (English)",
+    "description_fr": "Description (French)",
+    "description_en": "Description (English)",
+    "description_hint": "Ingredients, sides… shown to parents.",
+    "type": "Type",
+    "type_hint": "Subscription: the main lunch included in the subscription (one per day). Supplement: a paid extra item, with a quantity.",
+    "category": "Category",
+    "price": "Price (MAD)",
+    "price_hint": "Up to 2 decimals, e.g. 45 or 12.50.",
+    "allergens": "Allergens (14 EU allergens)",
+    "allergens_hint": "Tick every allergen the meal contains.",
+    "tags": "Tags",
+    "is_active": "Active meal",
+    "is_active_hint": "An inactive meal can't be added to new menus.",
+    "external_recipe_ref": "Recipe reference (optional)",
+    "external_recipe_ref_hint": "For a future link with BFK's central platform.",
+    "save": "Save",
+    "create": "Create meal",
+    "photos_after_create": "You can add photos once the meal is created.",
+    "duplicate": "Duplicate",
+    "delete": "Delete",
+    "delete_title": "Delete this meal?",
+    "delete_body": "“{name}” will disappear from the catalog and future menus. It stays visible in order history and statements.",
+    "delete_confirm": "Delete meal",
+    "duplicate_title": "Duplicate this meal?",
+    "duplicate_body": "An inactive copy of “{name}” will be created, with its photos.",
+    "duplicate_confirm": "Duplicate"
+  },
+  "photos": {
+    "title": "Photos",
+    "description": "The cover photo is shown in the catalog and to parents.",
+    "drop": "Drop your photos here",
+    "or": "or",
+    "choose": "Choose files",
+    "rules": "JPG, PNG or WebP · {size} MB max per file · {files} files at a time · {total} photos per meal",
+    "uploading": "Uploading…",
+    "count": "{count} / {max} photos",
+    "empty": "No photos for this meal.",
+    "cover": "Cover",
+    "set_cover": "Set as cover",
+    "set_cover_label": "Set photo {position} as cover",
+    "delete": "Delete photo",
+    "delete_label": "Delete photo {position}",
+    "delete_title": "Delete this photo?",
+    "delete_body": "The photo and its thumbnail will be deleted permanently.",
+    "move_before": "Move photo {position} left",
+    "move_after": "Move photo {position} right",
+    "drag_hint": "Drag photos to change their order.",
+    "alt": "Photo {position} of {name}",
+    "full_limit": "Maximum number of photos reached.",
+    "flash": {
+      "uploaded": "{count, plural, one {Photo added.} other {# photos added.}}",
+      "reordered": "Photo order saved.",
+      "cover": "Cover photo changed.",
+      "deleted": "Photo deleted."
+    },
+    "errors": {
+      "none": "Choose at least one photo.",
+      "too_many_files": "Upload at most {max} photos at a time.",
+      "request_too_large": "Upload too large: send at most {max} photos at a time, 8 MB max each.",
+      "meal_full": "A meal can have at most {max} photos.",
+      "too_large": "“{name}” is too large (max {max} MB).",
+      "type": "“{name}” is not a JPG, PNG or WebP image.",
+      "corrupt": "“{name}” can't be read or is damaged.",
+      "too_many_pixels": "“{name}” has too high a resolution (max {pixels} megapixels).",
+      "too_small": "“{name}” is too small (at least {min} pixels per side).",
+      "order_mismatch": "The photo list changed. Reload the page and try again."
+    }
+  },
+  "flash": {
+    "created": "Meal “{name}” created. Now add its photos.",
+    "updated": "Meal “{name}” saved.",
+    "duplicated": "Copy “{name}” created (inactive). Review it, then activate it.",
+    "deleted": "Meal “{name}” deleted."
+  },
+  "errors": {
+    "type_locked": "The type can't be changed any more: this meal is already on a menu."
+  },
+  "detail": {
+    "back": "Back to the catalog",
+    "allergens": "Allergens",
+    "no_allergens": "No declared allergens",
+    "tags": "Tags",
+    "description": "Description",
+    "no_description": "No description.",
+    "price": "Price",
+    "recipe_ref": "Recipe reference",
+    "photos": "Photos"
+  }
+}

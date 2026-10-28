@@ -1,0 +1,167 @@
+{
+  "duplicate_suffix": "(copie)",
+  "types": {
+    "subscription": "Abonnement",
+    "supplement": "Supplément"
+  },
+  "types_plural": {
+    "all": "Tous",
+    "subscription": "Abonnement",
+    "supplement": "Suppléments"
+  },
+  "categories": {
+    "all": "Toutes les catégories",
+    "main": "Plat principal",
+    "starter": "Entrée",
+    "dessert": "Dessert",
+    "drink": "Boisson",
+    "snack": "Collation"
+  },
+  "active_filters": {
+    "all": "Actifs et inactifs",
+    "active": "Actifs",
+    "inactive": "Inactifs"
+  },
+  "tags": {
+    "vegetarian": "Végétarien",
+    "vegan": "Végan",
+    "halal": "Halal",
+    "spicy": "Épicé",
+    "gluten_free": "Sans gluten"
+  },
+  "status": {
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "list": {
+    "title": "Catalogue des repas",
+    "kitchen_title": "Catalogue des repas",
+    "description": "{count, plural, =0 {Aucun repas} one {# repas} other {# repas}}",
+    "kitchen_description": "Consultation seule : composition, allergènes et photos.",
+    "new": "Nouveau repas",
+    "search_label": "Rechercher un repas",
+    "search_placeholder": "Nom ou référence recette…",
+    "type_filter": "Type de repas",
+    "category_filter": "Catégorie",
+    "active_filter": "Statut",
+    "view_label": "Affichage",
+    "view_grid": "Grille",
+    "view_list": "Liste",
+    "empty_title": "Aucun repas pour le moment",
+    "empty_body": "Créez le premier repas du catalogue.",
+    "no_results_title": "Aucun repas ne correspond",
+    "no_results_body": "Modifiez la recherche ou les filtres.",
+    "photos_count": "{count, plural, =0 {Pas de photo} one {# photo} other {# photos}}",
+    "no_photo": "Pas de photo",
+    "edit": "Modifier",
+    "view": "Voir",
+    "edit_label": "Modifier {name}",
+    "view_label_meal": "Voir {name}",
+    "columns": {
+      "meal": "Repas",
+      "type": "Type",
+      "category": "Catégorie",
+      "price": "Prix",
+      "allergens": "Allergènes",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "allergens_more": "+{count}",
+    "no_allergens": "Aucun"
+  },
+  "form": {
+    "create_title": "Nouveau repas",
+    "edit_title": "Modifier « {name} »",
+    "back": "Retour au catalogue",
+    "details": "Informations",
+    "name_fr": "Nom (français)",
+    "name_en": "Nom (anglais)",
+    "description_fr": "Description (français)",
+    "description_en": "Description (anglais)",
+    "description_hint": "Composition, accompagnements… visible par les parents.",
+    "type": "Type",
+    "type_hint": "Abonnement : plat principal inclus dans l'abonnement (un par jour). Supplément : article payant en plus, avec une quantité.",
+    "category": "Catégorie",
+    "price": "Prix (MAD)",
+    "price_hint": "Jusqu'à 2 décimales, par ex. 45 ou 12,50.",
+    "allergens": "Allergènes (14 allergènes UE)",
+    "allergens_hint": "Cochez tous les allergènes présents dans le repas.",
+    "tags": "Étiquettes",
+    "is_active": "Repas actif",
+    "is_active_hint": "Un repas inactif ne peut pas être ajouté aux nouveaux menus.",
+    "external_recipe_ref": "Référence recette (optionnel)",
+    "external_recipe_ref_hint": "Pour un futur lien avec la plateforme centrale BFK.",
+    "save": "Enregistrer",
+    "create": "Créer le repas",
+    "photos_after_create": "Vous pourrez ajouter des photos après avoir créé le repas.",
+    "duplicate": "Dupliquer",
+    "delete": "Supprimer",
+    "delete_title": "Supprimer ce repas ?",
+    "delete_body": "« {name} » disparaîtra du catalogue et des menus à venir. Il reste visible dans l'historique des commandes et les relevés.",
+    "delete_confirm": "Supprimer le repas",
+    "duplicate_title": "Dupliquer ce repas ?",
+    "duplicate_body": "Une copie inactive de « {name} » sera créée, avec ses photos.",
+    "duplicate_confirm": "Dupliquer"
+  },
+  "photos": {
+    "title": "Photos",
+    "description": "La photo de couverture apparaît dans le catalogue et pour les parents.",
+    "drop": "Glissez vos photos ici",
+    "or": "ou",
+    "choose": "Choisir des fichiers",
+    "rules": "JPG, PNG ou WebP · {size} Mo max par fichier · {files} fichiers à la fois · {total} photos par repas",
+    "uploading": "Envoi en cours…",
+    "count": "{count} / {max} photos",
+    "empty": "Aucune photo pour ce repas.",
+    "cover": "Couverture",
+    "set_cover": "Définir comme couverture",
+    "set_cover_label": "Définir la photo {position} comme couverture",
+    "delete": "Supprimer la photo",
+    "delete_label": "Supprimer la photo {position}",
+    "delete_title": "Supprimer cette photo ?",
+    "delete_body": "La photo et sa miniature seront supprimées définitivement.",
+    "move_before": "Déplacer la photo {position} vers la gauche",
+    "move_after": "Déplacer la photo {position} vers la droite",
+    "drag_hint": "Glissez les photos pour changer leur ordre.",
+    "alt": "Photo {position} de {name}",
+    "full_limit": "Nombre maximum de photos atteint.",
+    "flash": {
+      "uploaded": "{count, plural, one {Photo ajoutée.} other {# photos ajoutées.}}",
+      "reordered": "Ordre des photos enregistré.",
+      "cover": "Photo de couverture modifiée.",
+      "deleted": "Photo supprimée."
+    },
+    "errors": {
+      "none": "Choisissez au moins une photo.",
+      "too_many_files": "Envoyez au plus {max} photos à la fois.",
+      "request_too_large": "Envoi trop volumineux : envoyez au plus {max} photos à la fois, de 8 Mo maximum chacune.",
+      "meal_full": "Un repas peut avoir au plus {max} photos.",
+      "too_large": "« {name} » est trop volumineux (maximum {max} Mo).",
+      "type": "« {name} » n'est pas une image JPG, PNG ou WebP.",
+      "corrupt": "« {name} » est illisible ou endommagé.",
+      "too_many_pixels": "« {name} » a une trop grande résolution (maximum {pixels} mégapixels).",
+      "too_small": "« {name} » est trop petite (au moins {min} pixels de côté).",
+      "order_mismatch": "La liste des photos a changé. Rechargez la page et réessayez."
+    }
+  },
+  "flash": {
+    "created": "Repas « {name} » créé. Ajoutez maintenant ses photos.",
+    "updated": "Repas « {name} » enregistré.",
+    "duplicated": "Copie « {name} » créée (inactive). Vérifiez-la puis activez-la.",
+    "deleted": "Repas « {name} » supprimé."
+  },
+  "errors": {
+    "type_locked": "Le type ne peut plus être modifié : ce repas figure déjà sur un menu."
+  },
+  "detail": {
+    "back": "Retour au catalogue",
+    "allergens": "Allergènes",
+    "no_allergens": "Aucun allergène déclaré",
+    "tags": "Étiquettes",
+    "description": "Description",
+    "no_description": "Pas de description.",
+    "price": "Prix",
+    "recipe_ref": "Référence recette",
+    "photos": "Photos"
+  }
+}

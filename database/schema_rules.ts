@@ -85,5 +85,29 @@ export default {
         },
       },
     },
+    meals: {
+      columns: {
+        type: {
+          tsType: 'MealType',
+          imports: [{ source: '#enums/meals', typeImports: ['MealType'] }],
+          decorators: [{ name: '@column' }],
+        },
+        category: {
+          tsType: 'MealCategory',
+          imports: [{ source: '#enums/meals', typeImports: ['MealCategory'] }],
+          decorators: [{ name: '@column' }],
+        },
+        allergens: {
+          tsType: 'AllergenCode[]',
+          imports: [{ source: '#enums/allergens', typeImports: ['AllergenCode'] }],
+          decorators: [{ name: '@column' }],
+        },
+        tags: {
+          tsType: 'string[]',
+          imports: [],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
   },
 } satisfies SchemaRules

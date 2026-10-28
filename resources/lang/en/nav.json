@@ -18,5 +18,6 @@
   "parent_orders": "Orders",
   "parent_history": "History",
   "parent_statements": "Statements",
-  "parent_account": "Account"
+  "parent_account": "Account",
+  "meal_catalog": "Catalog"
 }

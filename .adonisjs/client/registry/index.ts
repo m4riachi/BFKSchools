@@ -68,6 +68,12 @@ const routes = {
     tokens: [[0,"logout"]],
     types: placeholder as Registry['session.destroy']['types'],
   },
+  'media.meal_photo': {
+    methods: ["GET","HEAD"],
+    pattern: '/media/meal-photos/:id/:variant',
+    tokens: [[0,"media"],[0,"meal-photos"],[1,"id"],[1,"variant"]],
+    types: placeholder as Registry['media.meal_photo']['types'],
+  },
   'parent.home': {
     methods: ["GET","HEAD"],
     pattern: '/',
@@ -182,6 +188,72 @@ const routes = {
     tokens: [[0,"admin"],[0,"parents"],[1,"parentId"],[0,"children"],[1,"childId"],[0,"subscriptions"],[1,"id"]],
     types: placeholder as Registry['admin.children.subscriptions.destroy']['types'],
   },
+  'admin.meals.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/meals',
+    tokens: [[0,"admin"],[0,"meals"]],
+    types: placeholder as Registry['admin.meals.index']['types'],
+  },
+  'admin.meals.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/meals/create',
+    tokens: [[0,"admin"],[0,"meals"],[0,"create"]],
+    types: placeholder as Registry['admin.meals.create']['types'],
+  },
+  'admin.meals.store': {
+    methods: ["POST"],
+    pattern: '/admin/meals',
+    tokens: [[0,"admin"],[0,"meals"]],
+    types: placeholder as Registry['admin.meals.store']['types'],
+  },
+  'admin.meals.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/meals/:id/edit',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"edit"]],
+    types: placeholder as Registry['admin.meals.edit']['types'],
+  },
+  'admin.meals.update': {
+    methods: ["PUT"],
+    pattern: '/admin/meals/:id',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"]],
+    types: placeholder as Registry['admin.meals.update']['types'],
+  },
+  'admin.meals.duplicate': {
+    methods: ["POST"],
+    pattern: '/admin/meals/:id/duplicate',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"duplicate"]],
+    types: placeholder as Registry['admin.meals.duplicate']['types'],
+  },
+  'admin.meals.destroy': {
+    methods: ["DELETE"],
+    pattern: '/admin/meals/:id',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"]],
+    types: placeholder as Registry['admin.meals.destroy']['types'],
+  },
+  'admin.meals.photos.store': {
+    methods: ["POST"],
+    pattern: '/admin/meals/:id/photos',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"photos"]],
+    types: placeholder as Registry['admin.meals.photos.store']['types'],
+  },
+  'admin.meals.photos.reorder': {
+    methods: ["PUT"],
+    pattern: '/admin/meals/:id/photos/order',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"photos"],[0,"order"]],
+    types: placeholder as Registry['admin.meals.photos.reorder']['types'],
+  },
+  'admin.meals.photos.cover': {
+    methods: ["POST"],
+    pattern: '/admin/meals/:id/photos/:photoId/cover',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"photos"],[1,"photoId"],[0,"cover"]],
+    types: placeholder as Registry['admin.meals.photos.cover']['types'],
+  },
+  'admin.meals.photos.destroy': {
+    methods: ["DELETE"],
+    pattern: '/admin/meals/:id/photos/:photoId',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"photos"],[1,"photoId"]],
+    types: placeholder as Registry['admin.meals.photos.destroy']['types'],
+  },
   'admin.imports.create': {
     methods: ["GET","HEAD"],
     pattern: '/admin/imports/families',
@@ -217,6 +289,18 @@ const routes = {
     pattern: '/kitchen',
     tokens: [[0,"kitchen"]],
     types: placeholder as Registry['kitchen.dashboard']['types'],
+  },
+  'kitchen.meals.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/meals',
+    tokens: [[0,"kitchen"],[0,"meals"]],
+    types: placeholder as Registry['kitchen.meals.index']['types'],
+  },
+  'kitchen.meals.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/meals/:id',
+    tokens: [[0,"kitchen"],[0,"meals"],[1,"id"]],
+    types: placeholder as Registry['kitchen.meals.show']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 
