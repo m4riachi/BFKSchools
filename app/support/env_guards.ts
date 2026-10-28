@@ -5,6 +5,7 @@
  */
 
 import proxyaddr from 'proxy-addr'
+import { s3PublicOrigin } from '#support/storage_origin'
 
 /**
  * Refuses settings that are only acceptable in development.
@@ -23,14 +24,20 @@ export function assertSafeProductionEnv(values: { NODE_ENV: string; MAIL_MAILER:
 
 /**
  * DRIVE_DISK=s3 needs the bucket, region and credentials (the S3 variables
- * are optional otherwise, so dev and test run without them).
+ * are optional otherwise, so dev and test run without them). In production
+ * S3_ENDPOINT must be https, and the bucket origin used by the CSP must be
+ * computable (s3PublicOrigin throws otherwise, e.g. a bad S3_PUBLIC_ORIGIN).
  */
 export function assertDriveEnv(values: {
+  NODE_ENV?: string
   DRIVE_DISK: string
   S3_ACCESS_KEY_ID?: string
   S3_SECRET_ACCESS_KEY?: string
   S3_REGION?: string
   S3_BUCKET?: string
+  S3_ENDPOINT?: string
+  S3_FORCE_PATH_STYLE?: boolean
+  S3_PUBLIC_ORIGIN?: string
 }) {
   if (values.DRIVE_DISK !== 's3') return
   const missing = (
@@ -39,6 +46,14 @@ export function assertDriveEnv(values: {
   if (missing.length) {
     throw new Error(`DRIVE_DISK=s3 requires ${missing.join(', ')}.`)
   }
+  if (
+    values.NODE_ENV === 'production' &&
+    values.S3_ENDPOINT &&
+    !values.S3_ENDPOINT.toLowerCase().startsWith('https://')
+  ) {
+    throw new Error('S3_ENDPOINT must use https in production.')
+  }
+  s3PublicOrigin(values)
 }
 
 /**

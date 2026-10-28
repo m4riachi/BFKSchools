@@ -36,7 +36,7 @@ test.group('Environment guards', () => {
         DRIVE_DISK: 's3',
         S3_ACCESS_KEY_ID: 'a',
         S3_SECRET_ACCESS_KEY: 's',
-        S3_REGION: 'auto',
+        S3_REGION: 'eu-west-3',
         S3_BUCKET: 'b',
       })
     )

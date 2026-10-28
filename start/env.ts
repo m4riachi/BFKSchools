@@ -62,12 +62,19 @@ const env = await Env.create(new URL('../', import.meta.url), {
   S3_BUCKET: Env.schema.string.optional(),
   S3_ENDPOINT: Env.schema.string.optional({ format: 'url', tld: false }),
   S3_FORCE_PATH_STYLE: Env.schema.boolean.optional(),
+  // Only when the signed-URL origin can't be derived (see storage_origin.ts):
+  // the https origin (no path) to allow in the CSP img-src.
+  S3_PUBLIC_ORIGIN: Env.schema.string.optional(),
 })
 
 assertSafeProductionEnv({ NODE_ENV: env.get('NODE_ENV'), MAIL_MAILER: env.get('MAIL_MAILER') })
 parseTrustProxy(env.get('TRUST_PROXY'))
 assertDriveEnv({
+  NODE_ENV: env.get('NODE_ENV'),
   DRIVE_DISK: env.get('DRIVE_DISK'),
+  S3_ENDPOINT: env.get('S3_ENDPOINT'),
+  S3_FORCE_PATH_STYLE: env.get('S3_FORCE_PATH_STYLE'),
+  S3_PUBLIC_ORIGIN: env.get('S3_PUBLIC_ORIGIN'),
   S3_ACCESS_KEY_ID: env.get('S3_ACCESS_KEY_ID'),
   S3_SECRET_ACCESS_KEY: env.get('S3_SECRET_ACCESS_KEY')?.release(),
   S3_REGION: env.get('S3_REGION'),

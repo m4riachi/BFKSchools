@@ -177,3 +177,4 @@ Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 i
 - Phase 4: `updateOne`/`updateGroup`/`setActive` decide on rows read before `lockSchool` — re-read `FOR UPDATE` inside the transaction.
 - Phase 4: ICS screener doesn't mirror node-ical's TZID quote stripping (contained by the parsed-authority check + worker); overrides carrying their own RRULE aren't re-validated.
 - Phase 4 (correctness): `sanitizeParseResult` rejects a legitimate result with > 1,000 ignored entries as `unreadable` — cap/slice `ignored` instead.
+- Phase 3 S3 CSP (fail-closed edge cases): stricter `S3_PUBLIC_ORIGIN` host validation; China regions, IP-literal endpoints and `AWS_USE_DUALSTACK_ENDPOINT`/`AWS_USE_FIPS_ENDPOINT`/`AWS_ENDPOINT_URL*` aren't mirrored — best fix: presign a dummy key at boot and assert its origin equals `s3PublicOrigin()`. Load one photo from the real bucket in a browser before launch.
