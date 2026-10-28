@@ -16,12 +16,13 @@ AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setu
 - Start services: `docker compose up -d` (PostgreSQL with `bfk_dev` + `bfk_test`, Mailpit UI on :8025). Without Docker, point `DB_*` in `.env` at any PostgreSQL 16+ with both databases and `btree_gist`.
 - Dev server: `npm run dev` (= `node ace serve --hmr`; port from `PORT` in `.env`; if busy it picks a random port — read the log)
 - Migrations: `node ace migration:run` · rollback `node ace migration:rollback` · status `node ace migration:status` · reset `node ace migration:fresh --seed` (regenerates `database/schema.ts`)
-- Seed: `node ace db:seed` (Britech School + one demo user per role, dev/test only, password `Demo1234!`: `admin@bfk.test`, `manager@bfk.test`, `kitchen@bfk.test`, `parent@bfk.test` with two children; all tied to Britech School)
+- Seed: `node ace db:seed` (Britech School + its US holidays + one demo user per role, dev/test only, password `Demo1234!`: `admin@bfk.test`, `manager@bfk.test`, `kitchen@bfk.test`, `parent@bfk.test` with two children; all tied to Britech School)
 - Tests: `npm test` (= `node ace test`; uses `.env.test` → `bfk_test`, memory session/limiter, fake mailer) · one suite `node ace test unit` / `node ace test functional` · one file `node ace test --files=tests/functional/auth.spec.ts`
 - Typecheck / lint: `npm run typecheck` · `npm run lint` (`npx eslint . --fix` to auto-format)
 - Codegen (routes/controllers/policies/pages indexes): `node ace codegen` (also runs on `serve`/`build`)
 - Build: `npm run build` (= `node ace build` → `build/`; run with `cd build && npm ci --omit=dev && node bin/server.js`)
 - File storage (meal photos): `DRIVE_DISK=fs` writes to `./storage` (gitignored; never served directly — photos go through `/media/meal-photos/:id/:variant`, logged-in users only). Production: `DRIVE_DISK=s3` + `S3_*` (any S3-compatible bucket, keep it private; see `.env.example`). Tests use `drive.fake('fs')`. Limits live in `config/meals.ts` (`MEAL_PHOTOS`).
+- Holidays: `node ace holidays:generate` (all schools, or `--school=<id>`; idempotent, advisory-locked) generates the US federal holidays — and the Moroccan fixed-date ones when the school setting is on — for each school's configured year. Run daily by cron in production (scheduler set up in Phase 5, see `docs/STACK_NOTES.md` §7). Read API for later phases: `HolidayCalendar.isHoliday(schoolId, date)` / `holidaysBetween(schoolId, from, to)` (`app/services/holiday_calendar.ts`). Holiday lists/limits live in `config/holidays.ts`.
 - Mail in dev: `MAIL_MAILER=smtp` sends to Mailpit (127.0.0.1:1025); `MAIL_MAILER=log` (no SMTP server; dev/test only, refused in production) logs subject + masked recipient; add `MAIL_LOG_BODY=true` to also log the body (invitation/reset links). `MAIL_LOG_BODY` is ignored in production. Tests always use `mail.fake()`.
 
 ## Golden rules (never break)

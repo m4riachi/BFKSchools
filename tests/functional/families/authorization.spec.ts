@@ -12,7 +12,10 @@ function adminRoutes(ids: Record<string, string>) {
     for (const route of list) {
       if (!route.pattern.startsWith('/admin')) continue
       const url = route.pattern.replace(/:(\w+)/g, (_, name: string) =>
-        route.pattern.includes('/imports/')
+        // uuid params: family/holiday import ids and holiday range group ids
+        route.pattern.includes('/imports/') ||
+        route.pattern.includes('/holidays/import/') ||
+        name === 'groupId'
           ? '6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c'
           : (ids[name] ?? '1')
       )

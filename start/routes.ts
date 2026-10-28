@@ -184,6 +184,59 @@ router
       .where('photoId', id)
       .as('meals.photos.destroy')
 
+    // Holidays (Phase 4). Ranges are addressed by their group id (uuid).
+    const uuid = router.matchers.uuid()
+    router.get('holidays', [controllers.admin.Holidays, 'index']).as('holidays.index')
+    router.post('holidays', [controllers.admin.Holidays, 'store']).as('holidays.store')
+    router
+      .post('holidays/generate', [controllers.admin.Holidays, 'generate'])
+      .as('holidays.generate')
+    router
+      .put('holidays/settings', [controllers.admin.Holidays, 'updateSettings'])
+      .as('holidays.settings')
+    router
+      .put('holidays/groups/:groupId', [controllers.admin.Holidays, 'updateGroup'])
+      .where('groupId', uuid)
+      .as('holidays.groups.update')
+    router
+      .post('holidays/groups/:groupId/toggle', [controllers.admin.Holidays, 'toggleGroup'])
+      .where('groupId', uuid)
+      .as('holidays.groups.toggle')
+    router
+      .delete('holidays/groups/:groupId', [controllers.admin.Holidays, 'destroyGroup'])
+      .where('groupId', uuid)
+      .as('holidays.groups.destroy')
+    router
+      .put('holidays/:id', [controllers.admin.Holidays, 'update'])
+      .where('id', id)
+      .as('holidays.update')
+    router
+      .post('holidays/:id/toggle', [controllers.admin.Holidays, 'toggle'])
+      .where('id', id)
+      .as('holidays.toggle')
+    router
+      .delete('holidays/:id', [controllers.admin.Holidays, 'destroy'])
+      .where('id', id)
+      .as('holidays.destroy')
+    // ICS import (file upload, or https URL behind the SSRF guard)
+    router
+      .get('holidays/import', [controllers.admin.HolidayImports, 'create'])
+      .as('holidays.import.create')
+    router
+      .post('holidays/import', [controllers.admin.HolidayImports, 'upload'])
+      .as('holidays.import.upload')
+    router
+      .post('holidays/import/url', [controllers.admin.HolidayImports, 'fetchUrl'])
+      .as('holidays.import.url')
+    router
+      .get('holidays/import/:id', [controllers.admin.HolidayImports, 'show'])
+      .where('id', uuid)
+      .as('holidays.import.show')
+    router
+      .post('holidays/import/:id/confirm', [controllers.admin.HolidayImports, 'confirm'])
+      .where('id', uuid)
+      .as('holidays.import.confirm')
+
     // CSV import of families
     router.get('imports/families', [controllers.admin.FamilyImports, 'create']).as('imports.create')
     router

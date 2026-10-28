@@ -7,6 +7,7 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import type { AllergenCode } from '#enums/allergens'
 import { DateTime } from 'luxon'
+import type { HolidaySource } from '#enums/holidays'
 import type { MealCategory, MealType } from '#enums/meals'
 import type { StoredSchoolSettings } from '#types/school_settings'
 import type { SubscriptionStatus } from '#enums/subscriptions'
@@ -39,6 +40,35 @@ export class ChildSchema extends BaseModel {
   declare parentId: number
   @column()
   declare schoolId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class HolidaySchema extends BaseModel {
+  static $columns = ['createdAt', 'createdBy', 'date', 'deletedAt', 'groupId', 'id', 'isActive', 'name', 'ruleKey', 'schoolId', 'source', 'updatedAt'] as const
+  $columns = HolidaySchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number | null
+  @column()
+  declare date: string
+  @column.dateTime()
+  declare deletedAt: DateTime | null
+  @column()
+  declare groupId: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isActive: boolean
+  @column()
+  declare name: string
+  @column()
+  declare ruleKey: string | null
+  @column()
+  declare schoolId: number
+  @column()
+  declare source: HolidaySource
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }

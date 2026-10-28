@@ -11,6 +11,8 @@ declare module '@adonisjs/inertia/types' {
   export interface InertiaPages {
     'admin/children/form': ExtractProps<(typeof import('../../inertia/pages/admin/children/form.vue'))['default']>
     'admin/dashboard': ExtractProps<(typeof import('../../inertia/pages/admin/dashboard.vue'))['default']>
+    'admin/holidays/import': ExtractProps<(typeof import('../../inertia/pages/admin/holidays/import.vue'))['default']>
+    'admin/holidays/index': ExtractProps<(typeof import('../../inertia/pages/admin/holidays/index.vue'))['default']>
     'admin/imports/families': ExtractProps<(typeof import('../../inertia/pages/admin/imports/families.vue'))['default']>
     'admin/meals/form': ExtractProps<(typeof import('../../inertia/pages/admin/meals/form.vue'))['default']>
     'admin/meals/index': ExtractProps<(typeof import('../../inertia/pages/admin/meals/index.vue'))['default']>

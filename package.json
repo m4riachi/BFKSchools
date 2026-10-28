@@ -38,7 +38,8 @@
     "#types/*": "./app/types/*.js",
     "#support/*": "./app/support/*.js",
     "#enums/*": "./app/enums/*.js",
-    "#app/*": "./app/*.js"
+    "#app/*": "./app/*.js",
+    "#commands/*": "./commands/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^8.5.2",
@@ -96,6 +97,7 @@
     "intl-messageformat": "^11.2.15",
     "lucide-vue-next": "^1.0.0",
     "luxon": "^3.7.2",
+    "node-ical": "^0.27.3",
     "pg": "^8.23.1",
     "proxy-addr": "^2.0.8",
     "reflect-metadata": "^0.2.2",

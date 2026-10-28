@@ -68,6 +68,27 @@ export interface ApiDefinition {
         destroy: typeof routes['admin.meals.photos.destroy']
       }
     }
+    holidays: {
+      index: typeof routes['admin.holidays.index']
+      store: typeof routes['admin.holidays.store']
+      generate: typeof routes['admin.holidays.generate']
+      settings: typeof routes['admin.holidays.settings']
+      groups: {
+        update: typeof routes['admin.holidays.groups.update']
+        toggle: typeof routes['admin.holidays.groups.toggle']
+        destroy: typeof routes['admin.holidays.groups.destroy']
+      }
+      update: typeof routes['admin.holidays.update']
+      toggle: typeof routes['admin.holidays.toggle']
+      destroy: typeof routes['admin.holidays.destroy']
+      import: {
+        create: typeof routes['admin.holidays.import.create']
+        upload: typeof routes['admin.holidays.import.upload']
+        url: typeof routes['admin.holidays.import.url']
+        show: typeof routes['admin.holidays.import.show']
+        confirm: typeof routes['admin.holidays.import.confirm']
+      }
+    }
     imports: {
       create: typeof routes['admin.imports.create']
       template: typeof routes['admin.imports.template']

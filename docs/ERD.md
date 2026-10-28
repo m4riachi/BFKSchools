@@ -424,6 +424,8 @@ Constraints / indexes:
 - Index `(school_id, group_id) WHERE group_id IS NOT NULL`.
 - CHECK `source NOT IN ('auto_us','auto_ma') OR rule_key IS NOT NULL` (generated rows always carry a key; imports usually do, manual rows don't).
 
+Phase 4 additions: CHECK `length(btrim(name)) BETWEEN 1 AND 120`, CHECK `rule_key` length 1–200, index `(school_id, date) WHERE deleted_at IS NULL` (calendar/list screens, which also show disabled rows). Imported rule keys are `ics:<first 24 hex of sha256(UID)>:<date>` (the raw UID is never stored). Ranges are stored only for school days (weekday in `school_days` and inside the school year).
+
 "Is D a holiday" = `EXISTS (... WHERE school_id = ? AND date = D AND is_active AND deleted_at IS NULL)`. Several holidays on one date are allowed.
 
 ### weekly_menus — Phase 5

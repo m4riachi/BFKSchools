@@ -1,0 +1,190 @@
+{
+  "title": "Jours fériés",
+  "description": "Jours sans école : aucun menu, aucune commande, rien n'est facturé.",
+  "school_year": "Année scolaire {label}",
+  "views": {
+    "calendar": "Calendrier",
+    "list": "Liste"
+  },
+  "sources": {
+    "auto_us": "Calendrier US (auto)",
+    "auto_ma": "Maroc (auto)",
+    "import": "Import ICS",
+    "manual": "Ajouté à la main"
+  },
+  "sources_short": {
+    "auto_us": "US",
+    "auto_ma": "Maroc",
+    "import": "Import",
+    "manual": "Manuel"
+  },
+  "statuses": {
+    "all": "Actifs et désactivés",
+    "active": "Actifs",
+    "disabled": "Désactivés"
+  },
+  "periods": {
+    "school_year": "Année scolaire",
+    "upcoming": "À venir",
+    "all": "Toutes les dates"
+  },
+  "legend": "Légende",
+  "disabled_legend": "Désactivé (jour d'école normal)",
+  "non_school_day": "Pas un jour d'école",
+  "actions": {
+    "add": "Ajouter un jour férié",
+    "generate": "Générer les jours fériés {year}",
+    "import": "Importer un fichier ICS",
+    "edit": "Modifier",
+    "enable": "Activer",
+    "disable": "Désactiver",
+    "delete": "Supprimer",
+    "previous_month": "Mois précédent",
+    "next_month": "Mois suivant",
+    "today": "Aujourd'hui"
+  },
+  "generate": {
+    "title": "Générer les jours fériés de l'année scolaire {year} ?",
+    "body": "Les jours fériés fédéraux américains sont calculés selon leurs règles et ajoutés s'ils tombent un jour d'école entre le {start} et le {end}. Les jours déjà présents, désactivés ou supprimés ne sont jamais recréés.",
+    "moroccan_on": "Les jours fériés marocains à date fixe seront aussi générés.",
+    "moroccan_off": "Les jours fériés marocains ne sont pas générés (réglage désactivé).",
+    "confirm": "Générer"
+  },
+  "moroccan": {
+    "label": "Générer aussi les jours fériés marocains à date fixe",
+    "hint": "Les fêtes religieuses (Aïd, Mouloud…) changent chaque année : ajoutez-les à la main.",
+    "admin_only": "Seul un administrateur peut modifier ce réglage."
+  },
+  "form": {
+    "create_title": "Ajouter un jour férié ou des vacances",
+    "edit_title": "Modifier le jour férié",
+    "edit_range_title": "Modifier la période",
+    "name": "Nom",
+    "name_placeholder": "Vacances d'hiver",
+    "start_date": "Du",
+    "end_date": "Au (facultatif)",
+    "date": "Date",
+    "range_hint": "Une période crée un jour férié par jour d'école (les week-ends et les jours hors année scolaire sont ignorés).",
+    "locked_dates": "Les dates des jours générés ou importés ne se modifient pas : désactivez ou supprimez-les.",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "days": "{count, plural, one {# jour d'école} other {# jours d'école}}",
+    "range": "Du {start} au {end}"
+  },
+  "delete": {
+    "title": "Supprimer « {name} » ?",
+    "body_manual": "Ce jour férié ajouté à la main sera supprimé.",
+    "body_generated": "Il ne sera plus affiché et ne sera jamais recréé par la génération ou l'import. Pour le retrouver, ajoutez-le à la main.",
+    "confirm": "Supprimer"
+  },
+  "impact": {
+    "confirm": "{count, plural, one {# commande existe} other {# commandes existent}} sur ces dates. Elles seront annulées (motif : jour férié) et les parents prévenus.",
+    "title": "Commandes concernées",
+    "confirm_button": "Confirmer et annuler les commandes"
+  },
+  "list": {
+    "name": "Nom",
+    "dates": "Dates",
+    "source": "Origine",
+    "status": "Statut",
+    "actions": "Actions",
+    "empty": "Aucun jour férié",
+    "empty_body": "Générez les jours fériés de l'année scolaire, ajoutez des vacances ou importez le calendrier de l'école.",
+    "search": "Rechercher",
+    "search_placeholder": "Nom du jour férié",
+    "filter": "Filtrer",
+    "active": "Actif",
+    "disabled": "Désactivé",
+    "range_badge": "Période",
+    "count": "{count, plural, =0 {Aucune entrée} one {# entrée} other {# entrées}}",
+    "all_sources": "Toutes les origines"
+  },
+  "calendar": {
+    "weekdays": "lun.,mar.,mer.,jeu.,ven.,sam.,dim.",
+    "month_empty": "Aucun jour férié ce mois-ci."
+  },
+  "errors": {
+    "end_before_start": "La date de fin doit être après la date de début.",
+    "range_too_long": "Une période ne peut pas dépasser {max} jours.",
+    "no_school_day": "Aucun jour d'école dans ces dates (week-end ou hors année scolaire).",
+    "duplicate": "Un jour férié portant ce nom existe déjà à cette date."
+  },
+  "flash": {
+    "created": "{count, plural, one {Jour férié ajouté.} other {# jours fériés ajoutés.}}",
+    "updated": "Jour férié modifié.",
+    "enabled": "Jour férié activé.",
+    "disabled": "Jour férié désactivé : c'est de nouveau un jour d'école.",
+    "deleted": "{count, plural, one {Jour férié supprimé.} other {# jours fériés supprimés.}}",
+    "generated": "Année {year} : {created, plural, =0 {aucun nouveau jour férié} one {# jour férié créé} other {# jours fériés créés}}, {skipped} déjà présent(s), désactivé(s) ou supprimé(s).",
+    "moroccan_on": "Les jours fériés marocains seront générés.",
+    "moroccan_off": "Les jours fériés marocains ne seront plus générés."
+  },
+  "import": {
+    "title": "Importer un calendrier ICS",
+    "eyebrow": "Jours fériés",
+    "back": "Retour aux jours fériés",
+    "instructions": "Importez le calendrier de l'école (.ics). Les événements « journée entière » deviennent des périodes ; seuls les jours d'école de l'année {label} sont enregistrés. Rien n'est enregistré avant votre confirmation.",
+    "file": "Fichier .ics",
+    "max_size": "Taille maximale : {size} Ko.",
+    "upload": "Prévisualiser",
+    "uploading": "Lecture…",
+    "or_url": "Ou depuis une adresse https://",
+    "url": "Adresse du calendrier",
+    "url_hint": "L'école ne publie pas de calendrier en ligne pour l'instant ; utilisez de préférence l'import de fichier.",
+    "fetch": "Télécharger et prévisualiser",
+    "preview_title": "Aperçu",
+    "preview_body": "Cochez les périodes à importer. Les périodes déjà importées ou en conflit avec un jour férié existant sont décochées.",
+    "select_all": "Tout cocher",
+    "select_none": "Tout décocher",
+    "columns": {
+      "name": "Événement",
+      "dates": "Dates",
+      "days": "Jours d'école",
+      "status": "État"
+    },
+    "status": {
+      "new": "Nouveau",
+      "overlap": "Chevauche : {names}",
+      "imported": "Déjà importé",
+      "no_school_day": "Aucun jour d'école"
+    },
+    "recurring": "Récurrent",
+    "new_days": "{count} nouveau(x)",
+    "ignored_title": "Événements ignorés",
+    "ignored": {
+      "timed": "événement avec horaire (seuls les événements « journée entière » sont importés)",
+      "too_long": "trop long",
+      "invalid": "dates illisibles",
+      "outside_period": "hors de l'année scolaire",
+      "cancelled": "annulé"
+    },
+    "truncated": "Le fichier contient trop d'événements : seuls les premiers sont affichés.",
+    "empty": "Aucun événement « journée entière » dans l'année scolaire.",
+    "confirm": "Importer {count, plural, =0 {la sélection} one {# période} other {# périodes}}",
+    "restart": "Choisir un autre fichier",
+    "untitled": "Vacances",
+    "done": "Import terminé : {ranges, plural, =0 {aucune période} one {# période} other {# périodes}}, {created} jour(s) ajouté(s), {skipped} déjà présent(s).",
+    "expired": "Cet aperçu a expiré. Importez le fichier à nouveau.",
+    "file_errors": {
+      "too_large": "Le fichier est trop volumineux.",
+      "not_ics": "Ce fichier n'est pas un calendrier ICS.",
+      "unreadable": "Le calendrier est illisible.",
+      "too_many_events": "Le calendrier contient trop d'événements.",
+      "too_many_occurrences": "Le calendrier contient trop d'occurrences répétées.",
+      "too_complex": "Le calendrier est trop complexe à lire.",
+      "busy": "Un autre calendrier est en cours de lecture. Réessayez dans un instant."
+    },
+    "url_errors": {
+      "invalid_url": "Adresse invalide.",
+      "not_https": "Seules les adresses https:// sont acceptées.",
+      "forbidden_port": "Seul le port standard 443 est accepté.",
+      "credentials": "L'adresse ne doit pas contenir d'identifiants.",
+      "too_many_redirects": "Trop de redirections.",
+      "bad_status": "Le serveur n'a pas renvoyé le calendrier.",
+      "too_large": "Le calendrier téléchargé est trop volumineux.",
+      "timeout": "Le serveur met trop de temps à répondre.",
+      "unreachable": "Adresse non autorisée ou injoignable."
+    },
+    "too_many_days": "Trop de jours à importer en une fois (maximum {max}) : décochez des périodes."
+  }
+}

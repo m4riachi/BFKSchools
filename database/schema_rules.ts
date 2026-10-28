@@ -109,5 +109,14 @@ export default {
         },
       },
     },
+    holidays: {
+      columns: {
+        source: {
+          tsType: 'HolidaySource',
+          imports: [{ source: '#enums/holidays', typeImports: ['HolidaySource'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
   },
 } satisfies SchemaRules

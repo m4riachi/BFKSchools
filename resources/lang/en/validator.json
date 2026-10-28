@@ -32,7 +32,10 @@
       "file.size": "The file is too large (maximum {size}).",
       "file.extname": "The file must be a CSV file.",
       "madAmount": "Enter a valid amount with at most 2 decimals (e.g. 12.50).",
-      "madRange": "The price must be between 0.01 and 10,000.00 MAD."
+      "madRange": "The price must be between 0.01 and 10,000.00 MAD.",
+      "ranges.array.minLength": "Tick at least one period to import.",
+      "url.url": "Enter a valid https:// address.",
+      "calendar.file.extname": "The file must be an .ics calendar."
     },
     "fields": {
       "email": "email",
@@ -73,7 +76,15 @@
       "allergens": "allergens",
       "tags": "tags",
       "externalRecipeRef": "recipe reference",
-      "ids": "photos"
+      "ids": "photos",
+      "name": "name",
+      "date": "date",
+      "url": "address (URL)",
+      "ranges": "periods",
+      "active": "active",
+      "confirmImpact": "confirmation",
+      "generateMoroccanHolidays": "Moroccan holidays",
+      "calendar": "calendar"
     }
   }
 }

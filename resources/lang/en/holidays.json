@@ -1,0 +1,190 @@
+{
+  "title": "Holidays",
+  "description": "Days without school: no menu, no orders, nothing billed.",
+  "school_year": "School year {label}",
+  "views": {
+    "calendar": "Calendar",
+    "list": "List"
+  },
+  "sources": {
+    "auto_us": "US calendar (auto)",
+    "auto_ma": "Morocco (auto)",
+    "import": "ICS import",
+    "manual": "Added by hand"
+  },
+  "sources_short": {
+    "auto_us": "US",
+    "auto_ma": "Morocco",
+    "import": "Import",
+    "manual": "Manual"
+  },
+  "statuses": {
+    "all": "Enabled and disabled",
+    "active": "Enabled",
+    "disabled": "Disabled"
+  },
+  "periods": {
+    "school_year": "School year",
+    "upcoming": "Upcoming",
+    "all": "All dates"
+  },
+  "legend": "Legend",
+  "disabled_legend": "Disabled (normal school day)",
+  "non_school_day": "Not a school day",
+  "actions": {
+    "add": "Add a holiday",
+    "generate": "Generate holidays for {year}",
+    "import": "Import an ICS file",
+    "edit": "Edit",
+    "enable": "Enable",
+    "disable": "Disable",
+    "delete": "Delete",
+    "previous_month": "Previous month",
+    "next_month": "Next month",
+    "today": "Today"
+  },
+  "generate": {
+    "title": "Generate holidays for school year {year}?",
+    "body": "US federal holidays are computed by rule and added when they fall on a school day between {start} and {end}. Holidays already present, disabled or deleted are never re-created.",
+    "moroccan_on": "Moroccan fixed-date holidays will also be generated.",
+    "moroccan_off": "Moroccan holidays are not generated (setting off).",
+    "confirm": "Generate"
+  },
+  "moroccan": {
+    "label": "Also generate Moroccan fixed-date holidays",
+    "hint": "Religious holidays (Eid, Mawlid…) move every year: add them by hand.",
+    "admin_only": "Only an administrator can change this setting."
+  },
+  "form": {
+    "create_title": "Add a holiday or a break",
+    "edit_title": "Edit holiday",
+    "edit_range_title": "Edit break",
+    "name": "Name",
+    "name_placeholder": "Winter break",
+    "start_date": "From",
+    "end_date": "To (optional)",
+    "date": "Date",
+    "range_hint": "A range creates one holiday per school day (weekends and days outside the school year are skipped).",
+    "locked_dates": "Generated or imported days keep their dates: disable or delete them instead.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "days": "{count, plural, one {# school day} other {# school days}}",
+    "range": "{start} to {end}"
+  },
+  "delete": {
+    "title": "Delete “{name}”?",
+    "body_manual": "This holiday added by hand will be removed.",
+    "body_generated": "It will be hidden and never re-created by generation or import. To get it back, add it by hand.",
+    "confirm": "Delete"
+  },
+  "impact": {
+    "confirm": "{count, plural, one {# order exists} other {# orders exist}} on these dates. They will be cancelled (reason: holiday) and the parents notified.",
+    "title": "Orders affected",
+    "confirm_button": "Confirm and cancel the orders"
+  },
+  "list": {
+    "name": "Name",
+    "dates": "Dates",
+    "source": "Source",
+    "status": "Status",
+    "actions": "Actions",
+    "empty": "No holidays",
+    "empty_body": "Generate the school year's holidays, add breaks or import the school calendar.",
+    "search": "Search",
+    "search_placeholder": "Holiday name",
+    "filter": "Filter",
+    "active": "Enabled",
+    "disabled": "Disabled",
+    "range_badge": "Range",
+    "count": "{count, plural, =0 {No entries} one {# entry} other {# entries}}",
+    "all_sources": "All sources"
+  },
+  "calendar": {
+    "weekdays": "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
+    "month_empty": "No holidays this month."
+  },
+  "errors": {
+    "end_before_start": "The end date must be after the start date.",
+    "range_too_long": "A range cannot be longer than {max} days.",
+    "no_school_day": "No school day in these dates (weekend or outside the school year).",
+    "duplicate": "A holiday with this name already exists on this date."
+  },
+  "flash": {
+    "created": "{count, plural, one {Holiday added.} other {# holidays added.}}",
+    "updated": "Holiday updated.",
+    "enabled": "Holiday enabled.",
+    "disabled": "Holiday disabled: it is a school day again.",
+    "deleted": "{count, plural, one {Holiday deleted.} other {# holidays deleted.}}",
+    "generated": "{year}: {created, plural, =0 {no new holiday} one {# holiday created} other {# holidays created}}, {skipped} already present, disabled or deleted.",
+    "moroccan_on": "Moroccan holidays will be generated.",
+    "moroccan_off": "Moroccan holidays will no longer be generated."
+  },
+  "import": {
+    "title": "Import an ICS calendar",
+    "eyebrow": "Holidays",
+    "back": "Back to holidays",
+    "instructions": "Import the school calendar (.ics). All-day events become ranges; only school days of the {label} school year are saved. Nothing is saved until you confirm.",
+    "file": ".ics file",
+    "max_size": "Maximum size: {size} KB.",
+    "upload": "Preview",
+    "uploading": "Reading…",
+    "or_url": "Or from an https:// address",
+    "url": "Calendar address",
+    "url_hint": "The school publishes no online calendar for now; prefer the file import.",
+    "fetch": "Download and preview",
+    "preview_title": "Preview",
+    "preview_body": "Tick the ranges to import. Ranges already imported or overlapping an existing holiday are unticked.",
+    "select_all": "Select all",
+    "select_none": "Select none",
+    "columns": {
+      "name": "Event",
+      "dates": "Dates",
+      "days": "School days",
+      "status": "State"
+    },
+    "status": {
+      "new": "New",
+      "overlap": "Overlaps: {names}",
+      "imported": "Already imported",
+      "no_school_day": "No school day"
+    },
+    "recurring": "Recurring",
+    "new_days": "{count} new",
+    "ignored_title": "Ignored events",
+    "ignored": {
+      "timed": "timed event (only all-day events are imported)",
+      "too_long": "too long",
+      "invalid": "unreadable dates",
+      "outside_period": "outside the school year",
+      "cancelled": "cancelled"
+    },
+    "truncated": "The file has too many events: only the first ones are shown.",
+    "empty": "No all-day events in the school year.",
+    "confirm": "Import {count, plural, =0 {the selection} one {# range} other {# ranges}}",
+    "restart": "Choose another file",
+    "untitled": "Break",
+    "done": "Import done: {ranges, plural, =0 {no range} one {# range} other {# ranges}}, {created} day(s) added, {skipped} already present.",
+    "expired": "This preview has expired. Import the file again.",
+    "file_errors": {
+      "too_large": "The file is too large.",
+      "not_ics": "This file is not an ICS calendar.",
+      "unreadable": "The calendar cannot be read.",
+      "too_many_events": "The calendar has too many events.",
+      "too_many_occurrences": "The calendar has too many repeated occurrences.",
+      "too_complex": "The calendar is too complex to read.",
+      "busy": "Another calendar is being read. Try again in a moment."
+    },
+    "url_errors": {
+      "invalid_url": "Invalid address.",
+      "not_https": "Only https:// addresses are accepted.",
+      "forbidden_port": "Only the standard port 443 is accepted.",
+      "credentials": "The address must not contain credentials.",
+      "too_many_redirects": "Too many redirects.",
+      "bad_status": "The server did not return the calendar.",
+      "too_large": "The downloaded calendar is too large.",
+      "timeout": "The server took too long to answer.",
+      "unreachable": "Address not allowed or unreachable."
+    },
+    "too_many_days": "Too many days to import at once (maximum {max}): untick some ranges."
+  }
+}

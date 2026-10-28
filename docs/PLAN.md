@@ -172,3 +172,8 @@ Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 i
 - Phase 3: `new Date()` for `updated_at` in `meal_photo_service.ts` → Clock / `now()`.
 - Phase 5: meal type lock is check-then-save — lock the meal row and take the same lock when inserting menu items.
 - Phase 3 (Medium, before any S3 deploy): production CSP `img-src` blocks the S3 signed-URL redirect for meal photos — allow only the bucket origin (from `S3_ENDPOINT`/bucket+region) or stream S3 objects through the app.
+- Phase 6 (Medium, required when wiring `HolidayImpactService`): the impact count runs before the transaction — recount inside it after `lockSchool` and refuse if it exceeds the confirmed count; order creation must take the same school lock (or check holidays `FOR SHARE`) so an order and a holiday can't both commit for one date.
+- Phase 4: rate-limit holiday ICS upload/URL import per user; purge expired previews on read and on a schedule; cap pending imports per user.
+- Phase 4: `updateOne`/`updateGroup`/`setActive` decide on rows read before `lockSchool` — re-read `FOR UPDATE` inside the transaction.
+- Phase 4: ICS screener doesn't mirror node-ical's TZID quote stripping (contained by the parsed-authority check + worker); overrides carrying their own RRULE aren't re-validated.
+- Phase 4 (correctness): `sanitizeParseResult` rejects a legitimate result with > 1,000 ignored entries as `unreadable` — cap/slice `ignored` instead.

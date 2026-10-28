@@ -541,6 +541,201 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_photos_controller').default['destroy']>>>
     }
   }
+  'admin.holidays.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/holidays'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/holidays').holidayListValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.store': {
+    methods: ["POST"]
+    pattern: '/admin/holidays'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').holidayCreateValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').holidayCreateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.generate': {
+    methods: ["POST"]
+    pattern: '/admin/holidays/generate'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').holidayGenerateValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').holidayGenerateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['generate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['generate']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['generate']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.settings': {
+    methods: ["PUT"]
+    pattern: '/admin/holidays/settings'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').holidaySettingsValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').holidaySettingsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['updateSettings']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['updateSettings']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['updateSettings']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.groups.update': {
+    methods: ["PUT"]
+    pattern: '/admin/holidays/groups/:groupId'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').holidayGroupUpdateValidator)>>
+      paramsTuple: [ParamValue]
+      params: { groupId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').holidayGroupUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['updateGroup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['updateGroup']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['updateGroup']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.groups.toggle': {
+    methods: ["POST"]
+    pattern: '/admin/holidays/groups/:groupId/toggle'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').holidayToggleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { groupId: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').holidayToggleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['toggleGroup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['toggleGroup']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['toggleGroup']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.groups.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/holidays/groups/:groupId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { groupId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['destroyGroup']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['destroyGroup']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['destroyGroup']>>>
+    }
+  }
+  'admin.holidays.update': {
+    methods: ["PUT"]
+    pattern: '/admin/holidays/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').holidayUpdateValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').holidayUpdateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.toggle': {
+    methods: ["POST"]
+    pattern: '/admin/holidays/:id/toggle'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').holidayToggleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').holidayToggleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['toggle']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['toggle']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['toggle']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/holidays/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holidays_controller').default['destroy']>>>
+    }
+  }
+  'admin.holidays.import.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/holidays/import'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['create']>>>
+    }
+  }
+  'admin.holidays.import.upload': {
+    methods: ["POST"]
+    pattern: '/admin/holidays/import'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').icsUploadValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').icsUploadValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['upload']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['upload']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['upload']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.import.url': {
+    methods: ["POST"]
+    pattern: '/admin/holidays/import/url'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').icsUrlValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').icsUrlValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['fetchUrl']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['fetchUrl']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['fetchUrl']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.holidays.import.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/holidays/import/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['show']>>>
+    }
+  }
+  'admin.holidays.import.confirm': {
+    methods: ["POST"]
+    pattern: '/admin/holidays/import/:id/confirm'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/holidays').icsConfirmValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/holidays').icsConfirmValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['confirm']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['confirm']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/holiday_imports_controller').default['confirm']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.imports.create': {
     methods: ["GET","HEAD"]
     pattern: '/admin/imports/families'
