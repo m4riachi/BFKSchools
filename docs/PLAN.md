@@ -171,3 +171,4 @@ Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 i
 - Phase 3: sharp `failOn: 'error'` → default `'warning'`; `money.ts` trim regex is quadratic (add a length guard before Phase 6 reuses it); require https `S3_ENDPOINT` in production.
 - Phase 3: `new Date()` for `updated_at` in `meal_photo_service.ts` → Clock / `now()`.
 - Phase 5: meal type lock is check-then-save — lock the meal row and take the same lock when inserting menu items.
+- Phase 3 (Medium, before any S3 deploy): production CSP `img-src` blocks the S3 signed-URL redirect for meal photos — allow only the bucket origin (from `S3_ENDPOINT`/bucket+region) or stream S3 objects through the app.
