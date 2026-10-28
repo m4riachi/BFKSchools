@@ -71,9 +71,10 @@ function onDrop(event: DragEvent) {
 }
 
 function maxLabel(item: MenuItemView) {
-  return item.maxQuantity
+  const max = item.maxQuantity
     ? t('menus.builder.max_quantity', { count: item.maxQuantity })
     : t('menus.builder.no_max')
+  return item.ordered > 0 ? `${max} · ${t('menus.builder.ordered', { count: item.ordered })}` : max
 }
 </script>
 
@@ -230,7 +231,7 @@ function maxLabel(item: MenuItemView) {
               {{ t('menus.builder.default') }}
             </span>
             <button
-              v-else-if="can.editItems"
+              v-else-if="can.setDefault"
               type="button"
               class="min-h-8 rounded-lg border border-line-strong bg-surface px-2.5 text-xs font-bold text-ink-2 hover:bg-subtle"
               @click="emit('setDefault', item)"

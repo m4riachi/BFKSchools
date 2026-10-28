@@ -232,9 +232,15 @@ function submit() {
             v-model="form.settings.edit_cutoff_days_before"
             type="number"
             :label="t('settings.fields.edit_cutoff_days_before')"
-            :hint="t('settings.fields.edit_cutoff_days_before_hint')"
+            :hint="
+              form.settings.edit_mode === 'same_day_only'
+                ? t('settings.fields.edit_cutoff_days_before_not_applicable')
+                : t('settings.fields.edit_cutoff_days_before_hint')
+            "
             :error="err('settings.edit_cutoff_days_before')"
-            :disabled="!form.settings.allow_parent_edits"
+            :disabled="
+              !form.settings.allow_parent_edits || form.settings.edit_mode === 'same_day_only'
+            "
             required
           />
           <TextInput

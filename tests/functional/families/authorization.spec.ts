@@ -17,7 +17,7 @@ function adminRoutes(ids: Record<string, string>) {
         route.pattern.includes('/holidays/import/') ||
         name === 'groupId'
           ? '6f1d2c3b-4a5e-4f60-8b7c-9d0e1f2a3b4c'
-          : name === 'week'
+          : name === 'week' || name === 'date'
             ? '2026-11-23' // weekly menus (Phase 5) are addressed by their Monday
             : (ids[name] ?? '1')
       )

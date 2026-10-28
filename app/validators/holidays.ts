@@ -5,6 +5,8 @@ import { isoDateRule, nameRule } from '#validators/rules'
 
 /** `confirmImpact`: the admin confirmed the cancellation of affected orders. */
 const confirmImpact = () => vine.boolean().optional()
+/** `confirmedCount`: how many affected orders the admin saw when confirming. */
+const confirmedCount = () => vine.number().withoutDecimals().range([0, 1_000_000]).optional()
 
 /** A manual holiday: one day, or a range when `endDate` is after `startDate`. */
 export const holidayCreateValidator = vine.create({
@@ -12,6 +14,7 @@ export const holidayCreateValidator = vine.create({
   startDate: isoDateRule(),
   endDate: isoDateRule().nullable().optional(),
   confirmImpact: confirmImpact(),
+  confirmedCount: confirmedCount(),
 })
 
 /** One row: rename (any source); move (manual single days only). */
@@ -19,6 +22,7 @@ export const holidayUpdateValidator = vine.create({
   name: nameRule(HOLIDAY_NAME_MAX_LENGTH),
   date: isoDateRule().nullable().optional(),
   confirmImpact: confirmImpact(),
+  confirmedCount: confirmedCount(),
 })
 
 /** A range: rename (any source); change dates (manual ranges only). */
@@ -27,15 +31,18 @@ export const holidayGroupUpdateValidator = vine.create({
   startDate: isoDateRule().nullable().optional(),
   endDate: isoDateRule().nullable().optional(),
   confirmImpact: confirmImpact(),
+  confirmedCount: confirmedCount(),
 })
 
 export const holidayToggleValidator = vine.create({
   active: vine.boolean(),
   confirmImpact: confirmImpact(),
+  confirmedCount: confirmedCount(),
 })
 
 export const holidayGenerateValidator = vine.create({
   confirmImpact: confirmImpact(),
+  confirmedCount: confirmedCount(),
 })
 
 export const holidaySettingsValidator = vine.create({
@@ -62,6 +69,7 @@ export const icsConfirmValidator = vine.create({
     .maxLength(ICS_IMPORT.maxPreviewRanges)
     .distinct(),
   confirmImpact: confirmImpact(),
+  confirmedCount: confirmedCount(),
 })
 
 /** Query string of the holidays page (invalid values fall back to defaults). */

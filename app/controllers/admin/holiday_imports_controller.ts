@@ -141,9 +141,12 @@ export default class HolidayImportsController {
     const { params, request, response, session, i18n, auth } = ctx
     const school = await this.school(ctx)
     const user = auth.getUserOrFail()
-    const { importId, ranges, confirmImpact } = await request.validateUsing(icsConfirmValidator, {
-      data: { ...request.body(), importId: params.id },
-    })
+    const { importId, ranges, confirmImpact, confirmedCount } = await request.validateUsing(
+      icsConfirmValidator,
+      {
+        data: { ...request.body(), importId: params.id },
+      }
+    )
     const stored = await this.store.get(importId, user.id, school.id)
     const parsed = stored === null ? null : this.imports.deserialize(school, stored)
     if (parsed === null) {
@@ -155,7 +158,7 @@ export default class HolidayImportsController {
       parsed,
       ranges,
       i18n.t('holidays.import.untitled'),
-      { confirmImpact, actor: user }
+      { confirmImpact, confirmedCount, actor: user }
     )
     await this.store.delete(importId)
     session.flash('success', i18n.t('holidays.import.done', { ...result }))

@@ -11,6 +11,7 @@ import MenuTemplateItem from '#models/menu_template_item'
 import WeeklyMenu from '#models/weekly_menu'
 import Clock from '#services/clock'
 import MenuCalendar from '#services/menu_calendar'
+import MenuChangeService, { type RemovalResolution } from '#services/menu_change_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { addDays, isoWeekday, type IsoDate } from '#support/dates'
 
@@ -51,8 +52,11 @@ export type CopyReport = {
  * - every day that has subscription meals has exactly one default: the
  *   first subscription meal added becomes the default, and removing the
  *   default promotes the next one;
- * - removing an item from a **published** menu is refused (the impact flow
- *   for existing orders comes in Phase 6); closed menus are read-only.
+ * - on a **published** menu (D18): adding is allowed; changing a day's
+ *   default only until the order deadline (parents concerned are told);
+ *   `max_quantity` never below the portions already ordered; removing an
+ *   item resolves its orders first (switch or cancel, MenuChangeService);
+ *   closed menus are read-only.
  *
  * Locks (one transaction per write): the school row `FOR SHARE` (holiday
  * writes take it `FOR UPDATE`, so a day can't become a holiday while an item
@@ -64,7 +68,8 @@ export type CopyReport = {
 export default class MenuBuilderService {
   constructor(
     protected clock: Clock,
-    protected calendar: MenuCalendar
+    protected calendar: MenuCalendar,
+    protected changes: MenuChangeService
   ) {}
 
   async findWeek(schoolId: number, weekStart: IsoDate) {
@@ -212,25 +217,38 @@ export default class MenuBuilderService {
   }
 
   /**
-   * Removes an item. Refused on a published menu in Phase 5: Phase 6
-   * (`bfk-parent-ordering`, docs/PLAN.md Phase 6 item 4) replaces this
-   * refusal with the impact flow (list the affected orders, switch or cancel
-   * them, notify, set `removed_at`).
+   * Removes an item. Draft and scheduled menus have no orders: the row is
+   * deleted. On a published menu the item's active orders must be resolved
+   * (`resolution`: switch to another meal of the day, or cancel the lines —
+   * see MenuChangeService and the impact page); the item is then deleted,
+   * or kept with `removed_at` when order lines still reference it.
    */
-  async removeItem(school: School, menu: WeeklyMenu, itemId: number, actor: User) {
+  async removeItem(
+    school: School,
+    menu: WeeklyMenu,
+    itemId: number,
+    actor: User,
+    resolution: RemovalResolution | null = null
+  ) {
     return this.withMenu(school, menu.weekStart, actor, async (trx, locked) => {
       this.assertEditable(locked)
-      if (locked.status === 'published') {
-        throw new BusinessRuleException('menus.errors.remove_published')
-      }
       const item = await this.lockedItem(trx, locked, itemId)
-      await item.useTransaction(trx).delete()
+      let outcome = null
+      if (locked.status === 'published') {
+        outcome = await this.changes.removeItem(trx, school, locked, item, actor, resolution)
+      } else {
+        await item.useTransaction(trx).delete()
+      }
       if (item.isDefault) await this.ensureDefault(trx, locked.id, item.date)
-      return item
+      return { item, outcome }
     })
   }
 
-  /** Makes a subscription item the default of its day (the previous one is unset). */
+  /**
+   * Makes a subscription item the default of its day (the previous one is
+   * unset). On a published menu (D18) only before the order deadline, and
+   * the parents whose children would get the default are notified.
+   */
   async setDefault(school: School, menu: WeeklyMenu, itemId: number, actor: User) {
     return this.withMenu(school, menu.weekStart, actor, async (trx, locked) => {
       this.assertEditable(locked)
@@ -239,6 +257,10 @@ export default class MenuBuilderService {
         throw new BusinessRuleException('menus.errors.default_supplement')
       }
       if (item.isDefault) return item
+      const published = locked.status === 'published'
+      if (published && (!locked.orderDeadlineAt || locked.orderDeadlineAt <= this.clock.now())) {
+        throw new BusinessRuleException('menus.errors.default_after_deadline')
+      }
       await trx
         .from('menu_items')
         .where('weekly_menu_id', locked.id)
@@ -247,10 +269,12 @@ export default class MenuBuilderService {
         .update({ is_default: false, updated_at: this.clock.now().toISO()! })
       item.isDefault = true
       await item.useTransaction(trx).save()
+      if (published) await this.changes.notifyDefaultChange(trx, school, locked, item)
       return item
     })
   }
 
+  /** Changes an item's cap; never below the portions already ordered (D18). */
   async updateItem(
     school: School,
     menu: WeeklyMenu,
@@ -261,6 +285,7 @@ export default class MenuBuilderService {
     return this.withMenu(school, menu.weekStart, actor, async (trx, locked) => {
       this.assertEditable(locked)
       const item = await this.lockedItem(trx, locked, itemId)
+      await this.changes.assertMaxQuantity(trx, item.id, input.maxQuantity)
       item.maxQuantity = input.maxQuantity
       await item.useTransaction(trx).save()
       return item

@@ -13,6 +13,8 @@ export type MenuItemView = {
   type: 'subscription' | 'supplement' | string
   isDefault: boolean
   maxQuantity: number | null
+  /** Portions in active orders (published menus). */
+  ordered: number
   meal: MealSummary & { isDeleted: boolean }
 }
 
@@ -32,6 +34,8 @@ export type MenuIssue =
 export type MenuCan = {
   addItems: boolean
   removeItems: boolean
+  /** D18: a published day's default can change until the order deadline. */
+  setDefault: boolean
   editItems: boolean
   editTimes: boolean
   replaceItems: boolean

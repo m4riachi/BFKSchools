@@ -78,11 +78,38 @@ router
 /**
  * Parent portal (mobile-first). Staff visiting "/" are redirected to their home.
  */
+const isoDay = { match: /^\d{4}-\d{2}-\d{2}$/ }
 router
   .group(() => {
-    router.get('/', [controllers.parent.Home, 'show']).as('parent.home')
+    router.get('/', [controllers.parent.Orders, 'week']).as('parent.home')
   })
   .use(middleware.auth())
+
+/**
+ * Parent ordering (Phase 6): parents only (role middleware + Bouncer +
+ * Child.visibleTo in the controller).
+ */
+router
+  .group(() => {
+    router.get('history', [controllers.parent.Orders, 'history']).as('history')
+    router
+      .post(':childId/days/:date', [controllers.parent.Orders, 'saveDay'])
+      .where('childId', dbIdMatcher)
+      .where('date', isoDay)
+      .as('save')
+    router
+      .post(':childId/days/:date/absent', [controllers.parent.Orders, 'cancelDay'])
+      .where('childId', dbIdMatcher)
+      .where('date', isoDay)
+      .as('absent')
+    router
+      .post('days/:date/all', [controllers.parent.Orders, 'applyAll'])
+      .where('date', isoDay)
+      .as('apply_all')
+  })
+  .prefix('orders')
+  .as('parent.orders')
+  .use([middleware.auth(), middleware.role({ roles: ['parent'] })])
 
 /**
  * Back-office: admin + manager
@@ -256,6 +283,10 @@ router
           .delete('items/:id', [controllers.admin.WeeklyMenus, 'destroyItem'])
           .where('id', id)
           .as('items.destroy')
+        router
+          .get('items/:id/remove', [controllers.admin.WeeklyMenus, 'removeItemImpact'])
+          .where('id', id)
+          .as('items.remove')
         router.post('copy-previous', [controllers.admin.WeeklyMenus, 'copyPrevious']).as('copy')
         router
           .post('apply-template', [controllers.admin.WeeklyMenus, 'applyTemplate'])
@@ -275,6 +306,23 @@ router
       .delete('menu-templates/:id', [controllers.admin.WeeklyMenus, 'destroyTemplate'])
       .where('id', id)
       .as('menu_templates.destroy')
+
+    // Orders (Phase 6): day list, a child's week with audited staff changes
+    router.get('orders', [controllers.admin.Orders, 'index']).as('orders.index')
+    router
+      .get('orders/children/:childId', [controllers.admin.Orders, 'childWeek'])
+      .where('childId', id)
+      .as('orders.child')
+    router
+      .post('orders/children/:childId/days/:date', [controllers.admin.Orders, 'saveDay'])
+      .where('childId', id)
+      .where('date', isoDay)
+      .as('orders.save')
+    router
+      .post('orders/children/:childId/days/:date/cancel', [controllers.admin.Orders, 'cancelDay'])
+      .where('childId', id)
+      .where('date', isoDay)
+      .as('orders.cancel')
 
     // School settings (admin only, SchoolPolicy.updateSettings)
     router.get('settings', [controllers.admin.Settings, 'show']).as('settings.show')

@@ -55,3 +55,8 @@ export function menuWeekday(date: IsoDate) {
 export function schoolZone(school: Pick<School, 'timezone'>) {
   return school.timezone || APP_TIMEZONE
 }
+
+/** "lundi 23 novembre" / "Monday, November 23" — a business day, no zone shift. */
+export function dayLabel(iso: IsoDate, locale: string): string {
+  return formatDay(iso, locale, { weekday: 'long', day: 'numeric', month: 'long' })
+}

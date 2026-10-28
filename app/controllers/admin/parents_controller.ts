@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { safeTranslate } from '#support/safe_translate'
 import User from '#models/user'
 import ParentService from '#services/parent_service'
 import Clock from '#services/clock'
@@ -76,7 +77,7 @@ export default class ParentsController {
         session.flash('success', i18n.t('families.flash.parent_created_invited'))
       } catch (error) {
         if (!(error instanceof BusinessRuleException)) throw error
-        session.flash('error', i18n.t(error.messageKey))
+        session.flash('error', safeTranslate(i18n, error.messageKey))
       }
     }
     return response.redirect(`/admin/parents/${parent.id}`)

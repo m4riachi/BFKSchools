@@ -1,5 +1,6 @@
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
+import { safeTranslate } from '#support/safe_translate'
 
 /**
  * A business rule refused the action (overlapping subscription, parent
@@ -12,17 +13,28 @@ export default class BusinessRuleException extends Exception {
 
   constructor(
     readonly messageKey: string,
-    readonly options: { field?: string; values?: Record<string, string | number> } = {}
+    readonly options: {
+      field?: string
+      values?: Record<string, string | number>
+      /** More field errors to flash with `field` (raw strings, not translated). */
+      extraFields?: Record<string, string>
+    } = {}
   ) {
     super(messageKey, { status: 422, code: 'E_BUSINESS_RULE' })
   }
 
   async handle(error: this, ctx: HttpContext) {
-    const message = ctx.i18n.t(error.messageKey, error.options.values ?? {})
+    const message = safeTranslate(ctx.i18n, error.messageKey, error.options.values ?? {})
     if (error.options.field) {
       ctx.session.flashValidationErrors({
         code: 'E_VALIDATION_ERROR',
-        messages: [{ field: error.options.field, message }],
+        messages: [
+          { field: error.options.field, message },
+          ...Object.entries(error.options.extraFields ?? {}).map(([field, value]) => ({
+            field,
+            message: value,
+          })),
+        ],
       } as unknown as Parameters<typeof ctx.session.flashValidationErrors>[0])
     } else {
       ctx.session.flashExcept(['_csrf', '_method', 'password', 'password_confirmation'])

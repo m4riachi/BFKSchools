@@ -11,6 +11,7 @@ import MenuBuilderService, { type CopyReport } from '#services/menu_builder_serv
 import MenuCalendar, { isMonday } from '#services/menu_calendar'
 import MenuPublicationService from '#services/menu_publication_service'
 import MenuStatusService, { canTransition } from '#services/menu_status_service'
+import MenuChangeService from '#services/menu_change_service'
 import SchoolSettingsService from '#services/school_settings_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { staffSchoolId } from '#policies/parent_policy'
@@ -22,8 +23,10 @@ import {
   menuTimesValidator,
   menuWeekQueryValidator,
 } from '#validators/menus'
+import { menuItemRemovalValidator } from '#validators/orders'
 import { addDays, isIsoDate, weekStart as mondayOf, type IsoDate } from '#support/dates'
-import { mealName, presentMealSummary } from '#support/meal_display'
+import { allergenLabels, mealName, presentMealSummary } from '#support/meal_display'
+import db from '@adonisjs/lucid/services/db'
 import { schoolZone, weekBounds } from '#support/menu_display'
 
 /** Weeks shown on the index page around the current one. */
@@ -60,7 +63,8 @@ export default class WeeklyMenusController {
     protected calendar: MenuCalendar,
     protected status: MenuStatusService,
     protected publication: MenuPublicationService,
-    protected settings: SchoolSettingsService
+    protected settings: SchoolSettingsService,
+    protected changes: MenuChangeService
   ) {}
 
   protected async school(ctx: HttpContext) {
@@ -174,12 +178,30 @@ export default class WeeklyMenusController {
       .orderByRaw(i18n.locale === 'en' ? 'lower(name_en)' : 'lower(name_fr)')
       .orderBy('id')
 
+    // Portions ordered per item (active orders): shown on published menus,
+    // removal of an ordered item goes through the impact page.
+    const ordered = new Map<number, number>()
+    if (items.length && menu && menu.status !== 'draft') {
+      const rows = await db
+        .from('meal_order_items as moi')
+        .join('meal_orders as mo', 'mo.id', 'moi.meal_order_id')
+        .whereIn(
+          'moi.menu_item_id',
+          items.map((item) => item.id)
+        )
+        .where('mo.status', 'active')
+        .groupBy('moi.menu_item_id')
+        .select('moi.menu_item_id', db.raw('sum(moi.quantity)::int AS total'))
+      for (const row of rows) ordered.set(Number(row.menu_item_id), Number(row.total))
+    }
+
     const presentItem = (item: MenuItem) => ({
       id: item.id,
       date: item.date,
       type: item.mealType,
       isDefault: item.isDefault,
       maxQuantity: item.maxQuantity,
+      ordered: ordered.get(item.id) ?? 0,
       meal: {
         ...presentMealSummary(item.meal, i18n.locale),
         isDeleted: item.meal.isDeleted,
@@ -262,7 +284,14 @@ export default class WeeklyMenusController {
         settings.email_notifications.enabled && settings.email_notifications.menu_published,
       can: {
         addItems: status !== 'closed',
-        removeItems: status === 'draft' || status === 'scheduled',
+        removeItems: status !== 'closed',
+        // D18: a published day's default can change until the order deadline.
+        setDefault:
+          status !== 'closed' &&
+          (status !== 'published' ||
+            (menu?.orderDeadlineAt !== null &&
+              menu?.orderDeadlineAt !== undefined &&
+              menu.orderDeadlineAt > this.clock.now())),
         editItems: status !== 'closed',
         editTimes: status === 'draft' || status === 'scheduled',
         replaceItems: status === 'draft',
@@ -309,13 +338,91 @@ export default class WeeklyMenusController {
     return this.backToWeek(ctx, menu.weekStart)
   }
 
+  /**
+   * Removes an item. On a published menu, an item with orders needs a
+   * resolution (`mode` switch + `targetItemId`, or cancel) chosen on the
+   * impact page; without one the request is refused with the count.
+   */
   async destroyItem(ctx: HttpContext) {
-    const { auth, params, session, i18n } = ctx
+    const { auth, params, session, i18n, request } = ctx
     const school = await this.school(ctx)
     const menu = await this.menu(ctx, school)
-    await this.builder.removeItem(school, menu, Number(params.id), auth.getUserOrFail())
-    session.flash('success', i18n.t('menus.flash.item_removed'))
+    const input = await request.validateUsing(menuItemRemovalValidator)
+    const resolution =
+      input.mode === 'switch'
+        ? input.targetItemId
+          ? { mode: 'switch' as const, targetItemId: input.targetItemId }
+          : null
+        : input.mode === 'cancel'
+          ? { mode: 'cancel' as const }
+          : null
+    if (input.mode === 'switch' && !input.targetItemId) {
+      throw new BusinessRuleException('menus.errors.switch_target', { field: 'targetItemId' })
+    }
+    const result = await this.builder.removeItem(
+      school,
+      menu,
+      Number(params.id),
+      auth.getUserOrFail(),
+      resolution
+    )
+    session.flash(
+      'success',
+      result.outcome && result.outcome.orders > 0
+        ? i18n.t('menus.flash.item_removed_with_orders', {
+            orders: result.outcome.orders,
+            switched: result.outcome.switched,
+            cancelled: result.outcome.cancelledOrders,
+          })
+        : i18n.t('menus.flash.item_removed')
+    )
     return this.backToWeek(ctx, menu.weekStart)
+  }
+
+  /**
+   * GET items/:id/remove — impact page of removing an item from a
+   * published menu: the affected orders and the meals they can switch to.
+   */
+  async removeItemImpact(ctx: HttpContext) {
+    const { params, inertia, i18n } = ctx
+    const school = await this.school(ctx)
+    const menu = await this.menu(ctx, school)
+    const item = await MenuItem.query()
+      .withScopes((scopes) => scopes.current())
+      .where('weekly_menu_id', menu.id)
+      .where('id', Number(params.id))
+      .preload('meal')
+      .firstOrFail()
+    const affected = await this.changes.affectedOrders(db.connection(), item.id)
+    const alternatives = await this.changes.alternatives(db.connection(), item)
+    const locale = i18n.locale
+    return inertia.render('admin/menus/remove_item', {
+      week: menu.weekStart,
+      menuStatus: menu.status,
+      isPast: item.date < this.clock.today(),
+      item: {
+        id: item.id,
+        date: item.date,
+        type: item.mealType,
+        isDefault: item.isDefault,
+        meal: presentMealSummary(item.meal, locale),
+      },
+      affected: affected.map((order) => ({
+        ...order,
+        allergies: allergenLabels(order.allergies as never, locale),
+      })),
+      alternatives: alternatives.map((option) => ({
+        id: option.id,
+        name: mealName(option.meal, locale),
+        price: presentMealSummary(option.meal, locale).price,
+        allergens: [...option.meal.allergens],
+        maxQuantity: option.maxQuantity,
+        // Children of the list who are allergic to this alternative lose the line instead.
+        allergicChildren: affected.filter((order) =>
+          option.meal.allergens.some((code) => order.allergies.includes(code))
+        ).length,
+      })),
+    })
   }
 
   /* Copy / templates ---------------------------------------------------- */

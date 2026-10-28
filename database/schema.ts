@@ -8,7 +8,8 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import type { AllergenCode } from '#enums/allergens'
 import { DateTime } from 'luxon'
 import type { HolidaySource } from '#enums/holidays'
-import type { MealCategory, MealType } from '#enums/meals'
+import type { MealType, MealCategory } from '#enums/meals'
+import type { CancelReason, OrderOrigin, OrderStatus, AuditAction, AuditActorRole, OrderSnapshot } from '#enums/orders'
 import type { NotificationType, OutboundEmailStatus, WeeklyMenuStatus } from '#enums/menus'
 import type { AppLocale } from '#enums/locales'
 import type { StoredSchoolSettings } from '#types/school_settings'
@@ -72,6 +73,64 @@ export class HolidaySchema extends BaseModel {
   declare source: HolidaySource
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+}
+
+export class MealOrderItemSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'lineTotalCents', 'mealId', 'mealOrderId', 'mealType', 'menuItemId', 'quantity', 'unitPriceCents', 'updatedAt'] as const
+  $columns = MealOrderItemSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare lineTotalCents: number | null
+  @column()
+  declare mealId: number
+  @column()
+  declare mealOrderId: number
+  @column()
+  declare mealType: MealType
+  @column()
+  declare menuItemId: number
+  @column()
+  declare quantity: number
+  @column()
+  declare unitPriceCents: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class MealOrderSchema extends BaseModel {
+  static $columns = ['cancelNote', 'cancelReason', 'cancelledAt', 'childId', 'createdAt', 'createdBy', 'date', 'id', 'origin', 'schoolId', 'status', 'updatedAt', 'updatedBy', 'weeklyMenuId'] as const
+  $columns = MealOrderSchema.$columns
+  @column()
+  declare cancelNote: string | null
+  @column()
+  declare cancelReason: CancelReason | null
+  @column.dateTime()
+  declare cancelledAt: DateTime | null
+  @column()
+  declare childId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number | null
+  @column()
+  declare date: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare origin: OrderOrigin
+  @column()
+  declare schoolId: number
+  @column()
+  declare status: OrderStatus
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare updatedBy: number | null
+  @column()
+  declare weeklyMenuId: number
 }
 
 export class MealPhotoSchema extends BaseModel {
@@ -224,6 +283,35 @@ export class NotificationSchema extends BaseModel {
   declare type: NotificationType
   @column()
   declare userId: number
+}
+
+export class OrderAuditLogSchema extends BaseModel {
+  static $columns = ['action', 'actorId', 'actorRole', 'after', 'before', 'childId', 'createdAt', 'date', 'id', 'ipAddress', 'mealOrderId', 'reason'] as const
+  $columns = OrderAuditLogSchema.$columns
+  @column()
+  declare action: AuditAction
+  @column()
+  declare actorId: number | null
+  @column()
+  declare actorRole: AuditActorRole
+  @column()
+  declare after: OrderSnapshot | null
+  @column()
+  declare before: OrderSnapshot | null
+  @column()
+  declare childId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare date: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare ipAddress: string | null
+  @column()
+  declare mealOrderId: number
+  @column()
+  declare reason: string | null
 }
 
 export class OutboundEmailSchema extends BaseModel {
@@ -394,7 +482,7 @@ export class UserSchema extends BaseModel {
 }
 
 export class WeeklyMenuSchema extends BaseModel {
-  static $columns = ['closedAt', 'createdAt', 'createdBy', 'deadlineProcessedAt', 'id', 'notes', 'orderDeadlineAt', 'publishAt', 'publishedAt', 'reminderSentAt', 'schoolId', 'status', 'updatedAt', 'updatedBy', 'weekStart'] as const
+  static $columns = ['closedAt', 'createdAt', 'createdBy', 'deadlineProcessedAt', 'id', 'latePublishWarnedAt', 'notes', 'orderDeadlineAt', 'publishAt', 'publishedAt', 'reminderSentAt', 'schoolId', 'status', 'updatedAt', 'updatedBy', 'weekStart'] as const
   $columns = WeeklyMenuSchema.$columns
   @column.dateTime()
   declare closedAt: DateTime | null
@@ -406,6 +494,8 @@ export class WeeklyMenuSchema extends BaseModel {
   declare deadlineProcessedAt: DateTime | null
   @column({ isPrimary: true })
   declare id: number
+  @column.dateTime()
+  declare latePublishWarnedAt: DateTime | null
   @column()
   declare notes: string | null
   @column.dateTime()

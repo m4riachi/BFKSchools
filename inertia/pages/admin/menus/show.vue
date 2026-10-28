@@ -191,6 +191,11 @@ function addMeal(date: string, mealId: number) {
 const removeTarget = ref<MenuItemView | null>(null)
 const removeOpen = ref(false)
 function askRemove(item: MenuItemView) {
+  // Published menu: the impact page lists the orders and how to handle them.
+  if (status.value === 'published') {
+    router.get(`${base.value}/items/${item.id}/remove`)
+    return
+  }
   removeTarget.value = item
   removeOpen.value = true
 }

@@ -120,6 +120,8 @@ export default class MenuStatusService {
     locked.merge({
       publishAt: input.publishAt,
       orderDeadlineAt: input.orderDeadlineAt,
+      // New times: a late-publication warning (D19) may be logged again.
+      latePublishWarnedAt: null,
       updatedBy: actor.id,
     })
     if (input.notes !== undefined) locked.notes = input.notes || null
@@ -168,6 +170,9 @@ export default class MenuStatusService {
     if (!outcome.published) {
       if (outcome.reason === 'week_over') {
         throw new BusinessRuleException('menus.errors.week_over')
+      }
+      if (outcome.reason === 'deadline_passed') {
+        throw new BusinessRuleException('menus.errors.deadline_passed')
       }
       if (outcome.reason === 'not_ready') {
         throw new BusinessRuleException('menus.errors.not_ready', {

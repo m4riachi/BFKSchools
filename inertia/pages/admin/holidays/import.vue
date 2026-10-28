@@ -59,6 +59,7 @@ const selectable = (range: PreviewRange) =>
 const confirmForm = useForm({
   ranges: (props.preview?.ranges ?? []).filter((r) => r.selected).map((r) => r.key),
   confirmImpact: false,
+  confirmedCount: 0,
 })
 const impact = useImpactConfirm()
 const impactOpen = impact.open
@@ -71,6 +72,7 @@ function submitConfirm() {
     onError: (errors) =>
       impact.handle(errors, () => {
         confirmForm.confirmImpact = true
+        confirmForm.confirmedCount = impact.count.value
         submitConfirm()
       }),
     onFinish: () => (confirmForm.confirmImpact = false),

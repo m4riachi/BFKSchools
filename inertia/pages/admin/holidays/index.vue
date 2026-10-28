@@ -107,7 +107,7 @@ const generating = ref(false)
 function generate(confirmImpact = false) {
   router.post(
     '/admin/holidays/generate',
-    { confirmImpact },
+    { confirmImpact, confirmedCount: confirmImpact ? impact.count.value : undefined },
     {
       preserveScroll: true,
       onStart: () => (generating.value = true),

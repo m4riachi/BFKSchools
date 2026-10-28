@@ -3,15 +3,14 @@ import type { CommandOptions } from '@adonisjs/core/types/ace'
 import MenuJobs from '#services/menu_jobs'
 
 /**
- * At the order deadline: auto-assign the default meal (D10).
- * PHASE 5: registered in the schedule but a no-op — the order-dependent logic
- * is implemented in Phase 6 (see the INTEGRATION POINT in MenuJobs.applyDeadline).
+ * At the order deadline: auto-assign the day's default meal (D10) to
+ * subscribed children with no order row. Once per menu.
  *
  * Crontab (docs/STACK_NOTES.md §7):  *\/5 * * * *  node ace menus:apply-deadline
  */
 export default class MenusApplyDeadline extends BaseCommand {
   static commandName = 'menus:apply-deadline'
-  static description = 'Apply the order deadline (auto-assign default meals, Phase 6)'
+  static description = 'Apply the order deadline (auto-assign the default meal, D10)'
   static options: CommandOptions = { startApp: true }
 
   async run() {
@@ -20,8 +19,9 @@ export default class MenusApplyDeadline extends BaseCommand {
     if (!outcome.acquired) {
       return this.logger.warning('menus:apply-deadline is already running; skipped')
     }
+    const assigned = outcome.result.reduce((sum, menu) => sum + menu.assigned, 0)
     this.logger.info(
-      `Deadline processing is implemented in Phase 6 (nothing done; ${outcome.result.due} menu(s) past their deadline)`
+      `Deadline: ${outcome.result.length} menu(s) processed, ${assigned} default meal(s) assigned`
     )
   }
 }

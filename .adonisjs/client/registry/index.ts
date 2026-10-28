@@ -80,6 +80,30 @@ const routes = {
     tokens: [[0,"/"]],
     types: placeholder as Registry['parent.home']['types'],
   },
+  'parent.orders.history': {
+    methods: ["GET","HEAD"],
+    pattern: '/orders/history',
+    tokens: [[0,"orders"],[0,"history"]],
+    types: placeholder as Registry['parent.orders.history']['types'],
+  },
+  'parent.orders.save': {
+    methods: ["POST"],
+    pattern: '/orders/:childId/days/:date',
+    tokens: [[0,"orders"],[1,"childId"],[0,"days"],[1,"date"]],
+    types: placeholder as Registry['parent.orders.save']['types'],
+  },
+  'parent.orders.absent': {
+    methods: ["POST"],
+    pattern: '/orders/:childId/days/:date/absent',
+    tokens: [[0,"orders"],[1,"childId"],[0,"days"],[1,"date"],[0,"absent"]],
+    types: placeholder as Registry['parent.orders.absent']['types'],
+  },
+  'parent.orders.apply_all': {
+    methods: ["POST"],
+    pattern: '/orders/days/:date/all',
+    tokens: [[0,"orders"],[0,"days"],[1,"date"],[0,"all"]],
+    types: placeholder as Registry['parent.orders.apply_all']['types'],
+  },
   'admin.dashboard': {
     methods: ["GET","HEAD"],
     pattern: '/admin',
@@ -380,6 +404,12 @@ const routes = {
     tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"items"],[1,"id"]],
     types: placeholder as Registry['admin.menus.items.destroy']['types'],
   },
+  'admin.menus.items.remove': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/menus/:week/items/:id/remove',
+    tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"items"],[1,"id"],[0,"remove"]],
+    types: placeholder as Registry['admin.menus.items.remove']['types'],
+  },
   'admin.menus.copy': {
     methods: ["POST"],
     pattern: '/admin/menus/:week/copy-previous',
@@ -427,6 +457,30 @@ const routes = {
     pattern: '/admin/menu-templates/:id',
     tokens: [[0,"admin"],[0,"menu-templates"],[1,"id"]],
     types: placeholder as Registry['admin.menu_templates.destroy']['types'],
+  },
+  'admin.orders.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/orders',
+    tokens: [[0,"admin"],[0,"orders"]],
+    types: placeholder as Registry['admin.orders.index']['types'],
+  },
+  'admin.orders.child': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/orders/children/:childId',
+    tokens: [[0,"admin"],[0,"orders"],[0,"children"],[1,"childId"]],
+    types: placeholder as Registry['admin.orders.child']['types'],
+  },
+  'admin.orders.save': {
+    methods: ["POST"],
+    pattern: '/admin/orders/children/:childId/days/:date',
+    tokens: [[0,"admin"],[0,"orders"],[0,"children"],[1,"childId"],[0,"days"],[1,"date"]],
+    types: placeholder as Registry['admin.orders.save']['types'],
+  },
+  'admin.orders.cancel': {
+    methods: ["POST"],
+    pattern: '/admin/orders/children/:childId/days/:date/cancel',
+    tokens: [[0,"admin"],[0,"orders"],[0,"children"],[1,"childId"],[0,"days"],[1,"date"],[0,"cancel"]],
+    types: placeholder as Registry['admin.orders.cancel']['types'],
   },
   'admin.settings.show': {
     methods: ["GET","HEAD"],

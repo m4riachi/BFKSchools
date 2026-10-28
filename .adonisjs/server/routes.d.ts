@@ -16,6 +16,10 @@ export type ScannedRoutes = {
     'session.destroy': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
+    'parent.orders.history': { paramsTuple?: []; params?: {} }
+    'parent.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'parent.orders.absent': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'parent.orders.apply_all': { paramsTuple: [ParamValue]; params: {'date': ParamValue} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
@@ -66,6 +70,7 @@ export type ScannedRoutes = {
     'admin.menus.items.update': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.default': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
+    'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.copy': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.templates.apply': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.templates.save': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
@@ -74,6 +79,10 @@ export type ScannedRoutes = {
     'admin.menus.unschedule': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.publish': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menu_templates.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.orders.index': { paramsTuple?: []; params?: {} }
+    'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
+    'admin.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.update': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
@@ -92,6 +101,7 @@ export type ScannedRoutes = {
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
+    'parent.orders.history': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
@@ -107,6 +117,9 @@ export type ScannedRoutes = {
     'admin.holidays.import.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.menus.index': { paramsTuple?: []; params?: {} }
     'admin.menus.show': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
+    'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
+    'admin.orders.index': { paramsTuple?: []; params?: {} }
+    'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
@@ -122,6 +135,7 @@ export type ScannedRoutes = {
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
+    'parent.orders.history': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
@@ -137,6 +151,9 @@ export type ScannedRoutes = {
     'admin.holidays.import.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.menus.index': { paramsTuple?: []; params?: {} }
     'admin.menus.show': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
+    'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
+    'admin.orders.index': { paramsTuple?: []; params?: {} }
+    'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
@@ -152,6 +169,9 @@ export type ScannedRoutes = {
     'password.reset.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
+    'parent.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'parent.orders.absent': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'parent.orders.apply_all': { paramsTuple: [ParamValue]; params: {'date': ParamValue} }
     'admin.parents.store': { paramsTuple?: []; params?: {} }
     'admin.parents.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -177,6 +197,8 @@ export type ScannedRoutes = {
     'admin.menus.schedule': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.unschedule': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.publish': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
+    'admin.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }

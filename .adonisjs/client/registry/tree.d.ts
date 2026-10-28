@@ -27,6 +27,12 @@ export interface ApiDefinition {
   }
   parent: {
     home: typeof routes['parent.home']
+    orders: {
+      history: typeof routes['parent.orders.history']
+      save: typeof routes['parent.orders.save']
+      absent: typeof routes['parent.orders.absent']
+      applyAll: typeof routes['parent.orders.apply_all']
+    }
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']
@@ -97,6 +103,7 @@ export interface ApiDefinition {
         update: typeof routes['admin.menus.items.update']
         default: typeof routes['admin.menus.items.default']
         destroy: typeof routes['admin.menus.items.destroy']
+        remove: typeof routes['admin.menus.items.remove']
       }
       copy: typeof routes['admin.menus.copy']
       templates: {
@@ -110,6 +117,12 @@ export interface ApiDefinition {
     }
     menuTemplates: {
       destroy: typeof routes['admin.menu_templates.destroy']
+    }
+    orders: {
+      index: typeof routes['admin.orders.index']
+      child: typeof routes['admin.orders.child']
+      save: typeof routes['admin.orders.save']
+      cancel: typeof routes['admin.orders.cancel']
     }
     settings: {
       show: typeof routes['admin.settings.show']

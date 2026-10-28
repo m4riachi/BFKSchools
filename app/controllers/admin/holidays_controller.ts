@@ -136,9 +136,11 @@ export default class HolidaysController {
   async store(ctx: HttpContext) {
     const { request, response, session, i18n, auth } = ctx
     const school = await this.school(ctx)
-    const { confirmImpact, ...input } = await request.validateUsing(holidayCreateValidator)
+    const { confirmImpact, confirmedCount, ...input } =
+      await request.validateUsing(holidayCreateValidator)
     const result = await this.holidays.createManual(school, input, {
       confirmImpact,
+      confirmedCount,
       actor: auth.getUserOrFail(),
     })
     session.flash('success', i18n.t('holidays.flash.created', { count: result.created }))
@@ -150,9 +152,11 @@ export default class HolidaysController {
     const school = await this.school(ctx)
     const holiday = await this.holidays.findListed(school.id, params.id)
     await bouncer.with('HolidayPolicy').authorize('edit', holiday)
-    const { confirmImpact, ...input } = await request.validateUsing(holidayUpdateValidator)
+    const { confirmImpact, confirmedCount, ...input } =
+      await request.validateUsing(holidayUpdateValidator)
     await this.holidays.updateOne(school, holiday, input, {
       confirmImpact,
+      confirmedCount,
       actor: auth.getUserOrFail(),
     })
     session.flash('success', i18n.t('holidays.flash.updated'))
@@ -162,9 +166,12 @@ export default class HolidaysController {
   async updateGroup(ctx: HttpContext) {
     const { params, request, response, session, i18n, auth } = ctx
     const school = await this.school(ctx)
-    const { confirmImpact, ...input } = await request.validateUsing(holidayGroupUpdateValidator)
+    const { confirmImpact, confirmedCount, ...input } = await request.validateUsing(
+      holidayGroupUpdateValidator
+    )
     await this.holidays.updateGroup(school, String(params.groupId), input, {
       confirmImpact,
+      confirmedCount,
       actor: auth.getUserOrFail(),
     })
     session.flash('success', i18n.t('holidays.flash.updated'))
@@ -176,9 +183,11 @@ export default class HolidaysController {
     const school = await this.school(ctx)
     const holiday = await this.holidays.findListed(school.id, params.id)
     await bouncer.with('HolidayPolicy').authorize('edit', holiday)
-    const { active, confirmImpact } = await request.validateUsing(holidayToggleValidator)
+    const { active, confirmImpact, confirmedCount } =
+      await request.validateUsing(holidayToggleValidator)
     await this.holidays.setActive(school, [holiday], active, {
       confirmImpact,
+      confirmedCount,
       actor: auth.getUserOrFail(),
     })
     session.flash('success', i18n.t(active ? 'holidays.flash.enabled' : 'holidays.flash.disabled'))
@@ -189,9 +198,11 @@ export default class HolidaysController {
     const { params, request, response, session, i18n, auth } = ctx
     const school = await this.school(ctx)
     const rows = await this.holidays.findGroup(school.id, String(params.groupId))
-    const { active, confirmImpact } = await request.validateUsing(holidayToggleValidator)
+    const { active, confirmImpact, confirmedCount } =
+      await request.validateUsing(holidayToggleValidator)
     await this.holidays.setActive(school, rows, active, {
       confirmImpact,
+      confirmedCount,
       actor: auth.getUserOrFail(),
     })
     session.flash('success', i18n.t(active ? 'holidays.flash.enabled' : 'holidays.flash.disabled'))
@@ -221,9 +232,10 @@ export default class HolidaysController {
   async generate(ctx: HttpContext) {
     const { request, response, session, i18n, auth } = ctx
     const school = await this.school(ctx)
-    const { confirmImpact } = await request.validateUsing(holidayGenerateValidator)
+    const { confirmImpact, confirmedCount } = await request.validateUsing(holidayGenerateValidator)
     const result = await this.generator.generate(school, {
       confirmImpact,
+      confirmedCount,
       actor: auth.getUserOrFail(),
     })
     session.flash(

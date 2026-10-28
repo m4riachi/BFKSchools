@@ -17,7 +17,10 @@ declare module '@adonisjs/inertia/types' {
     'admin/meals/form': ExtractProps<(typeof import('../../inertia/pages/admin/meals/form.vue'))['default']>
     'admin/meals/index': ExtractProps<(typeof import('../../inertia/pages/admin/meals/index.vue'))['default']>
     'admin/menus/index': ExtractProps<(typeof import('../../inertia/pages/admin/menus/index.vue'))['default']>
+    'admin/menus/remove_item': ExtractProps<(typeof import('../../inertia/pages/admin/menus/remove_item.vue'))['default']>
     'admin/menus/show': ExtractProps<(typeof import('../../inertia/pages/admin/menus/show.vue'))['default']>
+    'admin/orders/child': ExtractProps<(typeof import('../../inertia/pages/admin/orders/child.vue'))['default']>
+    'admin/orders/index': ExtractProps<(typeof import('../../inertia/pages/admin/orders/index.vue'))['default']>
     'admin/parents/create': ExtractProps<(typeof import('../../inertia/pages/admin/parents/create.vue'))['default']>
     'admin/parents/edit': ExtractProps<(typeof import('../../inertia/pages/admin/parents/edit.vue'))['default']>
     'admin/parents/index': ExtractProps<(typeof import('../../inertia/pages/admin/parents/index.vue'))['default']>
@@ -32,6 +35,7 @@ declare module '@adonisjs/inertia/types' {
     'kitchen/dashboard': ExtractProps<(typeof import('../../inertia/pages/kitchen/dashboard.vue'))['default']>
     'kitchen/meals/index': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/index.vue'))['default']>
     'kitchen/meals/show': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/show.vue'))['default']>
-    'parent/home': ExtractProps<(typeof import('../../inertia/pages/parent/home.vue'))['default']>
+    'parent/orders/history': ExtractProps<(typeof import('../../inertia/pages/parent/orders/history.vue'))['default']>
+    'parent/orders/week': ExtractProps<(typeof import('../../inertia/pages/parent/orders/week.vue'))['default']>
   }
 }

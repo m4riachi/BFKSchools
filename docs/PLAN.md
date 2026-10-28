@@ -172,14 +172,21 @@ Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 i
 - Phase 3: `new Date()` for `updated_at` in `meal_photo_service.ts` → Clock / `now()`.
 - ~~Phase 5: meal type lock is check-then-save~~ — done in Phase 5 (`MealService.update`/`softDelete` lock the meal `FOR UPDATE`; menu/template inserts lock it `FOR SHARE`).
 - Phase 3 (Medium, before any S3 deploy): production CSP `img-src` blocks the S3 signed-URL redirect for meal photos — allow only the bucket origin (from `S3_ENDPOINT`/bucket+region) or stream S3 objects through the app.
-- Phase 6 (Medium, required when wiring `HolidayImpactService`): the impact count runs before the transaction — recount inside it after `lockSchool` and refuse if it exceeds the confirmed count; order creation must take the same school lock (or check holidays `FOR SHARE`) so an order and a holiday can't both commit for one date.
+- ~~Phase 6 (Medium, required when wiring `HolidayImpactService`): recount inside the transaction; order creation takes the school lock~~ — done in Phase 6 (`HolidayService.applyImpact` recounts after `lockSchool` and compares with the `confirmedCount` the admin saw; `OrderService` takes the school row `FOR SHARE`; concurrency test in `tests/functional/orders/order_service.spec.ts`).
 - Phase 4: rate-limit holiday ICS upload/URL import per user; purge expired previews on read and on a schedule; cap pending imports per user.
 - Phase 4: `updateOne`/`updateGroup`/`setActive` decide on rows read before `lockSchool` — re-read `FOR UPDATE` inside the transaction.
 - Phase 4: ICS screener doesn't mirror node-ical's TZID quote stripping (contained by the parsed-authority check + worker); overrides carrying their own RRULE aren't re-validated.
 - Phase 4 (correctness): `sanitizeParseResult` rejects a legitimate result with > 1,000 ignored entries as `unreadable` — cap/slice `ignored` instead.
 - Phase 3 S3 CSP (fail-closed edge cases): stricter `S3_PUBLIC_ORIGIN` host validation; China regions, IP-literal endpoints and `AWS_USE_DUALSTACK_ENDPOINT`/`AWS_USE_FIPS_ENDPOINT`/`AWS_ENDPOINT_URL*` aren't mirrored — best fix: presign a dummy key at boot and assert its origin equals `s3PublicOrigin()`. Load one photo from the real bucket in a browser before launch.
-- Phase 6 (from Phase 5 review): published menus still allow `addItem`/`setDefault`/`updateItem`; `updateItem` must refuse a `maxQuantity` below the ordered total (item `FOR UPDATE`), and default/item changes on published menus should be treated as `menu_change` events. Check meal availability when an order is placed.
-- Phase 5: a menu can be published (manual or job catch-up) after its order deadline has passed — only a warning today; consider refusing manual publish and alerting instead.
+- ~~Phase 6 (from Phase 5 review): published-menu item changes, max below ordered, meal availability when ordering~~ — done in Phase 6 (D18: `MenuChangeService`; `checkSelection` refuses unavailable/removed/sold-out meals).
+- ~~Phase 5: a menu can be published after its order deadline~~ — D19 done in Phase 6 (refused; the job leaves it scheduled and warns once).
+- Phase 6: deactivating a child does not cancel its future orders (`cancel_reason = 'child_inactive'` exists but nothing writes it); the window refuses new changes (INACTIVE) and staff can cancel. Wire it in Phase 9 (or when ChildService changes).
+- Phase 6: the media route still serves any meal photo to any logged-in user (Phase 3 follow-up, unchanged).
+- Phase 6: `auto_assigned` notifications are in-app only (no email key in `email_notifications`).
 - Phase 5: daily jobs decide "week over" with the app time zone (`clock.today()`), not per school — fine for one Casablanca school; confirm per school with `weekEndsAt` before adding schools in other zones.
 - Phase 5: hourly mail cap counts only sent rows, not failed SMTP attempts.
 - Phase 5: `SchoolPolicy.view` still treats a staff user without a school as all schools (unused) — align or remove.
+- Phase 6 review (Medium): server doesn't check the order date is a school day inside the school year (OrderService.context → evaluate) — crafted POST can order on a day removed from school_days.
+- Phase 6 review (Medium): removing a published day's default promotes a new default without the D18 deadline check or parent notification (MenuBuilderService.removeItem → ensureDefault).
+- Phase 6 review (Medium, before Phase 8): deactivating a child/parent or ending a subscription leaves future active orders (cancel with `child_inactive`, audit, notify).
+- Phase 6 review (Low): `confirmAllergy` is one boolean for a whole request (tie it to meal ids; reject in apply-to-all); audit log IP retention policy; staff PAST_DAY override has no time limit (statements); parent can re-activate a staff-cancelled day; menu-change switch re-prices to the target meal; removal impact page lacks a confirmed count; late auto-assign ignores the day's cutoff.

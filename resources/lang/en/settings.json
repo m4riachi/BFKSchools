@@ -46,7 +46,8 @@
     "billing_mode": "Billing mode",
     "billing_mode_per_meal": "Each subscription meal at its price",
     "billing_mode_monthly_fee": "Monthly fee",
-    "monthly_fee": "Monthly fee (MAD)"
+    "monthly_fee": "Monthly fee (MAD)",
+    "edit_cutoff_days_before_not_applicable": "Not applicable in same-day mode: only today's meal can be changed, before the cutoff time."
   },
   "weekdays": {
     "1": "Monday",

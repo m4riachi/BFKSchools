@@ -119,7 +119,9 @@
     "report_skipped_day_closed": "{day} ignoré : pas un jour d'école.",
     "report_skipped_meal": "{name} ignoré : repas inactif ou supprimé.",
     "report_new_default": "{day} : le plat par défaut d'origine a été ignoré, le premier plat restant devient le plat par défaut.",
-    "dismiss": "Masquer"
+    "dismiss": "Masquer",
+    "ordered": "{count, plural, =0 {Aucune commande} one {# commandé} other {# commandés}}",
+    "remove_impact": "Retirer…"
   },
   "issues": {
     "missing_times": "Renseignez la date de publication et la clôture des commandes.",
@@ -152,7 +154,14 @@
     "not_ready": "{count, plural, one {Le menu n'est pas prêt : # point à corriger.} other {Le menu n'est pas prêt : # points à corriger.}}",
     "week_over": "Cette semaine est terminée : son menu ne peut plus être programmé ni publié.",
     "publish_in_past": "La publication doit être dans le futur (sinon le menu serait publié immédiatement, sans contrôle) : modifiez la date de publication.",
-    "publish_too_early": "La publication doit avoir lieu au plus {weeks} semaines avant la semaine du menu."
+    "publish_too_early": "La publication doit avoir lieu au plus {weeks} semaines avant la semaine du menu.",
+    "deadline_passed": "La clôture des commandes de ce menu est déjà passée : il ne peut pas être publié. Fixez de nouveaux horaires (repassez-le en brouillon).",
+    "default_after_deadline": "La clôture des commandes est passée : le plat par défaut de ce jour ne peut plus changer.",
+    "max_below_ordered": "{ordered, plural, one {# portion est déjà commandée : la limite ne peut pas être plus basse.} other {# portions sont déjà commandées : la limite ne peut pas être plus basse.}}",
+    "remove_has_orders": "{count, plural, one {# commande contient ce plat : choisissez d'abord comment la traiter.} other {# commandes contiennent ce plat : choisissez d'abord comment les traiter.}}",
+    "switch_target": "Choisissez un autre plat du même jour et du même type.",
+    "switch_sold_out": "Le plat choisi n'a plus assez de portions ({remaining} restantes).",
+    "past_day": "Ce jour est passé : ses plats ne peuvent plus être retirés."
   },
   "flash": {
     "item_added": "{name} ajouté.",
@@ -166,6 +175,26 @@
     "times_saved": "Horaires enregistrés.",
     "scheduled": "Publication programmée.",
     "unscheduled": "Menu repassé en brouillon.",
-    "published": "{recipients, plural, =0 {Menu publié.} one {Menu publié : # famille prévenue.} other {Menu publié : # familles prévenues.}}"
+    "published": "{recipients, plural, =0 {Menu publié.} one {Menu publié : # famille prévenue.} other {Menu publié : # familles prévenues.}}",
+    "item_removed_with_orders": "Plat retiré : {orders} commandes traitées ({switched} remplacées, {cancelled} annulées). Les parents sont prévenus."
+  },
+  "remove": {
+    "title": "Retirer un plat d'un menu publié",
+    "intro": "« {meal} » ({day}) est au menu publié de la semaine. Les commandes qui le contiennent doivent être traitées avant de le retirer.",
+    "affected": "{count, plural, =0 {Aucune commande ne contient ce plat : il peut être retiré.} one {# commande contient ce plat} other {# commandes contiennent ce plat}}",
+    "child": "Enfant",
+    "class": "Classe",
+    "parent": "Parent",
+    "quantity": "Qté",
+    "allergies": "Allergies",
+    "how": "Que faire des commandes ?",
+    "switch": "Les remplacer par un autre plat du même jour",
+    "switch_allergy": "{count, plural, =0 {} one {# enfant allergique à ce plat le perdra (sans remplacement).} other {# enfants allergiques à ce plat le perdront (sans remplacement).}}",
+    "cancel": "Retirer ce plat des commandes (les commandes vides sont annulées)",
+    "no_alternative": "Aucun autre plat de ce type ce jour : seule l'annulation est possible.",
+    "notify": "Les parents concernés reçoivent une notification et un e-mail. Chaque changement est enregistré dans l'historique des commandes.",
+    "confirm": "Retirer le plat",
+    "back": "Retour au menu",
+    "past": "Ce jour est passé : le plat ne peut plus être retiré."
   }
 }

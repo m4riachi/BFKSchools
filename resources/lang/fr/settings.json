@@ -46,7 +46,8 @@
     "billing_mode": "Mode de facturation",
     "billing_mode_per_meal": "Chaque repas d'abonnement à son prix",
     "billing_mode_monthly_fee": "Forfait mensuel",
-    "monthly_fee": "Forfait mensuel (MAD)"
+    "monthly_fee": "Forfait mensuel (MAD)",
+    "edit_cutoff_days_before_not_applicable": "Sans objet en mode « jour même » : seul le repas du jour peut être modifié, avant l’heure limite."
   },
   "weekdays": {
     "1": "Lundi",

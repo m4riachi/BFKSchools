@@ -283,7 +283,7 @@ test.group('Holidays | manual days and ranges', (group) => {
 test.group('Holidays | impact on existing orders', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
-  test('the stub reports no affected orders', async ({ client, assert }) => {
+  test('without orders on the dates nothing asks for confirmation', async ({ client, assert }) => {
     const { school, manager } = await setupHolidaySchool()
     const response = await client
       .post('/admin/holidays')
@@ -311,6 +311,8 @@ test.group('Holidays | impact on existing orders', (group) => {
       const errors = inputErrors(refused)
       assert.property(errors, 'confirmImpact')
       assert.include(String(errors.confirmImpact), '3')
+      // The count the dialog replays as confirmedCount.
+      assert.equal(String(errors.confirmedCount), '3')
       assert.lengthOf(await listedHolidays(school.id), 0)
       assert.lengthOf(impact.cancelled, 0)
 
@@ -322,6 +324,7 @@ test.group('Holidays | impact on existing orders', (group) => {
           startDate: '2027-02-03',
           endDate: '2027-02-04',
           confirmImpact: true,
+          confirmedCount: 3,
         })
         .withCsrfToken()
         .redirects(0)

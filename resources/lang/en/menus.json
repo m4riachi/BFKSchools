@@ -119,7 +119,9 @@
     "report_skipped_day_closed": "{day} skipped: not a school day.",
     "report_skipped_meal": "{name} skipped: inactive or deleted meal.",
     "report_new_default": "{day}: the original default dish was skipped, the first remaining dish became the default.",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "ordered": "{count, plural, =0 {No orders} one {# ordered} other {# ordered}}",
+    "remove_impact": "Remove…"
   },
   "issues": {
     "missing_times": "Set the publication date and the order deadline.",
@@ -152,7 +154,14 @@
     "not_ready": "{count, plural, one {The menu is not ready: # thing to fix.} other {The menu is not ready: # things to fix.}}",
     "week_over": "This week is over: its menu can no longer be scheduled or published.",
     "publish_in_past": "The publication must be in the future (otherwise the menu would be published right away, unchecked): change the publication time.",
-    "publish_too_early": "The publication must be at most {weeks} weeks before the menu's week."
+    "publish_too_early": "The publication must be at most {weeks} weeks before the menu's week.",
+    "deadline_passed": "This menu's order deadline has already passed: it can't be published. Set new times (move it back to draft).",
+    "default_after_deadline": "The order deadline has passed: this day's default meal can no longer change.",
+    "max_below_ordered": "{ordered, plural, one {# portion is already ordered: the limit can't be lower.} other {# portions are already ordered: the limit can't be lower.}}",
+    "remove_has_orders": "{count, plural, one {# order contains this meal: choose how to handle it first.} other {# orders contain this meal: choose how to handle them first.}}",
+    "switch_target": "Choose another meal of the same day and type.",
+    "switch_sold_out": "The chosen meal doesn't have enough portions left ({remaining} left).",
+    "past_day": "This day is over: its meals can no longer be removed."
   },
   "flash": {
     "item_added": "{name} added.",
@@ -166,6 +175,26 @@
     "times_saved": "Times saved.",
     "scheduled": "Publication scheduled.",
     "unscheduled": "Menu moved back to draft.",
-    "published": "{recipients, plural, =0 {Menu published.} one {Menu published: # family notified.} other {Menu published: # families notified.}}"
+    "published": "{recipients, plural, =0 {Menu published.} one {Menu published: # family notified.} other {Menu published: # families notified.}}",
+    "item_removed_with_orders": "Meal removed: {orders} orders handled ({switched} switched, {cancelled} cancelled). Parents are notified."
+  },
+  "remove": {
+    "title": "Remove a meal from a published menu",
+    "intro": "\"{meal}\" ({day}) is on this week's published menu. Orders that contain it must be handled before it is removed.",
+    "affected": "{count, plural, =0 {No order contains this meal: it can be removed.} one {# order contains this meal} other {# orders contain this meal}}",
+    "child": "Child",
+    "class": "Class",
+    "parent": "Parent",
+    "quantity": "Qty",
+    "allergies": "Allergies",
+    "how": "What should happen to the orders?",
+    "switch": "Switch them to another meal of the same day",
+    "switch_allergy": "{count, plural, =0 {} one {# child allergic to that meal will lose it (no replacement).} other {# children allergic to that meal will lose it (no replacement).}}",
+    "cancel": "Remove this meal from the orders (empty orders are cancelled)",
+    "no_alternative": "No other meal of this type on that day: only cancelling is possible.",
+    "notify": "The parents concerned get a notification and an email. Every change is recorded in the order history.",
+    "confirm": "Remove the meal",
+    "back": "Back to the menu",
+    "past": "This day is over: the meal can no longer be removed."
   }
 }

@@ -157,17 +157,24 @@ test.group('Menus | publish-due job', (group) => {
     assert,
   }) => {
     const { due, later } = await seed()
+    // Missed runs from Thu 19 to Fri 27: next week's menu is published;
+    // this week's deadline (Sun 22 20:00) has passed, so D19 keeps it
+    // scheduled instead of announcing it late.
     freezeClock('2026-11-27T06:00')
     const outcome = await (await jobs()).publishDue()
     assert.isTrue(outcome.acquired)
-    if (outcome.acquired)
-      assert.lengthOf(
-        outcome.result.filter((entry) => entry.published),
-        2
+    if (outcome.acquired) {
+      assert.deepEqual(
+        outcome.result.map((entry) => [entry.menuId, entry.published]),
+        [
+          [due.id, false],
+          [later.id, true],
+        ]
       )
-    assert.equal((await WeeklyMenu.findOrFail(due.id)).status, 'published')
+    }
+    assert.equal((await WeeklyMenu.findOrFail(due.id)).status, 'scheduled')
     assert.equal((await WeeklyMenu.findOrFail(later.id)).status, 'published')
-    assert.lengthOf(await Notification.all(), 6)
+    assert.lengthOf(await Notification.all(), 3)
   })
 
   test('with email notifications off, notifications are created but no emails', async ({
@@ -274,33 +281,29 @@ test.group('Menus | close-past and Phase 6 stubs', (group) => {
     assert.equal((await WeeklyMenu.findOrFail(draft.id)).status, 'draft')
   })
 
-  test('send-reminders and apply-deadline are registered no-ops until Phase 6', async ({
+  test('send-reminders and apply-deadline commands run (implemented in Phase 6)', async ({
     assert,
   }) => {
     const { school, manager } = await setupMenuSchool()
     await parentWithChild(school)
     const menu = await scheduledMenu(school, manager)
     await (await statusService()).publishNow(menu, manager)
-    const before = await OutboundEmail.query().count('* as total')
 
-    freezeClock('2026-11-23T08:00')
-    const deadline = await (await jobs()).applyDeadline()
-    assert.isTrue(deadline.acquired)
-    if (deadline.acquired) assert.deepEqual(deadline.result, { due: 1, processed: 0 })
     freezeClock('2026-11-22T00:00')
-    const reminders = await (await jobs()).sendReminders()
-    if (reminders.acquired) assert.deepEqual(reminders.result, { due: 1, processed: 0 })
-
     for (const Command of [MenusSendReminders, MenusApplyDeadline]) {
       const command = await ace.create(Command, [])
       await command.exec()
       command.assertSucceeded()
     }
-    const fresh = await WeeklyMenu.findOrFail(menu.id)
-    assert.isNull(fresh.reminderSentAt)
+    let fresh = await WeeklyMenu.findOrFail(menu.id)
+    assert.isNotNull(fresh.reminderSentAt)
     assert.isNull(fresh.deadlineProcessedAt)
-    const after = await OutboundEmail.query().count('* as total')
-    assert.equal(after[0].$extras.total, before[0].$extras.total)
+
+    freezeClock('2026-11-23T08:00')
+    const deadline = await (await jobs()).applyDeadline()
+    assert.isTrue(deadline.acquired)
+    fresh = await WeeklyMenu.findOrFail(menu.id)
+    assert.isNotNull(fresh.deadlineProcessedAt)
   })
 })
 
@@ -346,9 +349,10 @@ test.group('Menus | late publication', (group) => {
     const outcome = await (await jobs()).publishDue()
     assert.isTrue(outcome.acquired)
     if (outcome.acquired) {
+      // Next week's deadline (Sun 29 20:00) has passed too (D19).
       assert.deepEqual(
         outcome.result.map((entry) => [entry.menuId, entry.published]),
-        [[later.id, true]]
+        [[later.id, false]]
       )
     }
     assert.equal((await WeeklyMenu.findOrFail(due.id)).status, 'scheduled')
@@ -367,23 +371,23 @@ test.group('Menus | late publication', (group) => {
     const closed = await (await jobs()).closePast()
     if (closed.acquired) assert.deepEqual(closed.result, { closed: 0, unscheduled: 1 })
     assert.equal((await WeeklyMenu.findOrFail(due.id)).status, 'draft')
-    assert.equal((await WeeklyMenu.findOrFail(later.id)).status, 'published')
+    assert.equal((await WeeklyMenu.findOrFail(later.id)).status, 'scheduled')
     const again = await (await jobs()).closePast()
     if (again.acquired) assert.deepEqual(again.result, { closed: 0, unscheduled: 0 })
   })
 
-  test('one minute before the week ends, a late menu is still published (deadline passed)', async ({
+  test('D19: after its order deadline a menu is not published, even before the week ends', async ({
     assert,
   }) => {
     const { due } = await seed()
     freezeClock('2026-11-29T23:59')
     await (await jobs()).publishDue()
     const menu = await WeeklyMenu.findOrFail(due.id)
-    assert.equal(menu.status, 'published')
-    assert.isTrue(menu.orderDeadlineAt! < menu.publishedAt!)
+    assert.equal(menu.status, 'scheduled')
+    assert.isNotNull(menu.latePublishWarnedAt)
     assert.lengthOf(
       await Notification.query().where('data', '@>', JSON.stringify({ weeklyMenuId: due.id })),
-      3
+      0
     )
   })
 

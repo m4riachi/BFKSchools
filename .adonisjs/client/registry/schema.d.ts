@@ -158,10 +158,62 @@ export interface Registry {
       body: {}
       paramsTuple: []
       params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/orders').orderWeekQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['week']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['week']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['week']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'parent.orders.history': {
+    methods: ["GET","HEAD"]
+    pattern: '/orders/history'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/orders').orderHistoryQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['history']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['history']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'parent.orders.save': {
+    methods: ["POST"]
+    pattern: '/orders/:childId/days/:date'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/orders').daySelectionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { childId: ParamValue; date: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/orders').daySelectionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['saveDay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['saveDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['saveDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'parent.orders.absent': {
+    methods: ["POST"]
+    pattern: '/orders/:childId/days/:date/absent'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { childId: ParamValue; date: ParamValue }
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/home_controller').default['show']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/home_controller').default['show']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/home_controller').default['show']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['cancelDay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['cancelDay']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['cancelDay']>>>
+    }
+  }
+  'parent.orders.apply_all': {
+    methods: ["POST"]
+    pattern: '/orders/days/:date/all'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/orders').applyAllValidator)>>
+      paramsTuple: [ParamValue]
+      params: { date: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/orders').applyAllValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['applyAll']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['applyAll']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['applyAll']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.dashboard': {
@@ -805,13 +857,26 @@ export interface Registry {
     methods: ["DELETE"]
     pattern: '/admin/menus/:week/items/:id'
     types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/orders').menuItemRemovalValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { week: ParamValue; id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/orders').menuItemRemovalValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.menus.items.remove': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/menus/:week/items/:id/remove'
+    types: {
       body: {}
       paramsTuple: [ParamValue, ParamValue]
       params: { week: ParamValue; id: ParamValue }
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyItem']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['removeItemImpact']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['removeItemImpact']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['removeItemImpact']>>>
     }
   }
   'admin.menus.copy': {
@@ -916,6 +981,58 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyTemplate']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyTemplate']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['destroyTemplate']>>>
+    }
+  }
+  'admin.orders.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/orders'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/orders').adminOrderListValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.orders.child': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/orders/children/:childId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { childId: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/orders').orderWeekQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['childWeek']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['childWeek']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['childWeek']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.orders.save': {
+    methods: ["POST"]
+    pattern: '/admin/orders/children/:childId/days/:date'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/orders').staffDaySelectionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { childId: ParamValue; date: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/orders').staffDaySelectionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['saveDay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['saveDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['saveDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.orders.cancel': {
+    methods: ["POST"]
+    pattern: '/admin/orders/children/:childId/days/:date/cancel'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/orders').staffCancelValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { childId: ParamValue; date: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/orders').staffCancelValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['cancelDay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['cancelDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['cancelDay']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'admin.settings.show': {

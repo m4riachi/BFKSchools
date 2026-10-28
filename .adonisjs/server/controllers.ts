@@ -12,6 +12,7 @@ export const controllers = {
     Holidays: () => import('#controllers/admin/holidays_controller'),
     MealPhotos: () => import('#controllers/admin/meal_photos_controller'),
     Meals: () => import('#controllers/admin/meals_controller'),
+    Orders: () => import('#controllers/admin/orders_controller'),
     Parents: () => import('#controllers/admin/parents_controller'),
     Settings: () => import('#controllers/admin/settings_controller'),
     Subscriptions: () => import('#controllers/admin/subscriptions_controller'),
@@ -28,7 +29,7 @@ export const controllers = {
   Locale: () => import('#controllers/locale_controller'),
   Media: () => import('#controllers/media_controller'),
   parent: {
-    Home: () => import('#controllers/parent/home_controller'),
+    Orders: () => import('#controllers/parent/orders_controller'),
   },
   Session: () => import('#controllers/session_controller'),
 }

@@ -3,6 +3,7 @@ export const policies = {
   HolidayPolicy: () => import('#policies/holiday_policy'),
   MealPolicy: () => import('#policies/meal_policy'),
   MenuPolicy: () => import('#policies/menu_policy'),
+  OrderPolicy: () => import('#policies/order_policy'),
   ParentPolicy: () => import('#policies/parent_policy'),
   SchoolPolicy: () => import('#policies/school_policy'),
 }

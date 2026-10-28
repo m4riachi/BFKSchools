@@ -16,7 +16,7 @@ const { isActive } = useActiveNav()
 
 const nav: NavItem[] = [
   { labelKey: 'nav.parent_orders', href: '/', icon: 'meals', exact: true },
-  { labelKey: 'nav.parent_history', href: null, icon: 'history' },
+  { labelKey: 'nav.parent_history', href: '/orders/history', icon: 'history' },
   { labelKey: 'nav.parent_statements', href: null, icon: 'statements' },
   { labelKey: 'nav.parent_account', href: null, icon: 'account' },
 ]

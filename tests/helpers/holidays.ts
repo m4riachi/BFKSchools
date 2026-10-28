@@ -37,11 +37,15 @@ export function listedHolidays(schoolId: number) {
 
 /**
  * Replaces HolidayImpactService with one that pretends `count` orders exist
- * (orders arrive in Phase 6) and records the cancellations it is asked for.
+ * and records the cancellations it is asked for.
  */
 export function fakeImpact(count: number) {
   const cancelled: IsoDate[][] = []
   class FakeImpact extends HolidayImpactService {
+    constructor() {
+      // Its dependencies are never used: both methods are replaced.
+      super(null as never, null as never, null as never)
+    }
     async countAffectedOrders(_schoolId: number, dates: IsoDate[]) {
       return dates.length ? count : 0
     }

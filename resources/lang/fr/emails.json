@@ -25,5 +25,41 @@
     "deadline": "Vous pouvez faire vos choix jusqu'au {date}.",
     "action": "Choisir les repas",
     "footer": "Vous recevez cet e-mail car votre famille est inscrite à la restauration BFK de Britech School."
+  },
+  "order_line": "{child} — {date}",
+  "order_footer": "Vous recevez cet e-mail car il concerne les repas de vos enfants à Britech School.",
+  "deadline_reminder": {
+    "subject": "Rappel : choisissez les repas de la semaine {week}",
+    "title": "Repas de la semaine {week}",
+    "intro": "Certains jours de la semaine {week} n'ont pas encore de choix pour vos enfants.",
+    "deadline": "Les commandes ferment le {date}.",
+    "default_note": "Sans choix à la clôture, le plat par défaut est servi aux enfants abonnés.",
+    "action": "Choisir les repas"
+  },
+  "holiday_cancellation": {
+    "subject": "Repas annulés (jour férié)",
+    "title": "Repas annulés pour cause de jour férié",
+    "intro": "{count, plural, one {Un repas a été annulé car l'école sera fermée :} other {# repas ont été annulés car l'école sera fermée :}}",
+    "not_charged": "Ces repas ne seront pas facturés.",
+    "action": "Voir mes commandes"
+  },
+  "menu_change": {
+    "subject": "Changement de menu le {date}",
+    "title": "Changement de menu le {date}",
+    "item_removed": "Le plat « {meal} » du {date} a été retiré du menu.",
+    "switched": "Il est remplacé par « {meal} » pour : {children}.",
+    "cancelled": "Il a été retiré de la commande de : {children}.",
+    "check": "Vous pouvez vérifier ou modifier vos choix dans l'espace parents, tant que le jour est ouvert.",
+    "default_changed": "Le plat par défaut du {date} est maintenant « {meal} ».",
+    "default_note": "Il sera servi à la clôture aux enfants abonnés sans choix pour ce jour.",
+    "action": "Voir mes commandes"
+  },
+  "order_changed_by_staff": {
+    "subject": "Commande de {child} modifiée par BFK",
+    "title": "Commande modifiée par BFK",
+    "intro": "BFK a modifié la commande de {child} pour le {date}.",
+    "cancelled": "Ce jour est maintenant sans repas.",
+    "line": "{meal} × {qty}",
+    "action": "Voir mes commandes"
   }
 }

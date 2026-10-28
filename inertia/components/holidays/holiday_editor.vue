@@ -101,6 +101,7 @@ function submit() {
         startDate: data.startDate,
         endDate: data.endDate || null,
         confirmImpact: data.confirmImpact,
+        confirmedCount: data.confirmImpact ? impact.count.value : undefined,
       }))
       .post(baseUrl.value, options)
   } else if (target.kind === 'single') {
@@ -109,6 +110,7 @@ function submit() {
         name: data.name,
         date: datesEditable.value ? data.date : null,
         confirmImpact: data.confirmImpact,
+        confirmedCount: data.confirmImpact ? impact.count.value : undefined,
       }))
       .put(baseUrl.value, options)
   } else {
@@ -118,6 +120,7 @@ function submit() {
         startDate: datesEditable.value ? data.startDate : null,
         endDate: datesEditable.value ? data.endDate || null : null,
         confirmImpact: data.confirmImpact,
+        confirmedCount: data.confirmImpact ? impact.count.value : undefined,
       }))
       .put(baseUrl.value, options)
   }
@@ -129,7 +132,11 @@ function toggle(confirmImpact = false) {
   if (!target || target.kind === 'create') return
   router.post(
     `${baseUrl.value}/toggle`,
-    { active: !target.isActive, confirmImpact },
+    {
+      active: !target.isActive,
+      confirmImpact,
+      confirmedCount: confirmImpact ? impact.count.value : undefined,
+    },
     {
       preserveScroll: true,
       onStart: () => (busy.value = true),

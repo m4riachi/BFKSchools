@@ -240,7 +240,7 @@ test.group('Menus | days that cannot receive meals', (group) => {
 test.group('Menus | published and closed menus', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
-  test('a published menu accepts new items but refuses removals with a clear message', async ({
+  test('a published menu accepts new items; an item without orders can be removed', async ({
     client,
     assert,
   }) => {
@@ -259,17 +259,16 @@ test.group('Menus | published and closed menus', (group) => {
     const items = await itemsOf(menu.id)
     assert.lengthOf(items, 2)
 
+    // Phase 6: no order contains it, so it goes (orders are covered in tests/functional/orders).
+    const supplement = items.find((item) => item.mealType === 'supplement')!
     const remove = await client
-      .delete(`/admin/menus/${WEEK}/items/${items[0].id}`)
+      .delete(`/admin/menus/${WEEK}/items/${supplement.id}`)
       .loginAs(manager)
       .withCsrfToken()
       .redirects(0)
     remove.assertStatus(302)
-    assert.match(
-      String(remove.flashMessage('error')),
-      /publié : un plat ne peut pas encore en être retiré/
-    )
-    assert.lengthOf(await itemsOf(menu.id), 2)
+    assert.isUndefined(remove.flashMessage('error'))
+    assert.lengthOf(await itemsOf(menu.id), 1)
   })
 
   test('a closed menu is read-only', async ({ assert }) => {

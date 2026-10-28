@@ -41,8 +41,11 @@ export type PublishOutcome =
   | {
       published: false
       menuId: number
-      reason: 'not_found' | 'not_scheduled' | 'not_due' | 'not_ready' | 'week_over'
+      reason:
+        'not_found' | 'not_scheduled' | 'not_due' | 'not_ready' | 'week_over' | 'deadline_passed'
       issues?: MenuIssue[]
+      /** deadline_passed: first time the job met this menu (log it once). */
+      firstWarning?: boolean
     }
 
 export type Recipient = {
@@ -99,6 +102,20 @@ export default class MenuPublicationService {
       if (this.calendar.weekEndsAt(school, menu.weekStart) <= now) {
         return { published: false, menuId, reason: 'week_over' }
       }
+      // D19: never publish once the order deadline has passed (parents would
+      // get no ordering window). "Publish now" is refused (staff set new
+      // times); the job leaves the menu scheduled and warns once.
+      if (menu.orderDeadlineAt && menu.orderDeadlineAt <= now) {
+        let firstWarning = false
+        if (options.origin === 'job' && !menu.latePublishWarnedAt) {
+          menu.useTransaction(trx)
+          menu.latePublishWarnedAt = now
+          await menu.save()
+          firstWarning = true
+        }
+        return { published: false, menuId, reason: 'deadline_passed', firstWarning }
+      }
+
       const issues = await this.issues(trx, school, menu)
       const blocking =
         options.origin === 'manual'
@@ -107,16 +124,6 @@ export default class MenuPublicationService {
       if (blocking.length) return { published: false, menuId, reason: 'not_ready', issues }
       if (issues.length) {
         logger.warn({ menuId, issues }, 'menus: publishing a menu with readiness warnings')
-      }
-
-      if (menu.orderDeadlineAt && menu.orderDeadlineAt <= now) {
-        // Published late: parents get no ordering window before the deadline.
-        // Still published (the menu is visible, Phase 6's deadline job applies
-        // the deadline rules), but it is worth a look.
-        logger.warn(
-          { menuId, origin: options.origin, orderDeadlineAt: menu.orderDeadlineAt.toISO() },
-          'menus: publishing a menu whose order deadline has already passed'
-        )
       }
 
       menu.useTransaction(trx)

@@ -445,6 +445,7 @@ Phase 4 additions: CHECK `length(btrim(name)) BETWEEN 1 AND 120`, CHECK `rule_ke
 | created_by / updated_by | integer | null | | FK → users ON DELETE SET NULL |
 | created_at / updated_at | timestamptz | NN | now() | |
 
+Phase 6 addition (D19): `late_publish_warned_at timestamptz null` — the publish job never publishes a menu whose `order_deadline_at` has passed; it leaves it `scheduled` and logs one warning, remembered here (reset when staff change the times).
 CHECK `status IN ('draft') OR (publish_at IS NOT NULL AND order_deadline_at IS NOT NULL)`; CHECK `status NOT IN ('published','closed') OR published_at IS NOT NULL`.
 Indexes: UNIQUE `(school_id, week_start)`; `(status, publish_at) WHERE status = 'scheduled'` (publish job); `(status, order_deadline_at) WHERE status = 'published'` (reminder/deadline jobs).
 Phase 5 additions: CHECK `notes` ≤ 2000 chars. App rules (MenuCalendar/MenuStatusService): the deadline is also before the end of the menu's week (Monday + 7 days 00:00, school zone); publish/deadline are editable while `draft`/`scheduled` only.
@@ -468,7 +469,8 @@ Constraints / indexes:
 - partial UNIQUE `(weekly_menu_id, date, meal_id) WHERE removed_at IS NULL`;
 - partial UNIQUE `(weekly_menu_id, date) WHERE is_default AND removed_at IS NULL` → at most one default per day ("exactly one when the day has subscription meals" is checked by the app when scheduling);
 - **hot:** `(weekly_menu_id, date)`; `(date)` for kitchen/date lookups; `(meal_id)`.
-- Phase 5 additions: CHECK `position >= 0`. Removing an item in Phase 5 = hard delete (no order items exist yet); removal from a **published** menu is refused until Phase 6.
+- Phase 5 additions: CHECK `position >= 0`. Removing an item in Phase 5 = hard delete (no order items exist yet).
+- Phase 6 (D18): on a published menu, removing an item with active orders requires a resolution (switch to another item of the same day/type, or remove the line; empty orders are cancelled `menu_change`); afterwards the item gets `removed_at` when order lines still reference it, else it is deleted. `max_quantity` can't go below the portions in active orders; the default can change only before the order deadline.
 
 ### menu_templates — Phase 5
 | Column | Type | Null | Default | Notes |
@@ -582,6 +584,9 @@ Saving a day: inside the transaction, lock the order row (or the child row when 
 | created_at | timestamptz | NN | now() | append-only: no `updated_at`, the model never updates/deletes |
 
 Indexes: `(meal_order_id, created_at)`; `(child_id, date)`; `(created_at)`.
+Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` ≤ 500 chars, `before`/`after` are jsonb objects. `meal_orders`: CHECK `status = 'active' OR cancelled_at IS NOT NULL`, `cancel_note` ≤ 500. Holiday cancellations are audited as the admin who confirmed (`reason = 'holiday'`), or as `system` when the `holidays:generate` command runs without an actor; menu-change switches/cancels as the staff member (`reason` = `menu_item_removed:<itemId>`).
+
+**Lock order (Phase 6, everything that touches orders):** school row (`FOR SHARE` by orders/builder/jobs, `FOR UPDATE` by holiday writes) → weekly menu (`FOR SHARE` by orders, `FOR UPDATE` by the builder, publication and deadline job) → child row `FOR UPDATE` → order rows `FOR UPDATE` → capped menu items `FOR UPDATE` (id order) → meals `FOR SHARE`. So an order can't commit on a date that becomes a holiday, can't interleave with an item removal/default change or the deadline auto-assign, and two orders can't both take the last `max_quantity` portion.
 
 ---
 

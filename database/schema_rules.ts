@@ -178,5 +178,62 @@ export default {
         },
       },
     },
+    meal_orders: {
+      columns: {
+        status: {
+          tsType: 'OrderStatus',
+          imports: [{ source: '#enums/orders', typeImports: ['OrderStatus'] }],
+          decorators: [{ name: '@column' }],
+        },
+        cancel_reason: {
+          tsType: 'CancelReason',
+          imports: [{ source: '#enums/orders', typeImports: ['CancelReason'] }],
+          decorators: [{ name: '@column' }],
+        },
+        origin: {
+          tsType: 'OrderOrigin',
+          imports: [{ source: '#enums/orders', typeImports: ['OrderOrigin'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    meal_order_items: {
+      columns: {
+        meal_type: {
+          tsType: 'MealType',
+          imports: [{ source: '#enums/meals', typeImports: ['MealType'] }],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
+    order_audit_logs: {
+      columns: {
+        actor_role: {
+          tsType: 'AuditActorRole',
+          imports: [{ source: '#enums/orders', typeImports: ['AuditActorRole'] }],
+          decorators: [{ name: '@column' }],
+        },
+        action: {
+          tsType: 'AuditAction',
+          imports: [{ source: '#enums/orders', typeImports: ['AuditAction'] }],
+          decorators: [{ name: '@column' }],
+        },
+        before: {
+          tsType: 'OrderSnapshot',
+          imports: [{ source: '#enums/orders', typeImports: ['OrderSnapshot'] }],
+          decorators: [{ name: '@column' }],
+        },
+        after: {
+          tsType: 'OrderSnapshot',
+          imports: [{ source: '#enums/orders', typeImports: ['OrderSnapshot'] }],
+          decorators: [{ name: '@column' }],
+        },
+        ip_address: {
+          tsType: 'string',
+          imports: [],
+          decorators: [{ name: '@column' }],
+        },
+      },
+    },
   },
 } satisfies SchemaRules

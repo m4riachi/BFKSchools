@@ -26,6 +26,13 @@ export type NewHolidayRow = {
 export type WriteOptions = {
   /** The admin confirmed the impact on existing orders (or nobody can be asked). */
   confirmImpact?: boolean
+  /**
+   * Number of affected orders the admin saw when confirming. Inside the
+   * write transaction the orders are recounted and the write is refused when
+   * more exist now. Without it, a confirmation by a user covers 0 orders and
+   * a system run (no actor, e.g. the `holidays:generate` command) any number.
+   */
+  confirmedCount?: number
   actor?: User | null
 }
 
@@ -146,7 +153,7 @@ export default class HolidayService {
         .filter((date) => !effectiveBefore.has(date))
         .sort()
       if (cancelled.length) {
-        await this.impact.cancelAffectedOrders(school.id, cancelled, { trx, actor: options.actor })
+        await this.applyImpact(trx, school.id, cancelled, options)
       }
       return {
         created: inserted.length,
@@ -208,12 +215,37 @@ export default class HolidayService {
   async assertImpactConfirmed(schoolId: number, dates: IsoDate[], options: WriteOptions) {
     if (dates.length === 0 || options.confirmImpact) return
     const count = await this.impact.countAffectedOrders(schoolId, dates)
-    if (count > 0) {
-      throw new BusinessRuleException('holidays.impact.confirm', {
-        field: 'confirmImpact',
-        values: { count },
-      })
-    }
+    if (count > 0) throw this.confirmationNeeded(count)
+  }
+
+  protected confirmationNeeded(count: number) {
+    return new BusinessRuleException('holidays.impact.confirm', {
+      field: 'confirmImpact',
+      values: { count },
+      // The count the dialog replays as `confirmedCount`.
+      extraFields: { confirmedCount: String(count) },
+    })
+  }
+
+  /**
+   * Inside the write transaction, after `lockSchool`: recounts the orders
+   * on the dates that become holidays (orders may have been placed since the
+   * admin saw the count — they take the school row FOR SHARE, so none can
+   * appear any more) and refuses when there are more than confirmed; then
+   * cancels them.
+   */
+  protected async applyImpact(
+    trx: TransactionClientContract,
+    schoolId: number,
+    dates: IsoDate[],
+    options: WriteOptions
+  ) {
+    const count = await this.impact.countAffectedOrders(schoolId, dates, trx)
+    const allowed = options.confirmImpact
+      ? (options.confirmedCount ?? (options.actor ? 0 : Number.POSITIVE_INFINITY))
+      : 0
+    if (count > allowed) throw this.confirmationNeeded(count)
+    return this.impact.cancelAffectedOrders(schoolId, dates, { trx, actor: options.actor })
   }
 
   protected async effectiveDates(
@@ -348,7 +380,7 @@ export default class HolidayService {
       holiday.merge({ name: input.name, date })
       await holiday.save()
       if (newDates.length) {
-        await this.impact.cancelAffectedOrders(school.id, newDates, { trx, actor: options.actor })
+        await this.applyImpact(trx, school.id, newDates, options)
       }
     })
     return holiday
@@ -421,7 +453,7 @@ export default class HolidayService {
         )
       }
       if (newDates.length) {
-        await this.impact.cancelAffectedOrders(school.id, newDates, { trx, actor: options.actor })
+        await this.applyImpact(trx, school.id, newDates, options)
       }
     })
   }
@@ -446,7 +478,7 @@ export default class HolidayService {
         )
         .update({ is_active: active, updated_at: this.clock.now().toJSDate() })
       if (newDates.length) {
-        await this.impact.cancelAffectedOrders(school.id, newDates, { trx, actor: options.actor })
+        await this.applyImpact(trx, school.id, newDates, options)
       }
     })
   }

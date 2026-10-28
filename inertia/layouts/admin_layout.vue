@@ -26,7 +26,7 @@ const nav: NavItem[] = [
   { labelKey: 'nav.meals', href: '/admin/meals', icon: 'meals' },
   { labelKey: 'nav.weekly_menus', href: '/admin/menus', icon: 'calendar' },
   { labelKey: 'nav.holidays', href: '/admin/holidays', icon: 'holidays' },
-  { labelKey: 'nav.orders', href: null, icon: 'orders' },
+  { labelKey: 'nav.orders', href: '/admin/orders', icon: 'orders' },
   { labelKey: 'nav.kitchen', href: '/kitchen', icon: 'kitchen' },
   { labelKey: 'nav.statements', href: null, icon: 'statements' },
   { labelKey: 'nav.settings', href: '/admin/settings', icon: 'settings', roles: ['admin'] },

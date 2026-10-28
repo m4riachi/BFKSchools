@@ -32,7 +32,7 @@ test.group('Authorization | role areas', (group) => {
     const parent = await UserFactory.apply('parent').create()
     const response = await client.get('/').loginAs(parent).withInertia()
     response.assertStatus(200)
-    response.assertInertiaComponent('parent/home')
+    response.assertInertiaComponent('parent/orders/week')
   })
 
   test('kitchen gets 403 on /admin and reaches /kitchen', async ({ client }) => {

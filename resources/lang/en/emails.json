@@ -25,5 +25,41 @@
     "deadline": "You can make your choices until {date}.",
     "action": "Choose the meals",
     "footer": "You receive this email because your family is registered for BFK school meals at Britech School."
+  },
+  "order_line": "{child} — {date}",
+  "order_footer": "You receive this email because it concerns your children's meals at Britech School.",
+  "deadline_reminder": {
+    "subject": "Reminder: choose the meals for {week}",
+    "title": "Meals for {week}",
+    "intro": "Some days of {week} have no choice yet for your children.",
+    "deadline": "Ordering closes {date}.",
+    "default_note": "Without a choice at the deadline, subscribed children get the default meal.",
+    "action": "Choose the meals"
+  },
+  "holiday_cancellation": {
+    "subject": "Meals cancelled (holiday)",
+    "title": "Meals cancelled because of a holiday",
+    "intro": "{count, plural, one {One meal was cancelled because the school will be closed:} other {# meals were cancelled because the school will be closed:}}",
+    "not_charged": "These meals won't be charged.",
+    "action": "See my orders"
+  },
+  "menu_change": {
+    "subject": "Menu change on {date}",
+    "title": "Menu change on {date}",
+    "item_removed": "\"{meal}\" on {date} was removed from the menu.",
+    "switched": "It is replaced by \"{meal}\" for: {children}.",
+    "cancelled": "It was removed from the order of: {children}.",
+    "check": "You can check or change your choices in the parent portal while the day is open.",
+    "default_changed": "The default meal on {date} is now \"{meal}\".",
+    "default_note": "It will be served at the deadline to subscribed children without a choice for that day.",
+    "action": "See my orders"
+  },
+  "order_changed_by_staff": {
+    "subject": "{child}'s order changed by BFK",
+    "title": "Order changed by BFK",
+    "intro": "BFK changed {child}'s order for {date}.",
+    "cancelled": "This day now has no meal.",
+    "line": "{meal} × {qty}",
+    "action": "See my orders"
   }
 }

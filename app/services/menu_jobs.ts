@@ -5,6 +5,10 @@ import WeeklyMenu from '#models/weekly_menu'
 import Clock from '#services/clock'
 import MenuPublicationService, { type PublishOutcome } from '#services/menu_publication_service'
 import OutboxService, { type DispatchResult } from '#services/outbox_service'
+import OrderDeadlineService, {
+  type DeadlineOutcome,
+  type ReminderOutcome,
+} from '#services/order_deadline_service'
 import { withAdvisoryLock } from '#support/advisory_lock'
 import { addDays } from '#support/dates'
 
@@ -37,7 +41,8 @@ export default class MenuJobs {
   constructor(
     protected clock: Clock,
     protected publication: MenuPublicationService,
-    protected outbox: OutboxService
+    protected outbox: OutboxService,
+    protected deadlines: OrderDeadlineService
   ) {}
 
   /** `menus:publish-due` (every 5 min): publish every scheduled menu whose publish_at has passed. */
@@ -64,6 +69,12 @@ export default class MenuJobs {
             logger.warn(outcome, 'menus:publish-due: menu not ready, left scheduled')
           } else if (outcome.reason === 'week_over') {
             logger.warn(outcome, 'menus:publish-due: week already over, not published')
+          } else if (outcome.reason === 'deadline_passed' && outcome.firstWarning) {
+            // D19: left scheduled; staff must set new times. Logged once.
+            logger.warn(
+              { menuId: outcome.menuId },
+              'menus:publish-due: order deadline already passed, menu not published (set new times)'
+            )
           }
         } catch (error) {
           // One broken menu must not block the others; the next run retries it.
@@ -112,53 +123,24 @@ export default class MenuJobs {
   }
 
   /**
-   * `menus:send-reminders` (every 5 min) — PHASE 5 NO-OP.
-   *
-   * INTEGRATION POINT (Phase 6, `bfk-parent-ordering`, docs/PLAN.md Phase 6
-   * item 2): for each published menu with `reminder_sent_at IS NULL` and
-   * `now >= order_deadline_at − reminder_hours_before_deadline` (and
-   * `now < order_deadline_at`), lock the menu, email (outbox, mail_key
-   * `deadline_reminder`, dedupe `reminder:<menuId>:user:<id>`) + notify
-   * (`deadline_reminder`) every parent with an active child lacking an order
-   * row on some open day, respecting `email_notifications` and the parent's
-   * `notification_prefs.deadline_reminder`; then set `reminder_sent_at`.
-   * Until then it only reports the menus that would be due.
+   * `menus:send-reminders` (every 5 min): `reminder_hours_before_deadline`
+   * (D12: 24 h) before each published menu's deadline, notify + email the
+   * parents who still have an active child without an order row on some
+   * open day of that week. Once per menu (`reminder_sent_at`, dedupe keys).
+   * See OrderDeadlineService.
    */
-  async sendReminders(): Promise<Locked<{ due: number; processed: 0 }>> {
-    return withAdvisoryLock('menus:send-reminders', async () => {
-      const now = this.clock.now().toISO()!
-      const due = await WeeklyMenu.query()
-        .where('status', 'published')
-        .whereNull('reminder_sent_at')
-        .where('order_deadline_at', '>', now)
-        .count('* as total')
-      return { due: Number(due[0]?.$extras.total ?? 0), processed: 0 as const }
-    })
+  async sendReminders(): Promise<Locked<ReminderOutcome[]>> {
+    return withAdvisoryLock('menus:send-reminders', () => this.deadlines.sendReminders())
   }
 
   /**
-   * `menus:apply-deadline` (every 5 min) — PHASE 5 NO-OP.
-   *
-   * INTEGRATION POINT (Phase 6, `bfk-parent-ordering`, docs/PLAN.md Phase 6
-   * item 3): for each published menu with `deadline_processed_at IS NULL`
-   * and `order_deadline_at <= now`, lock the menu; when
-   * `auto_assign_default_meal` (D10) is on, create an order with the day's
-   * default meal for every active child with a covering active subscription
-   * and no order row on each open non-holiday day (snapshot prices, audit
-   * `auto_assign`, skip sold-out defaults and report them, notify
-   * `auto_assigned`); then set `deadline_processed_at` (also when the
-   * setting is off). Until then it only reports the menus that would be due.
+   * `menus:apply-deadline` (every 5 min): at each published menu's order
+   * deadline, auto-assign the day's default meal (D10) to subscribed
+   * children without an order row; once per menu (`deadline_processed_at`).
+   * See OrderDeadlineService.
    */
-  async applyDeadline(): Promise<Locked<{ due: number; processed: 0 }>> {
-    return withAdvisoryLock('menus:apply-deadline', async () => {
-      const now = this.clock.now().toISO()!
-      const due = await WeeklyMenu.query()
-        .where('status', 'published')
-        .whereNull('deadline_processed_at')
-        .where('order_deadline_at', '<=', now)
-        .count('* as total')
-      return { due: Number(due[0]?.$extras.total ?? 0), processed: 0 as const }
-    })
+  async applyDeadline(): Promise<Locked<DeadlineOutcome[]>> {
+    return withAdvisoryLock('menus:apply-deadline', () => this.deadlines.applyDeadline())
   }
 
   /** `mail:dispatch` (every minute): send due outbox emails within the caps. */
