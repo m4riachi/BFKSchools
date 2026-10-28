@@ -1,4 +1,6 @@
 import app from '@adonisjs/core/services/app'
+import env from '#start/env'
+import { parseTrustProxy } from '#support/env_guards'
 import { defineConfig } from '@adonisjs/core/http'
 
 /**
@@ -10,6 +12,14 @@ export const http = defineConfig({
    * Useful to correlate logs and debug a request flow.
    */
   generateRequestId: true,
+
+  /**
+   * Which TCP peers may set X-Forwarded-For / -Proto / -Host. `request.ip()`
+   * (used by the login rate limiters) depends on it. Default "loopback": a
+   * reverse proxy on the same host (nginx, Apache/Passenger on cPanel).
+   * Configured with TRUST_PROXY; see docs/STACK_NOTES.md.
+   */
+  trustProxy: parseTrustProxy(env.get('TRUST_PROXY')),
 
   /**
    * Allow HTTP method spoofing via the "_method" form/query parameter.

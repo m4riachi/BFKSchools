@@ -17,7 +17,7 @@ export const DEMO_USERS: { email: string; fullName: string; role: Role; locale: 
 ]
 
 export default class DemoUsersSeeder extends BaseSeeder {
-  static environment = ['development', 'testing']
+  static environment = ['development', 'test']
 
   async run() {
     const school = await School.findByOrFail('slug', 'britech-school')

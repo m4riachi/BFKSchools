@@ -21,7 +21,7 @@ AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setu
 - Typecheck / lint: `npm run typecheck` · `npm run lint` (`npx eslint . --fix` to auto-format)
 - Codegen (routes/controllers/policies/pages indexes): `node ace codegen` (also runs on `serve`/`build`)
 - Build: `npm run build` (= `node ace build` → `build/`; run with `cd build && npm ci --omit=dev && node bin/server.js`)
-- Mail in dev: `MAIL_MAILER=smtp` sends to Mailpit (127.0.0.1:1025); `MAIL_MAILER=log` (no SMTP server) writes each mail to the app log. Tests always use `mail.fake()`.
+- Mail in dev: `MAIL_MAILER=smtp` sends to Mailpit (127.0.0.1:1025); `MAIL_MAILER=log` (no SMTP server; dev/test only, refused in production) logs subject + masked recipient; add `MAIL_LOG_BODY=true` to also log the body (invitation/reset links). `MAIL_LOG_BODY` is ignored in production. Tests always use `mail.fake()`.
 
 ## Golden rules (never break)
 1. Time zone is `Africa/Casablanca`, always through the IANA zone name — never a hard-coded offset like `+01:00` (Morocco's offset changes).

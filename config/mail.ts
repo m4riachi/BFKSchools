@@ -1,3 +1,4 @@
+import app from '@adonisjs/core/services/app'
 import env from '#start/env'
 import { defineConfig, transports } from '@adonisjs/mail'
 import { LogTransport } from '#app/mail/log_transport'
@@ -35,9 +36,11 @@ const mailConfig = defineConfig({
     }),
 
     /**
-     * No SMTP server needed: mails are written to the logger.
+     * Development/test only (refused in production by start/env.ts): logs the
+     * subject and masked recipients. MAIL_LOG_BODY=true adds the text body so
+     * invitation links can be read in dev; it is ignored in production.
      */
-    log: () => new LogTransport(),
+    log: () => new LogTransport({ logBody: !app.inProduction && env.get('MAIL_LOG_BODY', false) }),
   },
 })
 
