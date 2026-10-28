@@ -22,8 +22,13 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D15 | Hosting provides Node 24? | pending | Needed before Phase 9. If the cPanel host has no Node 24 → VPS / Docker host |
 | D16 | Email delivery design | answered | `outbound_emails` outbox + `mail:dispatch` cron command, no queue package; invitations/resets sent directly. SMTP hourly limit still unknown (pending) |
 | D17 | Can a parent who was never invited set a password through "forgot password"? | answered | No — reset links are sent only to accounts that already set a password (accepted an invitation); others get the same generic response and no email |
+| D18 | Changes to a published menu | answered | Adding dishes is allowed. Changing a day's default meal is allowed only until the week's order deadline, and parents with children affected are notified (in-app + email). `max_quantity` can never be set below the quantity already ordered |
+| D19 | Publishing after the order deadline has passed | answered | Manual "publish now" is refused when `order_deadline_at` has passed (staff must set new times). The job does not publish such a menu either: it leaves it scheduled and logs/alerts |
+| D20 | Who can open the settings screen | answered | Admins only (managers get 403), per brief §3 |
+| D21 | Do invited parents who haven't set a password receive menu emails? | answered | Yes — every active parent with an active child receives them |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
 2026-10-27 — Phase 0 approved; D1–D14 and D16 answered with the recommended answers (D5 cutoff: day before 18:00); D15 and the SMTP hourly limit pending
 2026-10-28 — D17 answered: password reset only for parents who already accepted an invitation
+2026-10-28 — D18–D21 answered with the recommended answers (published-menu changes, late publication, settings admin-only, invited parents get menu emails)
