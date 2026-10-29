@@ -5,7 +5,7 @@ While a decision is **pending**, agents build with the default and keep the alte
 
 | # | Question | Status | Answer / default |
 |---|---|---|---|
-| D1 | Subscription billing: a fixed monthly fee, or each subscription meal billed at its own price? | answered | Each subscription meal billed at its snapshot price (`billing_mode=per_meal`; `monthly_fee` kept switchable) |
+| D1 | Subscription billing: a fixed monthly fee, or each subscription meal billed at its own price? | answered | **Superseded by D31 (2026-10-29).** Was: each subscription meal billed at its snapshot price |
 | D2 | Can a child without an active subscription order meals (pay per meal), or only supplements? | answered | Subscription meals need an active subscription; supplements are open to every active child |
 | D3 | Default publish time of the weekly menu | answered | Thursday 10:00 of the previous week |
 | D4 | Default order deadline | answered | Sunday 20:00 before the week |
@@ -35,6 +35,7 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D28 | Parent emails in the statements Excel export | answered | Drop the email column — the export keeps names, children and amounts only |
 | D29 | `monthly_fee` billing rule | pending | Not active (D1 = per meal). Decide proration, zero-meal months and closed-month stability before switching `billing_mode` to `monthly_fee` |
 | D30 | Parent "change password" page (brief §5.5) | answered | Build it in Phase 9 under the parent "Compte" tab (current password + new password; ends other sessions like a reset) |
+| D31 | Do subscription (abonnement) meals have a price? | answered | No — subscription meals are free in the app: no price field, `price_cents = 0`, never charged. Only supplements are priced and billed. Statements and totals show supplements only (subscription meals may be listed/counted as "inclus"). Replaces D1 |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
@@ -44,3 +45,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-10-28 — D22–D25 answered with the recommended answers (cutoff per brief §5.6, staff edits current month only, no parent re-open of staff-cancelled days, switch keeps the lower price)
 2026-10-28 — D26 recorded: Phase 7 report conventions kept as built
 2026-10-29 — D27, D28, D30 answered with the recommended answers; D29 (monthly_fee rule) left pending until monthly fees are used
+2026-10-29 — D31: subscription meals are free (no price, not billed); only supplements are billed. Supersedes D1
