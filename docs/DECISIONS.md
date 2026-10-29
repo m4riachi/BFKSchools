@@ -31,6 +31,10 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D24 | Can a parent re-order a day that staff cancelled? | answered | No — days cancelled by staff (`staff`) or for an inactive child (`child_inactive`) can only be re-opened by staff |
 | D25 | Price when staff switch an order to another meal (menu change) | answered | The parent keeps the original price when the new meal costs more; if it costs less, the lower price applies |
 | D26 | Phase 7 report conventions | answered | "Tomorrow" on the dashboard = next school day; "% with a selection" = subscribed active children with an order row for every open day they are subscribed on; the allergy sheet lists only children who eat that day; kitchen exports have no prices; labels sorted by class, last name, first name |
+| D27 | PDF render limit fairness | answered | Per-user cap on PDF renders: 1 running + 1 waiting per user (on top of the server-wide gate); extra requests get 429/503 with Retry-After |
+| D28 | Parent emails in the statements Excel export | answered | Drop the email column — the export keeps names, children and amounts only |
+| D29 | `monthly_fee` billing rule | pending | Not active (D1 = per meal). Decide proration, zero-meal months and closed-month stability before switching `billing_mode` to `monthly_fee` |
+| D30 | Parent "change password" page (brief §5.5) | answered | Build it in Phase 9 under the parent "Compte" tab (current password + new password; ends other sessions like a reset) |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
@@ -39,3 +43,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-10-28 — D18–D21 answered with the recommended answers (published-menu changes, late publication, settings admin-only, invited parents get menu emails)
 2026-10-28 — D22–D25 answered with the recommended answers (cutoff per brief §5.6, staff edits current month only, no parent re-open of staff-cancelled days, switch keeps the lower price)
 2026-10-28 — D26 recorded: Phase 7 report conventions kept as built
+2026-10-29 — D27, D28, D30 answered with the recommended answers; D29 (monthly_fee rule) left pending until monthly fees are used
