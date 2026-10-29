@@ -9,8 +9,9 @@ import { APP_TIMEZONE } from '#support/time'
 
 /**
  * Printable monthly statement of a family (brief §5.5): A4 portrait, a
- * branded header, one section per child (subscription meals, one line per
- * supplement item, child total, daily detail) and the family total. Same
+ * branded header, one section per child (subscription meals counted as
+ * included — D31, one line per supplement item, child total, daily detail)
+ * and the family total (supplements only). Same
  * library and fonts as the labels (pdfkit, `#support/pdf_text`).
  *
  * Bounded by nature (one family, one month: a few children × ~23 days);
@@ -66,34 +67,16 @@ export default class StatementPdfService {
       const meta = [child.grade, child.className].map((part) => cleanText(part)).filter(Boolean)
       writer.band(name, meta.join(' · '), formatMad(child.totalCents, locale))
 
-      // Subscription meals
+      // Subscription meals: counted, included (D31 — never priced)
       const sub = child.subscription
-      if (sub.billedAs === 'monthly_fee') {
-        writer.row(i18n.t('statements.monthly_fee'), '', formatMad(sub.amountCents, locale), {
-          bold: true,
-        })
-        if (sub.count) {
-          writer.row(
-            i18n.t('statements.included_meals', { count: sub.count }),
-            '',
-            i18n.t('statements.included'),
-            { muted: true }
-          )
-        }
-      } else {
-        for (const line of sub.lines) {
-          writer.row(
-            i18n.t('statements.subscription_line', { count: line.quantity }),
-            this.unit(line, locale),
-            formatMad(line.amountCents, locale)
-          )
-        }
-        if (!sub.lines.length) {
-          writer.row(i18n.t('statements.no_subscription_meals'), '', formatMad(0, locale), {
-            muted: true,
-          })
-        }
-      }
+      writer.row(
+        sub.count
+          ? i18n.t('statements.subscription_line', { count: sub.count })
+          : i18n.t('statements.no_subscription_meals'),
+        '',
+        sub.count ? i18n.t('statements.included') : '',
+        { muted: true }
+      )
       // Supplements, one line per item
       for (const line of child.supplements.lines) {
         writer.row(
@@ -121,7 +104,11 @@ export default class StatementPdfService {
                 `${mealName(item, locale)}${item.mealType === 'supplement' && item.quantity > 1 ? ` ×${item.quantity}` : ''}`
             )
             .join(', ')
-          writer.detail(date, meals, formatMad(day.totalCents, locale))
+          writer.detail(
+            date,
+            meals,
+            day.totalCents > 0 ? formatMad(day.totalCents, locale) : i18n.t('statements.included')
+          )
           rows += 1
           if (rows % ROWS_PER_CHUNK === 0) await yieldToLoop()
         }
@@ -141,9 +128,7 @@ export default class StatementPdfService {
     writer.gap(10)
     if (statement.provisional)
       writer.paragraph(i18n.t('statements.provisional_note'), COLORS.warning)
-    if (statement.billingMode === 'monthly_fee') {
-      writer.paragraph(i18n.t('statements.monthly_fee_note'), COLORS.muted)
-    }
+    writer.paragraph(i18n.t('statements.included_note'), COLORS.muted)
     writer.paragraph(i18n.t('statements.pdf.snapshot_note'), COLORS.muted)
 
     this.footer(doc, i18n)

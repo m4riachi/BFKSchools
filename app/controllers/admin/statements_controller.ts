@@ -77,8 +77,6 @@ export default class StatementsController {
     return inertia.render('admin/statements/index', {
       nav: presentMonthNav(month, today, i18n.locale),
       provisional: statement.provisional,
-      billingMode: statement.billingMode,
-      feeMissing: statement.feeMissing,
       filters: { q: query.q ?? '' },
       totals: presentSchoolTotals(statement, i18n.locale),
       families: presentSchoolFamilies(slice, i18n.locale),
@@ -141,7 +139,6 @@ export default class StatementsController {
       .orderBy('first_name')
       .orderBy('id')
     const statement = await this.statements.family({
-      school,
       parent: { id: parent.id, fullName: parent.fullName, email: parent.email },
       children: children.map((child) => ({
         id: child.id,

@@ -13,7 +13,8 @@ export type OptionView = {
   name: string
   description: string | null
   priceCents: number
-  price: string
+  /** Null for subscription meals (D31: included in the subscription). */
+  price: string | null
   allergens: Labelled[]
   tags: string[]
   cover: { url: string; thumbUrl: string } | null
@@ -35,9 +36,10 @@ export type OrderLineView = {
   type: string
   name: string
   quantity: number
-  unitPrice: string
+  /** Null for subscription lines (D31: no amount). */
+  unitPrice: string | null
   lineTotalCents: number
-  lineTotal: string
+  lineTotal: string | null
 }
 
 export type DayView = {

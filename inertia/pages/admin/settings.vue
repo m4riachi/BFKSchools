@@ -34,7 +34,6 @@ type Settings = {
     order_changed_by_staff: boolean
     menu_change: boolean
   }
-  billing_mode: 'per_meal' | 'monthly_fee'
   subscription_required_for_main_meal: boolean
   supplement_max_quantity: number
   label_grid: { cols: number; rows: number }
@@ -49,7 +48,6 @@ const props = defineProps<{
     schoolYearEnd: string
   }
   settings: Settings
-  monthlyFee: string
 }>()
 
 const { t } = useI18n()
@@ -59,7 +57,6 @@ const form = useForm({
   schoolYearStart: props.school.schoolYearStart,
   schoolYearEnd: props.school.schoolYearEnd,
   settings: structuredClone(props.settings) as Settings,
-  monthlyFee: props.monthlyFee,
 })
 
 const errors = computed(() => form.errors as Record<string, string | undefined>)
@@ -101,7 +98,6 @@ function submit() {
           rows: Number(data.settings.label_grid.rows),
         },
       },
-      monthlyFee: data.monthlyFee?.trim() ? data.monthlyFee.trim() : null,
     }))
     .put('/admin/settings', { preserveScroll: true })
 }
@@ -347,31 +343,6 @@ function submit() {
             :key="type"
             v-model="form.settings.email_notifications[type]"
             :label="t(`settings.fields.email_${type}`)"
-          />
-        </div>
-      </section>
-
-      <section class="card flex flex-col gap-4 p-5">
-        <h2 class="text-lg font-bold">{{ t('settings.sections.billing') }}</h2>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <SelectInput
-            id="billing_mode"
-            v-model="form.settings.billing_mode"
-            :options="[
-              { value: 'per_meal', label: t('settings.fields.billing_mode_per_meal') },
-              { value: 'monthly_fee', label: t('settings.fields.billing_mode_monthly_fee') },
-            ]"
-            :label="t('settings.fields.billing_mode')"
-            :error="err('settings.billing_mode')"
-            required
-          />
-          <TextInput
-            v-if="form.settings.billing_mode === 'monthly_fee'"
-            id="monthlyFee"
-            v-model="form.monthlyFee"
-            :label="t('settings.fields.monthly_fee')"
-            :error="err('monthlyFee')"
-            required
           />
         </div>
       </section>

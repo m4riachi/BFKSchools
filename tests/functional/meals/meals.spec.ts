@@ -20,11 +20,25 @@ const validMeal = {
   externalRecipeRef: 'BFK-REC-0042',
 }
 
+/** A supplement (D31: the only priced meals). */
+const validSupplement = {
+  ...validMeal,
+  nameFr: 'Jus d’orange',
+  nameEn: 'Orange juice',
+  type: 'supplement',
+  category: 'drink',
+  price: '12,50',
+}
+
 test.group('Meals | create, edit, validation', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
-  test('a manager creates a meal; the price is stored in centimes', async ({ client, assert }) => {
+  test('a manager creates a subscription meal: a posted price is ignored, 0 is stored (D31)', async ({
+    client,
+    assert,
+  }) => {
     const manager = await createStaff('manager')
+    // `validMeal` posts price "45,50" for a subscription meal: never trusted.
     const response = await client
       .post('/admin/meals')
       .loginAs(manager)
@@ -34,7 +48,7 @@ test.group('Meals | create, edit, validation', (group) => {
 
     const meal = await Meal.findByOrFail('name_fr', validMeal.nameFr)
     assert.equal(response.header('location'), `/admin/meals/${meal.id}/edit`)
-    assert.equal(meal.priceCents, 4550)
+    assert.equal(meal.priceCents, 0)
     assert.equal(meal.nameEn, validMeal.nameEn)
     assert.equal(meal.type, 'subscription')
     assert.equal(meal.category, 'main')
@@ -44,6 +58,59 @@ test.group('Meals | create, edit, validation', (group) => {
     assert.equal(meal.externalRecipeRef, 'BFK-REC-0042')
     assert.equal(meal.createdBy, manager.id)
     assert.isNull(meal.deletedAt)
+  })
+
+  test('a subscription meal needs no price; even an invalid one is ignored (D31)', async ({
+    client,
+    assert,
+  }) => {
+    const manager = await createStaff('manager')
+    const withoutPrice = { ...validMeal, price: undefined } // dropped from the JSON body
+    for (const [index, body] of [
+      withoutPrice,
+      { ...validMeal, price: 'abc' },
+      { ...validMeal, price: '-5' },
+    ].entries()) {
+      const response = await client
+        .post('/admin/meals')
+        .loginAs(manager)
+        .json({ ...body, nameFr: `Plat ${index}` })
+        .withCsrfToken()
+        .redirects(0)
+      assert.notExists(response.flashMessage('inputErrorsBag'))
+      const meal = await Meal.findByOrFail('name_fr', `Plat ${index}`)
+      assert.equal(meal.priceCents, 0)
+    }
+  })
+
+  test('a supplement is stored with its price in centimes', async ({ client, assert }) => {
+    const manager = await createStaff('manager')
+    await client
+      .post('/admin/meals')
+      .loginAs(manager)
+      .json(validSupplement)
+      .withCsrfToken()
+      .redirects(0)
+    const meal = await Meal.findByOrFail('name_fr', validSupplement.nameFr)
+    assert.equal(meal.type, 'supplement')
+    assert.equal(meal.priceCents, 1250)
+  })
+
+  test('a supplement without a price is refused', async ({ client, assert }) => {
+    const manager = await createStaff('manager')
+    const withoutPrice = { ...validSupplement, price: undefined } // dropped from the JSON body
+    for (const body of [withoutPrice, { ...validSupplement, price: '' }]) {
+      const response = await client
+        .post('/admin/meals')
+        .loginAs(manager)
+        .json(body)
+        .withCsrfToken()
+        .redirects(0)
+      response.assertStatus(302)
+      const bag = (response.flashMessage('inputErrorsBag') ?? {}) as Record<string, string[]>
+      assert.property(bag, 'price')
+    }
+    assert.lengthOf(await Meal.all(), 0)
   })
 
   test('price "{$self}" is parsed without floats')
@@ -60,10 +127,10 @@ test.group('Meals | create, edit, validation', (group) => {
       await client
         .post('/admin/meals')
         .loginAs(admin)
-        .json({ ...validMeal, price })
+        .json({ ...validSupplement, price })
         .withCsrfToken()
         .redirects(0)
-      const meal = await Meal.findByOrFail('name_fr', validMeal.nameFr)
+      const meal = await Meal.findByOrFail('name_fr', validSupplement.nameFr)
       assert.equal(meal.priceCents, cents)
     })
 
@@ -90,7 +157,7 @@ test.group('Meals | create, edit, validation', (group) => {
       const response = await client
         .post('/admin/meals')
         .loginAs(manager)
-        .json({ ...validMeal, ...override })
+        .json({ ...validSupplement, ...override })
         .withCsrfToken()
         .redirects(0)
       response.assertStatus(302)
@@ -105,32 +172,44 @@ test.group('Meals | create, edit, validation', (group) => {
     const response = await client
       .post('/admin/meals')
       .loginAs(manager)
-      .json({ ...validMeal, price: '12,345' })
+      .json({ ...validSupplement, price: '12,345' })
       .withCsrfToken()
       .redirects(0)
     const bag = response.flashMessage('inputErrorsBag') as Record<string, string[]>
     assert.include(String(bag.price), 'au plus 2 décimales')
   })
 
-  test('the database refuses unknown allergens, types and negative prices', async ({ assert }) => {
+  test('the database refuses unknown allergens, types and invalid prices', async ({ assert }) => {
     const base = { name_fr: 'A', name_en: 'A', type: 'subscription', category: 'main' }
     await assert.rejects(
       () => db.table('meals').insert({ ...base, allergens: ['kiwi'] }),
       /meals_allergens_check/
     )
     await assert.rejects(
+      // An unknown type also fails the D31 price rule (which names both types).
       () => db.table('meals').insert({ ...base, type: 'extra' }),
-      /meals_type_check/
+      /meals_type_check|meals_price_cents_check/
     )
     await assert.rejects(
       () => db.table('meals').insert({ ...base, price_cents: -1 }),
       /meals_price_cents_check/
     )
+    // D31: a subscription meal is free; a supplement has a positive price.
+    await assert.rejects(
+      () => db.table('meals').insert({ ...base, price_cents: 4500 }),
+      /meals_price_cents_check/
+    )
+    await assert.rejects(
+      () => db.table('meals').insert({ ...base, type: 'supplement', price_cents: 0 }),
+      /meals_price_cents_check/
+    )
+    await db.table('meals').insert({ ...base, price_cents: 0 })
+    await db.table('meals').insert({ ...base, name_fr: 'B', type: 'supplement', price_cents: 1 })
   })
 
   test('a manager edits a meal', async ({ client, assert }) => {
     const manager = await createStaff('manager')
-    const meal = await createMeal({ priceCents: 4500 })
+    const meal = await createMeal()
 
     const response = await client
       .put(`/admin/meals/${meal.id}`)
@@ -158,9 +237,47 @@ test.group('Meals | create, edit, validation', (group) => {
     assert.isNull(meal.externalRecipeRef)
   })
 
+  test('an unused supplement switched to subscription loses its price (D31)', async ({
+    client,
+    assert,
+  }) => {
+    const manager = await createStaff('manager')
+    const meal = await createMeal({ type: 'supplement', category: 'drink', priceCents: 1500 })
+    await client
+      .put(`/admin/meals/${meal.id}`)
+      .loginAs(manager)
+      .json({ ...validMeal, nameFr: 'Ex-jus', type: 'subscription', price: '15' })
+      .withCsrfToken()
+      .redirects(0)
+    await meal.refresh()
+    assert.equal(meal.type, 'subscription')
+    assert.equal(meal.priceCents, 0)
+
+    // Back to supplement: a price is required again.
+    const response = await client
+      .put(`/admin/meals/${meal.id}`)
+      .loginAs(manager)
+      .json({ ...validSupplement, nameFr: 'Ex-jus', price: '' })
+      .withCsrfToken()
+      .redirects(0)
+    const bag = (response.flashMessage('inputErrorsBag') ?? {}) as Record<string, string[]>
+    assert.property(bag, 'price')
+    await meal.refresh()
+    assert.equal(meal.type, 'subscription')
+  })
+
+  test('the edit page of a subscription meal has no price (D31)', async ({ client, assert }) => {
+    const manager = await createStaff('manager')
+    const meal = await createMeal()
+    const response = await client.get(`/admin/meals/${meal.id}/edit`).loginAs(manager).withInertia()
+    const props = response.inertiaProps as { meal: { priceInput: string; price: string | null } }
+    assert.equal(props.meal.priceInput, '')
+    assert.isNull(props.meal.price)
+  })
+
   test('the edit page shows the meal with a localized price input', async ({ client, assert }) => {
     const manager = await createStaff('manager')
-    const meal = await createMeal({ priceCents: 1250 })
+    const meal = await createMeal({ type: 'supplement', priceCents: 1250 })
     const response = await client.get(`/admin/meals/${meal.id}/edit`).loginAs(manager).withInertia()
     response.assertStatus(200)
     response.assertInertiaComponent('admin/meals/form')
@@ -183,6 +300,8 @@ test.group('Meals | duplicate', (group) => {
       descriptionFr: 'Feuilletée',
       allergens: ['gluten', 'eggs'],
       tags: ['halal'],
+      type: 'supplement',
+      category: 'snack',
       priceCents: 5200,
       externalRecipeRef: 'R-1',
     })

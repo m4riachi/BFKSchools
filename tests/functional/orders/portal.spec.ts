@@ -44,7 +44,18 @@ test.group('Orders | parent portal', (group) => {
     const days = props.view.days as Props[]
     const tue = days.find((d) => d.date === TUE)!
     assert.equal(tue.state, 'open')
-    assert.equal(tue.totalCents, 6500)
+    // D31: the day total is the extras only; the subscription meal has no price.
+    assert.equal(tue.totalCents, 2000)
+    const mainDish = tue.options.find((o: Props) => o.mealId === main.id)
+    assert.isNull(mainDish.price)
+    assert.equal(mainDish.priceCents, 0)
+    const juiceDish = tue.options.find((o: Props) => o.mealId === juice.id)
+    assert.match(juiceDish.price, /^10,00\s?MAD$/)
+    const mainLine = tue.order.lines.find((l: Props) => l.type === 'subscription')
+    assert.isNull(mainLine.unitPrice)
+    assert.isNull(mainLine.lineTotal)
+    // Week, child and family totals: extras only.
+    assert.equal(props.children.find((c: Props) => c.id === child.id).totalCents, 2000)
     const nutDish = tue.options.find((o: Props) => o.mealId === alt.id)
     assert.isTrue(nutDish.allergyBlocked)
     assert.equal(nutDish.maxQty, 0)
@@ -52,7 +63,7 @@ test.group('Orders | parent portal', (group) => {
     assert.equal(wed.state, 'holiday')
     assert.equal(wed.reason, 'HOLIDAY')
     assert.deepEqual(wed.holidayNames, ['Storm day'])
-    assert.equal(props.family.totalCents, 6500)
+    assert.equal(props.family.totalCents, 2000) // D31: extras only
     assert.lengthOf(props.children, 2)
 
     // The unsubscribed sibling: main meals flagged, extras open.
@@ -101,7 +112,7 @@ test.group('Orders | parent portal', (group) => {
       .redirects(0)
     forged.assertStatus(302)
     const order = (await orderOf(child, TUE))!
-    assert.equal(order.items[0].unitPriceCents, 4500)
+    assert.equal(order.items[0].unitPriceCents, 0)
     assert.isNull(await orderOf(child, WED))
 
     const tooMany = await client

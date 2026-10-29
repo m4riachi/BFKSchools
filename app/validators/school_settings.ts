@@ -35,8 +35,6 @@ export const schoolSettingsValidator = vine.create({
       menu_change: vine.boolean().optional(),
     })
     .optional(),
-  billing_mode: vine.enum(['per_meal', 'monthly_fee'] as const).optional(),
-  monthly_fee_cents: vine.number().withoutDecimals().min(0).nullable().optional(),
   subscription_required_for_main_meal: vine.boolean().optional(),
   supplement_max_quantity: vine.number().withoutDecimals().range([1, 20]).optional(),
   label_grid: vine
@@ -51,8 +49,7 @@ export const schoolSettingsValidator = vine.create({
  * The admin settings screen (brief §6): every editable key at once. School
  * days and the school year are columns of `schools`; the rest goes into
  * `schools.settings` through SchoolSettingsService (which re-validates it
- * with `schoolSettingsValidator`). `monthly_fee` is a MAD amount typed by the
- * admin, converted to centimes by the service.
+ * with `schoolSettingsValidator`).
  */
 export const schoolSettingsFormValidator = vine.create({
   schoolDays: vine.array(weekday()).minLength(1).maxLength(7).distinct(),
@@ -85,7 +82,6 @@ export const schoolSettingsFormValidator = vine.create({
       order_changed_by_staff: vine.boolean(),
       menu_change: vine.boolean(),
     }),
-    billing_mode: vine.enum(['per_meal', 'monthly_fee'] as const),
     subscription_required_for_main_meal: vine.boolean(),
     supplement_max_quantity: vine.number().withoutDecimals().range([1, 20]),
     /** Labels PDF grid (Phase 7). Optional so older clients keep working. */
@@ -96,5 +92,4 @@ export const schoolSettingsFormValidator = vine.create({
       })
       .optional(),
   }),
-  monthlyFee: vine.string().trim().maxLength(20).nullable().optional(),
 })

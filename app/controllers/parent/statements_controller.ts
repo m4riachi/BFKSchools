@@ -5,7 +5,7 @@ import Clock from '#services/clock'
 import StatementService from '#services/statement_service'
 import StatementPdfService from '#services/statement_pdf_service'
 import { statementQueryValidator } from '#validators/statements'
-import { consumeDownload, pickMonth, schoolOf, sendStatementPdf } from '#support/statement_access'
+import { consumeDownload, pickMonth, sendStatementPdf } from '#support/statement_access'
 import { presentFamilyStatement, presentMonthNav } from '#support/statement_presenters'
 import type { StatementMonth } from '#support/statement_month'
 
@@ -56,7 +56,6 @@ export default class StatementsController {
     const children = query.child ? all.filter((child) => child.id === query.child) : all
 
     const statement = await this.statements.family({
-      school: await schoolOf(user),
       parent: { id: user.id, fullName: user.fullName, email: user.email },
       children: children.map((child) => ({
         id: child.id,

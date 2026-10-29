@@ -249,7 +249,10 @@ test.group('Reports | kitchen area', (group) => {
     const staffRows = csvRows(staff.text())
     assert.include(staffRows[0], 'Prix unitaire (MAD)')
     assert.lengthOf(staffRows, 1 + 5) // + Monday's order
-    assert.include(staffRows[1], '45,00') // Monday main, 45 MAD
+    // D31: subscription rows have no amount; extras carry their snapshot price.
+    const priceColumn = staffRows[0].indexOf('Prix unitaire (MAD)')
+    assert.equal(staffRows[1][priceColumn], '') // Monday main: included
+    assert.isTrue(staffRows.some((row) => row[priceColumn] === '10,00'))
 
     const supplements = await client
       .get(
@@ -301,7 +304,8 @@ test.group('Reports | kitchen area', (group) => {
     )
     assert.include(values, "'=1+1")
     assert.include(values, "'@SUM(A1:A2)")
-    assert.include(values, 45) // unit price as a number (MAD)
+    assert.include(values, 10) // the extra's unit price as a number (MAD)
+    assert.notInclude(values, 45)
     assert.include(values, 'Prix unitaire (MAD)')
     assert.equal(school.id > 0, true)
   })

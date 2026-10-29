@@ -326,7 +326,7 @@ export default class OrderDeadlineService {
       .from('meals')
       .where('id', item.mealId)
       .forShare()
-      .select('id', 'price_cents', 'allergens', 'is_active', 'deleted_at')
+      .select('id', 'allergens', 'is_active', 'deleted_at')
       .first()
     if (!meal || !meal.is_active || meal.deleted_at) {
       report.skipped.mealUnavailable = true
@@ -407,7 +407,8 @@ export default class OrderDeadlineService {
     )
     const created: { id: number; child_id: number }[] = inserted.rows
     if (!created.length) return report
-    const priceCents = Number(meal.price_cents)
+    // D31: the default meal is a subscription meal — free (its price is 0 by DB CHECK).
+    const priceCents = 0
     await trx.rawQuery(
       `INSERT INTO meal_order_items
          (meal_order_id, menu_item_id, meal_id, meal_type, quantity, unit_price_cents, created_at, updated_at)

@@ -87,12 +87,13 @@ test.group('QA P7 | production hand count', (group) => {
     assert.equal(sheet.totals.subscription.total, 4)
     assert.equal(sheet.totals.supplement.total, 6)
     assert.deepEqual(sheet.orders, { active: 4, absent: 1, cancelled: 5, withAllergies: 0 })
-    // Amounts: 3*45 + 50 = 185.00 ; 6 * 10 = 60.00 (cancelled ×5 juice excluded)
+    // Amounts (D31): 4 subscription meals included; 6 * 10 = 60.00 billed
+    // (cancelled ×5 juice excluded)
     const amounts = await (await reports()).amounts(school.id, TUE, TUE)
     assert.deepEqual(amounts, {
-      subscriptionCents: 18500,
-      supplementCents: 6000,
-      totalCents: 24500,
+      subscriptionMeals: 4,
+      supplementCount: 6,
+      totalCents: 6000,
       orders: 4,
     })
     // Labels: one per active order only.
@@ -172,18 +173,17 @@ test.group('QA P7 | production hand count', (group) => {
     assert.equal(sat.days[0].state, 'not_school_day')
     assert.equal(sat.days[1].date, '2026-11-30')
     assert.equal(sat.days[1].kind, 'next_school_day')
+    // D31: billed = supplements; subscription meals are only counted.
     const raw = await db.rawQuery(
-      `SELECT COALESCE(SUM(moi.line_total_cents),0)::int AS s
+      `SELECT COALESCE(SUM(moi.line_total_cents) FILTER (WHERE moi.meal_type = 'supplement'),0)::int AS s,
+              COALESCE(SUM(moi.quantity) FILTER (WHERE moi.meal_type = 'subscription'),0)::int AS m
          FROM meal_orders mo JOIN meal_order_items moi ON moi.meal_order_id = mo.id
         WHERE mo.status='active' AND mo.school_id = ? AND mo.date BETWEEN '2026-11-01' AND '2026-11-28'`,
       [school.id]
     )
     assert.equal(sat.monthToDate!.totalCents, raw.rows[0].s)
-    assert.equal(sat.monthToDate!.totalCents, 24500)
-    assert.equal(
-      sat.monthToDate!.subscriptionCents + sat.monthToDate!.supplementCents,
-      sat.monthToDate!.totalCents
-    )
+    assert.isAbove(sat.monthToDate!.totalCents, 0)
+    assert.equal(sat.monthToDate!.subscriptionMeals, raw.rows[0].m)
 
     // Holiday today (Wednesday): state is holiday, nobody is "missing".
     await addHoliday(school, WED, 'Storm')

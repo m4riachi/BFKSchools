@@ -100,7 +100,8 @@
     "delete_confirm": "Supprimer le repas",
     "duplicate_title": "Dupliquer ce repas ?",
     "duplicate_body": "Une copie inactive de « {name} » sera créée, avec ses photos.",
-    "duplicate_confirm": "Dupliquer"
+    "duplicate_confirm": "Dupliquer",
+    "subscription_no_price": "Les repas d’abonnement sont inclus dans l’abonnement : ils n’ont pas de prix."
   },
   "photos": {
     "title": "Photos",
@@ -151,7 +152,8 @@
     "deleted": "Repas « {name} » supprimé."
   },
   "errors": {
-    "type_locked": "Le type ne peut plus être modifié : ce repas figure déjà sur un menu."
+    "type_locked": "Le type ne peut plus être modifié : ce repas figure déjà sur un menu.",
+    "price_required": "Indiquez le prix du supplément."
   },
   "detail": {
     "back": "Retour au catalogue",
@@ -163,5 +165,6 @@
     "price": "Prix",
     "recipe_ref": "Référence recette",
     "photos": "Photos"
-  }
+  },
+  "included": "Inclus dans l’abonnement"
 }

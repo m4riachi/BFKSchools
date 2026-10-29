@@ -46,8 +46,8 @@ const props = defineProps<{
       from: string
       to: string
       orders: number
-      subscription: string
-      supplement: string
+      subscriptionMeals: number
+      supplementCount: number
       total: string
     } | null
   } | null
@@ -185,8 +185,8 @@ const statusTone = (status: string) =>
           <span class="tabular text-[24px] font-extrabold">{{ dashboard.monthToDate.total }}</span>
           <span class="text-xs text-ink-3">{{
             t('reports.dashboard.kpi_month_detail', {
-              subscription: dashboard.monthToDate.subscription,
-              supplement: dashboard.monthToDate.supplement,
+              meals: dashboard.monthToDate.subscriptionMeals,
+              supplements: dashboard.monthToDate.supplementCount,
             })
           }}</span>
         </div>
@@ -444,11 +444,15 @@ const statusTone = (status: string) =>
             <dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1.5 text-sm">
               <dt class="text-ink-3">{{ t('reports.dashboard.month_subscription') }}</dt>
               <dd class="tabular text-right font-semibold">
-                {{ dashboard.monthToDate.subscription }}
+                {{
+                  t('reports.dashboard.month_included', {
+                    count: dashboard.monthToDate.subscriptionMeals,
+                  })
+                }}
               </dd>
               <dt class="text-ink-3">{{ t('reports.dashboard.month_supplement') }}</dt>
               <dd class="tabular text-right font-semibold">
-                {{ dashboard.monthToDate.supplement }}
+                {{ dashboard.monthToDate.supplementCount }}
               </dd>
               <dt class="border-t border-line pt-1.5 font-bold">
                 {{ t('reports.dashboard.month_total') }}

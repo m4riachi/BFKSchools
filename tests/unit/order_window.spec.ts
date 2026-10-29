@@ -403,7 +403,7 @@ function option(overrides: Partial<DayOption> = {}): DayOption {
     maxQuantity: null,
     mealAvailable: true,
     allergens: [],
-    priceCents: 4500,
+    priceCents: 0, // D31: subscription meals are free
     orderedElsewhere: 0,
     ...overrides,
   }

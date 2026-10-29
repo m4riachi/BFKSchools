@@ -24,13 +24,8 @@ export type ChildStatement = {
   grade: string | null
   className: string | null
   isActive: boolean
-  subscription: {
-    count: number
-    billedAs: 'per_meal' | 'monthly_fee'
-    amountCents: number
-    amount: string
-    lines: StatementLine[]
-  }
+  /** D31: subscription meals are counted (included), never priced. */
+  subscription: { count: number }
   supplements: { count: number; amountCents: number; amount: string; lines: StatementLine[] }
   totalCents: number
   total: string
@@ -38,26 +33,21 @@ export type ChildStatement = {
     date: string
     totalCents: number
     total: string
-    items: { name: string; type: string; quantity: number; amount: string }[]
+    items: { name: string; type: string; quantity: number; amount: string | null }[]
   }[]
 }
 
+/** D31: the billed total is the supplements; subscription meals are a count. */
 export type Totals = {
   subscriptionCount: number
-  subscriptionCents: number
   supplementCount: number
-  supplementCents: number
   totalCents: number
-  subscription: string
-  supplement: string
   total: string
 }
 
 export type FamilyStatement = {
   month: string
   provisional: boolean
-  billingMode: 'per_meal' | 'monthly_fee'
-  feeMissing: boolean
   parent: { id: number; fullName: string }
   children: ChildStatement[]
   totals: Totals

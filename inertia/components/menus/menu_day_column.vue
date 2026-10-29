@@ -214,7 +214,10 @@ function maxLabel(item: MenuItemView) {
             </button>
           </div>
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <span class="tabular text-sm font-extrabold">{{ item.meal.price }}</span>
+            <span v-if="item.meal.price" class="tabular text-sm font-extrabold">{{
+              item.meal.price
+            }}</span>
+            <span v-else class="text-xs font-semibold text-ink-4">{{ t('meals.included') }}</span>
             <span
               v-if="item.isDefault"
               class="flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-xs font-bold text-brand-strong"
@@ -278,9 +281,11 @@ function maxLabel(item: MenuItemView) {
             <span class="min-w-0 flex-1 text-[13px] leading-tight font-semibold">
               {{ item.meal.name }}
             </span>
-            <span class="tabular shrink-0 text-[13px] font-bold text-ink-2">{{
-              item.meal.price
-            }}</span>
+            <span
+              v-if="item.meal.price"
+              class="tabular shrink-0 text-[13px] font-bold text-ink-2"
+              >{{ item.meal.price }}</span
+            >
             <button
               v-if="can.removeItems"
               type="button"

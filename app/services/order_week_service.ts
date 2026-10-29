@@ -23,7 +23,13 @@ import type { WindowReason } from '#enums/orders'
 import type { AllergenCode } from '#enums/allergens'
 import { addDays, type IsoDate } from '#support/dates'
 import { formatMad } from '#support/money'
-import { allergenLabels, mealCoverUrls, mealDescription, mealName } from '#support/meal_display'
+import {
+  allergenLabels,
+  isBilledType,
+  mealCoverUrls,
+  mealDescription,
+  mealName,
+} from '#support/meal_display'
 import { schoolZone } from '#support/menu_display'
 
 /** What the parent sees for one day (never computed by the browser). */
@@ -144,7 +150,7 @@ export default class OrderWeekService {
           maxQuantity: item.maxQuantity,
           mealAvailable: item.meal.isActive && !item.meal.deletedAt,
           allergens: item.meal.allergens,
-          priceCents: item.meal.priceCents,
+          priceCents: isBilledType(item.mealType) ? item.meal.priceCents : 0,
           orderedElsewhere: elsewhere.get(item.id) ?? 0,
         }
         const existingQty = activeLines.find((line) => line.menuItemId === item.id)?.quantity ?? 0
@@ -161,8 +167,9 @@ export default class OrderWeekService {
           isDefault: item.isDefault,
           name: mealName(item.meal, locale),
           description: mealDescription(item.meal, locale),
-          priceCents: item.meal.priceCents,
-          price: money(item.meal.priceCents),
+          // D31: subscription meals have no price (null → "included").
+          priceCents: isBilledType(item.mealType) ? item.meal.priceCents : 0,
+          price: isBilledType(item.mealType) ? money(item.meal.priceCents) : null,
           allergens: allergenLabels(item.meal.allergens as AllergenCode[], locale),
           tags: [...item.meal.tags],
           cover: mealCoverUrls(item.meal),
@@ -171,14 +178,18 @@ export default class OrderWeekService {
           quantity: existingQty,
         }
       })
-      const lines = (order?.items ?? []).map((line) => ({
-        mealId: line.mealId,
-        type: line.mealType,
-        name: mealName(line.meal, locale),
-        quantity: line.quantity,
-        unitPrice: money(line.unitPriceCents),
-        lineTotalCents: line.lineTotalCents ?? line.quantity * line.unitPriceCents,
-      }))
+      // D31: only supplement lines carry an amount; subscription lines are included.
+      const lines = (order?.items ?? []).map((line) => {
+        const billed = isBilledType(line.mealType)
+        return {
+          mealId: line.mealId,
+          type: line.mealType,
+          name: mealName(line.meal, locale),
+          quantity: line.quantity,
+          unitPrice: billed ? money(line.unitPriceCents) : null,
+          lineTotalCents: billed ? (line.lineTotalCents ?? line.quantity * line.unitPriceCents) : 0,
+        }
+      })
       const totalCents =
         order?.status === 'active' ? lines.reduce((sum, line) => sum + line.lineTotalCents, 0) : 0
       return {
@@ -207,7 +218,10 @@ export default class OrderWeekService {
               status: order.status,
               cancelReason: order.cancelReason,
               origin: order.origin,
-              lines: lines.map((line) => ({ ...line, lineTotal: money(line.lineTotalCents) })),
+              lines: lines.map((line) => ({
+                ...line,
+                lineTotal: line.unitPrice === null ? null : money(line.lineTotalCents),
+              })),
             }
           : null,
         totalCents,
@@ -240,7 +254,7 @@ export default class OrderWeekService {
     }
   }
 
-  /** Total (active orders, snapshot prices) per child for a week, in centimes. */
+  /** Total billed (supplements of active orders, snapshot prices — D31) per child for a week, in centimes. */
   async weekTotals(childIds: number[], weekStart: IsoDate): Promise<Map<number, number>> {
     const totals = new Map<number, number>()
     if (!childIds.length) return totals
@@ -249,6 +263,7 @@ export default class OrderWeekService {
       .join('meal_orders as mo', 'mo.id', 'moi.meal_order_id')
       .whereIn('mo.child_id', childIds)
       .where('mo.status', 'active')
+      .where('moi.meal_type', 'supplement')
       .whereBetween('mo.date', [weekStart, addDays(weekStart, 6)])
       .groupBy('mo.child_id')
       .select('mo.child_id', db.raw('sum(moi.line_total_cents)::int AS total'))

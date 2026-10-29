@@ -63,11 +63,13 @@ async function insertOrder(
   return Number(order.id)
 }
 
+/** D31: what is billed = the supplement snapshots of active orders. */
 async function sqlSum(childIds: number[], from: string, to: string) {
   const r = await db.rawQuery(
     `SELECT COALESCE(SUM(moi.line_total_cents),0)::int AS t FROM meal_orders mo
        JOIN meal_order_items moi ON moi.meal_order_id = mo.id
-      WHERE mo.child_id = ANY(?::int[]) AND mo.status='active' AND mo.date BETWEEN ? AND ?`,
+      WHERE mo.child_id = ANY(?::int[]) AND mo.status='active' AND mo.date BETWEEN ? AND ?
+        AND moi.meal_type = 'supplement'`,
     [childIds, from, to]
   )
   return Number(r.rows[0].t)
@@ -94,6 +96,8 @@ async function october() {
   const { main, alt, juice } = ctx
 
   // Adam: boundaries and price change. Out-of-month orders must not count.
+  // The subscription lines carry pre-D31 prices (legacy history): they are
+  // counted but never billed.
   await insertOrder(base, adam.id, '2026-09-30', [{ meal: main, qty: 1, price: 4500 }])
   await insertOrder(base, adam.id, '2026-10-01', [
     { meal: main, qty: 1, price: 4500 },
@@ -143,14 +147,13 @@ test.group('QA P8 | statement math', (group) => {
   group.each.setup(() => testUtils.db().truncate())
   group.each.teardown(() => restoreClock())
 
-  test('per-meal: boundaries, reasons, snapshots, soft-deleted meal, inactive child, SQL cross-check', async ({
+  test('boundaries, reasons, snapshots, soft-deleted meal, inactive child, SQL cross-check', async ({
     assert,
   }) => {
     const ctx = await october()
     freezeClock(TODAY)
     const svc = await app.container.make(StatementService)
     const s = await svc.family({
-      school: ctx.school,
       parent: { id: ctx.parent.id, fullName: 'P', email: 'p@x.test' },
       children: [ctx.adam, ctx.bea].map(asInput),
       month: '2026-10',
@@ -160,28 +163,22 @@ test.group('QA P8 | statement math', (group) => {
     assert.equal(s.to, '2026-10-31')
     assert.isFalse(s.provisional)
     const adam = s.children.find((c) => c.childId === ctx.adam.id)!
-    // Hand count: main 4500 (1st) + 4800 (15th) + 4800 (31st) + alt 3000 (20th, D25) + juice 3 x 1000
-    assert.equal(adam.subscription.count, 4)
-    assert.equal(adam.subscription.amountCents, 4500 + 4800 + 4800 + 3000)
-    assert.sameDeepMembers(
-      adam.subscription.lines.map((l) => [l.unitPriceCents, l.quantity]),
-      [
-        [3000, 1],
-        [4500, 1],
-        [4800, 2],
-      ]
-    )
+    // Hand count: 4 subscription meals (1st, 15th, 20th, 31st — included,
+    // whatever their legacy snapshot) + juice 3 x 1000 (D31).
+    assert.deepEqual(adam.subscription, { count: 4 })
     assert.equal(adam.supplements.count, 3)
     assert.equal(adam.supplements.amountCents, 3000)
-    assert.equal(adam.totalCents, 20100)
+    assert.equal(adam.totalCents, 3000)
     assert.lengthOf(adam.days, 4)
     // Bea: inactive, still listed, soft-deleted meal name kept.
     const bea = s.children.find((c) => c.childId === ctx.bea.id)!
     assert.isFalse(bea.isActive)
-    assert.equal(bea.totalCents, 5000)
+    assert.equal(bea.subscription.count, 1)
+    assert.equal(bea.totalCents, 0)
     assert.equal(bea.days[0].items[0].nameFr, ctx.alt.nameFr)
     // Family = sum of children = raw SQL.
-    assert.equal(s.totals.totalCents, 20100 + 5000)
+    assert.equal(s.totals.totalCents, 3000)
+    assert.equal(s.totals.subscriptionCount, 5)
     assert.equal(
       s.totals.totalCents,
       await sqlSum([ctx.adam.id, ctx.bea.id], '2026-10-01', '2026-10-31')
@@ -195,32 +192,31 @@ test.group('QA P8 | statement math', (group) => {
     }
     // Neighbouring months pick the out-of-month orders only.
     const nov = await svc.family({
-      school: ctx.school,
       parent: { id: ctx.parent.id, fullName: 'P', email: 'p@x.test' },
       children: [ctx.adam, ctx.bea].map(asInput),
       month: '2026-11',
       today: '2026-11-05',
     })
-    assert.equal(nov.totals.totalCents, 4800)
+    assert.equal(nov.totals.totalCents, 0)
+    assert.equal(nov.totals.subscriptionCount, 1)
     assert.isTrue(nov.provisional)
     const sep = await svc.family({
-      school: ctx.school,
       parent: { id: ctx.parent.id, fullName: 'P', email: 'p@x.test' },
       children: [ctx.adam, ctx.bea].map(asInput),
       month: '2026-09',
       today: '2026-11-05',
     })
-    assert.equal(sep.totals.totalCents, 4500)
+    assert.equal(sep.totals.totalCents, 0)
+    assert.equal(sep.totals.subscriptionCount, 1)
 
     // School overview agrees with the family statement and SQL.
     const school = await svc.school(ctx.school, '2026-10', '2026-11-05')
-    assert.equal(school.totals.totalCents, 25100)
-    assert.equal(school.families[0].totals.totalCents, 25100)
+    assert.equal(school.totals.totalCents, 3000)
+    assert.equal(school.families[0].totals.totalCents, 3000)
+    assert.equal(school.totals.subscriptionCount, 5)
   })
 
-  test('monthly_fee: overlap rule, no proration, supplements per item, unset fee = 0 + flag', async ({
-    assert,
-  }) => {
+  test('D31: amounts never depend on the subscription — supplements only', async ({ assert }) => {
     const ctx = await october()
     freezeClock(TODAY)
     const svc = await app.container.make(StatementService)
@@ -234,48 +230,38 @@ test.group('QA P8 | statement math', (group) => {
       await Subscription.create({ childId: c.id, startDate: start, endDate: end, status } as any)
       return c
     }
-    const starts31 = await mk('2026-10-31', null) // overlaps on the last day: full fee
-    const endsSep30 = await mk('2026-09-01', '2026-09-30') // ended before: per meal
-    const startsNov1 = await mk('2026-11-01', null) // starts after: per meal
-    const endsOct1 = await mk('2026-09-01', '2026-10-01') // overlaps on the first day
-    const cancelled = await mk('2026-09-01', null, 'paused') // not active: per meal
-    for (const c of [starts31, endsSep30, startsNov1, endsOct1, cancelled]) {
+    const starts31 = await mk('2026-10-31', null)
+    const endsSep30 = await mk('2026-09-01', '2026-09-30')
+    const paused = await mk('2026-09-01', null, 'paused')
+    for (const c of [starts31, endsSep30, paused]) {
       await insertOrder(ctx.base, c.id, '2026-10-12', [
-        { meal: ctx.main, qty: 1, price: 4500 },
+        { meal: ctx.main, qty: 1, price: 0 },
         { meal: ctx.juice, qty: 2, price: 1000 },
       ])
     }
     const noMeals = await mk('2026-09-01', null)
+    // Stale billing keys from before D31 are ignored.
+    ctx.school.settings = { billing_mode: 'monthly_fee', monthly_fee_cents: 30000 } as any
+    await ctx.school.save()
 
-    for (const [settings, fee, flagged] of [
-      [{ billing_mode: 'monthly_fee', monthly_fee_cents: 30000 }, 30000, false],
-      [{ billing_mode: 'monthly_fee' }, 0, true],
-    ] as const) {
-      ctx.school.settings = settings as any
-      await ctx.school.save()
-      const children = [own, starts31, endsSep30, startsNov1, endsOct1, cancelled, noMeals]
-      const s = await svc.family({
-        school: ctx.school,
-        parent: { id: parent.id, fullName: 'P', email: 'p@x.test' },
-        children: children.map(asInput),
-        month: '2026-10',
-        today: '2026-11-05',
-      })
-      const by = (c: Child) => s.children.find((x) => x.childId === c.id)!
-      assert.equal(s.feeMissing, flagged)
-      assert.equal(by(starts31).totalCents, fee + 2000)
-      assert.equal(by(starts31).subscription.billedAs, 'monthly_fee')
-      assert.equal(by(starts31).subscription.count, 1) // meals still counted
-      assert.equal(by(endsOct1).totalCents, fee + 2000)
-      assert.equal(by(endsSep30).totalCents, 6500)
-      assert.equal(by(startsNov1).totalCents, 6500)
-      assert.equal(by(cancelled).totalCents, 6500)
-      assert.equal(by(noMeals).totalCents, fee)
-      const sch = await svc.school(ctx.school, '2026-10', '2026-11-05')
-      const total = s.totals.totalCents
-      const mine = sch.families.find((f) => f.parentId === parent.id)!
-      assert.equal(mine.totals.totalCents, total)
+    const children = [own, starts31, endsSep30, paused, noMeals]
+    const s = await svc.family({
+      parent: { id: parent.id, fullName: 'P', email: 'p@x.test' },
+      children: children.map(asInput),
+      month: '2026-10',
+      today: '2026-11-05',
+    })
+    const by = (c: Child) => s.children.find((x) => x.childId === c.id)!
+    for (const c of [starts31, endsSep30, paused]) {
+      assert.equal(by(c).totalCents, 2000)
+      assert.deepEqual(by(c).subscription, { count: 1 })
     }
+    assert.equal(by(noMeals).totalCents, 0)
+    assert.equal(s.totals.totalCents, 6000)
+    const sch = await svc.school(ctx.school, '2026-10', '2026-11-05')
+    const mine = sch.families.find((f) => f.parentId === parent.id)!
+    assert.equal(mine.totals.totalCents, 6000)
+    assert.equal(mine.children.length, 3) // children without meals are not listed
   })
 })
 
@@ -360,7 +346,6 @@ test.group('QA P8 | PDFs and the render gate', (group) => {
     }
     for (const n of [0, 1, kids.length]) {
       const s = await svc.family({
-        school: ctx.school,
         parent: {
           id: ctx.parent.id,
           fullName: 'ع'.repeat(200) + ' {x, plural, other{y}}',

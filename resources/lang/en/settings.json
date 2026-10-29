@@ -12,7 +12,6 @@
     "holidays": "Holidays",
     "notifications": "Notification emails",
     "notifications_hint": "In-app notifications are always created; these settings only affect emails.",
-    "billing": "Billing",
     "kitchen": "Kitchen",
     "kitchen_hint": "A4 label sheet layout (default 3 × 8, i.e. 70 × 37 mm)."
   },
@@ -45,10 +44,6 @@
     "email_holiday_cancellation": "Holiday cancellation",
     "email_order_changed_by_staff": "Order changed by BFK",
     "email_menu_change": "Menu change",
-    "billing_mode": "Billing mode",
-    "billing_mode_per_meal": "Each subscription meal at its price",
-    "billing_mode_monthly_fee": "Monthly fee",
-    "monthly_fee": "Monthly fee (MAD)",
     "edit_cutoff_days_before_not_applicable": "Not applicable in same-day mode: only today's meal can be changed, before the cutoff time.",
     "label_grid_cols": "Labels: columns per page (1–6)",
     "label_grid_rows": "Labels: rows per page (1–20)"
@@ -65,9 +60,7 @@
   "errors": {
     "invalid_date": "Invalid date.",
     "school_year_range": "The end must be after the start (400 days at most).",
-    "deadline_before_publish": "The deadline must be after the publication (in the week before).",
-    "monthly_fee": "Invalid amount (2 decimals at most).",
-    "monthly_fee_required": "Enter the monthly fee."
+    "deadline_before_publish": "The deadline must be after the publication (in the week before)."
   },
   "flash": {
     "saved": "Settings saved."

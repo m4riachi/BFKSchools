@@ -28,13 +28,13 @@ const MONTH = '2026-11'
 type Props = Record<string, any>
 
 /**
- * November 2026, week of Mon 23 (main 45 MAD, alt 50 MAD, juice 10 MAD):
- * - Adam (subscribed): Mon main 45 + juice ×2 @10; then main → 60 MAD and
- *   juice → 12 MAD; Tue main @60 + juice ×1 @12; Wed ordered then
- *   "absent"; Thu ordered then the day becomes a holiday (cancelled);
- *   Fri nothing.
+ * November 2026, week of Mon 23 (main and alt are subscription meals — free,
+ * D31 — juice 10 MAD):
+ * - Adam (subscribed): Mon main + juice ×2 @10; then juice → 12 MAD; Tue
+ *   main + juice ×1 @12; Wed ordered then "absent"; Thu ordered then the
+ *   day becomes a holiday (cancelled); Fri nothing.
  * - Lina (same parent, not subscribed): Mon juice ×1 @12 only.
- * - Other family: Mon alt 50.
+ * - Other family: Mon alt (included, nothing billed).
  */
 async function november() {
   const ctx = await orderSchool()
@@ -48,8 +48,6 @@ async function november() {
 
   freezeClock(OPEN)
   await order(family.parent, family.child, MON, main.id, [{ mealId: juice.id, qty: 2 }])
-  main.priceCents = 6000
-  await main.save()
   juice.priceCents = 1200
   await juice.save()
   await order(family.parent, family.child, TUE, main.id, [{ mealId: juice.id, qty: 1 }])
@@ -84,7 +82,6 @@ async function familyStatement(
     isActive: child.isActive,
   }))
   return (await service()).family({
-    school: ctx.school,
     parent: { id: ctx.parent.id, fullName: ctx.parent.fullName, email: ctx.parent.email },
     children,
     month,
@@ -117,25 +114,15 @@ test.group('Statements | math', (group) => {
     assert.equal(statement.from, '2026-11-01')
     assert.equal(statement.to, '2026-11-30')
     assert.isTrue(statement.provisional)
-    assert.equal(statement.billingMode, 'per_meal')
     assert.deepEqual(
       statement.children.map((child) => child.firstName),
       ['Adam', 'Lina']
     )
     const [adam, lina] = statement.children
 
-    // Mid-month price change: one subscription line per snapshot price.
-    assert.equal(adam.subscription.count, 2)
-    assert.deepEqual(
-      adam.subscription.lines.map((line) => [line.unitPriceCents, line.quantity, line.amountCents]),
-      [
-        [4500, 1, 4500],
-        [6000, 1, 6000],
-      ]
-    )
-    assert.equal(adam.subscription.amountCents, 10500)
-    assert.equal(adam.subscription.billedAs, 'per_meal')
-    // Supplements: one line per item and snapshot price.
+    // D31: subscription meals are counted (included), never priced.
+    assert.deepEqual(adam.subscription, { count: 2 })
+    // Supplements: one line per item and snapshot price (mid-month change).
     assert.deepEqual(
       adam.supplements.lines.map((line) => [
         line.mealId,
@@ -150,15 +137,19 @@ test.group('Statements | math', (group) => {
     )
     assert.equal(adam.supplements.lines[0].nameFr, ctx.juice.nameFr)
     assert.equal(adam.supplements.count, 3)
-    assert.equal(adam.totalCents, 13700)
-    // Wed (absent), Thu (holiday) and Fri (no order) contribute nothing.
+    assert.equal(adam.totalCents, 3200)
+    // Wed (absent), Thu (holiday) and Fri (no order) contribute nothing;
+    // each day's subscription meal is listed with no amount.
     assert.deepEqual(
       adam.days.map((day) => [day.date, day.totalCents]),
       [
-        [MON, 6500],
-        [TUE, 7200],
+        [MON, 2000],
+        [TUE, 1200],
       ]
     )
+    const monday = adam.days[0].items.find((item) => item.mealType === 'subscription')!
+    assert.equal(monday.mealId, ctx.main.id)
+    assert.equal(monday.lineTotalCents, 0)
     assert.notInclude(
       adam.days.map((day) => day.date),
       THU
@@ -170,21 +161,42 @@ test.group('Statements | math', (group) => {
 
     // Lina: extras only, no subscription meal.
     assert.equal(lina.subscription.count, 0)
-    assert.equal(lina.subscription.amountCents, 0)
     assert.equal(lina.totalCents, 1200)
 
-    // Family total = sum of the children = SQL sum of the snapshots.
-    assert.equal(statement.totals.totalCents, 14900)
-    assert.equal(statement.totals.subscriptionCents, 10500)
-    assert.equal(statement.totals.supplementCents, 4400)
+    // Family total = supplements only = SQL sum of the snapshots.
+    assert.deepEqual(statement.totals, {
+      subscriptionCount: 2,
+      supplementCount: 4,
+      totalCents: 4400,
+    })
     assert.equal(
       statement.totals.totalCents,
       await sqlTotal([ctx.adam.id, ctx.lina.id], statement.from, statement.to)
     )
     // The current catalog price never changes past statements.
-    ctx.main.priceCents = 9900
-    await ctx.main.save()
-    assert.equal((await familyStatement(ctx)).totals.totalCents, 14900)
+    ctx.juice.priceCents = 9900
+    await ctx.juice.save()
+    assert.equal((await familyStatement(ctx)).totals.totalCents, 4400)
+  })
+
+  test('legacy priced subscription snapshots are never billed (D31)', async ({ assert }) => {
+    const ctx = await november()
+    // History written before D31 (subscription lines snapshotted at 45 MAD).
+    await db.rawQuery(
+      `UPDATE meal_order_items SET unit_price_cents = 4500 WHERE meal_type = 'subscription'`
+    )
+    const statement = await familyStatement(ctx)
+    assert.equal(statement.children[0].subscription.count, 2)
+    assert.equal(statement.children[0].totalCents, 3200)
+    assert.equal(statement.totals.totalCents, 4400)
+    for (const day of statement.children[0].days) {
+      for (const item of day.items) {
+        if (item.mealType === 'subscription') assert.equal(item.lineTotalCents, 0)
+      }
+    }
+    const school = await (await service()).school(ctx.school, MONTH, '2026-11-20')
+    assert.equal(school.totals.totalCents, 4400)
+    assert.equal(school.totals.subscriptionCount, 3)
   })
 
   test('other months are empty; a past month is final', async ({ assert }) => {
@@ -199,7 +211,7 @@ test.group('Statements | math', (group) => {
     )
     const past = await familyStatement(ctx, MONTH, '2026-12-05')
     assert.isFalse(past.provisional)
-    assert.equal(past.totals.totalCents, 14900)
+    assert.equal(past.totals.totalCents, 4400)
   })
 
   test('an inactive child with nothing billed is left out', async ({ assert }) => {
@@ -213,40 +225,6 @@ test.group('Statements | math', (group) => {
     )
   })
 
-  test('monthly fee: the fee replaces subscription meals of subscribed children (no proration)', async ({
-    assert,
-  }) => {
-    const ctx = await november()
-    ctx.school.settings = { billing_mode: 'monthly_fee', monthly_fee_cents: 80000 }
-    await ctx.school.save()
-    const statement = await familyStatement(ctx)
-    const [adam, lina] = statement.children
-    assert.equal(statement.billingMode, 'monthly_fee')
-    assert.equal(adam.subscription.billedAs, 'monthly_fee')
-    assert.equal(adam.subscription.count, 2)
-    assert.equal(adam.subscription.mealsCents, 10500)
-    assert.equal(adam.subscription.amountCents, 80000)
-    assert.equal(adam.totalCents, 83200) // fee + extras per item
-    // Lina has no subscription: no fee, extras only.
-    assert.equal(lina.subscription.billedAs, 'per_meal')
-    assert.equal(lina.totalCents, 1200)
-    assert.equal(statement.totals.totalCents, 84400)
-    assert.isFalse(statement.feeMissing)
-
-    // A subscribed child without any meal that month still pays the fee.
-    const october = await familyStatement(ctx, '2026-10', '2026-11-20')
-    assert.equal(october.children[0].subscription.amountCents, 80000)
-    // School overview agrees.
-    const school = await (await service()).school(ctx.school, '2026-10', '2026-11-20')
-    assert.equal(school.totals.subscriptionCents, 160000) // Adam + Omar
-    // Unset fee → 0 and flagged.
-    ctx.school.settings = { billing_mode: 'monthly_fee' }
-    await ctx.school.save()
-    const unset = await familyStatement(ctx)
-    assert.isTrue(unset.feeMissing)
-    assert.equal(unset.children[0].subscription.amountCents, 0)
-  })
-
   test('school overview: every family with totals that match the family statements', async ({
     assert,
   }) => {
@@ -255,12 +233,14 @@ test.group('Statements | math', (group) => {
     assert.equal(school.totals.families, 2)
     assert.equal(school.totals.children, 3)
     const mine = school.families.find((f) => f.parentId === ctx.parent.id)!
-    assert.equal(mine.totals.totalCents, 14900)
+    assert.equal(mine.totals.totalCents, 4400)
     assert.equal(mine.totals.subscriptionCount, 2)
     assert.equal(mine.totals.supplementCount, 4)
+    // Subscription meals only: listed (counted), nothing billed.
     const other = school.families.find((f) => f.parentId === ctx.other.parent.id)!
-    assert.equal(other.totals.totalCents, 5000)
-    assert.equal(school.totals.totalCents, 19900)
+    assert.deepEqual(other.totals, { subscriptionCount: 1, supplementCount: 0, totalCents: 0 })
+    assert.equal(school.totals.totalCents, 4400)
+    assert.equal(school.totals.subscriptionCount, 3)
     // Another school sees nothing.
     const elsewhere = await SchoolFactory.create()
     const empty = await (await service()).school(elsewhere, MONTH, '2026-11-20')
@@ -288,20 +268,15 @@ test.group('Statements | PDF', (group) => {
   group.each.setup(() => testUtils.db().truncate())
   group.each.teardown(() => restoreClock())
 
-  test('renders a non-empty A4 PDF (Arabic name, monthly fee, provisional)', async ({ assert }) => {
+  test('renders a non-empty A4 PDF (Arabic name, provisional, FR/EN)', async ({ assert }) => {
     const ctx = await november()
     ctx.adam.firstName = 'محمد'
     await ctx.adam.save()
     const pdf = await app.container.make(StatementPdfService)
-    for (const settings of [
-      {},
-      { billing_mode: 'monthly_fee' as const, monthly_fee_cents: 50000 },
-    ]) {
-      ctx.school.settings = settings
-      await ctx.school.save()
+    for (const locale of ['fr', 'en']) {
       const statement = await familyStatement(ctx)
       const bytes = await pdf.render(statement, {
-        locale: 'fr',
+        locale,
         generatedAt: DateTime.fromISO('2026-11-20T12:00'),
       })
       assert.equal(bytes.subarray(0, 5).toString('latin1'), '%PDF-')
@@ -355,8 +330,14 @@ test.group('Statements | pages and access', (group) => {
     response.assertStatus(200)
     response.assertInertiaComponent('parent/statements/index')
     const props = response.inertiaProps as Props
-    assert.equal(props.statement.totals.totalCents, 14900)
-    assert.equal(props.statement.totals.total, '149,00 MAD')
+    assert.equal(props.statement.totals.totalCents, 4400)
+    assert.equal(props.statement.totals.total, '44,00 MAD')
+    // D31: no amount for subscription meals in the props.
+    assert.deepEqual(props.statement.children[0].subscription, { count: 2 })
+    assert.notProperty(props.statement.totals, 'subscription')
+    const monday = props.statement.children[0].days[0].items
+    assert.isNull(monday.find((item: Props) => item.type === 'subscription').amount)
+    assert.match(monday.find((item: Props) => item.type === 'supplement').amount, /^20,00\s?MAD$/)
     assert.isTrue(props.statement.provisional)
     assert.equal(props.nav.value, MONTH)
     assert.equal(props.nav.next, '2026-12')
@@ -374,7 +355,7 @@ test.group('Statements | pages and access', (group) => {
       .get(`/statements?month=${MONTH}&child=${ctx.adam.id}`)
       .loginAs(ctx.parent)
       .withInertia()
-    assert.equal((filtered.inertiaProps as Props).statement.totals.totalCents, 13700)
+    assert.equal((filtered.inertiaProps as Props).statement.totals.totalCents, 3200)
     assert.lengthOf((filtered.inertiaProps as Props).statement.children, 1)
 
     // A bad month falls back to the current one on the page.
@@ -412,7 +393,7 @@ test.group('Statements | pages and access', (group) => {
       props.statement.children.map((c: Props) => c.childId),
       [ctx.other.child.id]
     )
-    assert.equal(props.statement.totals.totalCents, 5000)
+    assert.equal(props.statement.totals.totalCents, 0)
   })
 
   test('back-office list, family page, export; other schools are 404; kitchen and parents refused', async ({
@@ -427,7 +408,8 @@ test.group('Statements | pages and access', (group) => {
     list.assertStatus(200)
     list.assertInertiaComponent('admin/statements/index')
     const props = list.inertiaProps as Props
-    assert.equal(props.totals.totalCents, 19900)
+    assert.equal(props.totals.totalCents, 4400)
+    assert.equal(props.totals.subscriptionCount, 3)
     assert.equal(props.totals.families, 2)
     assert.lengthOf(props.families, 2)
 
@@ -445,7 +427,7 @@ test.group('Statements | pages and access', (group) => {
       .loginAs(ctx.manager)
       .withInertia()
     page.assertStatus(200)
-    assert.equal((page.inertiaProps as Props).statement.totals.totalCents, 14900)
+    assert.equal((page.inertiaProps as Props).statement.totals.totalCents, 4400)
 
     const xlsx = await asBinary(
       client.get(`/admin/statements/export?month=${MONTH}`).loginAs(ctx.manager)
@@ -460,7 +442,8 @@ test.group('Statements | pages and access', (group) => {
     const families = workbook.worksheets[0]
     const totalRow = families.getRow(families.rowCount).values as unknown[]
     // D28: no email column — parent, children, counts and amounts only.
-    assert.equal(totalRow[7], 199)
+    // D31: parent, children, subscription meals (count), supplements (count), total.
+    assert.deepEqual(totalRow.slice(1), ['Total', 3, 3, 4, 44])
     for (const sheet of workbook.worksheets) {
       sheet.eachRow((row) => {
         assert.notInclude(JSON.stringify(row.values), '@', `no email in ${sheet.name}`)

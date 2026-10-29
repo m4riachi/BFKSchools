@@ -645,7 +645,8 @@ const segmentClass = (active: boolean) =>
           <div class="flex min-w-0 flex-1 flex-col gap-0.5">
             <span class="text-[13px] leading-tight font-bold">{{ meal.name }}</span>
             <span class="text-xs text-ink-4"
-              >{{ t(`meals.types.${meal.type}`) }} · {{ meal.price }}</span
+              >{{ t(`meals.types.${meal.type}`)
+              }}<template v-if="meal.price"> · {{ meal.price }}</template></span
             >
           </div>
         </div>

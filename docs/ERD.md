@@ -279,8 +279,6 @@ Format: `column — type — null? — default — notes`. "NN" = `NOT NULL`.
 | `generate_moroccan_holidays` | boolean | `false` | D6 |
 | `ics_calendar_url` | string (https) \| null | `null` | D7 |
 | `email_notifications` | object of booleans: `enabled`, `menu_published`, `deadline_reminder`, `holiday_cancellation`, `order_changed_by_staff`, `menu_change` | all `true` | brief §6 "notification emails on/off" (master switch + per type) |
-| `billing_mode` | `'per_meal' \| 'monthly_fee'` | `'per_meal'` | D1 |
-| `monthly_fee_cents` | int \| null | `null` | D1 (used only when `billing_mode = 'monthly_fee'`) |
 | `subscription_required_for_main_meal` | boolean | `true` | D2 (false = pay-per-meal for unsubscribed children) |
 | `supplement_max_quantity` | int 1–20 | `5` | Phase 6 rule "quantity 1–5" |
 | `label_grid` | `{ cols: int, rows: int }` | `{ "cols": 3, "rows": 8 }` | Phase 7 |
@@ -372,7 +370,7 @@ Ready for payments later: a future `invoices`/`payments` pair can reference `sub
 | description_fr / description_en | text | null | | |
 | type | text | NN | | CHECK `IN ('subscription','supplement')`. Can't be changed once the meal is on any menu (app rule; `menu_items.meal_type` copies it). |
 | category | text | NN | | CHECK `IN ('main','starter','dessert','drink','snack')` |
-| price_cents | integer | NN | `0` | CHECK `>= 0`. Current price; orders snapshot it. |
+| price_cents | integer | NN | `0` | **D31:** CHECK `(type = 'subscription' AND price_cents = 0) OR (type = 'supplement' AND price_cents > 0)` (migration `1794000000000`). Subscription meals are free (no price, never charged); a supplement's current price, which orders snapshot. |
 | allergens | text[] | NN | `'{}'` | CHECK `allergens <@ ARRAY[EU-14]::text[]` |
 | tags | text[] | NN | `'{}'` | e.g. `vegetarian`, `vegan`, `halal`, `spicy`, `gluten_free` (list in `config/meals.ts`) |
 | is_active | boolean | NN | `true` | inactive = not offered in new menus, still visible in history |
@@ -383,7 +381,7 @@ Ready for payments later: a future `invoices`/`payments` pair can reference `sub
 
 **Soft-delete approach:** "Delete" in the back-office always sets `deleted_at` (and `is_active = false`); there is no hard delete in the app. No global `beforeFind` hook (it would hide deleted meals from order history and statements, which must still show them); instead explicit scopes `Meal.query().apply(s => s.catalog())` (= `deleted_at IS NULL`) used by the catalog and menu builder, and nothing on joins from orders. FKs from `menu_items`, `menu_template_items`, `meal_order_items` are `RESTRICT`, so even raw SQL can't remove a used meal. (The community soft-delete package is not v7-compatible — STACK_NOTES §2.)
 Indexes: `(type, category) WHERE deleted_at IS NULL`, `(is_active) WHERE deleted_at IS NULL`.
-Phase 3 additions: CHECK `deleted_at IS NULL OR NOT is_active` (a deleted meal is never active), CHECK `length(btrim(name_fr|name_en)) > 0`. The app also requires `price_cents > 0` (validator; the DB keeps `>= 0`). Photos of a soft-deleted meal are kept (rows and files) for history; they can no longer be changed.
+Phase 3 additions: CHECK `deleted_at IS NULL OR NOT is_active` (a deleted meal is never active), CHECK `length(btrim(name_fr|name_en)) > 0`. D31: the meal form has no price for a subscription meal (whatever is posted is dropped; `MealService` stores 0) and requires one (> 0) for a supplement; the DB CHECK enforces the same rule. Photos of a soft-deleted meal are kept (rows and files) for history; they can no longer be changed.
 
 ### meal_photos — Phase 3
 | Column | Type | Null | Default | Notes |
@@ -560,7 +558,7 @@ Indexes (hot): UNIQUE `(child_id, date)` (also serves "by child + date range"); 
 | meal_id | integer | NN | | FK → meals ON DELETE RESTRICT (copy, so reports don't need the menu join) |
 | meal_type | text | NN | | snapshot, CHECK `IN ('subscription','supplement')` |
 | quantity | smallint | NN | `1` | CHECK `quantity BETWEEN 1 AND 20`; CHECK `meal_type = 'supplement' OR quantity = 1` |
-| unit_price_cents | integer | NN | | **price snapshot at order time**, CHECK `>= 0` |
+| unit_price_cents | integer | NN | | **price snapshot at order time**, CHECK `>= 0`. D31: subscription lines snapshot 0 (older lines may hold a pre-D31 price — kept as history, never billed) |
 | line_total_cents | integer | NN | generated | `GENERATED ALWAYS AS (quantity * unit_price_cents) STORED` |
 | created_at / updated_at | timestamptz | NN | now() | |
 
@@ -605,6 +603,6 @@ Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` 
 Phase 7 runs `EXPLAIN ANALYZE` on the production/dashboard queries with seed data and adds indexes by migration if needed. **Done (Phase 7): no index needed** — every report query uses the indexes above plus `meal_order_items` UNIQUE `(meal_order_id, menu_item_id)` (timings in STACK_NOTES, Phase 7 surprises).
 
 ## 4. Derived (no table)
-- **Statements** (Phase 8, `StatementService`): computed from `meal_order_items` of `active` orders dated inside the calendar month (sum of the snapshot `line_total_cents`, by PostgreSQL), grouped by child: subscription meals = count + one line per snapshot unit price (a mid-month price change gives two lines), supplements = one line per (meal, snapshot unit price); child total = both; family total = sum of the children. Cancelled days (any reason) and days without an order contribute 0. Months: 2000-01 up to the month after today; the current month (and later) is **provisional**, earlier months are final (D23). **`billing_mode = 'monthly_fee'`** (D1 alternative, not active): for a child with an `active` subscription overlapping the month (`start_date <= last day` and `end_date` null or `>= first day`), the subscription meals of the month are replaced by **one `monthly_fee_cents` line, not prorated** (a subscription starting on the 20th pays the full fee; a subscribed child with no meal that month still pays it); the meals stay listed as "included". Children without such a subscription keep per-meal amounts. Supplements are always per item. An unset fee counts as 0 and the pages flag it. No payment tracking (D11).
+- **Statements** (Phase 8, `StatementService`; **D31** supersedes D1): computed from `meal_order_items` of `active` orders dated inside the calendar month, grouped by child. **Only supplements are billed**: one line per (meal, snapshot unit price), amounts = sum of their snapshot `line_total_cents` (by PostgreSQL); child total = supplements; family total = sum of the children. **Subscription meals are only counted** ("N repas d'abonnement · inclus"), never priced — including legacy lines snapshotted with a price before D31 (history is not rewritten, it is ignored). Cancelled days (any reason) and days without an order contribute nothing. Months: 2000-01 up to the month after today; the current month (and later) is **provisional**, earlier months are final (D23). The former `billing_mode` / `monthly_fee_cents` settings are removed (D29 obsolete; stale keys in `schools.settings` are ignored and dropped on the next save). The same rule applies to the dashboard month-to-date (supplement amounts + subscription meal count), the parent week/family totals and history, the back-office order list and the kitchen/admin exports (subscription rows have empty amount cells). No payment tracking (D11).
 - **Invitation status**: see `user_tokens`.
 - **Day state for the parent** (open/locked/holiday/not published): computed by `OrderWindowService`, never stored.

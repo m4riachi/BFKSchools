@@ -332,7 +332,8 @@ export default class OrderService {
         maxQuantity: item.maxQuantity,
         mealAvailable: item.meal.isActive && !item.meal.deletedAt,
         allergens: item.meal.allergens,
-        priceCents: item.meal.priceCents,
+        // D31: subscription meals are free (the DB CHECK keeps their price at 0).
+        priceCents: item.mealType === 'supplement' ? item.meal.priceCents : 0,
         orderedElsewhere: elsewhere.get(item.id) ?? 0,
       }))
       const result = checkSelection({

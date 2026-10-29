@@ -18,7 +18,7 @@ import SubscriptionService from '#services/subscription_service'
 import { buildOutboxMail } from '#mails/outbox_registry'
 import OrderNoticeMail from '#mails/order_notice_mail'
 import { freezeClock, restoreClock } from '#tests/helpers/clock'
-import { builder, jobs, subscriptionMeal } from '#tests/helpers/menus'
+import { builder, jobs, supplementMeal } from '#tests/helpers/menus'
 import {
   DAYS,
   FRI,
@@ -308,28 +308,61 @@ test.group('Review D23–D25, L6, apply-all', (group) => {
     )
   })
 
-  test('D25: switching to a cheaper meal lowers the price and the email says so', async ({
+  test('D25: switching an extra to a cheaper one lowers the price and the email says so', async ({
     assert,
   }) => {
-    const { school, manager, menu, main } = await orderSchool()
-    const cheap = await subscriptionMeal({ priceCents: 3000 })
+    const { school, manager, menu, main, juice } = await orderSchool()
+    const cheap = await supplementMeal()
+    cheap.priceCents = 300 // the factory's supplement state sets its own price after merge
+    await cheap.save()
     await (await import('#tests/helpers/menus')).addItem(school, manager, TUE, cheap)
     const { parent, child } = await family(school)
     freezeClock(OPEN)
     await (
       await orders()
-    ).saveDay(child.id, TUE, { subscriptionMealId: main.id, supplements: [] }, { user: parent })
-    const item = await itemFor(menu.id, TUE, main)
+    ).saveDay(
+      child.id,
+      TUE,
+      { subscriptionMealId: main.id, supplements: [{ mealId: juice.id, qty: 1 }] },
+      { user: parent }
+    )
+    const item = await itemFor(menu.id, TUE, juice)
     const cheapItem = await itemFor(menu.id, TUE, cheap)
     await (
       await builder()
     ).removeItem(school, menu, item.id, manager, { mode: 'switch', targetItemId: cheapItem.id })
-    assert.equal((await orderOf(child, TUE))!.items[0].unitPriceCents, 3000)
+    const line = (await orderOf(child, TUE))!.items.find((l) => l.mealId === cheap.id)!
+    assert.equal(line.unitPriceCents, 300)
     const notice = await Notification.findByOrFail('type', 'menu_change')
     assert.isTrue(notice.data.priceLowered as boolean)
     const email = await OutboundEmail.findByOrFail('mail_key', 'menu_change')
     const built = (await buildOutboxMail(email)) as { mail: OrderNoticeMail }
-    assert.isTrue(built.mail.content.paragraphs.some((p) => p.includes('30,00')))
+    assert.isTrue(built.mail.content.paragraphs.some((p) => p.includes('3,00')))
+  })
+
+  test('D31: switching a subscription meal never announces a price, even from a legacy snapshot', async ({
+    assert,
+  }) => {
+    const { school, manager, menu, main, alt } = await orderSchool()
+    const { parent, child } = await family(school)
+    freezeClock(OPEN)
+    await (
+      await orders()
+    ).saveDay(child.id, TUE, { subscriptionMealId: main.id, supplements: [] }, { user: parent })
+    // A line written before D31 (priced subscription meal).
+    const legacy = (await orderOf(child, TUE))!.items[0]
+    await legacy.merge({ unitPriceCents: 4500 }).save()
+    const item = await itemFor(menu.id, TUE, main)
+    const altItem = await itemFor(menu.id, TUE, alt)
+    await (
+      await builder()
+    ).removeItem(school, menu, item.id, manager, { mode: 'switch', targetItemId: altItem.id })
+    const line = (await orderOf(child, TUE))!.items[0]
+    assert.equal(line.mealId, alt.id)
+    assert.equal(line.unitPriceCents, 0)
+    const notice = await Notification.findByOrFail('type', 'menu_change')
+    assert.isFalse(notice.data.priceLowered as boolean)
+    assert.isNull(notice.data.newUnitPriceCents)
   })
 
   test('L6: the removal is refused when more orders exist than confirmed', async ({

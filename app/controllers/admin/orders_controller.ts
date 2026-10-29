@@ -15,7 +15,7 @@ import {
 } from '#validators/orders'
 import { addDays, isIsoDate, weekStart as mondayOf, type IsoDate } from '#support/dates'
 import { formatMad } from '#support/money'
-import { mealName } from '#support/meal_display'
+import { isBilledType, mealName } from '#support/meal_display'
 import { weekBounds } from '#support/menu_display'
 
 const PER_PAGE = 50
@@ -166,7 +166,9 @@ export default class OrdersController {
         const own = lines.filter((line) => Number(line.meal_order_id) === Number(row.id))
         const totalCents =
           row.status === 'active'
-            ? own.reduce((sum, line) => sum + Number(line.line_total_cents), 0)
+            ? own
+                .filter((line) => isBilledType(line.meal_type))
+                .reduce((sum, line) => sum + Number(line.line_total_cents), 0)
             : 0
         return {
           id: Number(row.id),

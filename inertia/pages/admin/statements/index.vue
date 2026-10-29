@@ -21,8 +21,6 @@ import { useI18n } from '~/composables/use_i18n'
 const props = defineProps<{
   nav: MonthNavProps
   provisional: boolean
-  billingMode: 'per_meal' | 'monthly_fee'
-  feeMissing: boolean
   filters: { q: string }
   totals: Totals & { families: number; children: number }
   families: {
@@ -33,7 +31,6 @@ const props = defineProps<{
       childId: number
       name: string
       className: string | null
-      billedAs: string
       totals: Totals
     }[]
     totals: Totals
@@ -84,10 +81,6 @@ function apply() {
       </form>
     </div>
 
-    <p v-if="feeMissing" class="rounded-2xl bg-warning-soft px-4 py-3 text-sm text-warning-ink">
-      {{ t('statements.fee_missing') }}
-    </p>
-
     <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <div class="flex flex-col gap-1 rounded-2xl border border-line bg-surface p-4">
         <span class="text-xs font-bold text-ink-4 uppercase">{{
@@ -104,17 +97,16 @@ function apply() {
         <span class="text-xs font-bold text-ink-4 uppercase">{{
           t('statements.admin.subscription')
         }}</span>
-        <span class="tabular text-xl font-extrabold">{{ totals.subscription }}</span>
-        <span class="text-[13px] text-ink-3">{{
+        <span class="tabular text-xl font-extrabold">{{
           t('statements.meals_count', { count: totals.subscriptionCount })
         }}</span>
+        <span class="text-[13px] text-ink-3">{{ t('statements.subscription_included') }}</span>
       </div>
       <div class="flex flex-col gap-1 rounded-2xl border border-line bg-surface p-4">
         <span class="text-xs font-bold text-ink-4 uppercase">{{
           t('statements.admin.supplements')
         }}</span>
-        <span class="tabular text-xl font-extrabold">{{ totals.supplement }}</span>
-        <span class="text-[13px] text-ink-3">{{
+        <span class="tabular text-xl font-extrabold">{{
           t('statements.meals_count', { count: totals.supplementCount })
         }}</span>
       </div>
@@ -160,16 +152,11 @@ function apply() {
               </div>
             </td>
             <td class="tabular px-4 py-3 text-right">
-              {{ family.totals.subscription }}
-              <div class="text-xs text-ink-4">
-                {{ t('statements.meals_count', { count: family.totals.subscriptionCount }) }}
-              </div>
+              {{ t('statements.meals_count', { count: family.totals.subscriptionCount }) }}
+              <div class="text-xs text-ink-4">{{ t('statements.included') }}</div>
             </td>
             <td class="tabular px-4 py-3 text-right">
-              {{ family.totals.supplement }}
-              <div class="text-xs text-ink-4">
-                {{ t('statements.meals_count', { count: family.totals.supplementCount }) }}
-              </div>
+              {{ t('statements.meals_count', { count: family.totals.supplementCount }) }}
             </td>
             <td class="tabular px-4 py-3 text-right font-bold">{{ family.totals.total }}</td>
             <td class="px-4 py-3 text-right">
@@ -186,10 +173,7 @@ function apply() {
     </section>
     <PaginationNav v-if="meta.lastPage > 1" :meta="meta" />
     <p class="text-[13px] text-ink-4">
-      {{ t('statements.admin.no_payment') }}
-      <template v-if="billingMode === 'monthly_fee'">
-        {{ t('statements.monthly_fee_note') }}</template
-      >
+      {{ t('statements.admin.no_payment') }} {{ t('statements.included_note') }}
     </p>
   </AdminLayout>
 </template>

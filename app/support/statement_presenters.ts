@@ -42,12 +42,7 @@ function line(entry: StatementLine, locale: Locale) {
 }
 
 function totals(entry: StatementTotals, locale: Locale) {
-  return {
-    ...entry,
-    subscription: formatMad(entry.subscriptionCents, locale),
-    supplement: formatMad(entry.supplementCents, locale),
-    total: formatMad(entry.totalCents, locale),
-  }
+  return { ...entry, total: formatMad(entry.totalCents, locale) }
 }
 
 /** Month navigation shared by the parent and back-office pages. */
@@ -70,8 +65,6 @@ export function presentFamilyStatement(statement: FamilyStatement, locale: strin
   return {
     month: statement.month,
     provisional: statement.provisional,
-    billingMode: statement.billingMode,
-    feeMissing: statement.feeMissing,
     parent: { id: statement.parent.id, fullName: statement.parent.fullName },
     children: statement.children.map((child) => ({
       childId: child.childId,
@@ -80,13 +73,8 @@ export function presentFamilyStatement(statement: FamilyStatement, locale: strin
       grade: child.grade,
       className: child.className,
       isActive: child.isActive,
-      subscription: {
-        count: child.subscription.count,
-        billedAs: child.subscription.billedAs,
-        amountCents: child.subscription.amountCents,
-        amount: formatMad(child.subscription.amountCents, l),
-        lines: child.subscription.lines.map((entry) => line(entry, l)),
-      },
+      // D31: subscription meals are counted ("included"), never priced.
+      subscription: { count: child.subscription.count },
       supplements: {
         count: child.supplements.count,
         amountCents: child.supplements.amountCents,
@@ -103,7 +91,7 @@ export function presentFamilyStatement(statement: FamilyStatement, locale: strin
           name: mealName(item, l),
           type: item.mealType,
           quantity: item.quantity,
-          amount: formatMad(item.lineTotalCents, l),
+          amount: item.mealType === 'supplement' ? formatMad(item.lineTotalCents, l) : null,
         })),
       })),
     })),
@@ -121,7 +109,6 @@ export function presentSchoolFamilies(families: SchoolStatement['families'], loc
       childId: child.childId,
       name: `${child.firstName} ${child.lastName}`,
       className: child.className,
-      billedAs: child.billedAs,
       totals: totals(child.totals, l),
     })),
     totals: totals(family.totals, l),

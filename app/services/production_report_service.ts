@@ -78,9 +78,13 @@ export type MissingSelection = {
   children: { id: number; firstName: string; lastName: string; className: string | null }[]
 }
 
+/** Billed amounts of a period (D31: supplements only; subscription meals are counted, never priced). */
 export type Amounts = {
-  subscriptionCents: number
-  supplementCents: number
+  /** Subscription meals served (included in the subscription, no amount). */
+  subscriptionMeals: number
+  /** Supplement portions. */
+  supplementCount: number
+  /** What is billed: the supplements' snapshot amounts. */
   totalCents: number
   /** Active orders in the period. */
   orders: number
@@ -452,14 +456,15 @@ export default class ProductionReportService {
   /* ---------------------------------------------------------------------- */
 
   /**
-   * Billed amounts of a period (both dates included): sums of the
-   * snapshot `line_total_cents` of active orders, split subscription /
-   * supplement (D1 per-meal billing). One query, integer centimes.
+   * Billed amounts of a period (both dates included). D31: only supplements
+   * are billed (sum of their snapshot `line_total_cents` on active orders);
+   * subscription meals are only counted. One query, integer centimes.
    */
   async amounts(schoolId: number, from: IsoDate, to: IsoDate): Promise<Amounts> {
     assertDate(from, to)
     const result = await db.rawQuery(
-      `SELECT COALESCE(SUM(moi.line_total_cents) FILTER (WHERE moi.meal_type = 'subscription'), 0)::bigint AS subscription,
+      `SELECT COALESCE(SUM(moi.quantity) FILTER (WHERE moi.meal_type = 'subscription'), 0)::bigint AS subscription_meals,
+              COALESCE(SUM(moi.quantity) FILTER (WHERE moi.meal_type = 'supplement'), 0)::bigint AS supplement_count,
               COALESCE(SUM(moi.line_total_cents) FILTER (WHERE moi.meal_type = 'supplement'), 0)::bigint AS supplement,
               count(DISTINCT mo.id)::int AS orders
          FROM meal_orders mo
@@ -468,12 +473,10 @@ export default class ProductionReportService {
       [schoolId, from, to]
     )
     const row = result.rows[0] ?? {}
-    const subscriptionCents = toInt(row.subscription)
-    const supplementCents = toInt(row.supplement)
     return {
-      subscriptionCents,
-      supplementCents,
-      totalCents: subscriptionCents + supplementCents,
+      subscriptionMeals: toInt(row.subscription_meals),
+      supplementCount: toInt(row.supplement_count),
+      totalCents: toInt(row.supplement),
       orders: toInt(row.orders),
     }
   }

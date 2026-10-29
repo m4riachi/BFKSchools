@@ -27,8 +27,6 @@ test.group('SchoolSettingsService', (group) => {
       'generate_moroccan_holidays',
       'ics_calendar_url',
       'email_notifications',
-      'billing_mode',
-      'monthly_fee_cents',
       'subscription_required_for_main_meal',
       'supplement_max_quantity',
       'label_grid',

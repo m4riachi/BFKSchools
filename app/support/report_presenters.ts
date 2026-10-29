@@ -92,8 +92,6 @@ export function presentDashboard(dashboard: Dashboard, locale: string) {
     monthToDate: dashboard.monthToDate
       ? {
           ...dashboard.monthToDate,
-          subscription: formatMad(dashboard.monthToDate.subscriptionCents, money),
-          supplement: formatMad(dashboard.monthToDate.supplementCents, money),
           total: formatMad(dashboard.monthToDate.totalCents, money),
         }
       : null,

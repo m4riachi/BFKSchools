@@ -22,7 +22,7 @@ const props = defineProps<{
     date: string
     type: string
     isDefault: boolean
-    meal: { name: string; price: string }
+    meal: { name: string; price: string | null }
   }
   affected: {
     orderId: number
@@ -36,7 +36,7 @@ const props = defineProps<{
   alternatives: {
     id: number
     name: string
-    price: string
+    price: string | null
     maxQuantity: number | null
     allergicChildren: number
   }[]
@@ -138,7 +138,7 @@ function submit() {
             :disabled="mode !== 'switch'"
           >
             <option v-for="option in alternatives" :key="option.id" :value="option.id">
-              {{ option.name }} — {{ option.price }}
+              {{ option.name }}<template v-if="option.price"> — {{ option.price }}</template>
             </option>
           </select>
           <span v-else class="text-ink-3">{{ t('menus.remove.no_alternative') }}</span>

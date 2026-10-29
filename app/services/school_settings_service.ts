@@ -7,7 +7,6 @@ import {
   type schoolSettingsFormValidator,
 } from '#validators/school_settings'
 import { diffInDays, isIsoDate } from '#support/dates'
-import { parseMadToCents } from '#support/money'
 import type { Infer } from '@vinejs/vine/types'
 
 export type SchoolSettingsForm = Infer<typeof schoolSettingsFormValidator>
@@ -17,7 +16,9 @@ const MAX_SCHOOL_YEAR_DAYS = 400
 
 /**
  * Code defaults for every settings key (docs/ERD.md, docs/DECISIONS.md).
- * Adding a key here never needs a data migration.
+ * Adding a key here never needs a data migration. Keys removed from here
+ * (e.g. `billing_mode` / `monthly_fee_cents`, D31) are ignored when read
+ * and dropped on the next save (`deepMerge` keeps known keys only).
  */
 export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   publish_weekday: 4, // D3 Thursday of the week before
@@ -41,8 +42,6 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
     order_changed_by_staff: true,
     menu_change: true,
   },
-  billing_mode: 'per_meal', // D1
-  monthly_fee_cents: null,
   subscription_required_for_main_meal: true, // D2
   supplement_max_quantity: 5, // D14
   label_grid: { cols: 3, rows: 8 },
@@ -101,7 +100,7 @@ export default class SchoolSettingsService {
    * (columns) plus every settings key, in one transaction with the school
    * row locked. Cross-field rules: the year ends after it starts (≤ 400
    * days), the default deadline comes after the default publication in the
-   * week before, and a monthly fee is required in `monthly_fee` billing mode.
+   * week before.
    * Changing the default times only affects weeks created afterwards.
    */
   async updateFromForm(school: School, input: SchoolSettingsForm): Promise<SchoolSettings> {
@@ -127,19 +126,6 @@ export default class SchoolSettingsService {
       })
     }
 
-    let monthlyFeeCents: number | null = null
-    if (input.monthlyFee) {
-      monthlyFeeCents = parseMadToCents(input.monthlyFee)
-      if (monthlyFeeCents === null || monthlyFeeCents > 100_000_000) {
-        throw new BusinessRuleException('settings.errors.monthly_fee', { field: 'monthlyFee' })
-      }
-    }
-    if (values.billing_mode === 'monthly_fee' && !monthlyFeeCents) {
-      throw new BusinessRuleException('settings.errors.monthly_fee_required', {
-        field: 'monthlyFee',
-      })
-    }
-
     return db.transaction(async (trx) => {
       const locked = await School.query({ client: trx })
         .where('id', school.id)
@@ -150,10 +136,7 @@ export default class SchoolSettingsService {
         schoolYearStart: input.schoolYearStart,
         schoolYearEnd: input.schoolYearEnd,
       })
-      const changes = await schoolSettingsValidator.validate({
-        ...values,
-        monthly_fee_cents: monthlyFeeCents,
-      })
+      const changes = await schoolSettingsValidator.validate(values)
       const next = deepMerge(this.get(locked), changes)
       locked.settings = next as StoredSchoolSettings
       await locked.save()

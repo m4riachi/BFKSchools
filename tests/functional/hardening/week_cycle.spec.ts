@@ -55,8 +55,8 @@ test.group('Hardening | full week cycle', (group) => {
     ).UserFactory.apply('kitchen')
       .merge({ schoolId: school.id })
       .create()
-    const main = await subscriptionMeal({ priceCents: 4500, allergens: [] })
-    const alt = await subscriptionMeal({ priceCents: 5000, allergens: ['nuts'] })
+    const main = await subscriptionMeal({ allergens: [] })
+    const alt = await subscriptionMeal({ allergens: ['nuts'] })
     const juice = await supplementMeal({ allergens: [] })
     juice.priceCents = 1000
     await juice.save()
@@ -197,8 +197,10 @@ test.group('Hardening | full week cycle', (group) => {
       .first()
     const statement = (page.inertiaProps as any).statement
     assert.equal(statement.totals.totalCents, Number(expected.total))
-    // 4 × 45 (child 1, Mon–Thu) + 2 × 10 juice + 50 (child 2, Mon) + Tue–Fri defaults for child 2
-    assert.equal(statement.totals.totalCents, 4 * 4500 + 2 * 1000 + 5000 + 4 * 4500)
+    // D31: only the 2 × 10 juice is billed; the 9 subscription meals (child 1
+    // Mon–Thu, child 2 Mon + Tue–Fri defaults) are included.
+    assert.equal(statement.totals.totalCents, 2 * 1000)
+    assert.equal(statement.totals.subscriptionCount, 4 + 1 + 4)
 
     const pdf = await asBinary(client.get('/statements/pdf?month=2026-11').loginAs(a.parent))
     pdf.assertStatus(200)

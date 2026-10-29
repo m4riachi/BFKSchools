@@ -73,8 +73,18 @@ export function allergenLabels(codes: readonly AllergenCode[], locale: AppLocale
   return codes.map((code) => ({ code, label: i18n.t(`allergens.${code}`) }))
 }
 
-/** Formatted current price ("45,00 MAD" / "45.00 MAD"). */
-export function mealPrice(meal: Pick<Meal, 'priceCents'>, locale: string): string {
+/** D31: only supplements are priced and billed; subscription meals are free. */
+export function isBilledType(type: string): boolean {
+  return type === 'supplement'
+}
+
+/**
+ * Formatted current price ("45,00 MAD" / "45.00 MAD") of a supplement, or
+ * null for a subscription meal (D31: no price — the UI shows "included in
+ * the subscription").
+ */
+export function mealPrice(meal: Pick<Meal, 'priceCents' | 'type'>, locale: string): string | null {
+  if (!isBilledType(meal.type)) return null
   return formatMad(meal.priceCents, locale === 'en' ? 'en' : 'fr')
 }
 
@@ -123,7 +133,9 @@ export function presentMealDetail(meal: Meal, locale: string) {
     description: mealDescription(meal, locale),
     descriptionFr: meal.descriptionFr,
     descriptionEn: meal.descriptionEn,
-    priceInput: centsToInput(meal.priceCents, locale === 'en' ? 'en' : 'fr'),
+    priceInput: isBilledType(meal.type)
+      ? centsToInput(meal.priceCents, locale === 'en' ? 'en' : 'fr')
+      : '',
     externalRecipeRef: meal.externalRecipeRef,
     photos: photos.map(presentMealPhoto),
     updatedAt: meal.updatedAt?.toISO() ?? null,

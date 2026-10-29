@@ -100,7 +100,8 @@
     "delete_confirm": "Delete meal",
     "duplicate_title": "Duplicate this meal?",
     "duplicate_body": "An inactive copy of “{name}” will be created, with its photos.",
-    "duplicate_confirm": "Duplicate"
+    "duplicate_confirm": "Duplicate",
+    "subscription_no_price": "Subscription meals are included in the subscription: they have no price."
   },
   "photos": {
     "title": "Photos",
@@ -151,7 +152,8 @@
     "deleted": "Meal “{name}” deleted."
   },
   "errors": {
-    "type_locked": "The type can't be changed any more: this meal is already on a menu."
+    "type_locked": "The type can't be changed any more: this meal is already on a menu.",
+    "price_required": "Enter the supplement's price."
   },
   "detail": {
     "back": "Back to the catalog",
@@ -163,5 +165,6 @@
     "price": "Price",
     "recipe_ref": "Recipe reference",
     "photos": "Photos"
-  }
+  },
+  "included": "Included in subscription"
 }

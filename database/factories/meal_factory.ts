@@ -12,7 +12,8 @@ const DISHES = [
 ] as const
 
 /**
- * Meals for tests. States: supplement, inactive, deleted.
+ * Meals for tests. States: supplement, inactive, deleted. Subscription meals
+ * are free (price 0, D31); supplements default to 8,00 MAD.
  */
 export const MealFactory = factory
   .define(Meal, () => {
@@ -25,7 +26,7 @@ export const MealFactory = factory
       descriptionEn: null,
       type: 'subscription' as const,
       category: 'main' as const,
-      priceCents: 4500,
+      priceCents: 0, // D31: subscription meals are free
       allergens: [],
       tags: [],
       isActive: true,
@@ -37,6 +38,11 @@ export const MealFactory = factory
     meal.type = 'supplement'
     meal.category = 'dessert'
     meal.priceCents = 800
+  })
+  // D31: a supplement needs a price (> 0, DB CHECK); `merge({ type: 'supplement' })`
+  // without a price gets the default supplement price.
+  .after('make', (_factory, meal) => {
+    if (meal.type === 'supplement' && !meal.priceCents) meal.priceCents = 800
   })
   .state('inactive', (meal) => (meal.isActive = false))
   .state('deleted', (meal) => {

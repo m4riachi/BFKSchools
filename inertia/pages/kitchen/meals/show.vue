@@ -77,7 +77,8 @@ const current = computed(() => props.meal.photos[selected.value] ?? null)
             <dt class="text-xs font-extrabold tracking-[0.07em] text-ink-4 uppercase">
               {{ t('meals.detail.price') }}
             </dt>
-            <dd class="tabular text-lg font-extrabold">{{ meal.price }}</dd>
+            <dd v-if="meal.price" class="tabular text-lg font-extrabold">{{ meal.price }}</dd>
+            <dd v-else class="text-sm font-semibold text-ink-3">{{ t('meals.included') }}</dd>
           </div>
           <div class="flex flex-col gap-1">
             <dt class="text-xs font-extrabold tracking-[0.07em] text-ink-4 uppercase">

@@ -17,7 +17,13 @@ defineProps<{
     status: string
     cancelReason: string | null
     origin: string
-    lines: { name: string; type: string; quantity: number; unitPrice: string; lineTotal: string }[]
+    lines: {
+      name: string
+      type: string
+      quantity: number
+      unitPrice: string | null
+      lineTotal: string | null
+    }[]
     total: string
   }[]
   meta: PaginationMeta
@@ -107,7 +113,7 @@ const { t, formatDate } = useI18n()
             >{{ line.name
             }}<template v-if="line.type === 'supplement'"> × {{ line.quantity }}</template></span
           >
-          <span class="tabular text-ink-3">{{ line.lineTotal }}</span>
+          <span class="tabular text-ink-3">{{ line.lineTotal ?? t('meals.included') }}</span>
         </li>
       </ul>
     </article>

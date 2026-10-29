@@ -222,8 +222,8 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
         ? i18n.t('emails.menu_change.switched', { meal: mealName(targetMeal, locale), children })
         : i18n.t('emails.menu_change.cancelled', { children })
     )
-    // D25: the price is mentioned only when it went down.
-    if (targetMeal && row.payload.priceLowered === true) {
+    // D25: the price is mentioned only when it went down (D31: supplements only).
+    if (targetMeal && targetMeal.type === 'supplement' && row.payload.priceLowered === true) {
       paragraphs.push(
         i18n.t('emails.menu_change.price_lowered', {
           price: formatMad(targetMeal.priceCents, locale),

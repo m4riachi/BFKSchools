@@ -15,8 +15,8 @@ VineJS · Bouncer · Drive + sharp · Mail · i18n (FR/EN) · Luxon · Japa.
 
 | Area | What it does |
 |---|---|
-| Parent portal (`/`, mobile-first) | Week view per child: pick the main meal and supplements per day, "no meal this day", "same choice for all my children"; allergy check (meals with a child's allergen are refused); every rule decided on the server (`OrderWindowService`). Order history, monthly statement + PDF, notification center with email preferences, **Account** tab (details, change password). FR/EN. |
-| Back-office (`/admin`, admin + manager) | Dashboard (today/tomorrow, next week's selection rate, month-to-date amounts, upcoming holidays). Parents and children (allergies, subscriptions, invitations, CSV import). Meal catalog with photos (WebP thumbnails). Holidays (US federal generator, optional Moroccan holidays, breaks, ICS import). Weekly menu builder (copy previous week, templates, default dish, schedule/publish). Orders per day and per child (audited staff changes). Monthly statements (all families, Excel export, PDF). Settings (admin only). |
+| Parent portal (`/`, mobile-first) | Week view per child: pick the main meal (included in the subscription, no price — D31) and supplements (priced, billed) per day, "no meal this day", "same choice for all my children"; allergy check (meals with a child's allergen are refused); every rule decided on the server (`OrderWindowService`). Order history, monthly statement + PDF, notification center with email preferences, **Account** tab (details, change password). FR/EN. |
+| Back-office (`/admin`, admin + manager) | Dashboard (today/tomorrow, next week's selection rate, month-to-date billed supplements, upcoming holidays). Parents and children (allergies, subscriptions, invitations, CSV import). Meal catalog with photos (WebP thumbnails). Holidays (US federal generator, optional Moroccan holidays, breaks, ICS import). Weekly menu builder (copy previous week, templates, default dish, schedule/publish). Orders per day and per child (audited staff changes). Monthly statements (all families, Excel export, PDF). Settings (admin only). |
 | Kitchen (`/kitchen`, admin + manager + kitchen, read-only) | Production sheet per day (by grade/class), allergy sheet, printable labels PDF, Excel/CSV exports. |
 | Jobs (cron) | Automatic menu publication, deadline reminders, default meal at the deadline, outbox email dispatch, closing past weeks, yearly holiday generation. |
 
@@ -73,8 +73,10 @@ Reset everything: `node ace migration:fresh --seed`.
 `NODE_ENV=production`) creates, idempotently:
 
 - Britech School with its current school year and default settings;
-- 21 meals (12 subscription mains, 9 supplements) with FR/EN names, prices, EU allergens and
-  placeholder photos generated locally with sharp (no image files in the repo);
+- 22 meals: 13 subscription trays (BFK's real lunches, free — D31 — with the real photos in
+  `database/demo/meal_photos/`) and 9 priced supplements (placeholder photos generated locally
+  with sharp); FR/EN names and descriptions, EU allergens (a conservative guess — to be confirmed
+  by BFK). Every photo goes through the normal upload pipeline (WebP + thumbnail);
 - 15 parents with 1–3 children each (mixed grades and classes, some allergies and dietary notes,
   some children without a subscription, one inactive child); most parents can sign in, two are
   only invited, one was never invited;

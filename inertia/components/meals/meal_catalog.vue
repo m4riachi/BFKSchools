@@ -252,7 +252,12 @@ const actionLabel = (meal: MealSummary) =>
                   {{ t('meals.list.photos_count', { count: meal.photosCount }) }}
                 </span>
               </div>
-              <span class="tabular text-sm font-extrabold whitespace-nowrap">{{ meal.price }}</span>
+              <span v-if="meal.price" class="tabular text-sm font-extrabold whitespace-nowrap">{{
+                meal.price
+              }}</span>
+              <span v-else class="text-right text-xs font-semibold text-ink-4">{{
+                t('meals.included')
+              }}</span>
             </div>
             <MealBadges :tags="meal.tags" :allergens="meal.allergens" :max="4" />
           </div>
@@ -290,7 +295,8 @@ const actionLabel = (meal: MealSummary) =>
         </StatusBadge>
       </template>
       <template #cell-price="{ row }">
-        <span class="tabular font-bold whitespace-nowrap">{{ row.price }}</span>
+        <span v-if="row.price" class="tabular font-bold whitespace-nowrap">{{ row.price }}</span>
+        <span v-else class="text-xs font-semibold text-ink-4">{{ t('meals.included') }}</span>
       </template>
       <template #cell-allergens="{ row }">
         <MealBadges v-if="row.allergens.length" :allergens="row.allergens" :max="3" />

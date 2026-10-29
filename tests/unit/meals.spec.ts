@@ -78,7 +78,9 @@ test.group('Meals | display helpers', () => {
   })
 
   test('formatted price and price input round-trip', ({ assert }) => {
-    assert.match(mealPrice(meal({ priceCents: 4550 }), 'en'), /^45\.50 MAD$/)
+    assert.match(mealPrice(meal({ type: 'supplement', priceCents: 4550 }), 'en')!, /^45\.50 MAD$/)
+    // D31: a subscription meal has no price to show.
+    assert.isNull(mealPrice(meal({ type: 'subscription', priceCents: 0 }), 'en'))
     for (const cents of [1, 99, 100, 1250, 123456]) {
       assert.equal(parseMadToCents(centsToInput(cents, 'fr')), cents)
       assert.equal(parseMadToCents(centsToInput(cents, 'en')), cents)

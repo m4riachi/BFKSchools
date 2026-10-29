@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
  * One family's monthly statement (parent portal and back-office): a card
- * per child with the subscription meals (count + amount, or the monthly
- * fee), one line per extra, the child total and a collapsible daily
- * detail; then the family total. Everything is computed and formatted by
+ * per child with the subscription meals (a count — included, D31: never
+ * priced), one line per extra, the child total (extras) and a collapsible
+ * daily detail; then the family total. Everything is computed and formatted by
  * the server — this only lays it out.
  */
 import StatusBadge from '~/components/ui/status_badge.vue'
@@ -23,12 +23,6 @@ const { t, formatDate } = useI18n()
       class="rounded-2xl border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-ink"
     >
       {{ t('statements.provisional_note') }}
-    </p>
-    <p
-      v-if="statement.feeMissing"
-      class="rounded-2xl border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-ink"
-    >
-      {{ t('statements.fee_missing') }}
     </p>
 
     <section v-if="!statement.children.length" class="rounded-[18px] border border-line bg-surface">
@@ -57,37 +51,18 @@ const { t, formatDate } = useI18n()
         <h3 class="text-xs font-bold tracking-[0.04em] text-ink-4 uppercase">
           {{ t('statements.subscription_meals') }}
         </h3>
-        <template v-if="child.subscription.billedAs === 'monthly_fee'">
-          <div class="flex justify-between gap-3 text-sm">
-            <span class="font-semibold">{{ t('statements.monthly_fee') }}</span>
-            <span class="tabular font-semibold">{{ child.subscription.amount }}</span>
-          </div>
-          <div
-            v-if="child.subscription.count"
-            class="flex justify-between gap-3 text-sm text-ink-3"
-          >
-            <span>{{ t('statements.included_meals', { count: child.subscription.count }) }}</span>
-            <span>{{ t('statements.included') }}</span>
-          </div>
-        </template>
-        <template v-else>
-          <div
-            v-for="(line, index) in child.subscription.lines"
-            :key="`s${index}`"
-            class="flex justify-between gap-3 text-sm"
-          >
-            <span>
-              {{ t('statements.subscription_line', { count: line.quantity }) }}
-              <span class="text-ink-4"
-                >· {{ t('statements.each', { price: line.unitPrice }) }}</span
-              >
-            </span>
-            <span class="tabular">{{ line.amount }}</span>
-          </div>
-          <p v-if="!child.subscription.lines.length" class="text-sm text-ink-4">
-            {{ t('statements.no_subscription_meals') }}
-          </p>
-        </template>
+        <div class="flex justify-between gap-3 text-sm">
+          <span>
+            {{
+              child.subscription.count
+                ? t('statements.subscription_line', { count: child.subscription.count })
+                : t('statements.no_subscription_meals')
+            }}
+          </span>
+          <span v-if="child.subscription.count" class="text-ink-3">{{
+            t('statements.subscription_included')
+          }}</span>
+        </div>
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -143,7 +118,8 @@ const { t, formatDate } = useI18n()
                 }}
               </span>
             </span>
-            <span class="tabular whitespace-nowrap">{{ day.total }}</span>
+            <span v-if="day.totalCents > 0" class="tabular whitespace-nowrap">{{ day.total }}</span>
+            <span v-else class="whitespace-nowrap text-ink-4">{{ t('statements.included') }}</span>
           </li>
         </ul>
       </details>
@@ -156,8 +132,6 @@ const { t, formatDate } = useI18n()
       <span class="text-[15px] font-extrabold">{{ t('statements.family_total') }}</span>
       <span class="tabular text-xl font-extrabold">{{ statement.totals.total }}</span>
     </section>
-    <p v-if="statement.billingMode === 'monthly_fee'" class="text-[13px] text-ink-4">
-      {{ t('statements.monthly_fee_note') }}
-    </p>
+    <p class="text-[13px] text-ink-4">{{ t('statements.included_note') }}</p>
   </div>
 </template>

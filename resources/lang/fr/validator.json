@@ -94,8 +94,7 @@
       "description": "description",
       "schoolDays": "jours d'école",
       "schoolYearStart": "début de l'année",
-      "schoolYearEnd": "fin de l'année",
-      "monthlyFee": "forfait mensuel"
+      "schoolYearEnd": "fin de l'année"
     }
   }
 }

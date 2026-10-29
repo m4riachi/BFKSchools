@@ -91,7 +91,7 @@ test.group('Meals QA | price parsing edge cases', () => {
       const res = await client
         .post('/admin/meals')
         .loginAs(manager)
-        .json({ ...validMeal, price })
+        .json({ ...validMeal, type: 'supplement', price })
         .withCsrfToken()
         .redirects(0)
       const bag = (res.flashMessage('inputErrorsBag') ?? {}) as Record<string, string[]>
@@ -425,7 +425,9 @@ test.group('Meals QA | type lock once used on a menu', (group) => {
       .redirects(0)
     assert.equal(free.status(), 302)
     assert.equal((await Meal.findOrFail(meal.id)).type, 'supplement', 'unlocked before use')
-    await Meal.query().where('id', meal.id).update({ type: 'subscription', nameFr: 'Locked' })
+    await Meal.query()
+      .where('id', meal.id)
+      .update({ type: 'subscription', priceCents: 0, nameFr: 'Locked' })
 
     await addItem(school, staff, MON, await Meal.findOrFail(meal.id))
     const refused = await client

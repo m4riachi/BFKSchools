@@ -12,7 +12,8 @@ export type MealSummary = {
   type: string
   category: string
   priceCents: number
-  price: string
+  /** Null for subscription meals (D31: included, no price). */
+  price: string | null
   allergens: string[]
   tags: string[]
   isActive: boolean

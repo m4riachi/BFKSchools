@@ -36,6 +36,8 @@ function validForm(
         order_changed_by_staff: false,
         menu_change: true,
       },
+      // Removed by D31 (subscription meals are free): an old client may still
+      // post them; they are dropped.
       billing_mode: 'monthly_fee',
       subscription_required_for_main_meal: false,
       supplement_max_quantity: 3,
@@ -62,7 +64,9 @@ test.group('Settings screen', (group) => {
     assert.equal(props.settings.deadline_time, '20:00')
     assert.equal(props.settings.edit_cutoff_time, '18:00')
     assert.deepEqual(props.school.schoolDays, [1, 2, 3, 4, 5])
-    assert.equal(props.monthlyFee, '')
+    // D31: no billing settings any more.
+    assert.notProperty(props, 'monthlyFee')
+    assert.notProperty(props.settings, 'billing_mode')
   })
 
   test('an admin updates every key at once', async ({ client, assert }) => {
@@ -93,11 +97,12 @@ test.group('Settings screen', (group) => {
       auto_assign_default_meal: false,
       allergy_rule: 'warn_confirm',
       generate_moroccan_holidays: true,
-      billing_mode: 'monthly_fee',
-      monthly_fee_cents: 65050,
       subscription_required_for_main_meal: false,
       supplement_max_quantity: 3,
     })
+    assert.notProperty(settings, 'billing_mode')
+    assert.notProperty(fresh.settings ?? {}, 'billing_mode')
+    assert.notProperty(fresh.settings ?? {}, 'monthly_fee_cents')
     assert.deepEqual(settings.email_notifications, {
       enabled: true,
       menu_published: false,
@@ -124,8 +129,6 @@ test.group('Settings screen', (group) => {
         'settings.reminder_hours_before_deadline',
       ],
       [validForm({}, { supplement_max_quantity: 21 }), 'settings.supplement_max_quantity'],
-      [validForm({ monthlyFee: null }), 'monthlyFee'],
-      [validForm({ monthlyFee: '12,345' }), 'monthlyFee'],
     ]
     for (const [body, field] of cases) {
       const response = await client

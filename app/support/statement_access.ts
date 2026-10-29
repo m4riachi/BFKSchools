@@ -1,6 +1,4 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import School from '#models/school'
-import type User from '#models/user'
 import type { FamilyStatement } from '#services/statement_service'
 import type StatementPdfService from '#services/statement_pdf_service'
 import type Clock from '#services/clock'
@@ -24,12 +22,6 @@ export function pickMonth(
   if (value === undefined) return monthOf(today)
   if (isStatementMonth(value, today)) return value
   return strict ? null : monthOf(today)
-}
-
-/** Billing settings come from the parent's school (defaults when it has none). */
-export async function schoolOf(parent: Pick<User, 'schoolId'>): Promise<Pick<School, 'settings'>> {
-  const school = typeof parent.schoolId === 'number' ? await School.find(parent.schoolId) : null
-  return school ?? { settings: {} }
 }
 
 /**

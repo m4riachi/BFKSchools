@@ -33,9 +33,9 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D26 | Phase 7 report conventions | answered | "Tomorrow" on the dashboard = next school day; "% with a selection" = subscribed active children with an order row for every open day they are subscribed on; the allergy sheet lists only children who eat that day; kitchen exports have no prices; labels sorted by class, last name, first name |
 | D27 | PDF render limit fairness | answered | Per-user cap on PDF renders: 1 running + 1 waiting per user (on top of the server-wide gate); extra requests get 429/503 with Retry-After |
 | D28 | Parent emails in the statements Excel export | answered | Drop the email column — the export keeps names, children and amounts only |
-| D29 | `monthly_fee` billing rule | pending | Not active (D1 = per meal). Decide proration, zero-meal months and closed-month stability before switching `billing_mode` to `monthly_fee` |
+| D29 | `monthly_fee` billing rule | obsolete | Made obsolete by D31 (subscription meals are free); `billing_mode`/`monthly_fee` removed from settings and statements |
 | D30 | Parent "change password" page (brief §5.5) | answered | Build it in Phase 9 under the parent "Compte" tab (current password + new password; ends other sessions like a reset) |
-| D31 | Do subscription (abonnement) meals have a price? | answered | No — subscription meals are free in the app: no price field, `price_cents = 0`, never charged. Only supplements are priced and billed. Statements and totals show supplements only (subscription meals may be listed/counted as "inclus"). Replaces D1 |
+| D31 | Do subscription (abonnement) meals have a price? | answered | No — subscription meals are free in the app: no price field, `price_cents = 0`, never charged. Only supplements are priced and billed. Statements and totals show supplements only (subscription meals may be listed/counted as "inclus"); this applies to every month, including subscription order lines priced before D31. Replaces D1 |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
@@ -46,3 +46,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-10-28 — D26 recorded: Phase 7 report conventions kept as built
 2026-10-29 — D27, D28, D30 answered with the recommended answers; D29 (monthly_fee rule) left pending until monthly fees are used
 2026-10-29 — D31: subscription meals are free (no price, not billed); only supplements are billed. Supersedes D1
+2026-10-29 — D29 obsolete (D31); D31 clarified: pre-D31 priced subscription lines are never billed

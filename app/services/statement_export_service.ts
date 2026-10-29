@@ -17,7 +17,8 @@ export function centsToNumber(cents: number): number {
  * Excel export of the statements of every family of a school for a month
  * (back-office): sheet 1 one row per family, sheet 2 one row per child,
  * both with a total row. No email addresses (D28): names, children and
- * amounts only. Built from the `SchoolStatement` already computed
+ * amounts only. D31: subscription meals are a count (included, no amount);
+ * the billed total is the supplements. Built from the `SchoolStatement` already computed
  * (bounded by the number of children of the school) and written with the
  * streaming workbook writer. Every text cell goes through `safeCell()`;
  * amounts are numbers (format 0.00 MAD).
@@ -28,7 +29,6 @@ export default class StatementExportService {
     const i18n = i18nManager.locale(locale)
     const label = (key: string) => safeCell(i18n.t(`statements.export.${key}`))
     const money = { numFmt: '0.00' }
-    const billed = (mode: string) => safeCell(i18n.t(`statements.billing_modes.${mode}`))
 
     const run = async () => {
       const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
@@ -44,11 +44,9 @@ export default class StatementExportService {
       familySheet.columns = [
         { key: 'parent', width: 28 },
         { key: 'children', width: 10 },
-        { key: 'sub_count', width: 14 },
-        { key: 'sub_amount', width: 16, style: money },
+        { key: 'sub_count', width: 18 },
         { key: 'sup_count', width: 14 },
-        { key: 'sup_amount', width: 16, style: money },
-        { key: 'total', width: 16, style: money },
+        { key: 'total', width: 18, style: money },
       ]
       familySheet
         .addRow([
@@ -62,9 +60,7 @@ export default class StatementExportService {
         label('parent'),
         label('children'),
         label('subscription_count'),
-        label('subscription_amount'),
         label('supplement_count'),
-        label('supplement_amount'),
         label('total'),
       ])
       familyHeader.font = { bold: true }
@@ -75,9 +71,7 @@ export default class StatementExportService {
             safeCell(family.parentName),
             family.children.length,
             family.totals.subscriptionCount,
-            centsToNumber(family.totals.subscriptionCents),
             family.totals.supplementCount,
-            centsToNumber(family.totals.supplementCents),
             centsToNumber(family.totals.totalCents),
           ])
           .commit()
@@ -86,9 +80,7 @@ export default class StatementExportService {
         label('grand_total'),
         statement.totals.children,
         statement.totals.subscriptionCount,
-        centsToNumber(statement.totals.subscriptionCents),
         statement.totals.supplementCount,
-        centsToNumber(statement.totals.supplementCents),
         centsToNumber(statement.totals.totalCents),
       ])
       familyTotal.font = { bold: true }
@@ -104,12 +96,9 @@ export default class StatementExportService {
         { key: 'first_name', width: 18 },
         { key: 'grade', width: 8 },
         { key: 'class', width: 10 },
-        { key: 'billing', width: 18 },
-        { key: 'sub_count', width: 14 },
-        { key: 'sub_amount', width: 16, style: money },
+        { key: 'sub_count', width: 18 },
         { key: 'sup_count', width: 14 },
-        { key: 'sup_amount', width: 16, style: money },
-        { key: 'total', width: 16, style: money },
+        { key: 'total', width: 18, style: money },
       ]
       const childHeader = childSheet.addRow([
         label('parent'),
@@ -117,11 +106,8 @@ export default class StatementExportService {
         label('first_name'),
         label('grade'),
         label('class'),
-        label('billing'),
         label('subscription_count'),
-        label('subscription_amount'),
         label('supplement_count'),
-        label('supplement_amount'),
         label('total'),
       ])
       childHeader.font = { bold: true }
@@ -135,11 +121,8 @@ export default class StatementExportService {
               safeCell(child.firstName),
               safeCell(child.grade),
               safeCell(child.className),
-              billed(child.billedAs),
               child.totals.subscriptionCount,
-              centsToNumber(child.totals.subscriptionCents),
               child.totals.supplementCount,
-              centsToNumber(child.totals.supplementCents),
               centsToNumber(child.totals.totalCents),
             ])
             .commit()
@@ -151,11 +134,8 @@ export default class StatementExportService {
         '',
         '',
         '',
-        '',
         statement.totals.subscriptionCount,
-        centsToNumber(statement.totals.subscriptionCents),
         statement.totals.supplementCount,
-        centsToNumber(statement.totals.supplementCents),
         centsToNumber(statement.totals.totalCents),
       ])
       childTotal.font = { bold: true }

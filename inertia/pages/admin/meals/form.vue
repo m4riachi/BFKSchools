@@ -47,9 +47,16 @@ function arrayError(field: string) {
   )
 }
 
+/** D31: only supplements have a price; subscription meals are included (no price sent). */
+const priced = computed(() => form.type === 'supplement')
+
 function submit() {
-  if (props.meal) form.put(`/admin/meals/${props.meal.id}`, { preserveScroll: true })
-  else form.post('/admin/meals')
+  // `undefined` is dropped from the JSON body; the server ignores it anyway.
+  const send = form.transform((data) =>
+    data.type === 'supplement' ? data : { ...data, price: undefined }
+  )
+  if (props.meal) send.put(`/admin/meals/${props.meal.id}`, { preserveScroll: true })
+  else send.post('/admin/meals')
 }
 
 function toggleTag(tag: string, checked: boolean) {
@@ -164,15 +171,19 @@ const typeClass = (selected: boolean) => [
             :error="form.errors.category"
           />
           <TextInput
+            v-if="priced"
             id="price"
             v-model="form.price"
             required
             autocomplete="off"
             :label="t('meals.form.price')"
             :hint="t('meals.form.price_hint')"
-            :placeholder="'45,00'"
+            :placeholder="'12,00'"
             :error="form.errors.price"
           />
+          <p v-else class="self-end pb-2 text-[13px] text-ink-4">
+            {{ t('meals.form.subscription_no_price') }}
+          </p>
         </div>
 
         <TextArea

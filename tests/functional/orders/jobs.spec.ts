@@ -124,8 +124,6 @@ test.group('Orders jobs | deadline auto-assign (D10)', (group) => {
     await addHoliday(school, WED, 'Closed')
     freezeClock(OPEN)
     await (await orders()).cancelDay(absentTue.child.id, TUE, { user: absentTue.parent })
-    main.priceCents = 4700 // the snapshot is the price at the deadline
-    await main.save()
 
     freezeClock('2026-11-22T19:59')
     let run = await (await jobs()).applyDeadline()
@@ -149,7 +147,7 @@ test.group('Orders jobs | deadline auto-assign (D10)', (group) => {
       assert.equal(order.origin, 'system')
       assert.deepEqual(
         order.items.map((i) => [i.mealId, i.unitPriceCents]),
-        [[main.id, 4700]]
+        [[main.id, 0]] // D31: the default (subscription) meal is free
       )
     }
     const audit = await OrderAuditLog.query().where('child_id', subscribed.child.id).firstOrFail()
@@ -376,19 +374,19 @@ test.group('Orders jobs | published menu changes (D18)', (group) => {
       .redirects(0)
     const switched = (await orderOf(a.child, TUE))!
     assert.equal(switched.status, 'active')
-    // D25: the new meal costs more (50 MAD) → the parent keeps 45 MAD.
+    // D31: subscription meals are free — the switched line stays at 0.
     assert.deepEqual(
       switched.items.map((i) => [i.menuItemId, i.unitPriceCents]),
-      [[altItem.id, 4500]]
+      [[altItem.id, 0]]
     )
     const switchAudit = await OrderAuditLog.query()
       .where('child_id', a.child.id)
       .where('action', 'menu_change_switch')
       .firstOrFail()
-    assert.equal(switchAudit.before!.items[0].unitPriceCents, 4500)
+    assert.equal(switchAudit.before!.items[0].unitPriceCents, 0)
     assert.deepEqual(
       switchAudit.after!.items.map((i) => [i.menuItemId, i.unitPriceCents]),
-      [[altItem.id, 4500]]
+      [[altItem.id, 0]]
     )
     const lost = (await orderOf(allergic.child, TUE))!
     assert.equal(lost.status, 'cancelled')

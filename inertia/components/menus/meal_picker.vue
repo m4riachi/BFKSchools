@@ -86,7 +86,9 @@ const meals = computed(() => {
               <MealBadges :allergens="meal.allergens" :tags="meal.tags" :max="4" />
             </span>
             <span class="flex shrink-0 flex-col items-end gap-1">
-              <span class="tabular text-sm font-extrabold text-ink">{{ meal.price }}</span>
+              <span v-if="meal.price" class="tabular text-sm font-extrabold text-ink">{{
+                meal.price
+              }}</span>
               <span v-if="taken.includes(meal.id)" class="text-xs font-semibold text-ink-4">
                 {{ t('menus.builder.already_on_day') }}
               </span>

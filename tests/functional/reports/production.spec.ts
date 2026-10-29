@@ -1,5 +1,6 @@
 /* eslint-disable @unicorn/no-await-expression-member */
 import { test } from '@japa/runner'
+import db from '@adonisjs/lucid/services/db'
 import app from '@adonisjs/core/services/app'
 import testUtils from '@adonisjs/core/services/test_utils'
 import HolidayImpactService from '#services/holiday_impact_service'
@@ -121,36 +122,43 @@ test.group('Reports | production aggregations', (group) => {
     assert.equal(sheet.orders.cancelled, 2)
     const wednesday = await service.amounts(school.id, WED, WED)
     assert.deepEqual(wednesday, {
-      subscriptionCents: 0,
-      supplementCents: 0,
+      subscriptionMeals: 0,
+      supplementCount: 0,
       totalCents: 0,
       orders: 0,
     })
     assert.lengthOf(await service.labels(school.id, WED, { limit: 100 }), 0)
   })
 
-  test('amounts of a period are split subscription / supplement from snapshot prices', async ({
+  test('amounts of a period: supplements billed from snapshot prices, subscription meals counted (D31)', async ({
     assert,
   }) => {
     const { school, main, ada, juice } = await tuesday()
     // A later price change never touches what was ordered.
-    main.priceCents = 9900
-    await main.save()
+    juice.priceCents = 9900
+    await juice.save()
     await order(ada.parent, ada.child, FRI, main.id, [{ mealId: juice.id, qty: 1 }])
 
     const service = await reports()
     const tuesdayOnly = await service.amounts(school.id, TUE, TUE)
-    // Ada 4500 + 2×1000, Bob 5000 + 1000, Cy 4500 (Eve cancelled, Dee absent)
+    // Ada main + 2×1000, Bob alt + 1000, Cy main (Eve cancelled, Dee absent)
     assert.deepEqual(tuesdayOnly, {
-      subscriptionCents: 14_000,
-      supplementCents: 3000,
-      totalCents: 17_000,
+      subscriptionMeals: 3,
+      supplementCount: 3,
+      totalCents: 3000,
       orders: 3,
     })
+    // Even a legacy priced subscription snapshot is never billed.
+    await db.rawQuery(
+      `UPDATE meal_order_items SET unit_price_cents = 4500 WHERE meal_type = 'subscription'`
+    )
     const week = await service.amounts(school.id, MON, FRI)
-    assert.equal(week.subscriptionCents, 14_000 + 9900)
-    assert.equal(week.supplementCents, 3000 + 1000)
-    assert.equal(week.orders, 4)
+    assert.deepEqual(week, {
+      subscriptionMeals: 4,
+      supplementCount: 4,
+      totalCents: 3000 + 9900,
+      orders: 4,
+    })
   })
 
   test('children without a selection: subscribed, active, no order row at all', async ({

@@ -9,7 +9,7 @@ import ProductionReportService, {
   type ExportFilters,
   type ExportSummaryRow,
 } from '#services/production_report_service'
-import { allergenLabels, mealName } from '#support/meal_display'
+import { allergenLabels, isBilledType, mealName } from '#support/meal_display'
 import { safeCell } from '#support/spreadsheet_safety'
 
 /**
@@ -52,6 +52,11 @@ function centsToNumber(cents: number): number {
   return Number(`${Math.trunc(cents / 100)}.${String(Math.abs(cents) % 100).padStart(2, '0')}`)
 }
 
+/** D31: only supplements carry an amount; subscription rows leave the cell empty (included). */
+function billed(type: string, cents: number): Cell {
+  return isBilledType(type) ? centsToNumber(cents) : ''
+}
+
 @inject()
 export default class ReportExportService {
   /** Hard stop of one export file (a subclass may lower it, e.g. in tests). */
@@ -92,13 +97,13 @@ export default class ReportExportService {
           key: 'unit_price',
           width: 12,
           money: true,
-          value: (row) => centsToNumber(row.unitPriceCents),
+          value: (row) => billed(row.mealType, row.unitPriceCents),
         },
         {
           key: 'line_total',
           width: 12,
           money: true,
-          value: (row) => centsToNumber(row.lineTotalCents),
+          value: (row) => billed(row.mealType, row.lineTotalCents),
         }
       )
     }
@@ -125,7 +130,7 @@ export default class ReportExportService {
         key: 'amount',
         width: 12,
         money: true,
-        value: (row) => centsToNumber(row.amountCents),
+        value: (row) => billed(row.mealType, row.amountCents),
       })
     }
     return columns

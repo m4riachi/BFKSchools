@@ -94,8 +94,7 @@
       "description": "description",
       "schoolDays": "school days",
       "schoolYearStart": "school year start",
-      "schoolYearEnd": "school year end",
-      "monthlyFee": "monthly fee"
+      "schoolYearEnd": "school year end"
     }
   }
 }

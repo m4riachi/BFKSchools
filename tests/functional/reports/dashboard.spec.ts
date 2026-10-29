@@ -91,9 +91,10 @@ test.group('Reports | dashboard', (group) => {
     assert.deepEqual(dashboard.monthToDate, {
       from: '2026-11-01',
       to: WED,
-      subscriptionCents: 4500 + 4500 + 5000 + 5000,
-      supplementCents: 1000 + 2000,
-      totalCents: 22_000,
+      // D31: four subscription meals (included), only the extras are billed.
+      subscriptionMeals: 4,
+      supplementCount: 1 + 2,
+      totalCents: 1000 + 2000,
       orders: 4,
     })
     const [today, tomorrow] = dashboard.days

@@ -55,7 +55,7 @@ test.group('Orders | saveDay', (group) => {
         line.lineTotalCents,
       ]),
       [
-        [main.id, 1, 4500, 4500],
+        [main.id, 1, 0, 0], // D31: subscription meals are free
         [juice.id, 2, 1000, 2000],
       ]
     )
@@ -114,11 +114,9 @@ test.group('Orders | saveDay', (group) => {
     await service.saveDay(
       child.id,
       TUE,
-      { subscriptionMealId: main.id, supplements: [] },
+      { subscriptionMealId: main.id, supplements: [{ mealId: juice.id, qty: 1 }] },
       { user: parent }
     )
-    main.priceCents = 9900
-    await main.save()
     juice.priceCents = 1500
     await juice.save()
     await service.saveDay(
@@ -127,11 +125,24 @@ test.group('Orders | saveDay', (group) => {
       { subscriptionMealId: main.id, supplements: [{ mealId: juice.id, qty: 1 }] },
       { user: parent }
     )
-    const order = (await orderOf(child, TUE))!
+    await service.saveDay(
+      child.id,
+      WED,
+      { subscriptionMealId: main.id, supplements: [{ mealId: juice.id, qty: 1 }] },
+      { user: parent }
+    )
+    // D31: the subscription meal snapshots 0; the kept extra keeps its price.
     assert.deepEqual(
-      order.items.map((line) => [line.mealId, line.unitPriceCents]),
+      (await orderOf(child, TUE))!.items.map((line) => [line.mealId, line.unitPriceCents]),
       [
-        [main.id, 4500],
+        [main.id, 0],
+        [juice.id, 1000],
+      ]
+    )
+    assert.deepEqual(
+      (await orderOf(child, WED))!.items.map((line) => [line.mealId, line.unitPriceCents]),
+      [
+        [main.id, 0],
         [juice.id, 1500],
       ]
     )

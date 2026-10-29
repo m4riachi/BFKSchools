@@ -63,25 +63,38 @@ export const mealListValidator = vine.create({
   page: vine.number().withoutDecimals().min(1).max(10_000).optional(),
 })
 
+/**
+ * Price by meal type (D31): required (> 0) for a supplement; for a
+ * subscription meal whatever the browser posts is dropped without being
+ * read — MealService stores 0.
+ */
+const mealPriceGroup = vine.group([
+  vine.group.if((data) => data.type === 'supplement', { price: madPriceRule() }),
+  vine.group.else({}),
+])
+
 /** Create / edit a meal. */
-export const mealValidator = vine.create({
-  nameFr: nameRule(MEAL_NAME_MAX_LENGTH),
-  nameEn: nameRule(MEAL_NAME_MAX_LENGTH),
-  descriptionFr: descriptionRule().optional(),
-  descriptionEn: descriptionRule().optional(),
-  type: vine.enum(MEAL_TYPES),
-  category: vine.enum(MEAL_CATEGORIES),
-  price: madPriceRule(),
-  allergens: vine.array(vine.enum(ALLERGENS)).maxLength(ALLERGENS.length).distinct().optional(),
-  tags: vine.array(vine.enum(MEAL_TAGS)).maxLength(MEAL_TAGS.length).distinct().optional(),
-  isActive: vine.boolean().optional(),
-  externalRecipeRef: vine
-    .string()
-    .trim()
-    .maxLength(MEAL_RECIPE_REF_MAX_LENGTH)
-    .regex(/^[^\p{C}]+$/u)
-    .optional(),
-})
+export const mealValidator = vine.create(
+  vine
+    .object({
+      nameFr: nameRule(MEAL_NAME_MAX_LENGTH),
+      nameEn: nameRule(MEAL_NAME_MAX_LENGTH),
+      descriptionFr: descriptionRule().optional(),
+      descriptionEn: descriptionRule().optional(),
+      type: vine.enum(MEAL_TYPES),
+      category: vine.enum(MEAL_CATEGORIES),
+      allergens: vine.array(vine.enum(ALLERGENS)).maxLength(ALLERGENS.length).distinct().optional(),
+      tags: vine.array(vine.enum(MEAL_TAGS)).maxLength(MEAL_TAGS.length).distinct().optional(),
+      isActive: vine.boolean().optional(),
+      externalRecipeRef: vine
+        .string()
+        .trim()
+        .maxLength(MEAL_RECIPE_REF_MAX_LENGTH)
+        .regex(/^[^\p{C}]+$/u)
+        .optional(),
+    })
+    .merge(mealPriceGroup)
+)
 
 /** New photo order: every photo id of the meal, exactly once. */
 export const mealPhotoOrderValidator = vine.create({

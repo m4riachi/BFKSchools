@@ -13,7 +13,7 @@ import {
 } from '#validators/orders'
 import { addDays, isIsoDate, weekStart as mondayOf, type IsoDate } from '#support/dates'
 import { formatMad } from '#support/money'
-import { mealName } from '#support/meal_display'
+import { isBilledType, mealName } from '#support/meal_display'
 import { weekBounds } from '#support/menu_display'
 import { homePathFor } from '#enums/roles'
 import { safeTranslate } from '#support/safe_translate'
@@ -252,9 +252,12 @@ export default class OrdersController {
       children: children.map((child) => ({ id: child.id, firstName: child.firstName })),
       childId: selected?.id ?? null,
       orders: page.all().map((order) => {
+        // D31: only supplements are billed; subscription lines are included.
         const totalCents =
           order.status === 'active'
-            ? order.items.reduce((sum, line) => sum + (line.lineTotalCents ?? 0), 0)
+            ? order.items
+                .filter((line) => isBilledType(line.mealType))
+                .reduce((sum, line) => sum + (line.lineTotalCents ?? 0), 0)
             : 0
         return {
           id: order.id,
@@ -267,8 +270,10 @@ export default class OrdersController {
             name: mealName(line.meal, locale),
             type: line.mealType,
             quantity: line.quantity,
-            unitPrice: formatMad(line.unitPriceCents, locale),
-            lineTotal: formatMad(line.lineTotalCents ?? 0, locale),
+            unitPrice: isBilledType(line.mealType) ? formatMad(line.unitPriceCents, locale) : null,
+            lineTotal: isBilledType(line.mealType)
+              ? formatMad(line.lineTotalCents ?? 0, locale)
+              : null,
           })),
           total: formatMad(totalCents, locale),
         }

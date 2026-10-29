@@ -18,8 +18,12 @@ export type MealInput = {
   descriptionEn?: string | null
   type: MealType
   category: MealCategory
-  /** Integer centimes, already parsed by the validator (never a float). */
-  price: number
+  /**
+   * Integer centimes, already parsed by the validator (never a float).
+   * Supplements only (required, > 0); ignored for subscription meals, which
+   * are always stored at 0 (D31).
+   */
+  price?: number
   allergens?: AllergenCode[]
   tags?: string[]
   isActive?: boolean
@@ -184,6 +188,18 @@ export default class MealService {
     return false
   }
 
+  /**
+   * D31: a subscription meal is free (price 0, whatever was sent); a
+   * supplement needs a positive price. The DB CHECK enforces the same rule.
+   */
+  protected priceOf(input: MealInput): number {
+    if (input.type === 'subscription') return 0
+    if (!Number.isSafeInteger(input.price) || (input.price as number) <= 0) {
+      throw new BusinessRuleException('meals.errors.price_required', { field: 'price' })
+    }
+    return input.price as number
+  }
+
   protected attributes(input: MealInput) {
     return {
       nameFr: input.nameFr,
@@ -192,7 +208,7 @@ export default class MealService {
       descriptionEn: input.descriptionEn || null,
       type: input.type,
       category: input.category,
-      priceCents: input.price,
+      priceCents: this.priceOf(input),
       allergens: [...new Set(input.allergens ?? [])],
       tags: [...new Set(input.tags ?? [])],
       externalRecipeRef: input.externalRecipeRef || null,

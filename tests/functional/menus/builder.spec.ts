@@ -9,7 +9,6 @@ import MenuTemplate from '#models/menu_template'
 import MealService from '#services/meal_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { DateTime } from 'luxon'
-import { formatMad } from '#support/money'
 import {
   FRI,
   MON,
@@ -214,7 +213,9 @@ test.group('Menus | days that cannot receive meals', (group) => {
     )
     assert.deepEqual(props.days[3].holidayNames, ['Thanksgiving'])
     const card = props.days[0].items[0]
-    assert.equal(card.meal.price, formatMad(4500, 'fr'))
+    // D31: a subscription meal has no price (the UI shows "included").
+    assert.isNull(card.meal.price)
+    assert.equal(card.meal.priceCents, 0)
     assert.properties(card.meal, ['name', 'cover', 'allergens'])
   })
 
@@ -334,7 +335,7 @@ test.group('Menus | meal type lock (Phase 3 follow-up)', (group) => {
       nameEn: meal.nameEn,
       type,
       category: meal.category,
-      price: meal.priceCents,
+      price: type === 'supplement' ? 1200 : undefined,
     })
     for (const meal of [onMenu, onTemplate]) {
       await rejectsWith(

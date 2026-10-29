@@ -4,7 +4,6 @@
  */
 export type EditMode = 'until_cutoff' | 'same_day_only'
 export type AllergyRule = 'block' | 'warn_confirm'
-export type BillingMode = 'per_meal' | 'monthly_fee'
 
 export type EmailNotificationSettings = {
   enabled: boolean
@@ -30,8 +29,6 @@ export type SchoolSettings = {
   generate_moroccan_holidays: boolean
   ics_calendar_url: string | null
   email_notifications: EmailNotificationSettings
-  billing_mode: BillingMode
-  monthly_fee_cents: number | null
   subscription_required_for_main_meal: boolean
   supplement_max_quantity: number
   label_grid: { cols: number; rows: number }

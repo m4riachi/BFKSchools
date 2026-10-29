@@ -32,13 +32,13 @@ export const DAYS = [MON, TUE, WED, THU, FRI]
 /**
  * A school with a **published** menu for the week of Mon 23 Nov 2026
  * (deadline Sun 22 Nov 20:00, cutoff the day before 18:00): every day has
- * `main` (default, 45 MAD), `alt` (50 MAD, contains nuts) and the extra
- * `juice` (10 MAD). Call it with the real clock (or one before 19 Nov).
+ * `main` (default) and `alt` (contains nuts) — subscription meals, free
+ * (D31) — and the extra `juice` (10 MAD). Call it with the real clock (or one before 19 Nov).
  */
 export async function orderSchool(settings: Record<string, unknown> = {}) {
   const ctx = await setupMenuSchool(settings)
-  const main = await subscriptionMeal({ priceCents: 4500, allergens: [] })
-  const alt = await subscriptionMeal({ priceCents: 5000, allergens: ['nuts'] })
+  const main = await subscriptionMeal({ allergens: [] })
+  const alt = await subscriptionMeal({ allergens: ['nuts'] })
   const juice = await supplementMeal({ allergens: [] })
   // The factory's supplement state sets its own price after merge.
   juice.priceCents = 1000

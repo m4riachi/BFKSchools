@@ -3,14 +3,14 @@ import type { HttpContext } from '@adonisjs/core/http'
 import School from '#models/school'
 import SchoolSettingsService from '#services/school_settings_service'
 import { schoolSettingsFormValidator } from '#validators/school_settings'
-import { centsToInput } from '#support/money'
 
 /**
  * Admin settings screen (brief §6): school days, school year, default
  * publish/deadline times, reminder delay, parent edit rules, auto-assign,
- * allergy rule, Moroccan holidays, notification emails, billing and the
- * supplement limit. **Admins of the school only** (`SchoolPolicy.updateSettings`):
- * managers get 403 on both the page and the update (decision: settings are
+ * allergy rule, Moroccan holidays, notification emails and the supplement
+ * limit (no billing settings: D31, subscription meals are free).
+ * **Admins of the school only** (`SchoolPolicy.updateSettings`): managers get
+ * 403 on both the page and the update (decision: settings are
  * not shown read-only to managers — brief §3 "manager: back-office except
  * users and settings").
  */
@@ -28,7 +28,6 @@ export default class SettingsController {
   async show(ctx: HttpContext) {
     const school = await this.school(ctx)
     const values = this.settings.get(school)
-    const locale = ctx.i18n.locale === 'en' ? 'en' : 'fr'
     return ctx.inertia.render('admin/settings', {
       school: {
         name: school.name,
@@ -51,13 +50,10 @@ export default class SettingsController {
         allergy_rule: values.allergy_rule,
         generate_moroccan_holidays: values.generate_moroccan_holidays,
         email_notifications: { ...values.email_notifications },
-        billing_mode: values.billing_mode,
         subscription_required_for_main_meal: values.subscription_required_for_main_meal,
         supplement_max_quantity: values.supplement_max_quantity,
         label_grid: { ...values.label_grid },
       },
-      monthlyFee:
-        values.monthly_fee_cents === null ? '' : centsToInput(values.monthly_fee_cents, locale),
     })
   }
 

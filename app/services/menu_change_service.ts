@@ -325,7 +325,10 @@ export default class MenuChangeService {
         // D25: the parent keeps the original price when the new meal costs
         // more; a cheaper meal lowers it.
         const price = Math.min(Number(removed.unit_price_cents), targetMeal.priceCents)
-        if (price < Number(removed.unit_price_cents)) priceLowered = true
+        // D31: subscription meals are free — no price to announce for them.
+        if (price < Number(removed.unit_price_cents) && targetMeal.type === 'supplement') {
+          priceLowered = true
+        }
         if (existingTarget) {
           // One line per item: merged portions keep the lower of both prices.
           const quantity = Math.min(existingTarget.quantity + removed.quantity, supplementMax)

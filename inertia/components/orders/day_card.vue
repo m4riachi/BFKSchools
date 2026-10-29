@@ -200,7 +200,7 @@ function mainNote(option: OptionView) {
         <span class="text-[13px] text-ink-3">{{ note }}</span>
       </div>
       <span
-        v-if="day.state !== 'holiday' && day.state !== 'not_published'"
+        v-if="day.state !== 'holiday' && day.state !== 'not_published' && day.totalCents > 0"
         class="tabular text-[15px] font-extrabold whitespace-nowrap"
       >
         {{ day.total }}
@@ -334,7 +334,7 @@ function mainNote(option: OptionView) {
               >
                 {{ option.name }}
               </span>
-              <span class="tabular text-sm font-extrabold whitespace-nowrap">{{
+              <span v-if="option.price" class="tabular text-sm font-extrabold whitespace-nowrap">{{
                 option.price
               }}</span>
             </div>
@@ -392,7 +392,7 @@ function mainNote(option: OptionView) {
           <div class="flex min-w-0 flex-col gap-0.5">
             <span class="text-sm font-bold">{{ option.name }}</span>
             <span class="text-xs text-ink-3">
-              {{ option.price
+              {{ option.price ?? t('meals.included')
               }}<template v-if="option.allergens.length">
                 · {{ option.allergens.map((a) => a.label).join(', ') }}</template
               >
