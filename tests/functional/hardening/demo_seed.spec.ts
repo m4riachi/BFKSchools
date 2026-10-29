@@ -13,6 +13,12 @@ import DemoFamiliesSeeder from '#database/seeders/06_demo_families_seeder'
 import DemoMenusOrdersSeeder from '#database/seeders/07_demo_menus_orders_seeder'
 import ace from '@adonisjs/core/services/ace'
 import BfkSeed from '#commands/bfk_seed'
+import { DEMO_ACTIVE_SUPPLEMENTS, DEMO_MEALS } from '#database/seeders/05_demo_catalog_seeder'
+import { BFK_MENU_PHOTO_DIR, loadBfkMenu, seedBfkMenu } from '#database/catalog/bfk_menu'
+import app from '@adonisjs/core/services/app'
+import { existsSync } from 'node:fs'
+import { MEAL_CATEGORIES } from '#enums/meals'
+import { MEAL_DESCRIPTION_MAX_LENGTH, MEAL_NAME_MAX_LENGTH } from '#config/meals'
 import { DEMO_PASSWORD, assertDemoSeeding, demoPassword } from '#database/demo/support'
 
 const SEEDERS = [
@@ -83,8 +89,18 @@ test.group('Hardening | demo seeders', (group) => {
       Number((await db.from('users').where('role', 'parent').count('* as t').first()).t),
       15
     )
-    assert.isAtLeast(first.meals, 20)
-    assert.isAtLeast(first.meal_photos, first.meals)
+    // 13 trays + the BFK menu; only DEMO_ACTIVE_SUPPLEMENTS are active supplements.
+    assert.equal(first.meals, DEMO_MEALS.length + (await loadBfkMenu()).length)
+    assert.equal(first.meal_photos, first.meals)
+    const activeSupplements = await db
+      .from('meals')
+      .where({ type: 'supplement', is_active: true })
+      .orderBy('external_recipe_ref')
+      .select('external_recipe_ref')
+    assert.deepEqual(
+      activeSupplements.map((row) => row.external_recipe_ref),
+      Object.keys(DEMO_ACTIVE_SUPPLEMENTS).sort()
+    )
     assert.isAtLeast(first.children, 15)
     assert.isAtLeast(first.holidays, 5)
     assert.isAtLeast(first.weekly_menus, 2)
@@ -154,12 +170,27 @@ test.group('Hardening | demo seeders', (group) => {
     assert.deepEqual(users, [{ email: 'chef@bfk.ma', role: 'admin' }])
     const first = await counts()
     assert.equal(first.schools, 1)
-    assert.equal(first.meals, 22)
-    assert.isAtLeast(first.meal_photos, 22)
+    const menu = await loadBfkMenu()
+    assert.equal(first.meals, DEMO_MEALS.length + menu.length)
+    assert.equal(first.meal_photos, first.meals)
     assert.equal(first.children, 0)
     assert.equal(first.weekly_menus, 0)
     const creator = await db.from('meals').distinct('created_by')
     assert.equal(creator.length, 1)
+    // Trays active and free; the restaurant menu inactive supplements, no demo supplement.
+    const byKind = await db
+      .from('meals')
+      .select('type', 'is_active')
+      .count('* as total')
+      .groupBy('type', 'is_active')
+      .orderBy('type')
+    assert.deepEqual(
+      byKind.map((row) => ({ ...row, total: Number(row.total) })),
+      [
+        { type: 'subscription', is_active: true, total: DEMO_MEALS.length },
+        { type: 'supplement', is_active: false, total: menu.length },
+      ]
+    )
 
     const login = await client
       .post('/login')
@@ -167,7 +198,7 @@ test.group('Hardening | demo seeders', (group) => {
       .withCsrfToken()
       .redirects(0)
     assert.notEqual(login.header('location'), '/login')
-  }).timeout(60_000)
+  }).timeout(180_000)
 
   test('bfk:seed catalog needs --email; unknown profiles are refused', async ({ assert }) => {
     for (const argv of [['catalog'], ['everything']]) {
@@ -202,5 +233,49 @@ test.group('Hardening | demo seeders', (group) => {
       if (saved.ALLOW_DEMO_SEED === undefined) delete process.env.ALLOW_DEMO_SEED
       if (saved.BFK_DEMO_PASSWORD === undefined) delete process.env.BFK_DEMO_PASSWORD
     }
+  })
+
+  test('BFK menu data: valid names, categories, prices and a photo for each item', async ({
+    assert,
+  }) => {
+    const menu = await loadBfkMenu()
+    assert.isAbove(menu.length, 100)
+    assert.equal(new Set(menu.map((item) => item.ref)).size, menu.length)
+    for (const item of menu) {
+      assert.match(item.ref, /^bfk-site:\d+$/)
+      for (const name of [item.nameFr, item.nameEn]) {
+        assert.isTrue(name.trim().length > 0 && name.length <= MEAL_NAME_MAX_LENGTH, item.ref)
+      }
+      for (const text of [item.descriptionFr, item.descriptionEn]) {
+        assert.isTrue(text === null || text.length <= MEAL_DESCRIPTION_MAX_LENGTH, item.ref)
+      }
+      assert.include(MEAL_CATEGORIES, item.category)
+      assert.isTrue(Number.isInteger(item.priceCents) && item.priceCents > 0, item.ref)
+      assert.isTrue(existsSync(app.makePath(BFK_MENU_PHOTO_DIR, item.photo)), item.photo)
+    }
+  })
+
+  test('BFK menu seeding: inactive supplements, staff edits kept, deleted ones not recreated', async ({
+    assert,
+  }) => {
+    const items = (await loadBfkMenu()).slice(0, 3)
+    await seedBfkMenu(items)
+    const meals = await db.from('meals').orderBy('id')
+    assert.lengthOf(meals, 3)
+    for (const meal of meals) {
+      assert.equal(meal.type, 'supplement')
+      assert.isFalse(meal.is_active)
+      assert.deepEqual(meal.allergens, [])
+    }
+    assert.equal(Number((await db.from('meal_photos').count('* as t').first()).t), 3)
+
+    await db.from('meals').where('id', meals[0].id).update({ price_cents: 1234, is_active: true })
+    await db.from('meals').where('id', meals[1].id).update({ deleted_at: new Date() })
+    await seedBfkMenu(items)
+    const again = await db.from('meals').orderBy('id')
+    assert.lengthOf(again, 3)
+    assert.equal(again[0].price_cents, 1234)
+    assert.isTrue(again[0].is_active)
+    assert.equal(Number((await db.from('meal_photos').count('* as t').first()).t), 3)
   })
 })

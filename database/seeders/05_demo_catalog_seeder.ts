@@ -7,9 +7,9 @@ import User from '#models/user'
 import MealPhotoService from '#services/meal_photo_service'
 import type { AllergenCode } from '#enums/allergens'
 import type { MealCategory, MealType } from '#enums/meals'
-import { placeholderPhoto } from '#database/demo/support'
+import { loadBfkMenu, seedBfkMenu } from '#database/catalog/bfk_menu'
 
-type DemoMeal = {
+export type DemoMeal = {
   nameFr: string
   nameEn: string
   descriptionFr: string
@@ -20,12 +20,8 @@ type DemoMeal = {
   priceCents: number
   allergens: AllergenCode[]
   tags: string[]
-  /**
-   * A real BFK tray photo in `database/demo/meal_photos/` (re-encoded JPEG,
-   * ≤ 1200 px, no EXIF), or the colors (background, food, garnish) of a
-   * generated placeholder.
-   */
-  photo: { file: string } | { colors: [string, string, string]; count?: number }
+  /** A real BFK tray photo in `database/demo/meal_photos/` (re-encoded JPEG, ≤ 1200 px, no EXIF). */
+  photo: { file: string }
 }
 
 /** Folder of the real meal photos used by the demo catalog. */
@@ -34,9 +30,9 @@ export const DEMO_PHOTO_DIR = 'database/demo/meal_photos'
 const tray = (file: string) => ({ file: `${file}.jpg` })
 
 /**
- * 22 meals: 13 subscription trays (BFK's real lunches, real photos, free —
- * D31) and 9 supplements (starters, desserts, drinks, snacks) with prices
- * and generated placeholder photos. Allergens are a conservative guess from
+ * The 13 subscription trays (BFK's real lunches, real photos, free — D31).
+ * Supplements come from BFK's restaurant menu (D32, `database/catalog/`).
+ * Allergens are a conservative guess from
  * the tray contents (EU-14) — BFK must confirm them. The water, juice and
  * dairy drinks seen on the photos are part of the tray, not separate items.
  */
@@ -217,168 +213,74 @@ export const DEMO_MEALS: DemoMeal[] = [
     tags: ['halal'],
     photo: tray('13-emince-poulet-riz'),
   },
-  {
-    nameFr: 'Salade marocaine',
-    nameEn: 'Moroccan salad',
-    descriptionFr: 'Tomates, concombre, oignon, persil.',
-    descriptionEn: 'Tomatoes, cucumber, onion, parsley.',
-    type: 'supplement',
-    category: 'starter',
-    priceCents: 1200,
-    allergens: [],
-    tags: ['vegan', 'gluten_free'],
-    photo: { colors: ['#e9f1df', '#d64535', '#5b9c45'] },
-  },
-  {
-    nameFr: 'Harira',
-    nameEn: 'Harira soup',
-    descriptionFr: 'Soupe de tomates, lentilles, pois chiches et vermicelles.',
-    descriptionEn: 'Tomato, lentil, chickpea and vermicelli soup.',
-    type: 'supplement',
-    category: 'starter',
-    priceCents: 1400,
-    allergens: ['gluten', 'celery'],
-    tags: ['halal'],
-    photo: { colors: ['#f2e2cf', '#b9552d', '#e6c27a'] },
-  },
-  {
-    nameFr: 'Salade de fruits',
-    nameEn: 'Fruit salad',
-    descriptionFr: 'Fruits frais de saison.',
-    descriptionEn: 'Fresh seasonal fruit.',
-    type: 'supplement',
-    category: 'dessert',
-    priceCents: 1000,
-    allergens: [],
-    tags: ['vegan', 'gluten_free'],
-    photo: { colors: ['#fbeee0', '#f2a53a', '#d23f55'] },
-  },
-  {
-    nameFr: 'Yaourt nature',
-    nameEn: 'Plain yogurt',
-    descriptionFr: 'Yaourt au lait entier.',
-    descriptionEn: 'Whole-milk yogurt.',
-    type: 'supplement',
-    category: 'dessert',
-    priceCents: 600,
-    allergens: ['milk'],
-    tags: ['vegetarian', 'gluten_free'],
-    photo: { colors: ['#eaf0f4', '#fbfbf8', '#c9d7e2'] },
-  },
-  {
-    nameFr: 'Mousse au chocolat',
-    nameEn: 'Chocolate mousse',
-    descriptionFr: 'Chocolat noir, œufs, crème.',
-    descriptionEn: 'Dark chocolate, eggs, cream.',
-    type: 'supplement',
-    category: 'dessert',
-    priceCents: 1300,
-    allergens: ['eggs', 'milk'],
-    tags: ['vegetarian'],
-    photo: { colors: ['#f3e9df', '#5a3220', '#8a5a3a'] },
-  },
-  {
-    nameFr: 'Jus d’orange frais',
-    nameEn: 'Fresh orange juice',
-    descriptionFr: 'Oranges pressées le matin même.',
-    descriptionEn: 'Oranges squeezed the same morning.',
-    type: 'supplement',
-    category: 'drink',
-    priceCents: 900,
-    allergens: [],
-    tags: ['vegan', 'gluten_free'],
-    photo: { colors: ['#fdf1d8', '#f39a1e', '#f7c65a'] },
-  },
-  {
-    nameFr: 'Eau minérale',
-    nameEn: 'Mineral water',
-    descriptionFr: 'Bouteille de 50 cl.',
-    descriptionEn: '50 cl bottle.',
-    type: 'supplement',
-    category: 'drink',
-    priceCents: 500,
-    allergens: [],
-    tags: ['vegan', 'gluten_free'],
-    photo: { colors: ['#e3f0f7', '#9fd0ea', '#e8f6fd'] },
-  },
-  {
-    nameFr: 'Msemen au miel',
-    nameEn: 'Msemen with honey',
-    descriptionFr: 'Crêpe feuilletée marocaine, miel.',
-    descriptionEn: 'Flaky Moroccan flatbread with honey.',
-    type: 'supplement',
-    category: 'snack',
-    priceCents: 800,
-    allergens: ['gluten'],
-    tags: ['vegetarian'],
-    photo: { colors: ['#f6ead2', '#d8a54a', '#b77a22'] },
-  },
-  {
-    nameFr: 'Cookie aux pépites de chocolat',
-    nameEn: 'Chocolate chip cookie',
-    descriptionFr: 'Cookie maison.',
-    descriptionEn: 'Homemade cookie.',
-    type: 'supplement',
-    category: 'snack',
-    priceCents: 700,
-    allergens: ['gluten', 'eggs', 'milk', 'soybeans'],
-    tags: ['vegetarian'],
-    photo: { colors: ['#f4e8d6', '#c48a4a', '#4a2b1a'] },
-  },
 ]
 
 /**
- * The meal catalog: FR/EN names, EU allergens
- * and tags; subscription trays are free (D31), supplements are priced.
+ * Demo only: BFK menu items made active (with their allergens, EU-14) so the
+ * demo menus offer supplements. `bfk:seed catalog` leaves all of them inactive.
+ */
+export const DEMO_ACTIVE_SUPPLEMENTS: Record<string, AllergenCode[]> = {
+  'bfk-site:44': [], // Sidi Ali 50 cl
+  'bfk-site:36': [], // Orange juice
+  'bfk-site:38': [], // Apple juice
+  'bfk-site:176': [], // Salade marocaine
+  'bfk-site:133': ['gluten', 'celery'], // Harira
+  'bfk-site:118': ['gluten'], // M'smen
+  'bfk-site:89': ['gluten', 'eggs', 'milk'], // Churros
+  'bfk-site:289': ['eggs', 'milk'], // Crème brûlée
+}
+
+/**
+ * The demo meal catalog (development/test): the 13 trays, BFK's restaurant
+ * menu (inactive supplements, D32) and the DEMO_ACTIVE_SUPPLEMENTS turned on.
  * Every photo goes through the real upload pipeline (MealPhotoService:
  * sniffing, sharp → WebP + thumbnail, Drive disk from DRIVE_DISK).
- * Idempotent: meals are matched by French name; photos are added only to
- * meals that have none.
- *
- * It creates no account, so it may run in production: `node ace db:seed`
- * skips it there (environment list), `node ace bfk:seed catalog` runs it.
+ * Idempotent: trays are matched by French name, menu items by
+ * `external_recipe_ref`; photos are added only to meals that have none.
  */
 export default class DemoCatalogSeeder extends BaseSeeder {
   static environment = ['development', 'test']
 
   async run() {
-    const admin = await User.query().where('role', 'admin').orderBy('id').first()
-    const photos = await app.container.make(MealPhotoService)
-
-    for (const demo of DEMO_MEALS) {
-      const { photo, ...data } = demo
-      let meal = await Meal.query()
+    await seedDemoMeals(DEMO_MEALS)
+    await seedBfkMenu(await loadBfkMenu())
+    for (const [ref, allergens] of Object.entries(DEMO_ACTIVE_SUPPLEMENTS)) {
+      await Meal.query()
+        .where('external_recipe_ref', ref)
         .whereNull('deleted_at')
-        .whereRaw('lower(name_fr) = ?', [data.nameFr.toLowerCase()])
-        .first()
-      if (!meal) {
-        meal = await Meal.create({
-          ...data,
-          isActive: true,
-          externalRecipeRef: null,
-          createdBy: admin?.id ?? null,
-          deletedAt: null,
-        })
-      }
-      const hasPhoto = await MealPhoto.query().where('meal_id', meal.id).first()
-      if (hasPhoto) continue
-      const files = []
-      if ('file' in photo) {
-        files.push({
-          clientName: photo.file,
-          data: await readFile(app.makePath(DEMO_PHOTO_DIR, photo.file)),
-          tooLarge: false,
-        })
-      } else {
-        for (let variant = 0; variant < (photo.count ?? 1); variant++) {
-          files.push({
-            clientName: `demo-${meal.id}-${variant + 1}.png`,
-            data: await placeholderPhoto(photo.colors, variant),
-            tooLarge: false,
-          })
-        }
-      }
-      await photos.upload(meal, files)
+        .update({ is_active: true, allergens })
     }
+  }
+}
+
+/** The trays (no account involved): also used by `node ace bfk:seed catalog`. */
+export async function seedDemoMeals(meals: DemoMeal[]) {
+  const admin = await User.query().where('role', 'admin').orderBy('id').first()
+  const photos = await app.container.make(MealPhotoService)
+
+  for (const demo of meals) {
+    const { photo, ...data } = demo
+    let meal = await Meal.query()
+      .whereNull('deleted_at')
+      .whereRaw('lower(name_fr) = ?', [data.nameFr.toLowerCase()])
+      .first()
+    if (!meal) {
+      meal = await Meal.create({
+        ...data,
+        isActive: true,
+        externalRecipeRef: null,
+        createdBy: admin?.id ?? null,
+        deletedAt: null,
+      })
+    }
+    const hasPhoto = await MealPhoto.query().where('meal_id', meal.id).first()
+    if (hasPhoto) continue
+    await photos.upload(meal, [
+      {
+        clientName: photo.file,
+        data: await readFile(app.makePath(DEMO_PHOTO_DIR, photo.file)),
+        tooLarge: false,
+      },
+    ])
   }
 }

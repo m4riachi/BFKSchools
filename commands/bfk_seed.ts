@@ -6,14 +6,16 @@ import type { CommandOptions } from '@adonisjs/core/types/ace'
  * whose demo seeders are development/test only):
  *
  *   node ace bfk:seed catalog --email=chef@bfk.ma --name="Chef BFK"
- *     The school, the meal catalog (13 trays with their real photos +
- *     supplements) and one staff account (admin by default). The password
+ *     The school, the 13 subscription trays (real photos), BFK's restaurant
+ *     menu as 181 INACTIVE supplements with photos (staff review allergens
+ *     and prices, then activate) and one staff account (admin by default). The password
  *     is asked, or read from BFK_NEW_PASSWORD (same rules as
  *     users:create-staff). An existing account is left untouched.
  *
  *   node ace bfk:seed demo
  *     Everything `db:seed` creates in development: accounts for every
- *     role, families, holidays, catalog, menus and orders. In production
+ *     role, families, holidays, catalog (the BFK menu with 8 items active
+ *     for the demo menus), menus and orders. In production
  *     it needs ALLOW_DEMO_SEED=true and BFK_DEMO_PASSWORD (the password of
  *     every demo account; the development one is public).
  *
@@ -62,9 +64,20 @@ export default class BfkSeed extends BaseCommand {
       if (command.exitCode) return this.fail('The account was not created (see above)')
     }
 
-    await this.runSeeders(['05_demo_catalog_seeder'])
-    const meals = await db.from('meals').whereNull('deleted_at').count('* as total').first()
-    this.logger.success(`Catalog ready: ${meals.total} meals. Sign in with ${email}.`)
+    const { DEMO_MEALS, seedDemoMeals } = await import('#database/seeders/05_demo_catalog_seeder')
+    const { loadBfkMenu, seedBfkMenu } = await import('#database/catalog/bfk_menu')
+    await seedDemoMeals(DEMO_MEALS)
+    this.logger.info('seeded the subscription trays')
+    await seedBfkMenu(await loadBfkMenu())
+    this.logger.info('seeded the BFK menu (inactive supplements)')
+    const meals = await db
+      .from('meals')
+      .whereNull('deleted_at')
+      .select(db.raw('count(*) FILTER (WHERE is_active) AS active'), db.raw('count(*) AS total'))
+      .first()
+    this.logger.success(
+      `Catalog ready: ${meals.total} meals (${meals.active} active). Sign in with ${email}.`
+    )
   }
 
   protected async seedDemo() {

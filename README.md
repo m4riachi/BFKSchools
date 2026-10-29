@@ -73,10 +73,11 @@ Reset everything: `node ace migration:fresh --seed`.
 `NODE_ENV=production`) creates, idempotently:
 
 - Britech School with its current school year and default settings;
-- 22 meals: 13 subscription trays (BFK's real lunches, free — D31 — with the real photos in
-  `database/demo/meal_photos/`) and 9 priced supplements (placeholder photos generated locally
-  with sharp); FR/EN names and descriptions, EU allergens (a conservative guess — to be confirmed
-  by BFK). Every photo goes through the normal upload pipeline (WebP + thumbnail);
+- 194 meals: 13 subscription trays (BFK's real lunches, free — D31 — with the real photos in
+  `database/demo/meal_photos/`) and BFK's restaurant menu, 181 supplements with photos
+  (`database/catalog/`, D32): inactive, except 8 turned on for the demo menus (water, juices,
+  harira, msemen…); FR/EN names and descriptions, EU allergens (a conservative guess — to be
+  confirmed by BFK). Every photo goes through the normal upload pipeline (WebP + thumbnail);
 - 15 parents with 1–3 children each (mixed grades and classes, some allergies and dietary notes,
   some children without a subscription, one inactive child); most parents can sign in, two are
   only invited, one was never invited;
@@ -206,8 +207,8 @@ node bin/server.js                # behind nginx/Apache, under PM2/systemd/Passe
 
 | Profile | What it creates | Needs |
 |---|---|---|
-| `catalog` | Britech School, the 22 meals with their photos (13 real trays + 9 supplements), **one** staff account | `--email=… [--name="…"] [--role=admin\|manager\|kitchen]`; password asked, or `BFK_NEW_PASSWORD` |
-| `demo` | everything `db:seed` creates in development (all roles, families, holidays, menus, orders) | in production: `ALLOW_DEMO_SEED=true` **and** `BFK_DEMO_PASSWORD` (10+ chars, letter + digit) — the password of every demo account, so the public `Demo1234!` is never used online |
+| `catalog` | Britech School, the 13 real trays (active, photos), BFK's restaurant menu as 181 **inactive** supplements with photos (D32: set allergens + price, then activate), **one** staff account | `--email=… [--name="…"] [--role=admin\|manager\|kitchen]`; password asked, or `BFK_NEW_PASSWORD` |
+| `demo` | everything `db:seed` creates in development (all roles, families, holidays, menus, orders; the BFK menu with 8 items active) | in production: `ALLOW_DEMO_SEED=true` **and** `BFK_DEMO_PASSWORD` (10+ chars, letter + digit) — the password of every demo account, so the public `Demo1234!` is never used online |
 
 Remove `ALLOW_DEMO_SEED` once the test deployment is seeded. To go from demo data to real data,
 start from an empty database (`migration:fresh` on a test deployment only), then `bfk:seed catalog`.

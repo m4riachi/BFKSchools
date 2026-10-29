@@ -19,7 +19,7 @@ import OrderRuleException from '#exceptions/order_rule_exception'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { addDays, atLocalTime, isoWeekday, weekStart, type IsoDate } from '#support/dates'
 import type { StoredSchoolSettings } from '#types/school_settings'
-import { DEMO_MEALS } from '#database/seeders/05_demo_catalog_seeder'
+import { DEMO_ACTIVE_SUPPLEMENTS, DEMO_MEALS } from '#database/seeders/05_demo_catalog_seeder'
 import { assertDemoSeeding, atInstant, pick, randomFor, say } from '#database/demo/support'
 
 /**
@@ -99,9 +99,13 @@ export default class DemoMenusOrdersSeeder extends BaseSeeder {
     const meals = await Meal.query()
       .whereNull('deleted_at')
       .where('is_active', true)
-      .whereIn(
-        'name_fr',
-        DEMO_MEALS.map((meal) => meal.nameFr)
+      .where((query) =>
+        query
+          .whereIn(
+            'name_fr',
+            DEMO_MEALS.map((meal) => meal.nameFr)
+          )
+          .orWhereIn('external_recipe_ref', Object.keys(DEMO_ACTIVE_SUPPLEMENTS))
       )
       .orderBy('id')
     const mains = meals.filter((meal) => meal.type === 'subscription')

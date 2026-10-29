@@ -393,7 +393,7 @@ addresses (masked as `s***@domain`). Cron output goes to `logs/cron.log` (rotate
 - [ ] Nightly `pg_dump`, **encrypted** off-site copy, and one restore tested.
 - [ ] `npm audit --omit=dev` reviewed (known: 2 low, `deepmerge` via `@adonisjs/lucid`, see STACK_NOTES).
 - [ ] No demo data on the real site: `db:seed` skips the demo seeders in production; `bfk:seed demo` is for a test deployment only (`ALLOW_DEMO_SEED=true` + `BFK_DEMO_PASSWORD`) — remove `ALLOW_DEMO_SEED` afterwards. Never copy a development database.
-- [ ] Meal catalog: `node ace bfk:seed catalog --email=…` loads the 22 meals with photos (+ one account) if you want to start from it.
+- [ ] Meal catalog: `node ace bfk:seed catalog --email=…` loads the 13 trays and the BFK restaurant menu (181 inactive supplements, D32) with photos (+ one account) if you want to start from it.
 
 ## Railway (PaaS)
 

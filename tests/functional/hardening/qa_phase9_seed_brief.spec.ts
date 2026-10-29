@@ -26,7 +26,7 @@ test.group('Phase 9 QA | demo seed vs brief §7', (group) => {
     }
   })
 
-  test('1 school, ~20 meals with photos, 15 parents with 1-3 children, 2 weeks of menus, a demo account per role', async ({
+  test('1 school, 13 trays + active supplements with photos, 15 parents with 1-3 children, 2 weeks of menus, a demo account per role', async ({
     assert,
   }) => {
     for (const Seeder of [
@@ -42,9 +42,16 @@ test.group('Phase 9 QA | demo seed vs brief §7', (group) => {
     }
     assert.equal(Number((await db.from('schools').count('* as t').first()).t), 1)
 
-    const meals = Number((await db.from('meals').count('* as t').first()).t)
-    assert.isAtLeast(meals, 18)
-    assert.isAtMost(meals, 25)
+    // ~13 subscription trays + a few active supplements (the rest of the BFK menu is inactive, D32).
+    const offered = await db
+      .from('meals')
+      .where('is_active', true)
+      .select('type')
+      .count('* as t')
+      .groupBy('type')
+    const byType = Object.fromEntries(offered.map((row) => [row.type, Number(row.t)]))
+    assert.isAtLeast(byType.subscription, 10)
+    assert.isAtLeast(byType.supplement, 4)
     const withoutPhoto = await db
       .from('meals')
       .whereNotExists((q) => q.from('meal_photos').whereRaw('meal_photos.meal_id = meals.id'))
