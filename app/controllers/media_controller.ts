@@ -39,7 +39,9 @@ export default class MediaController {
         contentDisposition: 'inline',
       })
       response.header('Cache-Control', 'private, max-age=300')
-      return response.redirect(url)
+      // clearQs: the app forwards query strings on redirects (config/app.ts);
+      // appending our `?v=` to a signed URL breaks its signature (403).
+      return response.redirect().clearQs().toPath(url)
     }
 
     if (!(await disk.exists(key))) return response.notFound('Not found')

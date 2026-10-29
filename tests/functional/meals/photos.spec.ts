@@ -7,6 +7,7 @@ import sharp from 'sharp'
 import drive from '@adonisjs/drive/services/main'
 import testUtils from '@adonisjs/core/services/test_utils'
 import MealPhoto from '#models/meal_photo'
+import MealPhotoService from '#services/meal_photo_service'
 import type User from '#models/user'
 import type Meal from '#models/meal'
 import { MEAL_PHOTOS } from '#config/meals'
@@ -459,6 +460,35 @@ test.group('Meal photos | serving', (group) => {
     return async () => {
       drive.restore('fs')
       await truncate()
+    }
+  })
+
+  test('s3 photos redirect to the signed URL exactly as signed (no ?v= appended)', async ({
+    client,
+    assert,
+  }) => {
+    const manager = await createStaff('manager')
+    const meal = await createMeal()
+    await upload(client, manager, meal, [{ data: await pngBuffer(), filename: 'a.png' }])
+    const [photo] = await photosOf(meal.id)
+    await db.from('meal_photos').where('id', photo.id).update({ disk: 's3' })
+
+    const signed = 'https://bucket.example/meals/1/a_thumb.webp?X-Amz-Signature=abc&x-id=GetObject'
+    const original = MealPhotoService.prototype.disk
+    MealPhotoService.prototype.disk = function (name: string) {
+      return name === 's3'
+        ? ({ getSignedUrl: async () => signed } as unknown as ReturnType<typeof original>)
+        : original.call(this, name)
+    }
+    try {
+      const response = await client
+        .get(`/media/meal-photos/${photo.id}/thumb?v=0123456789ab`)
+        .loginAs(manager)
+        .redirects(0)
+      response.assertStatus(302)
+      assert.equal(response.header('location'), signed)
+    } finally {
+      MealPhotoService.prototype.disk = original
     }
   })
 
