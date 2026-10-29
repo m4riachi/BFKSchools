@@ -27,3 +27,6 @@ yarn-error.log
 
 # Platform specific
 .DS_Store
+
+# Original meal photos from BFK (seeder uses resized copies in database/demo/meal_photos)
+/repas/
