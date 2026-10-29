@@ -32,8 +32,7 @@ const nav: NavItem[] = [
       <div class="flex gap-1.5">
         <LocaleSwitcher compact />
         <Link
-          href="/logout"
-          method="post"
+          route="session.destroy"
           as="button"
           class="flex size-11 items-center justify-center rounded-xl border border-line bg-surface text-ink-2 hover:bg-subtle"
           :aria-label="t('app.logout')"

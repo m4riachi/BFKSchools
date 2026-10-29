@@ -5,7 +5,10 @@
  * - pass `href` to render an Inertia link
  */
 import { computed } from 'vue'
-import { Link } from '@adonisjs/inertia/vue'
+// Upstream Link on purpose: the @adonisjs/inertia/vue wrapper drops `method` in href mode,
+// so a non-GET button link would become a GET (docs/STACK_NOTES.md).
+// eslint-disable-next-line @adonisjs/prefer-adonisjs-inertia-link
+import { Link } from '@inertiajs/vue3'
 
 const props = withDefaults(
   defineProps<{

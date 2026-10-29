@@ -126,8 +126,7 @@ const itemClass = (item: NavItem) => [
           <span class="text-xs text-ink-4">{{ t(`roles.${user.role}`) }}</span>
         </div>
         <Link
-          href="/logout"
-          method="post"
+          route="session.destroy"
           as="button"
           class="flex size-10 items-center justify-center rounded-[10px] text-ink-3 hover:bg-subtle hover:text-ink"
           :aria-label="t('app.logout')"
