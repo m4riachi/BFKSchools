@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import i18nManager from '@adonisjs/i18n/services/main'
 import type Meal from '#models/meal'
 import type MealPhoto from '#models/meal_photo'
@@ -34,14 +35,19 @@ export const MEAL_PHOTO_PATH = '/media/meal-photos'
 /**
  * Browser URLs of a photo. They never contain the storage key: the route
  * looks the photo up by id, checks the session, then streams the file (fs)
- * or redirects to a short-lived signed URL (s3). A photo's files never
- * change (new upload = new row), so the URLs can be cached.
+ * or redirects to a short-lived signed URL (s3). The route caches for a year
+ * (`immutable`), so `?v=` carries a short hash of the storage key: a photo id
+ * reused for another file (e.g. after `migration:fresh`) gets a new URL.
  */
-export function mealPhotoUrl(photo: Pick<MealPhoto, 'id'>, variant: MealPhotoVariant): string {
-  return `${MEAL_PHOTO_PATH}/${photo.id}/${variant}`
+export function mealPhotoUrl(
+  photo: Pick<MealPhoto, 'id' | 'path'>,
+  variant: MealPhotoVariant
+): string {
+  const version = createHash('sha256').update(photo.path).digest('hex').slice(0, 12)
+  return `${MEAL_PHOTO_PATH}/${photo.id}/${variant}?v=${version}`
 }
 
-export function mealPhotoUrls(photo: Pick<MealPhoto, 'id'>) {
+export function mealPhotoUrls(photo: Pick<MealPhoto, 'id' | 'path'>) {
   return { url: mealPhotoUrl(photo, 'full'), thumbUrl: mealPhotoUrl(photo, 'thumb') }
 }
 

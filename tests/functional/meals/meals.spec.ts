@@ -425,7 +425,10 @@ test.group('Meals | list and filters', (group) => {
       const props = response.inertiaProps as {
         meals: Array<{ cover: { thumbUrl: string } | null; photosCount: number }>
       }
-      assert.equal(props.meals[0].cover?.thumbUrl, `/media/meal-photos/${photo.id}/thumb`)
+      assert.match(
+        props.meals[0].cover?.thumbUrl ?? '',
+        new RegExp(`^/media/meal-photos/${photo.id}/thumb\\?v=[0-9a-f]{12}$`)
+      )
       assert.equal(props.meals[0].photosCount, 1)
       assert.notInclude(JSON.stringify(response.inertiaProps), 'meals/')
     } finally {

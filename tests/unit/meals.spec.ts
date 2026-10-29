@@ -33,7 +33,7 @@ function meal(attributes: Partial<Meal>) {
 
 function photo(id: number, position: number, isCover = false) {
   const instance = new MealPhoto()
-  instance.merge({ id, position, isCover })
+  instance.merge({ id, position, isCover, path: `meals/1/${id}.webp` })
   return instance
 }
 
@@ -49,10 +49,18 @@ test.group('Meals | display helpers', () => {
   })
 
   test('photo URLs use the id, never the storage key', ({ assert }) => {
-    assert.deepEqual(mealPhotoUrls({ id: 7 }), {
-      url: '/media/meal-photos/7/full',
-      thumbUrl: '/media/meal-photos/7/thumb',
-    })
+    const key = 'meals/3/0b8f2c1e-5d1a-4c8e-9f3a-1c2d3e4f5a6b.webp'
+    const urls = mealPhotoUrls({ id: 7, path: key })
+    assert.match(urls.url, /^\/media\/meal-photos\/7\/full\?v=[0-9a-f]{12}$/)
+    assert.match(urls.thumbUrl, /^\/media\/meal-photos\/7\/thumb\?v=[0-9a-f]{12}$/)
+    assert.notInclude(urls.url, '0b8f2c1e')
+  })
+
+  test('a photo id reused for another file gets a new URL (immutable cache)', ({ assert }) => {
+    const before = mealPhotoUrls({ id: 1, path: 'meals/1/old.webp' })
+    const after = mealPhotoUrls({ id: 1, path: 'meals/1/new.webp' })
+    assert.notEqual(before.thumbUrl, after.thumbUrl)
+    assert.equal(mealPhotoUrls({ id: 1, path: 'meals/1/new.webp' }).thumbUrl, after.thumbUrl)
   })
 
   test('cover: the flagged photo, else the first by position', ({ assert }) => {
@@ -61,7 +69,7 @@ test.group('Meals | display helpers', () => {
     assert.isNull(coverPhoto([]))
     const m = meal({})
     m.$setRelated('photos', [photo(9, 0, true)])
-    assert.deepEqual(mealCoverUrls(m), mealPhotoUrls({ id: 9 }))
+    assert.deepEqual(mealCoverUrls(m), mealPhotoUrls(photo(9, 0, true)))
   })
 
   test('allergen labels in French and English', ({ assert }) => {
