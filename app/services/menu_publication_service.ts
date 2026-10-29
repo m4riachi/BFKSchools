@@ -12,6 +12,7 @@ import NotificationService from '#services/notification_service'
 import OutboxService from '#services/outbox_service'
 import SchoolSettingsService from '#services/school_settings_service'
 import { isAppLocale } from '#enums/locales'
+import { emailAllowedByPrefs } from '#enums/menus'
 
 /** Recipients loaded per query (keyset pagination). */
 const RECIPIENT_BATCH = 500
@@ -196,8 +197,10 @@ export default class MenuPublicationService {
         trx
       )
       if (!sendEmails) continue
-      // Per-parent opt-out (Phase 8 UI): notification_prefs.menu_published = false.
-      const optedIn = batch.filter((user) => user.notification_prefs?.menu_published !== false)
+      // Per-parent opt-out (notification center): notification_prefs.menu_published = false.
+      const optedIn = batch.filter((user) =>
+        emailAllowedByPrefs('menu_published', user.notification_prefs)
+      )
       const result = await this.outbox.enqueueMany(
         optedIn.map((user) => ({
           userId: user.id,

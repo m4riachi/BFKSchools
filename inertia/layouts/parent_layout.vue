@@ -3,6 +3,8 @@
  * Parent portal layout — mobile-first: compact header with the language
  * switcher, content column, and a bottom navigation bar.
  */
+import { computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import BrandMark from '~/components/ui/brand_mark.vue'
 import NavIcon from '~/components/ui/nav_icon.vue'
@@ -13,11 +15,16 @@ import { useActiveNav, type NavItem } from '~/composables/use_nav'
 
 const { t } = useI18n()
 const { isActive } = useActiveNav()
+const page = usePage()
+
+/** Unread notifications (shared by the server for parents on every page). */
+const unread = computed(() => Number(page.props.unreadNotifications ?? 0))
+const bellActive = computed(() => page.url.split('?')[0] === '/notifications')
 
 const nav: NavItem[] = [
   { labelKey: 'nav.parent_orders', href: '/', icon: 'meals', exact: true },
   { labelKey: 'nav.parent_history', href: '/orders/history', icon: 'history' },
-  { labelKey: 'nav.parent_statements', href: null, icon: 'statements' },
+  { labelKey: 'nav.parent_statements', href: '/statements', icon: 'statements' },
   { labelKey: 'nav.parent_account', href: null, icon: 'account' },
 ]
 </script>
@@ -31,6 +38,22 @@ const nav: NavItem[] = [
       </div>
       <div class="flex gap-1.5">
         <LocaleSwitcher compact />
+        <Link
+          href="/notifications"
+          class="relative flex size-11 items-center justify-center rounded-xl border text-ink-2 hover:bg-subtle"
+          :class="bellActive ? 'border-brand bg-brand-soft' : 'border-line bg-surface'"
+          :aria-label="t('notifications.bell', { count: unread })"
+          :title="t('notifications.bell', { count: unread })"
+          :aria-current="bellActive ? 'page' : undefined"
+        >
+          <NavIcon name="bell" />
+          <span
+            v-if="unread > 0"
+            aria-hidden="true"
+            class="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-surface bg-accent px-1 text-[10px] leading-none font-extrabold text-white"
+            >{{ unread > 99 ? '99+' : unread }}</span
+          >
+        </Link>
         <Link
           route="session.destroy"
           as="button"

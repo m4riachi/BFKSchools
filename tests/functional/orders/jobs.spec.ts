@@ -292,7 +292,10 @@ test.group('Orders jobs | holiday cancellations', (group) => {
       const sent = mails.sent().filter((m) => m instanceof OrderNoticeMail) as OrderNoticeMail[]
       assert.lengthOf(sent, 2)
       assert.isTrue(sent.every((m) => /férié/.test(m.content.subject)))
-      assert.isTrue(sent.some((m) => m.content.paragraphs.length === 4)) // intro + 2 days + note
+      // Phase 8 layout: intro paragraph, the days as a list, the "not charged" note.
+      assert.isTrue(
+        sent.some((m) => m.content.items?.length === 2 && m.content.notes?.length === 1)
+      )
     } finally {
       mail.restore()
     }

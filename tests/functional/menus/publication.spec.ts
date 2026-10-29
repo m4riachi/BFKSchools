@@ -317,11 +317,8 @@ test.group('Menus | menu published email', (group) => {
     const menu = await scheduledMenu(school, manager)
     const user = { email: 'parent@example.test', fullName: 'Salma Idrissi' }
     const expected = {
-      fr: [
-        'Le menu de la semaine du 23 novembre au 27 novembre 2026 est en ligne',
-        'dimanche 22 novembre',
-      ],
-      en: ['The menu for November 23 – November 27, 2026 is online', 'Sunday, November 22'],
+      fr: ['Le menu de la semaine du 23 au 27 novembre 2026 est en ligne', 'dimanche 22 novembre'],
+      en: ['The menu for November 23 – 27, 2026 is online', 'Sunday, November 22'],
     } as const
     for (const locale of ['fr', 'en'] as const) {
       const message = new MenuPublishedMail(user, locale, menu, school)

@@ -8,7 +8,8 @@
     "intro": "BFK created an account for you to choose your children's school lunches at Britech School every week. Choose your password to activate your access.",
     "action": "Choose my password",
     "expiry": "This link is valid until {date} and can only be used once.",
-    "ignore": "If you were not expecting this email, you can ignore it."
+    "ignore": "If you were not expecting this email, you can ignore it.",
+    "footer": "You receive this email because BFK created an account for your family at Britech School."
   },
   "password_reset": {
     "subject": "Reset your password",
@@ -16,7 +17,8 @@
     "intro": "We received a request to reset the password of your BFK School Meals account.",
     "action": "Choose a new password",
     "expiry": "This link is valid until {date} and can only be used once.",
-    "ignore": "If you did not ask for this, ignore this email: your password will not change."
+    "ignore": "If you did not ask for this, ignore this email: your password will not change.",
+    "footer": "You receive this email following a request made on BFK School Meals."
   },
   "menu_published": {
     "subject": "The menu for {week} is online",
@@ -61,7 +63,8 @@
     "intro": "BFK changed {child}'s order for {date}.",
     "cancelled": "This day now has no meal.",
     "line": "{meal} × {qty}",
-    "action": "See my orders"
+    "action": "See my orders",
+    "now": "The meals for that day are now:"
   },
   "order_bulk_child_inactive": {
     "subject": "{count, plural, one {# meal cancelled: registration deactivated} other {# meals cancelled: registration deactivated}}",
@@ -74,5 +77,10 @@
     "title": "{count, plural, one {One day changed} other {# days changed}}",
     "action": "See my orders",
     "intro": "{count, plural, one {The subscription no longer covers this day: the main meal was removed:} other {The subscription no longer covers these # days: the main meal was removed:}}"
+  },
+  "layout": {
+    "partner": "BFK Resto × Britech School",
+    "preferences": "Manage my email preferences",
+    "automatic": "Automatic email, please do not reply"
   }
 }

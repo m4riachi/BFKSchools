@@ -16,5 +16,6 @@
     "body": "Please try again in a moment. If the problem persists, contact BFK."
   },
   "back_home": "Back to home",
-  "action_failed": "The action could not be completed. Please try again or contact BFK."
+  "action_failed": "The action could not be completed. Please try again or contact BFK.",
+  "busy": "The server is already preparing several documents. Please try again in a few seconds."
 }

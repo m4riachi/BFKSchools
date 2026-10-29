@@ -1,0 +1,69 @@
+{
+  "title": "Notifications",
+  "unread": "{count, plural, =0 {Aucune notification non lue} one {# non lue} other {# non lues}}",
+  "bell": "{count, plural, =0 {Notifications} one {Notifications, # non lue} other {Notifications, # non lues}}",
+  "mark_read": "Marquer comme lue",
+  "mark_all_read": "Tout marquer comme lu",
+  "open": "Ouvrir",
+  "new": "Nouveau",
+  "empty": "Aucune notification pour le moment.",
+  "empty_body": "Vous serez prévenu ici de la publication des menus, des rappels et des changements sur vos commandes.",
+  "line": "{child} — {date}",
+  "meal_line": "{child} — {date} : {meal}",
+  "more": "{count, plural, one {et # autre} other {et # autres}}",
+  "flash": {
+    "all_read": "Toutes les notifications sont marquées comme lues.",
+    "preferences_saved": "Vos préférences sont enregistrées."
+  },
+  "preferences": {
+    "title": "E-mails",
+    "intro": "Choisissez les e-mails que vous souhaitez recevoir. Les notifications restent visibles ici dans tous les cas.",
+    "menu_published": "Publication du menu de la semaine",
+    "deadline_reminder": "Rappel avant la clôture des commandes",
+    "always": "Les annulations et les changements apportés à vos commandes (jour férié, changement de menu, modification par BFK) sont toujours envoyés par e-mail.",
+    "school_off": "Ces e-mails sont actuellement désactivés par l’école.",
+    "save": "Enregistrer"
+  },
+  "types": {
+    "menu_published": {
+      "title": "Menu de la semaine publié",
+      "body": "Le menu de la semaine {week} est en ligne : choisissez les repas de vos enfants."
+    },
+    "deadline_reminder": {
+      "title": "Rappel : choix des repas",
+      "body": "Certains jours de la semaine {week} n’ont pas encore de choix pour vos enfants."
+    },
+    "auto_assigned": {
+      "title": "Plat par défaut attribué",
+      "body": "{count, plural, one {Sans choix à la clôture, le plat par défaut a été attribué pour un jour :} other {Sans choix à la clôture, le plat par défaut a été attribué pour # jours :}}"
+    },
+    "holiday_cancellation": {
+      "title": "Repas annulés (jour férié)",
+      "body": "{count, plural, one {Un repas a été annulé car l’école sera fermée. Il ne sera pas facturé.} other {# repas ont été annulés car l’école sera fermée. Ils ne seront pas facturés.}}"
+    },
+    "order_changed_by_staff": {
+      "title": "Commande modifiée par BFK",
+      "body": "BFK a modifié la commande de {child} pour le {date}.",
+      "body_cancelled": "BFK a annulé le repas de {child} pour le {date}."
+    },
+    "order_bulk_child_inactive": {
+      "title": "{count, plural, one {Un repas annulé} other {# repas annulés}}",
+      "body": "{count, plural, one {Ce repas a été annulé car l’inscription de votre enfant a été désactivée.} other {Ces repas ont été annulés car l’inscription de votre enfant a été désactivée.}}"
+    },
+    "order_bulk_subscription_ended": {
+      "title": "Abonnement terminé",
+      "body": "{count, plural, one {L’abonnement ne couvre plus ce jour : le plat principal a été retiré.} other {L’abonnement ne couvre plus ces # jours : le plat principal a été retiré.}}"
+    },
+    "menu_change": {
+      "title": "Changement de menu le {date}",
+      "item_removed": "Le plat « {meal} » du {date} a été retiré du menu.",
+      "switched": "Remplacé par « {meal} » pour : {children}.",
+      "cancelled": "Retiré de la commande de : {children}.",
+      "default_changed": "Le plat par défaut du {date} est maintenant « {meal} ».",
+      "price_lowered": "Le prix de ce repas passe à {price}."
+    },
+    "unknown": {
+      "title": "Notification"
+    }
+  }
+}

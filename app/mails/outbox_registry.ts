@@ -12,7 +12,8 @@ import i18nManager from '@adonisjs/i18n/services/main'
 import app from '@adonisjs/core/services/app'
 import Clock from '#services/clock'
 import { isSafeEmail } from '#validators/rules'
-import { isIsoDate } from '#support/dates'
+import { isIsoDate, weekStart as mondayOf } from '#support/dates'
+import { emailAllowedByPrefs, isOptOutableEmail } from '#enums/menus'
 import { isAppLocale, type AppLocale } from '#enums/locales'
 import { mealName } from '#support/meal_display'
 import { formatMad } from '#support/money'
@@ -56,19 +57,34 @@ function notice(
   recipient: Recipient,
   key: string,
   values: Record<string, string | number>,
-  paragraphs: string[]
+  body: { paragraphs: string[]; items?: string[]; notes?: string[]; path: string }
 ): OrderNoticeContent {
   const i18n = i18nManager.locale(localeOf(row))
   return {
     subject: i18n.t(`emails.${key}.subject`, values),
     title: i18n.t(`emails.${key}.title`, values),
     greeting: i18n.t('emails.greeting', { name: recipient.fullName }),
-    paragraphs,
-    action: i18n.t(`emails.${key}.action`),
-    fallback: i18n.t('emails.link_fallback'),
-    signature: i18n.t('emails.signature'),
+    paragraphs: body.paragraphs,
+    items: body.items ?? [],
+    notes: body.notes ?? [],
+    action: { label: i18n.t(`emails.${key}.action`), path: body.path },
     footer: i18n.t('emails.order_footer'),
+    // Only reminders can be turned off by the parent (OPT_OUTABLE_EMAILS).
+    preferences: isOptOutableEmail(row.mailKey),
   }
+}
+
+/** "Adam — lundi 23 novembre" lines of a notice. */
+function orderLines(orders: { childName: string; date: string }[], locale: AppLocale) {
+  const i18n = i18nManager.locale(locale)
+  return orders.map((order) =>
+    i18n.t('emails.order_line', { child: order.childName, date: dayLabel(order.date, locale) })
+  )
+}
+
+/** Parent portal on the week of `date`. */
+function weekPath(date: string) {
+  return `/?week=${mondayOf(date)}`
 }
 
 /** Orders among `ids` that belong to the recipient's children, with the child's first name. */
@@ -81,9 +97,10 @@ async function ordersOfRecipient(recipientId: number, ids: number[]) {
     .where('c.parent_id', recipientId)
     .orderBy('mo.date')
     .orderBy('c.first_name')
-    .select('mo.id', 'mo.date', 'mo.status', 'mo.cancel_reason', 'c.first_name')
+    .select('mo.id', 'mo.date', 'mo.status', 'mo.cancel_reason', 'c.id as child_id', 'c.first_name')
   return rows.map((row) => ({
     id: Number(row.id),
+    childId: Number(row.child_id),
     date: String(row.date),
     status: String(row.status),
     cancelReason: row.cancel_reason as string | null,
@@ -118,11 +135,20 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
       mail: new OrderNoticeMail(
         recipient,
         locale,
-        notice(row, recipient, 'deadline_reminder', { week }, [
-          i18n.t('emails.deadline_reminder.intro', { week }),
-          i18n.t('emails.deadline_reminder.deadline', { date: deadline }),
-          i18n.t('emails.deadline_reminder.default_note'),
-        ])
+        notice(
+          row,
+          recipient,
+          'deadline_reminder',
+          { week },
+          {
+            paragraphs: [
+              i18n.t('emails.deadline_reminder.intro', { week }),
+              i18n.t('emails.deadline_reminder.deadline', { date: deadline }),
+            ],
+            notes: [i18n.t('emails.deadline_reminder.default_note')],
+            path: `/?week=${menu.weekStart}`,
+          }
+        )
       ),
     }
   },
@@ -139,16 +165,18 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
       mail: new OrderNoticeMail(
         recipient,
         locale,
-        notice(row, recipient, 'holiday_cancellation', { count: orders.length }, [
-          i18n.t('emails.holiday_cancellation.intro', { count: orders.length }),
-          ...orders.map((order) =>
-            i18n.t('emails.order_line', {
-              child: order.childName,
-              date: dayLabel(order.date, locale),
-            })
-          ),
-          i18n.t('emails.holiday_cancellation.not_charged'),
-        ])
+        notice(
+          row,
+          recipient,
+          'holiday_cancellation',
+          { count: orders.length },
+          {
+            paragraphs: [i18n.t('emails.holiday_cancellation.intro', { count: orders.length })],
+            items: orderLines(orders, locale),
+            notes: [i18n.t('emails.holiday_cancellation.not_charged')],
+            path: '/orders/history',
+          }
+        )
       ),
     }
   },
@@ -167,10 +195,19 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
         mail: new OrderNoticeMail(
           recipient,
           locale,
-          notice(row, recipient, 'menu_change', { date }, [
-            i18n.t('emails.menu_change.default_changed', { date, meal }),
-            i18n.t('emails.menu_change.default_note'),
-          ])
+          notice(
+            row,
+            recipient,
+            'menu_change',
+            { date },
+            {
+              paragraphs: [
+                i18n.t('emails.menu_change.default_changed', { date, meal }),
+                i18n.t('emails.menu_change.default_note'),
+              ],
+              path: weekPath(day),
+            }
+          )
         ),
       }
     }
@@ -193,12 +230,21 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
         })
       )
     }
-    paragraphs.push(i18n.t('emails.menu_change.check'))
     return {
       mail: new OrderNoticeMail(
         recipient,
         locale,
-        notice(row, recipient, 'menu_change', { date }, paragraphs)
+        notice(
+          row,
+          recipient,
+          'menu_change',
+          { date },
+          {
+            paragraphs,
+            notes: [i18n.t('emails.menu_change.check')],
+            path: weekPath(day),
+          }
+        )
       ),
     }
   },
@@ -217,15 +263,17 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
         mail: new OrderNoticeMail(
           recipient,
           locale,
-          notice(row, recipient, key, { count }, [
-            i18n.t(`emails.${key}.intro`, { count }),
-            ...orders.map((order) =>
-              i18n.t('emails.order_line', {
-                child: order.childName,
-                date: dayLabel(order.date, locale),
-              })
-            ),
-          ])
+          notice(
+            row,
+            recipient,
+            key,
+            { count },
+            {
+              paragraphs: [i18n.t(`emails.${key}.intro`, { count })],
+              items: orderLines(orders, locale),
+              path: '/orders/history',
+            }
+          )
         ),
       }
     }
@@ -240,17 +288,19 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
     const paragraphs = [
       i18n.t('emails.order_changed_by_staff.intro', { child: order.childName, date }),
     ]
+    const items: string[] = []
     const after = audit.after
     if (!after || after.status === 'cancelled') {
       paragraphs.push(i18n.t('emails.order_changed_by_staff.cancelled'))
     } else {
+      paragraphs.push(i18n.t('emails.order_changed_by_staff.now'))
       const meals = await Meal.query().whereIn(
         'id',
         after.items.map((item) => item.mealId)
       )
       const names = new Map(meals.map((meal) => [meal.id, mealName(meal, locale)]))
       for (const item of after.items) {
-        paragraphs.push(
+        items.push(
           i18n.t('emails.order_changed_by_staff.line', {
             meal: names.get(item.mealId) ?? '',
             qty: item.qty,
@@ -267,7 +317,7 @@ export const OUTBOX_MAILS: Record<string, Builder> = {
           recipient,
           'order_changed_by_staff',
           { child: order.childName, date },
-          paragraphs
+          { paragraphs, items, path: `/?child=${order.childId}&week=${mondayOf(audit.date)}` }
         )
       ),
     }
@@ -287,6 +337,8 @@ export async function buildOutboxMail(row: OutboundEmail): Promise<Built> {
   if (row.userId !== null) {
     const user = await User.find(row.userId)
     if (!user || !user.isActive) return { skip: 'recipient_inactive' }
+    // The parent may have turned this email off after it was queued.
+    if (!emailAllowedByPrefs(row.mailKey, user.notificationPrefs)) return { skip: 'opted_out' }
     recipient = user
   } else {
     recipient = { id: 0, email: row.toEmail, fullName: '', isActive: true }

@@ -1,21 +1,18 @@
-import { BaseMail } from '@adonisjs/mail'
 import i18nManager from '@adonisjs/i18n/services/main'
-import env from '#start/env'
 import type User from '#models/user'
 import type WeeklyMenu from '#models/weekly_menu'
 import type School from '#models/school'
-import { isSafeEmail } from '#validators/rules'
 import type { AppLocale } from '#enums/locales'
+import { appUrl, BrandedMail, type EmailContent } from '#mails/branded_mail'
 import { instantLabel, schoolZone, weekRangeLabel } from '#support/menu_display'
 
 /**
  * "The menu of the week is published" (brief §5.4), queued in the outbox by
- * MenuPublicationService and sent by `mail:dispatch`. Sent in the parent's
- * language to their stored, validated address (bare string, no display
- * name — see app/validators/rules.ts). The final template set (shared layout)
- * is polished in Phase 8.
+ * MenuPublicationService and sent by `mail:dispatch`. The button opens the
+ * parent portal on that week. Parents can turn this email off (notification
+ * center); the footer links to the preferences.
  */
-export default class MenuPublishedMail extends BaseMail {
+export default class MenuPublishedMail extends BrandedMail {
   constructor(
     readonly user: Pick<User, 'email' | 'fullName'>,
     readonly locale: AppLocale,
@@ -25,39 +22,39 @@ export default class MenuPublishedMail extends BaseMail {
     super()
   }
 
-  get url() {
-    return new URL('/', env.get('APP_URL')).toString()
+  get recipientEmail() {
+    return this.user.email
   }
 
-  prepare() {
-    if (!isSafeEmail(this.user.email)) {
-      throw new Error('Refusing to send to an address that is not a plain validated email')
-    }
+  get mailLocale() {
+    return this.locale
+  }
+
+  get path() {
+    return `/?week=${this.menu.weekStart}`
+  }
+
+  get url() {
+    return appUrl(this.path)
+  }
+
+  buildContent(): EmailContent {
     const i18n = i18nManager.locale(this.locale)
     const week = weekRangeLabel(this.menu.weekStart, this.school.schoolDays, this.locale)
     const deadline = this.menu.orderDeadlineAt
       ? instantLabel(this.menu.orderDeadlineAt, this.locale, schoolZone(this.school))
       : null
-
-    const data = {
-      locale: this.locale,
+    return {
+      subject: i18n.t('emails.menu_published.subject', { week }),
       title: i18n.t('emails.menu_published.title', { week }),
       greeting: i18n.t('emails.greeting', { name: this.user.fullName }),
       paragraphs: [
         i18n.t('emails.menu_published.intro', { week }),
         ...(deadline ? [i18n.t('emails.menu_published.deadline', { date: deadline })] : []),
       ],
-      url: this.url,
-      action: i18n.t('emails.menu_published.action'),
-      fallback: i18n.t('emails.link_fallback'),
-      signature: i18n.t('emails.signature'),
+      action: { label: i18n.t('emails.menu_published.action'), path: this.path },
       footer: i18n.t('emails.menu_published.footer'),
+      preferences: true,
     }
-
-    this.message
-      .to(this.user.email)
-      .subject(i18n.t('emails.menu_published.subject', { week }))
-      .htmlView('emails/notification_html', data)
-      .textView('emails/notification_text', data)
   }
 }

@@ -1,6 +1,8 @@
 {
   "title": "Menus de la semaine",
   "week_range": "du {start} au {end}",
+  "week_range_same_month": "du {startDay} au {endDay} {month} {year}",
+  "week_range_single": "le {date}",
   "week_title": "Semaine du {start} au {end}",
   "status": {
     "none": "Non créé",

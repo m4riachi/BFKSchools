@@ -3,10 +3,11 @@ import type { NextFn } from '@adonisjs/core/types/http'
 import UserTransformer from '#transformers/user_transformer'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import { clientTranslations } from '#support/client_translations'
+import NotificationCenterService from '#services/notification_center_service'
 import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from '#enums/locales'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
-  share(ctx: HttpContext) {
+  async share(ctx: HttpContext) {
     /**
      * A page may be rendered before the router middleware ran (e.g. a 404),
      * so every HttpContext property is treated as optional here.
@@ -21,7 +22,17 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       user: ctx.inertia.always(user ? UserTransformer.transform(user) : undefined),
       locale: ctx.inertia.always(locale),
       messages: ctx.inertia.always(clientTranslations(locale)),
+      /** Parents: unread notifications for the header bell (null for staff / guests). */
+      unreadNotifications: ctx.inertia.always(await this.unreadNotifications(ctx)),
     }
+  }
+
+  /** Unread count of a parent (one indexed count query); null for staff and guests. */
+  protected async unreadNotifications(ctx: HttpContext): Promise<number | null> {
+    const user = (ctx as Partial<HttpContext>).auth?.user
+    if (!user || user.role !== 'parent' || !user.isActive) return null
+    const center = await ctx.containerResolver.make(NotificationCenterService)
+    return center.unreadCount(user.id)
   }
 
   flash(ctx: HttpContext) {

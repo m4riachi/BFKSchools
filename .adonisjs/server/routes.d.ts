@@ -20,6 +20,13 @@ export type ScannedRoutes = {
     'parent.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.absent': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.apply_all': { paramsTuple: [ParamValue]; params: {'date': ParamValue} }
+    'parent.statements': { paramsTuple?: []; params?: {} }
+    'parent.statements.pdf': { paramsTuple?: []; params?: {} }
+    'parent.notifications': { paramsTuple?: []; params?: {} }
+    'parent.notifications.read_all': { paramsTuple?: []; params?: {} }
+    'parent.notifications.preferences': { paramsTuple?: []; params?: {} }
+    'parent.notifications.read': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'parent.notifications.open': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
@@ -83,6 +90,10 @@ export type ScannedRoutes = {
     'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
     'admin.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.statements.index': { paramsTuple?: []; params?: {} }
+    'admin.statements.export': { paramsTuple?: []; params?: {} }
+    'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.update': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
@@ -107,6 +118,9 @@ export type ScannedRoutes = {
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
+    'parent.statements': { paramsTuple?: []; params?: {} }
+    'parent.statements.pdf': { paramsTuple?: []; params?: {} }
+    'parent.notifications': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
@@ -125,6 +139,10 @@ export type ScannedRoutes = {
     'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.orders.index': { paramsTuple?: []; params?: {} }
     'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
+    'admin.statements.index': { paramsTuple?: []; params?: {} }
+    'admin.statements.export': { paramsTuple?: []; params?: {} }
+    'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
@@ -146,6 +164,9 @@ export type ScannedRoutes = {
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
+    'parent.statements': { paramsTuple?: []; params?: {} }
+    'parent.statements.pdf': { paramsTuple?: []; params?: {} }
+    'parent.notifications': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
@@ -164,6 +185,10 @@ export type ScannedRoutes = {
     'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.orders.index': { paramsTuple?: []; params?: {} }
     'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
+    'admin.statements.index': { paramsTuple?: []; params?: {} }
+    'admin.statements.export': { paramsTuple?: []; params?: {} }
+    'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
@@ -187,6 +212,9 @@ export type ScannedRoutes = {
     'parent.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.absent': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.apply_all': { paramsTuple: [ParamValue]; params: {'date': ParamValue} }
+    'parent.notifications.read_all': { paramsTuple?: []; params?: {} }
+    'parent.notifications.read': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'parent.notifications.open': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.store': { paramsTuple?: []; params?: {} }
     'admin.parents.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -218,6 +246,7 @@ export type ScannedRoutes = {
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
+    'parent.notifications.preferences': { paramsTuple?: []; params?: {} }
     'admin.parents.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.children.update': { paramsTuple: [ParamValue,ParamValue]; params: {'parentId': ParamValue,'id': ParamValue} }
     'admin.children.subscriptions.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'parentId': ParamValue,'childId': ParamValue,'id': ParamValue} }

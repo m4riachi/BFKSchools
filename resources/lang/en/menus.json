@@ -1,6 +1,8 @@
 {
   "title": "Weekly menus",
   "week_range": "{start} – {end}",
+  "week_range_same_month": "{month} {startDay} – {endDay}, {year}",
+  "week_range_single": "{date}",
   "week_title": "Week of {start} – {end}",
   "status": {
     "none": "Not created",

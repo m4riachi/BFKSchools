@@ -33,6 +33,15 @@ export interface ApiDefinition {
       absent: typeof routes['parent.orders.absent']
       applyAll: typeof routes['parent.orders.apply_all']
     }
+    statements: typeof routes['parent.statements'] & {
+      pdf: typeof routes['parent.statements.pdf']
+    }
+    notifications: typeof routes['parent.notifications'] & {
+      readAll: typeof routes['parent.notifications.read_all']
+      preferences: typeof routes['parent.notifications.preferences']
+      read: typeof routes['parent.notifications.read']
+      open: typeof routes['parent.notifications.open']
+    }
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']
@@ -123,6 +132,12 @@ export interface ApiDefinition {
       child: typeof routes['admin.orders.child']
       save: typeof routes['admin.orders.save']
       cancel: typeof routes['admin.orders.cancel']
+    }
+    statements: {
+      index: typeof routes['admin.statements.index']
+      export: typeof routes['admin.statements.export']
+      show: typeof routes['admin.statements.show']
+      pdf: typeof routes['admin.statements.pdf']
     }
     settings: {
       show: typeof routes['admin.settings.show']

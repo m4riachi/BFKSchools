@@ -15,6 +15,7 @@ export const controllers = {
     Orders: () => import('#controllers/admin/orders_controller'),
     Parents: () => import('#controllers/admin/parents_controller'),
     Settings: () => import('#controllers/admin/settings_controller'),
+    Statements: () => import('#controllers/admin/statements_controller'),
     Subscriptions: () => import('#controllers/admin/subscriptions_controller'),
     WeeklyMenus: () => import('#controllers/admin/weekly_menus_controller'),
   },
@@ -30,7 +31,9 @@ export const controllers = {
   Locale: () => import('#controllers/locale_controller'),
   Media: () => import('#controllers/media_controller'),
   parent: {
+    Notifications: () => import('#controllers/parent/notifications_controller'),
     Orders: () => import('#controllers/parent/orders_controller'),
+    Statements: () => import('#controllers/parent/statements_controller'),
   },
   Session: () => import('#controllers/session_controller'),
 }

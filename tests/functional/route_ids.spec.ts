@@ -21,6 +21,8 @@ test.group('Routes | out-of-range numeric ids', (group) => {
         `/admin/parents/1/children/${big}/edit`,
         `/admin/meals/${big}/edit`,
         `/kitchen/meals/${big}`,
+        `/admin/statements/parents/${big}`,
+        `/admin/statements/parents/${big}/pdf`,
         `/media/meal-photos/${big}/full`,
         `/media/meal-photos/${big}/thumb`,
       ]) {

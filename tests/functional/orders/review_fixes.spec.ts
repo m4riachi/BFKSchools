@@ -199,7 +199,9 @@ test.group('Review M3 | deactivations and subscription changes', (group) => {
     const [email] = await OutboundEmail.query().where('mail_key', 'order_changed_by_staff')
     const built = await buildOutboxMail(email)
     assert.instanceOf((built as { mail: OrderNoticeMail }).mail, OrderNoticeMail)
-    assert.lengthOf((built as { mail: OrderNoticeMail }).mail.content.paragraphs, 4)
+    // Phase 8 layout: the intro, then the 3 days as a list.
+    assert.lengthOf((built as { mail: OrderNoticeMail }).mail.content.paragraphs, 1)
+    assert.lengthOf((built as { mail: OrderNoticeMail }).mail.content.items ?? [], 3)
     // N5: own subject with the count (not one child's name and an empty date).
     assert.equal(
       (built as { mail: OrderNoticeMail }).mail.content.subject,

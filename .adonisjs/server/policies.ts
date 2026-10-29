@@ -7,5 +7,6 @@ export const policies = {
   ParentPolicy: () => import('#policies/parent_policy'),
   ReportPolicy: () => import('#policies/report_policy'),
   SchoolPolicy: () => import('#policies/school_policy'),
+  StatementPolicy: () => import('#policies/statement_policy'),
 }
 

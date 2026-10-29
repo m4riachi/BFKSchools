@@ -299,7 +299,7 @@ Default `publish_at` for a week = `(week_start − 7 days + (publish_weekday −
 | role | text | NN | `'parent'` | CHECK `IN ('admin','manager','kitchen','parent')` |
 | locale | text | NN | `'fr'` | CHECK `IN ('fr','en')` |
 | is_active | boolean | NN | `true` | inactive users can't log in; checked on every request |
-| notification_prefs | jsonb | NN | `'{}'` | per-parent opt-outs, e.g. `{ "deadline_reminder": false }`. Cancellations can't be turned off (Phase 8). |
+| notification_prefs | jsonb | NN | `'{}'` | per-parent email opt-outs, e.g. `{ "deadline_reminder": false }`. Phase 8: only `menu_published` and `deadline_reminder` can be turned off (`OPT_OUTABLE_EMAILS`); holiday cancellations, menu changes and staff changes are always emailed (other stored keys are ignored). Checked when queuing **and** when sending. In-app notifications are never turned off. |
 | invited_at | timestamptz | null | | last invitation sent (list column "invited") |
 | last_login_at | timestamptz | null | | "never logged in" filter |
 | credentials_version | integer | NN | `0` | **added in Phase 2** (security follow-up). Bumped by the User model when the password or email changes or the account is deactivated; sessions (`auth_cv` session key) and the `bfk_kd` known-device cookie are bound to it. |
@@ -497,7 +497,7 @@ Constraints / indexes:
 UNIQUE `(menu_template_id, weekday, meal_id)`; partial UNIQUE `(menu_template_id, weekday) WHERE is_default`.
 Phase 5 additions: CHECK `max_quantity IS NULL OR max_quantity > 0`, `position >= 0`; `menu_templates`: CHECK name 1–120 chars (trimmed), description ≤ 500; index `(meal_id)` on items.
 
-### notifications — Phase 5 (table + `notify()`), UI in Phase 8
+### notifications — Phase 5 (table + `notify()`), UI in Phase 8 (`/notifications`, `NotificationCenterService`: text rendered at display time with `safeTranslate`, every query filtered on the reader's `user_id`)
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
 | id | integer identity | NN | | |
@@ -605,6 +605,6 @@ Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` 
 Phase 7 runs `EXPLAIN ANALYZE` on the production/dashboard queries with seed data and adds indexes by migration if needed. **Done (Phase 7): no index needed** — every report query uses the indexes above plus `meal_order_items` UNIQUE `(meal_order_id, menu_item_id)` (timings in STACK_NOTES, Phase 7 surprises).
 
 ## 4. Derived (no table)
-- **Statements**: computed from `meal_order_items` of `active` orders (sum of `line_total_cents`), grouped by child / month. If `billing_mode = 'monthly_fee'`, subscription lines are replaced by `monthly_fee_cents` per subscribed child-month (proration rule to confirm if D1 changes).
+- **Statements** (Phase 8, `StatementService`): computed from `meal_order_items` of `active` orders dated inside the calendar month (sum of the snapshot `line_total_cents`, by PostgreSQL), grouped by child: subscription meals = count + one line per snapshot unit price (a mid-month price change gives two lines), supplements = one line per (meal, snapshot unit price); child total = both; family total = sum of the children. Cancelled days (any reason) and days without an order contribute 0. Months: 2000-01 up to the month after today; the current month (and later) is **provisional**, earlier months are final (D23). **`billing_mode = 'monthly_fee'`** (D1 alternative, not active): for a child with an `active` subscription overlapping the month (`start_date <= last day` and `end_date` null or `>= first day`), the subscription meals of the month are replaced by **one `monthly_fee_cents` line, not prorated** (a subscription starting on the 20th pays the full fee; a subscribed child with no meal that month still pays it); the meals stay listed as "included". Children without such a subscription keep per-meal amounts. Supplements are always per item. An unset fee counts as 0 and the pages flag it. No payment tracking (D11).
 - **Invitation status**: see `user_tokens`.
 - **Day state for the parent** (open/locked/holiday/not published): computed by `OrderWindowService`, never stored.

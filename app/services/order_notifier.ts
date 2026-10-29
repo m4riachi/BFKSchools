@@ -7,6 +7,7 @@ import SchoolSettingsService from '#services/school_settings_service'
 import type { NotificationType } from '#enums/menus'
 import type { EmailNotificationSettings } from '#types/school_settings'
 import { isAppLocale } from '#enums/locales'
+import { emailAllowedByPrefs } from '#enums/menus'
 
 export type NoticeRecipient = {
   id: number
@@ -25,17 +26,6 @@ export type Notice = {
   /** Unique per user for the notification; per email globally (suffixed with the user id). */
   dedupeKey: string
 }
-
-/**
- * Notification types that change or cancel a family's orders: the parent
- * cannot opt out of their emails (docs/ERD.md §users.notification_prefs);
- * the school's `email_notifications` switches still apply.
- */
-const NOT_OPT_OUTABLE = new Set<NotificationType>([
-  'holiday_cancellation',
-  'menu_change',
-  'order_changed_by_staff',
-])
 
 /**
  * Tells parents what happened to their orders (Phase 6): an in-app
@@ -81,10 +71,9 @@ export default class OrderNotifier {
       return { notifications, emails: 0 }
     }
     const inputs: OutboxEmailInput[] = active
-      .filter(
-        (notice) =>
-          NOT_OPT_OUTABLE.has(type) || notice.recipient.notificationPrefs?.[type] !== false
-      )
+      // Only reminders can be turned off by the parent (OPT_OUTABLE_EMAILS);
+      // cancellations and order changes are always emailed.
+      .filter((notice) => emailAllowedByPrefs(type, notice.recipient.notificationPrefs))
       .map((notice) => ({
         userId: notice.recipient.id,
         toEmail: notice.recipient.email,

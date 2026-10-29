@@ -1,0 +1,38 @@
+{{--
+  Plain-text part of every email. Plain text is not HTML: values are
+  written as they are ({{{ }}}), there is no markup to inject into.
+--}}
+{{{ brand }}} — {{{ partner }}}
+
+{{{ title }}}
+
+{{{ greeting }}}
+
+@each(paragraph in paragraphs)
+{{{ paragraph }}}
+
+@end
+@each(item in items)
+- {{{ item }}}
+@end
+@if(items.length)
+
+@end
+@if(url)
+{{{ action }}}: {{{ url }}}
+
+@end
+@each(note in notes)
+{{{ note }}}
+
+@end
+{{{ signature }}}
+
+--
+@if(footer)
+{{{ footer }}}
+@end
+@if(preferencesUrl)
+{{{ preferencesLabel }}}: {{{ preferencesUrl }}}
+@end
+{{{ automatic }}}

@@ -22,15 +22,44 @@ function formatDay(iso: IsoDate, locale: string, options: Intl.DateTimeFormatOpt
   return DateTime.fromISO(iso, { zone: 'utc' }).setLocale(locale).toLocaleString(options)
 }
 
-/** "du 23 au 27 novembre 2026" / "November 23 – 27, 2026". */
+/**
+ * Week label without repeating what both ends share:
+ * - same month: "du 23 au 27 novembre 2026" / "November 23 – 27, 2026";
+ * - same year: "du 30 novembre au 4 décembre 2026" / "November 30 – December 4, 2026";
+ * - otherwise: "du 28 décembre 2026 au 1 janvier 2027" / "December 28, 2026 – January 1, 2027".
+ */
 export function weekRangeLabel(
   weekStart: IsoDate,
   schoolDays: readonly number[],
   locale: string
 ): string {
   const { first, last } = weekBounds(weekStart, schoolDays)
-  return i18nManager.locale(locale).t('menus.week_range', {
-    start: formatDay(first, locale, { day: 'numeric', month: 'long' }),
+  const i18n = i18nManager.locale(locale)
+  const start = DateTime.fromISO(first, { zone: 'utc' }).setLocale(locale)
+  const end = DateTime.fromISO(last, { zone: 'utc' }).setLocale(locale)
+  if (first === last) {
+    return i18n.t('menus.week_range_single', {
+      date: formatDay(first, locale, { day: 'numeric', month: 'long', year: 'numeric' }),
+    })
+  }
+  if (start.year === end.year && start.month === end.month) {
+    return i18n.t('menus.week_range_same_month', {
+      // Strings, not numbers: ICU would group digits ("2,026").
+      startDay: String(start.day),
+      endDay: String(end.day),
+      month: start.toFormat('LLLL'),
+      year: String(start.year),
+    })
+  }
+  const sameYear = start.year === end.year
+  return i18n.t('menus.week_range', {
+    start: formatDay(
+      first,
+      locale,
+      sameYear
+        ? { day: 'numeric', month: 'long' }
+        : { day: 'numeric', month: 'long', year: 'numeric' }
+    ),
     end: formatDay(last, locale, { day: 'numeric', month: 'long', year: 'numeric' }),
   })
 }

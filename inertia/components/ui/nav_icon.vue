@@ -17,6 +17,7 @@ export type NavIconName =
   | 'logout'
   | 'menu'
   | 'close'
+  | 'bell'
 
 defineProps<{ name: NavIconName; size?: number }>()
 </script>
@@ -112,6 +113,10 @@ defineProps<{ name: NavIconName; size?: number }>()
     </template>
     <template v-else-if="name === 'close'">
       <path d="M6 6l12 12M18 6 6 18" />
+    </template>
+    <template v-else-if="name === 'bell'">
+      <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" />
+      <path d="M10 20.5a2 2 0 0 0 4 0" />
     </template>
   </svg>
 </template>

@@ -216,6 +216,97 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/orders_controller').default['applyAll']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'parent.statements': {
+    methods: ["GET","HEAD"]
+    pattern: '/statements'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/statements_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/statements_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/statements_controller').default['show']>>>
+    }
+  }
+  'parent.statements.pdf': {
+    methods: ["GET","HEAD"]
+    pattern: '/statements/pdf'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/statements_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/statements_controller').default['download']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/statements_controller').default['download']>>>
+    }
+  }
+  'parent.notifications': {
+    methods: ["GET","HEAD"]
+    pattern: '/notifications'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/statements').notificationListValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'parent.notifications.read_all': {
+    methods: ["POST"]
+    pattern: '/notifications/read-all'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['markAllRead']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['markAllRead']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['markAllRead']>>>
+    }
+  }
+  'parent.notifications.preferences': {
+    methods: ["PUT"]
+    pattern: '/notifications/preferences'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/statements').notificationPreferencesValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/statements').notificationPreferencesValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['updatePreferences']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['updatePreferences']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['updatePreferences']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'parent.notifications.read': {
+    methods: ["POST"]
+    pattern: '/notifications/:id/read'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['markRead']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['markRead']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['markRead']>>>
+    }
+  }
+  'parent.notifications.open': {
+    methods: ["POST"]
+    pattern: '/notifications/:id/open'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['open']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['open']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/notifications_controller').default['open']>>>
+    }
+  }
   'admin.dashboard': {
     methods: ["GET","HEAD"]
     pattern: '/admin'
@@ -1033,6 +1124,58 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['cancelDay']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['cancelDay']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['cancelDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.statements.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/statements'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/statements').schoolStatementQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.statements.export': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/statements/export'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/statements').schoolStatementQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['export']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['export']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['export']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.statements.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/statements/parents/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['show']>>>
+    }
+  }
+  'admin.statements.pdf': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/statements/parents/:id/pdf'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['download']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['download']>>>
     }
   }
   'admin.settings.show': {

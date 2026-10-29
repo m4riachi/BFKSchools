@@ -26,6 +26,8 @@ declare module '@adonisjs/inertia/types' {
     'admin/parents/index': ExtractProps<(typeof import('../../inertia/pages/admin/parents/index.vue'))['default']>
     'admin/parents/show': ExtractProps<(typeof import('../../inertia/pages/admin/parents/show.vue'))['default']>
     'admin/settings': ExtractProps<(typeof import('../../inertia/pages/admin/settings.vue'))['default']>
+    'admin/statements/index': ExtractProps<(typeof import('../../inertia/pages/admin/statements/index.vue'))['default']>
+    'admin/statements/show': ExtractProps<(typeof import('../../inertia/pages/admin/statements/show.vue'))['default']>
     'auth/forgot_password': ExtractProps<(typeof import('../../inertia/pages/auth/forgot_password.vue'))['default']>
     'auth/login': ExtractProps<(typeof import('../../inertia/pages/auth/login.vue'))['default']>
     'auth/set_password': ExtractProps<(typeof import('../../inertia/pages/auth/set_password.vue'))['default']>
@@ -38,7 +40,9 @@ declare module '@adonisjs/inertia/types' {
     'kitchen/labels': ExtractProps<(typeof import('../../inertia/pages/kitchen/labels.vue'))['default']>
     'kitchen/meals/index': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/index.vue'))['default']>
     'kitchen/meals/show': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/show.vue'))['default']>
+    'parent/notifications/index': ExtractProps<(typeof import('../../inertia/pages/parent/notifications/index.vue'))['default']>
     'parent/orders/history': ExtractProps<(typeof import('../../inertia/pages/parent/orders/history.vue'))['default']>
     'parent/orders/week': ExtractProps<(typeof import('../../inertia/pages/parent/orders/week.vue'))['default']>
+    'parent/statements/index': ExtractProps<(typeof import('../../inertia/pages/parent/statements/index.vue'))['default']>
   }
 }

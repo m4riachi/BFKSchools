@@ -1,0 +1,69 @@
+{
+  "title": "Notifications",
+  "unread": "{count, plural, =0 {No unread notifications} one {# unread} other {# unread}}",
+  "bell": "{count, plural, =0 {Notifications} one {Notifications, # unread} other {Notifications, # unread}}",
+  "mark_read": "Mark as read",
+  "mark_all_read": "Mark all as read",
+  "open": "Open",
+  "new": "New",
+  "empty": "No notifications yet.",
+  "empty_body": "You will be told here when menus are published, before deadlines and when your orders change.",
+  "line": "{child} — {date}",
+  "meal_line": "{child} — {date}: {meal}",
+  "more": "{count, plural, one {and # more} other {and # more}}",
+  "flash": {
+    "all_read": "All notifications are marked as read.",
+    "preferences_saved": "Your preferences are saved."
+  },
+  "preferences": {
+    "title": "Emails",
+    "intro": "Choose the emails you want to receive. Notifications always stay visible here.",
+    "menu_published": "Weekly menu published",
+    "deadline_reminder": "Reminder before ordering closes",
+    "always": "Cancellations and changes to your orders (holiday, menu change, change by BFK) are always emailed.",
+    "school_off": "These emails are currently turned off by the school.",
+    "save": "Save"
+  },
+  "types": {
+    "menu_published": {
+      "title": "Weekly menu published",
+      "body": "The menu for {week} is online: choose your children's meals."
+    },
+    "deadline_reminder": {
+      "title": "Reminder: choose the meals",
+      "body": "Some days of {week} have no choice yet for your children."
+    },
+    "auto_assigned": {
+      "title": "Default meal assigned",
+      "body": "{count, plural, one {Without a choice at the deadline, the default meal was assigned for one day:} other {Without a choice at the deadline, the default meal was assigned for # days:}}"
+    },
+    "holiday_cancellation": {
+      "title": "Meals cancelled (holiday)",
+      "body": "{count, plural, one {One meal was cancelled because the school will be closed. It won't be charged.} other {# meals were cancelled because the school will be closed. They won't be charged.}}"
+    },
+    "order_changed_by_staff": {
+      "title": "Order changed by BFK",
+      "body": "BFK changed {child}'s order for {date}.",
+      "body_cancelled": "BFK cancelled {child}'s meal for {date}."
+    },
+    "order_bulk_child_inactive": {
+      "title": "{count, plural, one {One meal cancelled} other {# meals cancelled}}",
+      "body": "{count, plural, one {This meal was cancelled because your child's registration was deactivated.} other {These meals were cancelled because your child's registration was deactivated.}}"
+    },
+    "order_bulk_subscription_ended": {
+      "title": "Subscription ended",
+      "body": "{count, plural, one {The subscription no longer covers this day: the main meal was removed.} other {The subscription no longer covers these # days: the main meal was removed.}}"
+    },
+    "menu_change": {
+      "title": "Menu change on {date}",
+      "item_removed": "\"{meal}\" on {date} was removed from the menu.",
+      "switched": "Replaced by \"{meal}\" for: {children}.",
+      "cancelled": "Removed from the order of: {children}.",
+      "default_changed": "The default meal on {date} is now \"{meal}\".",
+      "price_lowered": "The price of this meal is now {price}."
+    },
+    "unknown": {
+      "title": "Notification"
+    }
+  }
+}

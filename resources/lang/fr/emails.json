@@ -8,7 +8,8 @@
     "intro": "BFK vous a créé un compte pour choisir chaque semaine les déjeuners de vos enfants à Britech School. Choisissez votre mot de passe pour activer votre accès.",
     "action": "Choisir mon mot de passe",
     "expiry": "Ce lien est valable jusqu'au {date} et ne peut être utilisé qu'une seule fois.",
-    "ignore": "Si vous n'attendiez pas cet e-mail, vous pouvez l'ignorer."
+    "ignore": "Si vous n'attendiez pas cet e-mail, vous pouvez l'ignorer.",
+    "footer": "Vous recevez cet e-mail car BFK a créé un accès pour votre famille à Britech School."
   },
   "password_reset": {
     "subject": "Réinitialisation de votre mot de passe",
@@ -16,7 +17,8 @@
     "intro": "Nous avons reçu une demande de réinitialisation du mot de passe de votre compte BFK School Meals.",
     "action": "Choisir un nouveau mot de passe",
     "expiry": "Ce lien est valable jusqu'au {date} et ne peut être utilisé qu'une seule fois.",
-    "ignore": "Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe ne changera pas."
+    "ignore": "Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe ne changera pas.",
+    "footer": "Vous recevez cet e-mail suite à une demande faite sur BFK School Meals."
   },
   "menu_published": {
     "subject": "Le menu de la semaine {week} est en ligne",
@@ -61,7 +63,8 @@
     "intro": "BFK a modifié la commande de {child} pour le {date}.",
     "cancelled": "Ce jour est maintenant sans repas.",
     "line": "{meal} × {qty}",
-    "action": "Voir mes commandes"
+    "action": "Voir mes commandes",
+    "now": "Les repas de ce jour sont maintenant :"
   },
   "order_bulk_child_inactive": {
     "subject": "{count, plural, one {# repas annulé : inscription désactivée} other {# repas annulés : inscription désactivée}}",
@@ -74,5 +77,10 @@
     "title": "{count, plural, one {Un jour modifié} other {# jours modifiés}}",
     "action": "Voir mes commandes",
     "intro": "{count, plural, one {L’abonnement ne couvre plus ce jour : le plat principal a été retiré :} other {L’abonnement ne couvre plus ces # jours : le plat principal a été retiré :}}"
+  },
+  "layout": {
+    "partner": "BFK Resto × Britech School",
+    "preferences": "Gérer mes préférences d’e-mails",
+    "automatic": "E-mail automatique, merci de ne pas y répondre"
   }
 }

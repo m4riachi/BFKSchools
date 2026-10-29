@@ -112,6 +112,33 @@ router
   .use([middleware.auth(), middleware.role({ roles: ['parent'] })])
 
 /**
+ * Parent statements and notification center (Phase 8): parents only.
+ * Children / notifications are always looked up for the logged-in parent.
+ */
+router
+  .group(() => {
+    router.get('statements', [controllers.parent.Statements, 'show']).as('statements')
+    router.get('statements/pdf', [controllers.parent.Statements, 'download']).as('statements.pdf')
+    router.get('notifications', [controllers.parent.Notifications, 'index']).as('notifications')
+    router
+      .post('notifications/read-all', [controllers.parent.Notifications, 'markAllRead'])
+      .as('notifications.read_all')
+    router
+      .put('notifications/preferences', [controllers.parent.Notifications, 'updatePreferences'])
+      .as('notifications.preferences')
+    router
+      .post('notifications/:id/read', [controllers.parent.Notifications, 'markRead'])
+      .where('id', dbIdMatcher)
+      .as('notifications.read')
+    router
+      .post('notifications/:id/open', [controllers.parent.Notifications, 'open'])
+      .where('id', dbIdMatcher)
+      .as('notifications.open')
+  })
+  .as('parent')
+  .use([middleware.auth(), middleware.role({ roles: ['parent'] })])
+
+/**
  * Back-office: admin + manager
  */
 /** Database ids: 1..2147483647 only (others → 404, never an int4 overflow). */
@@ -323,6 +350,20 @@ router
       .where('childId', id)
       .where('date', isoDay)
       .as('orders.cancel')
+
+    // Monthly statements (Phase 8, D11: no payment tracking)
+    router.get('statements', [controllers.admin.Statements, 'index']).as('statements.index')
+    router
+      .get('statements/export', [controllers.admin.Statements, 'export'])
+      .as('statements.export')
+    router
+      .get('statements/parents/:id', [controllers.admin.Statements, 'show'])
+      .where('id', id)
+      .as('statements.show')
+    router
+      .get('statements/parents/:id/pdf', [controllers.admin.Statements, 'download'])
+      .where('id', id)
+      .as('statements.pdf')
 
     // School settings (admin only, SchoolPolicy.updateSettings)
     router.get('settings', [controllers.admin.Settings, 'show']).as('settings.show')

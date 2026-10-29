@@ -11,6 +11,7 @@ import AccountLinkMail from '#mails/account_link_mail'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import type { UserTokenType } from '#enums/user_tokens'
 import { maskEmail } from '#app/mail/log_transport'
+import { safeMailError } from '#services/outbox_service'
 
 /** Public paths of the links (also used by start/routes.ts). */
 export const LINK_PATHS: Record<UserTokenType, string> = {
@@ -59,7 +60,10 @@ export default class AccountLinkService {
         new AccountLinkMail('invitation', parent, linkUrl('invitation', token), record.expiresAt)
       )
     } catch (error) {
-      logger.error({ err: error, to: maskEmail(parent.email) }, 'invitation email failed')
+      logger.error(
+        { error: safeMailError(error), to: maskEmail(parent.email) },
+        'invitation email failed'
+      )
       throw new BusinessRuleException('families.errors.invitation_email_failed')
     }
     return record
@@ -90,7 +94,10 @@ export default class AccountLinkService {
         )
       )
     } catch (error) {
-      logger.error({ err: error, to: maskEmail(user.email) }, 'password reset email failed')
+      logger.error(
+        { error: safeMailError(error), to: maskEmail(user.email) },
+        'password reset email failed'
+      )
     }
   }
 

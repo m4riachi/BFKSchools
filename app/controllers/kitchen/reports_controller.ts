@@ -17,6 +17,7 @@ import { attachmentHeader, reportSchool, requireReportSchool } from '#support/re
 import { presentAllergyRows, presentLabels } from '#support/report_presenters'
 import { fileNamePart } from '#support/spreadsheet_safety'
 import { addDays } from '#support/dates'
+import { pdfRenderGate, RenderBusyError } from '#support/render_gate'
 
 /** Labels shown as an on-screen preview (the PDF has them all). */
 const LABEL_PREVIEW = 12
@@ -137,11 +138,21 @@ export default class ReportsController {
       className,
       limit: MAX_LABELS_PER_PDF,
     })
-    const pdf = await this.pdf.render(rows, {
-      grid,
-      locale: i18n.locale,
-      title: i18n.t('reports.labels.pdf_title', { date }),
-    })
+    let pdf: Buffer
+    try {
+      // At most 2 PDF renders at a time (the render also yields every 48 labels).
+      pdf = await pdfRenderGate.run(() =>
+        this.pdf.render(rows, {
+          grid,
+          locale: i18n.locale,
+          title: i18n.t('reports.labels.pdf_title', { date }),
+        })
+      )
+    } catch (error) {
+      if (!(error instanceof RenderBusyError)) throw error
+      response.header('Retry-After', '10')
+      return response.serviceUnavailable(i18n.t('errors.busy'))
+    }
     const name = ['bfk-labels', date, className ? fileNamePart(className) : null]
       .filter(Boolean)
       .join('-')
