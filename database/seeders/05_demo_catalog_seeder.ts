@@ -7,7 +7,7 @@ import User from '#models/user'
 import MealPhotoService from '#services/meal_photo_service'
 import type { AllergenCode } from '#enums/allergens'
 import type { MealCategory, MealType } from '#enums/meals'
-import { assertDemoSeeding, placeholderPhoto } from '#database/demo/support'
+import { placeholderPhoto } from '#database/demo/support'
 
 type DemoMeal = {
   nameFr: string
@@ -328,19 +328,21 @@ export const DEMO_MEALS: DemoMeal[] = [
 ]
 
 /**
- * The demo meal catalog (development/test only): FR/EN names, EU allergens
+ * The meal catalog: FR/EN names, EU allergens
  * and tags; subscription trays are free (D31), supplements are priced.
  * Every photo goes through the real upload pipeline (MealPhotoService:
  * sniffing, sharp → WebP + thumbnail, Drive disk from DRIVE_DISK).
  * Idempotent: meals are matched by French name; photos are added only to
  * meals that have none.
+ *
+ * It creates no account, so it may run in production: `node ace db:seed`
+ * skips it there (environment list), `node ace bfk:seed catalog` runs it.
  */
 export default class DemoCatalogSeeder extends BaseSeeder {
   static environment = ['development', 'test']
 
   async run() {
-    assertDemoSeeding()
-    const admin = await User.findByEmail('admin@bfk.test')
+    const admin = await User.query().where('role', 'admin').orderBy('id').first()
     const photos = await app.container.make(MealPhotoService)
 
     for (const demo of DEMO_MEALS) {

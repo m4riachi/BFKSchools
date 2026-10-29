@@ -7,7 +7,7 @@ import Subscription from '#models/subscription'
 import Clock from '#services/clock'
 import type { AllergenCode } from '#enums/allergens'
 import type { AppLocale } from '#enums/locales'
-import { DEMO_FAMILY_DOMAIN, DEMO_PASSWORD, assertDemoSeeding } from '#database/demo/support'
+import { DEMO_FAMILY_DOMAIN, assertDemoSeeding, demoPassword } from '#database/demo/support'
 
 type DemoChild = {
   firstName: string
@@ -208,7 +208,7 @@ export default class DemoFamiliesSeeder extends BaseSeeder {
           phone: family.phone,
           schoolId: school.id,
           isActive: true,
-          password: family.access === 'accepted' ? DEMO_PASSWORD : null,
+          password: family.access === 'accepted' ? demoPassword() : null,
           invitedAt: family.access === 'none' ? null : clock.now().minus({ days: 40 }),
           notificationPrefs: {},
           credentialsVersion: 0,

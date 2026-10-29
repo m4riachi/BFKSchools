@@ -2,9 +2,15 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import db from '@adonisjs/lucid/services/db'
 import env from '#start/env'
 import { DEMO_USERS } from '#database/seeders/02_demo_users_seeder'
-import { DEMO_FAMILY_DOMAIN, DEMO_PASSWORD, assertDemoSeeding, say } from '#database/demo/support'
+import {
+  DEMO_FAMILY_DOMAIN,
+  DEMO_PASSWORD,
+  assertDemoSeeding,
+  inProductionEnv,
+  say,
+} from '#database/demo/support'
 
-/** Prints the demo logins and a few counts at the end of `node ace db:seed` (dev/test only). */
+/** Prints the demo logins and a few counts at the end of the demo seed (never prints a production password). */
 export default class DemoSummarySeeder extends BaseSeeder {
   static environment = ['development', 'test']
 
@@ -26,12 +32,17 @@ export default class DemoSummarySeeder extends BaseSeeder {
     }
 
     say('')
-    say('Demo data ready (development only):')
+    const production = inProductionEnv()
+    say(
+      production
+        ? 'Demo data ready (production, ALLOW_DEMO_SEED):'
+        : 'Demo data ready (development only):'
+    )
     say(
       `  ${stats.parents} parents, ${stats.children} children, ${stats.meals} meals, ${stats.menus} weekly menus, ${stats.orders} active day orders`
     )
     say(
-      `  Sign in at ${env.get('APP_URL')}/login — password for every demo account: ${DEMO_PASSWORD}`
+      `  Sign in at ${env.get('APP_URL')}/login — password for every demo account: ${production ? 'the value of BFK_DEMO_PASSWORD' : DEMO_PASSWORD}`
     )
     for (const user of DEMO_USERS) {
       say(`    ${user.role.padEnd(8)} ${user.email}`)

@@ -11,7 +11,9 @@ import HolidaySeeder from '#database/seeders/04_holiday_seeder'
 import DemoCatalogSeeder from '#database/seeders/05_demo_catalog_seeder'
 import DemoFamiliesSeeder from '#database/seeders/06_demo_families_seeder'
 import DemoMenusOrdersSeeder from '#database/seeders/07_demo_menus_orders_seeder'
-import { DEMO_PASSWORD } from '#database/demo/support'
+import ace from '@adonisjs/core/services/ace'
+import BfkSeed from '#commands/bfk_seed'
+import { DEMO_PASSWORD, assertDemoSeeding, demoPassword } from '#database/demo/support'
 
 const SEEDERS = [
   SchoolSeeder,
@@ -129,4 +131,76 @@ test.group('Hardening | demo seeders', (group) => {
       assert.notEqual(login.header('location'), '/login', email)
     }
   }).timeout(120_000)
+
+  test('bfk:seed catalog: school, meals with photos and one admin — no demo account', async ({
+    client,
+    assert,
+  }) => {
+    process.env.BFK_NEW_PASSWORD = 'ChefBfk2026!'
+    try {
+      for (let run = 0; run < 2; run++) {
+        const command = await ace.create(BfkSeed, [
+          'catalog',
+          '--email=Chef@BFK.ma',
+          '--name=Chef BFK',
+        ])
+        await command.exec()
+        assert.equal(command.exitCode, 0)
+      }
+    } finally {
+      delete process.env.BFK_NEW_PASSWORD
+    }
+    const users = await db.from('users').select('email', 'role')
+    assert.deepEqual(users, [{ email: 'chef@bfk.ma', role: 'admin' }])
+    const first = await counts()
+    assert.equal(first.schools, 1)
+    assert.equal(first.meals, 22)
+    assert.isAtLeast(first.meal_photos, 22)
+    assert.equal(first.children, 0)
+    assert.equal(first.weekly_menus, 0)
+    const creator = await db.from('meals').distinct('created_by')
+    assert.equal(creator.length, 1)
+
+    const login = await client
+      .post('/login')
+      .form({ email: 'chef@bfk.ma', password: 'ChefBfk2026!' })
+      .withCsrfToken()
+      .redirects(0)
+    assert.notEqual(login.header('location'), '/login')
+  }).timeout(60_000)
+
+  test('bfk:seed catalog needs --email; unknown profiles are refused', async ({ assert }) => {
+    for (const argv of [['catalog'], ['everything']]) {
+      const command = await ace.create(BfkSeed, argv)
+      await command.exec()
+      assert.equal(command.exitCode, 1)
+    }
+    assert.equal((await counts()).schools, 0)
+  })
+
+  test('production demo seeding needs ALLOW_DEMO_SEED and a strong BFK_DEMO_PASSWORD', ({
+    assert,
+  }) => {
+    const saved = { ...process.env }
+    try {
+      delete process.env.ALLOW_DEMO_SEED
+      delete process.env.BFK_DEMO_PASSWORD
+      assert.throws(() => assertDemoSeeding(true), /ALLOW_DEMO_SEED/)
+      assert.doesNotThrow(() => assertDemoSeeding(false))
+      assert.equal(demoPassword(false), DEMO_PASSWORD)
+      assert.throws(() => demoPassword(true), /BFK_DEMO_PASSWORD/)
+
+      process.env.ALLOW_DEMO_SEED = 'true'
+      process.env.BFK_DEMO_PASSWORD = 'short'
+      assert.doesNotThrow(() => assertDemoSeeding(true))
+      assert.throws(() => demoPassword(true), /BFK_DEMO_PASSWORD/)
+      process.env.BFK_DEMO_PASSWORD = 'TestDeploy2026'
+      assert.equal(demoPassword(true), 'TestDeploy2026')
+    } finally {
+      process.env.ALLOW_DEMO_SEED = saved.ALLOW_DEMO_SEED
+      process.env.BFK_DEMO_PASSWORD = saved.BFK_DEMO_PASSWORD
+      if (saved.ALLOW_DEMO_SEED === undefined) delete process.env.ALLOW_DEMO_SEED
+      if (saved.BFK_DEMO_PASSWORD === undefined) delete process.env.BFK_DEMO_PASSWORD
+    }
+  })
 })

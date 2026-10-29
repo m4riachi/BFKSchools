@@ -9,7 +9,12 @@ import School from '#models/school'
 import Child from '#models/child'
 import { STAFF_ROLES, KITCHEN_ROLES } from '#enums/roles'
 
-export default class User extends compose(UserSchema, withAuthFinder(hash)) {
+// Lazy: ace may import this model (through a command) before the app boots,
+// when the hash service isn't set yet.
+export default class User extends compose(
+  UserSchema,
+  withAuthFinder(() => hash.use())
+) {
   static rememberMeTokens = DbRememberMeTokensProvider.forModel(User)
 
   @belongsTo(() => School)

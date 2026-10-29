@@ -4,7 +4,7 @@ import User from '#models/user'
 import type { Role } from '#enums/roles'
 import type { AppLocale } from '#enums/locales'
 
-import { DEMO_PASSWORD, assertDemoSeeding } from '#database/demo/support'
+import { assertDemoSeeding, demoPassword } from '#database/demo/support'
 
 /**
  * One demo account per role (development/test only). All use the same
@@ -30,7 +30,7 @@ export default class DemoUsersSeeder extends BaseSeeder {
       user.merge({
         ...demo,
         credentialsVersion: user.credentialsVersion ?? 0,
-        password: DEMO_PASSWORD,
+        password: demoPassword(),
         isActive: true,
         // Phase 2: parents must belong to a school, and staff only manage
         // families of their own school (null never means "all schools").

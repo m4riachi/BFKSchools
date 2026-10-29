@@ -392,4 +392,15 @@ addresses (masked as `s***@domain`). Cron output goes to `logs/cron.log` (rotate
 - [ ] Photos: S3 bucket private and one photo displayed in the browser, or `storage/` on a persistent, backed-up folder.
 - [ ] Nightly `pg_dump`, **encrypted** off-site copy, and one restore tested.
 - [ ] `npm audit --omit=dev` reviewed (known: 2 low, `deepmerge` via `@adonisjs/lucid`, see STACK_NOTES).
-- [ ] No demo data: the demo seeders are skipped in production; never copy a development database.
+- [ ] No demo data on the real site: `db:seed` skips the demo seeders in production; `bfk:seed demo` is for a test deployment only (`ALLOW_DEMO_SEED=true` + `BFK_DEMO_PASSWORD`) — remove `ALLOW_DEMO_SEED` afterwards. Never copy a development database.
+- [ ] Meal catalog: `node ace bfk:seed catalog --email=…` loads the 22 meals with photos (+ one account) if you want to start from it.
+
+## Railway (PaaS)
+
+- Build `npm run build`, start from `build/` (`cd build && node bin/server.js`), Node 24. Run `node ace migration:run --force` as the pre-deploy command.
+- Photos: Railway's filesystem is **reset on every deploy**. With `DRIVE_DISK=fs`, attach a Railway volume mounted on the app's `storage/` folder (`<app dir>/build/storage` when the server runs from `build/`), or use `DRIVE_DISK=s3` with a bucket. Otherwise the seeded/uploaded photos disappear at the next deploy (the meals stay, the pictures 404).
+- Seed once from a shell on the service (`railway ssh`, then `cd build` if needed):
+  - test deployment, everything: set `ALLOW_DEMO_SEED=true` and `BFK_DEMO_PASSWORD=<strong>` on the service, then `node ace bfk:seed demo`; remove `ALLOW_DEMO_SEED` afterwards.
+  - meals + one account: `node ace bfk:seed catalog --email=you@bfk.ma --name="Your Name"` (password asked).
+- Do not put seeding in the start or pre-deploy command: it would run on every deploy (harmless, it is idempotent, but slow).
+

@@ -95,6 +95,7 @@ Every demo account uses the password **`Demo1234!`** (printed at the end of the 
 | parent | `parent@bfk.test` (two children), or e.g. `karima.alaoui@demo.bfk.test` (any `@demo.bfk.test` parent with access) |
 
 Seeding never sends email (the school's email setting is switched off while it runs).
+Outside development, use `node ace bfk:seed catalog|demo` (see "Seed profiles" below).
 `migration:fresh` does not delete photo files: clear `storage/` by hand if you care.
 
 ## Environment variables
@@ -197,7 +198,19 @@ node ace users:create-staff --email=you@example.com --name="Your Name" --role=ad
 node bin/server.js                # behind nginx/Apache, under PM2/systemd/Passenger
 ```
 
-`users:create-staff` is how the first admin is created — demo seeders never run in production.
+`users:create-staff` is how the first admin is created — `db:seed` never runs the demo seeders in production.
+
+### Seed profiles (any environment, e.g. a Railway deployment)
+
+`node ace bfk:seed <profile>` — idempotent, safe to run again:
+
+| Profile | What it creates | Needs |
+|---|---|---|
+| `catalog` | Britech School, the 22 meals with their photos (13 real trays + 9 supplements), **one** staff account | `--email=… [--name="…"] [--role=admin\|manager\|kitchen]`; password asked, or `BFK_NEW_PASSWORD` |
+| `demo` | everything `db:seed` creates in development (all roles, families, holidays, menus, orders) | in production: `ALLOW_DEMO_SEED=true` **and** `BFK_DEMO_PASSWORD` (10+ chars, letter + digit) — the password of every demo account, so the public `Demo1234!` is never used online |
+
+Remove `ALLOW_DEMO_SEED` once the test deployment is seeded. To go from demo data to real data,
+start from an empty database (`migration:fresh` on a test deployment only), then `bfk:seed catalog`.
 Prefer the **interactive prompt** (the password is typed hidden and never lands in the shell
 history). `BFK_NEW_PASSWORD` exists for scripted setups only: if you use it, set it for that one
 command and remove it right after (`unset BFK_NEW_PASSWORD`, and clear it from the shell history

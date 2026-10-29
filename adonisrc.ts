@@ -139,6 +139,11 @@ export default defineConfig({
       reloadServer: false,
     },
     {
+      // Real meal photos used by the catalog seeder (node ace bfk:seed catalog)
+      pattern: 'database/demo/meal_photos/**',
+      reloadServer: false,
+    },
+    {
       pattern: 'resources/fonts/*.{ttf,txt,md}',
       reloadServer: false,
     },
