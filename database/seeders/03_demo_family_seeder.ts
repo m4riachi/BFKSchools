@@ -4,14 +4,17 @@ import User from '#models/user'
 import Child from '#models/child'
 import Subscription from '#models/subscription'
 
+import { assertDemoSeeding } from '#database/demo/support'
+
 /**
  * Two children for the demo parent (development/test only). Idempotent.
- * Realistic family data (15 parents…) comes with the Phase 9 seeders.
+ * The other 14 demo families come from 06_demo_families_seeder.
  */
 export default class DemoFamilySeeder extends BaseSeeder {
   static environment = ['development', 'test']
 
   async run() {
+    assertDemoSeeding()
     const school = await School.findByOrFail('slug', 'britech-school')
     const parent = await User.findByEmail('parent@bfk.test')
     if (!parent) return

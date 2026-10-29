@@ -141,3 +141,26 @@ export function imgSrcDirective(values: StorageEnv): string[] {
   const origin = s3PublicOrigin(values)
   return [`'self'`, 'data:', 'blob:', ...(origin ? [origin] : [])]
 }
+
+/**
+ * Boot-time self-check (production, DRIVE_DISK=s3): the origin of a URL
+ * presigned by the real S3 client must be the origin the CSP allows.
+ * Covers SDK behaviours the derivation above does not mirror (FIPS /
+ * dual-stack endpoints, `AWS_ENDPOINT_URL*` variables, China regions, IP
+ * literal endpoints…). Returns a message describing the mismatch, or null.
+ * Skipped when S3_PUBLIC_ORIGIN is set (the provider signs on another host
+ * on purpose).
+ */
+export function signedUrlOriginMismatch(signedUrl: string, values: StorageEnv): string | null {
+  if (values.DRIVE_DISK !== 's3' || values.S3_PUBLIC_ORIGIN) return null
+  const expected = s3PublicOrigin(values)
+  let actual: string
+  try {
+    actual = new URL(signedUrl).origin
+  } catch {
+    return 'the S3 client returned an invalid signed URL'
+  }
+  return actual === expected
+    ? null
+    : `signed photo URLs use ${actual} but the CSP img-src allows ${expected}; set S3_PUBLIC_ORIGIN=${actual} if that host is right`
+}

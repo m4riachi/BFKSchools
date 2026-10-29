@@ -5,7 +5,7 @@ import Clock from '#services/clock'
 import StatementService from '#services/statement_service'
 import StatementPdfService from '#services/statement_pdf_service'
 import { statementQueryValidator } from '#validators/statements'
-import { pickMonth, schoolOf, sendStatementPdf } from '#support/statement_access'
+import { consumeDownload, pickMonth, schoolOf, sendStatementPdf } from '#support/statement_access'
 import { presentFamilyStatement, presentMonthNav } from '#support/statement_presenters'
 import type { StatementMonth } from '#support/statement_month'
 
@@ -91,6 +91,8 @@ export default class StatementsController {
 
   /** GET /statements/pdf?month=YYYY-MM&child= */
   async download(ctx: HttpContext) {
+    // The download limiter first: a client over it costs no statement query.
+    await consumeDownload(ctx)
     const built = await this.build(ctx, true)
     if (!built || !('statement' in built)) return built
     const { statement, month, childId } = built

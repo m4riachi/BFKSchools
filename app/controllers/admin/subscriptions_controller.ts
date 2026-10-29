@@ -4,6 +4,8 @@ import Child from '#models/child'
 import Subscription from '#models/subscription'
 import SubscriptionService from '#services/subscription_service'
 import { subscriptionValidator } from '#validators/families'
+import { staffSchoolId } from '#policies/parent_policy'
+import type User from '#models/user'
 
 /**
  * Subscription periods of a child (back-office). Nested under
@@ -14,8 +16,8 @@ import { subscriptionValidator } from '#validators/families'
 export default class SubscriptionsController {
   constructor(protected subscriptions: SubscriptionService) {}
 
-  async store({ params, request, response, bouncer, session, i18n }: HttpContext) {
-    const child = await this.findChild(params.parentId, params.childId)
+  async store({ params, request, response, bouncer, session, i18n, auth }: HttpContext) {
+    const child = await this.findChild(params.parentId, params.childId, auth.getUserOrFail())
     await bouncer.with('ChildPolicy').authorize('manage', child)
     const input = await request.validateUsing(subscriptionValidator)
     await this.subscriptions.create(child, input)
@@ -24,7 +26,7 @@ export default class SubscriptionsController {
   }
 
   async update({ params, request, response, bouncer, session, i18n, auth }: HttpContext) {
-    const { child, subscription } = await this.findSubscription(params)
+    const { child, subscription } = await this.findSubscription(params, auth.getUserOrFail())
     await bouncer.with('ChildPolicy').authorize('manage', child)
     const input = await request.validateUsing(subscriptionValidator)
     await this.subscriptions.update(subscription, input, auth.getUserOrFail())
@@ -33,7 +35,7 @@ export default class SubscriptionsController {
   }
 
   async destroy({ params, response, bouncer, session, i18n, auth }: HttpContext) {
-    const { child, subscription } = await this.findSubscription(params)
+    const { child, subscription } = await this.findSubscription(params, auth.getUserOrFail())
     await bouncer.with('ChildPolicy').authorize('manage', child)
     await this.subscriptions.delete(subscription, auth.getUserOrFail())
     session.flash('success', i18n.t('families.flash.subscription_deleted'))
@@ -44,15 +46,16 @@ export default class SubscriptionsController {
     return `/admin/parents/${child.parentId}/children/${child.id}/edit`
   }
 
-  protected findChild(parentId: unknown, childId: unknown) {
-    return Child.query()
-      .where('id', Number(childId))
-      .where('parent_id', Number(parentId))
-      .firstOrFail()
+  /** Children of the staff member's school only (another school → 404). */
+  protected findChild(parentId: unknown, childId: unknown, staff: User) {
+    const query = Child.query().where('id', Number(childId)).where('parent_id', Number(parentId))
+    const schoolId = staffSchoolId(staff)
+    if (schoolId !== null) query.where('school_id', schoolId)
+    return query.firstOrFail()
   }
 
-  protected async findSubscription(params: Record<string, unknown>) {
-    const child = await this.findChild(params.parentId, params.childId)
+  protected async findSubscription(params: Record<string, unknown>, staff: User) {
+    const child = await this.findChild(params.parentId, params.childId, staff)
     const subscription = await Subscription.query()
       .where('id', Number(params.id))
       .where('child_id', child.id)

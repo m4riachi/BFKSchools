@@ -15,7 +15,7 @@ import { homePathFor } from '#enums/roles'
 import LoginService from '#services/login_service'
 import InactiveAccountException from '#exceptions/inactive_account_exception'
 import { isKnownDevice } from '#support/known_device'
-import { startUserSession } from '#support/login_session'
+import { endSession, startUserSession } from '#support/login_session'
 import { maskEmail } from '#app/mail/log_transport'
 
 export default class SessionController {
@@ -90,8 +90,8 @@ export default class SessionController {
     }
   }
 
-  async destroy({ auth, response }: HttpContext) {
-    await auth.use('web').logout()
-    return response.redirect('/login')
+  async destroy(ctx: HttpContext) {
+    await endSession(ctx)
+    return ctx.response.redirect('/login')
   }
 }

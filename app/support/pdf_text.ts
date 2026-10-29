@@ -28,12 +28,18 @@ const ARABIC_SCRIPT = new RegExp(
   '[\\u0600-\\u06FF\\u0750-\\u077F\\u08A0-\\u08FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF]'
 )
 
-/** C0/C1 controls and bidi marks/overrides (a name could otherwise reorder the text). */
+/**
+ * C0/C1 controls, bidi marks/overrides (a name could otherwise reorder the
+ * text: U+061C, U+200E/F, U+202A–E, U+2066–9) and invisible zero-width
+ * characters (U+200B–D, U+FEFF BOM).
+ */
 const CONTROL_CHARS = new RegExp(
   // eslint-disable-next-line no-control-regex
-  '[\\u0000-\\u001F\\u007F-\\u009F\\u200E\\u200F\\u202A-\\u202E\\u2066-\\u2069]',
+  '[\\u0000-\\u001F\\u007F-\\u009F\\u061C\\u200E\\u200F\\u202A-\\u202E\\u2066-\\u2069]',
   'g'
 )
+/** Zero-width characters are dropped (not turned into a space inside a word). */
+const ZERO_WIDTH = new RegExp('[\\u200B-\\u200D\\uFEFF]', 'g')
 
 const INK = '#14211B'
 
@@ -57,7 +63,12 @@ export function loadPdfFonts(): Promise<Record<FontKey, Buffer>> {
 
 /** Text safe for the PDF: well-formed, no control / bidi override characters. */
 export function cleanText(value: string | null | undefined): string {
-  return (value ?? '').toWellFormed().replace(CONTROL_CHARS, ' ').replace(/\s+/g, ' ').trim()
+  return (value ?? '')
+    .toWellFormed()
+    .replace(ZERO_WIDTH, '')
+    .replace(CONTROL_CHARS, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 export function hasArabicScript(text: string): boolean {

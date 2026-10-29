@@ -123,13 +123,30 @@ export default class OutboxService {
     return { created, invalid }
   }
 
-  /** Emails sent during the last rolling hour (for the hourly cap). */
+  /**
+   * SMTP attempts during the last rolling hour (for the hourly cap): emails
+   * sent, plus rows whose last attempt in that hour failed at the SMTP
+   * server (hosts usually count refused/failed messages too). Rows skipped
+   * before any SMTP call (`skipped: …`, `build_error`) don't count. A row
+   * retried several times within the hour counts once (approximation).
+   */
   async sentInLastHour(): Promise<number> {
     const since = this.clock.now().minus({ hours: 1 }).toISO()!
     const row = await db
       .from('outbound_emails')
-      .where('status', 'sent')
-      .where('sent_at', '>', since)
+      .where((query) => {
+        query
+          .where((sent) => sent.where('status', 'sent').where('sent_at', '>', since))
+          .orWhere((failed) =>
+            failed
+              .whereIn('status', ['pending', 'failed'])
+              .where('attempts', '>', 0)
+              .where('updated_at', '>', since)
+              .whereNotNull('last_error')
+              .whereNot('last_error', 'like', 'skipped:%')
+              .whereNotIn('last_error', ['build_error', 'stale_sending'])
+          )
+      })
       .count('* as total')
       .first()
     return Number(row?.total ?? 0)

@@ -156,41 +156,56 @@ Phases 3 and 4 are independent of each other but run sequentially (one builder a
 Listed in the Phase 0 report; defaults are already in ERD settings, so Phase 1 is not blocked by D1–D11 except where noted.
 
 ## Deferred review follow-ups (Low, for Phase 9 unless a phase touches the code first)
-- Phase 1: TRUST_PROXY public-range check uses sample IPs only (wide ranges pass; Cloudflare ranges rejected) — check prefix lengths instead.
-- Phase 2: `setPassword` locks token then user while `issue()` locks user then tokens → possible deadlock; use the same lock order.
-- Phase 2: `invite()` checks `is_active`/`password` before the transaction; re-check after the lock.
-- Phase 2: `DeferredTasks` has no concurrency/queue cap; set SMTP connection/socket timeouts and a `drain()` timeout.
-- Phase 2: mail error logs may contain the full recipient in `err.response`; log only code/responseCode/command.
-- Phase 2: sessions without `auth_cv` adopt the current credentials version — adopt only via remember-me; forget the key on logout.
-- Phase 2: no DB constraint that `children.school_id` = parent's `school_id`.
-- Phase 2: CSV import errors and 403-vs-404 reveal accounts/parents in other schools — use generic messages / 404.
-- Phase 2: import confirm sends invitations synchronously; upload limits (route multipart limit ~1 MB, remove tmp file, cap pending imports).
-- Phase 2: import row errors prefixed with raw column keys instead of translated labels.
-- Phase 3: media route has no Bouncer check (add `MealPolicy.viewPhoto`; in Phase 6 consider limiting parents to published/ordered meals).
-- Phase 3: enforce upload body limit + timeout at the reverse proxy (empty-filename parts bypass the 49 MB count); cap concurrent sharp decodes and rate-limit uploads.
-- Phase 3: sharp `failOn: 'error'` → default `'warning'`; `money.ts` trim regex is quadratic (add a length guard before Phase 6 reuses it); require https `S3_ENDPOINT` in production.
-- Phase 3: `new Date()` for `updated_at` in `meal_photo_service.ts` → Clock / `now()`.
-- ~~Phase 5: meal type lock is check-then-save~~ — done in Phase 5 (`MealService.update`/`softDelete` lock the meal `FOR UPDATE`; menu/template inserts lock it `FOR SHARE`).
-- Phase 3 (Medium, before any S3 deploy): production CSP `img-src` blocks the S3 signed-URL redirect for meal photos — allow only the bucket origin (from `S3_ENDPOINT`/bucket+region) or stream S3 objects through the app.
-- ~~Phase 6 (Medium, required when wiring `HolidayImpactService`): recount inside the transaction; order creation takes the school lock~~ — done in Phase 6 (`HolidayService.applyImpact` recounts after `lockSchool` and compares with the `confirmedCount` the admin saw; `OrderService` takes the school row `FOR SHARE`; concurrency test in `tests/functional/orders/order_service.spec.ts`).
-- Phase 4: rate-limit holiday ICS upload/URL import per user; purge expired previews on read and on a schedule; cap pending imports per user.
-- Phase 4: `updateOne`/`updateGroup`/`setActive` decide on rows read before `lockSchool` — re-read `FOR UPDATE` inside the transaction.
-- Phase 4: ICS screener doesn't mirror node-ical's TZID quote stripping (contained by the parsed-authority check + worker); overrides carrying their own RRULE aren't re-validated.
-- Phase 4 (correctness): `sanitizeParseResult` rejects a legitimate result with > 1,000 ignored entries as `unreadable` — cap/slice `ignored` instead.
-- Phase 3 S3 CSP (fail-closed edge cases): stricter `S3_PUBLIC_ORIGIN` host validation; China regions, IP-literal endpoints and `AWS_USE_DUALSTACK_ENDPOINT`/`AWS_USE_FIPS_ENDPOINT`/`AWS_ENDPOINT_URL*` aren't mirrored — best fix: presign a dummy key at boot and assert its origin equals `s3PublicOrigin()`. Load one photo from the real bucket in a browser before launch.
-- ~~Phase 6 (from Phase 5 review): published-menu item changes, max below ordered, meal availability when ordering~~ — done in Phase 6 (D18: `MenuChangeService`; `checkSelection` refuses unavailable/removed/sold-out meals).
-- ~~Phase 5: a menu can be published after its order deadline~~ — D19 done in Phase 6 (refused; the job leaves it scheduled and warns once).
-- ~~Phase 6: deactivating a child does not cancel its future orders~~ — done (review M3, `OrderCancellationService`: child/parent deactivation, subscription end/shortening/deletion).
-- Phase 6: the media route still serves any meal photo to any logged-in user (Phase 3 follow-up, unchanged).
-- Phase 6: `auto_assigned` notifications are in-app only (no email key in `email_notifications`).
-- Phase 5: daily jobs decide "week over" with the app time zone (`clock.today()`), not per school — fine for one Casablanca school; confirm per school with `weekEndsAt` before adding schools in other zones.
-- Phase 5: hourly mail cap counts only sent rows, not failed SMTP attempts.
-- Phase 5: `SchoolPolicy.view` still treats a staff user without a school as all schools (unused) — align or remove.
-- Phase 6 review (Medium): server doesn't check the order date is a school day inside the school year (OrderService.context → evaluate) — crafted POST can order on a day removed from school_days.
-- Phase 6 review (Medium): removing a published day's default promotes a new default without the D18 deadline check or parent notification (MenuBuilderService.removeItem → ensureDefault).
-- Phase 6 review (Medium, before Phase 8): deactivating a child/parent or ending a subscription leaves future active orders (cancel with `child_inactive`, audit, notify).
-- Phase 6 review (Low): `confirmAllergy` is one boolean for a whole request (tie it to meal ids; reject in apply-to-all); audit log IP retention policy; staff PAST_DAY override has no time limit (statements); parent can re-activate a staff-cancelled day; menu-change switch re-prices to the target meal; removal impact page lacks a confirmed count; late auto-assign ignores the day's cutoff.
-- Phase 7 review (Low): exports count + OFFSET pages aren't one snapshot (use REPEATABLE READ or keyset paging; hard stop at MAX_EXPORT_ROWS); xlsx writer keeps querying after client disconnect; labels PDF renders 1,200 labels synchronously (~1.3 s blocking — yield every 50–100 labels and/or cap concurrent renders); hard-coded 'Export failed' message; xlsx shows literal `'` prefix (consider quotePrefix style); cleanText could also strip U+061C/U+200B–D/U+FEFF; NaN-safe label_grid in render.
-- Phase 8 review (Medium): `pdfRenderGate` (2 running, 20 queued) has no per-user share — one heavy user can make every PDF download 503; cap per user (1 running + 1 queued) or separate label/statement gates; skip work for disconnected clients.
-- Phase 8 review (Low): `inertia_middleware` unread-count query has no try/catch (a DB error breaks every parent page and the error page); monthly_fee uses current subscription status so closed months can change (decide before enabling monthly_fee); statements "today" uses APP_TIMEZONE not the school zone; statements xlsx includes every parent's email (keep only if billing needs it); `open` redirect guard should also reject `/\`; consume the download limiter before building the statement; admin statements overview recomputes the whole school per visit.
-- Phase 8 QA note: statements pages fall back to the current month on a malformed `?month=` (PDF/export return 404) — intentional.
+Status after Phase 9: ~~struck~~ = done (where); **open** = left on purpose, with the reason.
+
+- ~~Phase 1: TRUST_PROXY public-range check uses sample IPs only~~ — done in Phase 9 (`trustProxyEntryIssue`: private blocks any size; public ranges need ≥ /12 IPv4, ≥ /28 IPv6, so Cloudflare's ranges pass and `0.0.0.0/1`, `2000::/3`, `::ffff:0:0/96` fail).
+- ~~Phase 2: `setPassword` vs `issue()` lock order~~ — done in Phase 9 (setPassword finds the token's owner without a lock, locks the user, then consumes the token: user → tokens everywhere).
+- ~~Phase 2: `invite()` checks before the transaction~~ — done in Phase 9 (re-checked on the row locked `FOR UPDATE`).
+- ~~Phase 2: `DeferredTasks` cap, SMTP timeouts, drain timeout~~ — done in Phase 9 (100 pending max, then dropped + logged; `drain(15 s)`; SMTP connection/greeting 10 s, socket 30 s).
+- ~~Phase 2: mail error logs may contain the full recipient~~ — done in Phase 9 (deferred tasks, queued-mail and import invitation logs use `safeErrorCode`/`safeMailError`; logger `redact` for passwords/tokens/cookies).
+- ~~Phase 2: sessions without `auth_cv` adopt the version~~ — done in Phase 9 (adopt only when `viaRemember`; `endSession()` forgets it on logout).
+- ~~Phase 2: no DB constraint `children.school_id` = parent's school~~ — done in Phase 9 (composite FK `children_parent_school_fk`).
+- ~~Phase 2: import errors and 403-vs-404 reveal other schools~~ — done in Phase 9 (parents/children/subscriptions looked up inside the staff member's school → 404; one generic "address already used" import error).
+- Phase 2: import confirm sends invitations synchronously; upload limits — **partly done** (tmp upload file deleted, ≤ 5 pending previews per user, invitations stop after 3 consecutive SMTP failures, SMTP timeouts). **Open:** the route-level 1 MB multipart limit (global bodyparser limit is 20 MB) — enforced at the reverse proxy instead (`client_max_body_size 2m`, docs/DEPLOYMENT.md); accepted risk (admin-only route).
+- Phase 2: import row errors prefixed with raw column keys — **open, intended**: the keys are the CSV headers the admin typed (template columns), so they point at the right column.
+- ~~Phase 3: media route has no Bouncer check~~ — done in Phase 9 (`MealPolicy.viewPhoto`: staff/kitchen all; parents only meals on a published/closed menu of their school or in their children's orders; else 404).
+- ~~Phase 3: upload limits at the proxy, sharp concurrency, upload rate limit~~ — done in Phase 9 (nginx/Apache limits documented in docs/DEPLOYMENT.md; `imageDecodeGate` 2 decodes + 10 waiting; 20 upload requests / 10 min per user).
+- Phase 3: sharp `failOn` / `money.ts` / https `S3_ENDPOINT` — `money.ts` length guard ~~done~~ (Phase 9, 32 chars); https `S3_ENDPOINT` ~~done~~ (Phase 3 fix). **Open:** `failOn: 'error'` kept — `'warning'` rejects many slightly malformed phone JPEGs; decoding is still bounded (pixel limit, magic bytes, format match, re-encode).
+- ~~Phase 3: `new Date()` in `meal_photo_service.ts`~~ — done in Phase 9 (Clock).
+- ~~Phase 5: meal type lock is check-then-save~~ — done in Phase 5.
+- ~~Phase 3 (Medium): CSP `img-src` blocks the S3 redirect~~ — done in Phase 3 fix (bucket origin in the CSP).
+- ~~Phase 6 (Medium): recount inside the transaction; order creation takes the school lock~~ — done in Phase 6.
+- ~~Phase 4: rate-limit ICS imports; purge previews; cap pending~~ — done in Phase 9 (10 imports / 10 min per user; previews purged on every upload, ≤ 5 per user; tmp upload deleted). No separate purge cron (previews only appear on upload, which purges).
+- ~~Phase 4: `updateOne`/`updateGroup`/`setActive` decide on rows read before the lock~~ — done in Phase 9 (re-read `FOR UPDATE` inside the lock; a range changed meanwhile → "reload and try again").
+- Phase 4: ICS screener vs node-ical TZID quote stripping; overrides with their own RRULE — **open, accepted risk**: contained by the parsed-authority re-check, the worker's memory/time limits and the 400-occurrence cap.
+- ~~Phase 4: `sanitizeParseResult` rejects > 1,000 ignored entries~~ — done in Phase 9 (sliced to 1,000).
+- ~~Phase 3 S3 CSP fail-closed edge cases~~ — done in Phase 9 (boot-time presign self-check in production: the app refuses to start when the signed URL's origin differs from the CSP's). Still do one manual photo check on the real bucket (DEPLOYMENT checklist).
+- ~~Phase 6: published-menu item changes, max below ordered, meal availability~~ — done in Phase 6.
+- ~~Phase 5: a menu can be published after its order deadline~~ — done in Phase 6 (D19).
+- ~~Phase 6: deactivating a child does not cancel its future orders~~ — done in Phase 6.
+- ~~Phase 6: the media route serves any photo to any logged-in user~~ — done in Phase 9 (`MealPolicy.viewPhoto`, above).
+- Phase 6: `auto_assigned` notifications are in-app only — **open, needs a decision** (add an `auto_assigned` email key + opt-out if BFK wants it).
+- Phase 5: daily jobs decide "week over" with the app time zone — **open, accepted**: one school in Africa/Casablanca; revisit before adding a school in another zone.
+- ~~Phase 5: hourly mail cap counts only sent rows~~ — done in Phase 9 (failed SMTP attempts in the last hour count too; skipped rows don't).
+- ~~Phase 5: `SchoolPolicy.view` treats staff without a school as all schools~~ — done in Phase 9 (aligned: own school only).
+- ~~Phase 6 review (Medium): order date not checked as a school day~~ — done (6e451b0: `NOT_SCHOOL_DAY`).
+- ~~Phase 6 review (Medium): removing a published default promotes a new default without D18~~ — done in Phase 6 fix (deadline check + parent notification).
+- ~~Phase 6 review (Medium): deactivation / subscription end leaves future orders~~ — done in Phase 6 fix (`OrderCancellationService`).
+- Phase 6 review (Low): `confirmAllergy` ~~refused in apply-to-all~~ (done); staff PAST_DAY limit ~~D23~~; staff-cancelled re-open ~~D24~~; switch price ~~D25~~; late auto-assign cutoff ~~L7~~ (all done in Phase 6). **Open:** `confirmAllergy` is one flag per day request (only matters with `allergy_rule = warn_confirm`, not the default `block`); audit-log IP retention — **needs a decision** (retention period); removal impact page count is re-checked server-side (`confirmedCount`) — done.
+- Phase 7 review (Low): ~~labels PDF yields + capped renders~~ (Phase 8/9, D27); ~~hard stop at MAX_EXPORT_ROWS~~, ~~xlsx writer stops after a client disconnect~~, ~~translated "export failed"~~, ~~cleanText strips U+061C / U+200B–D / U+FEFF~~, ~~NaN-safe label_grid~~ (`clampGrid`) — done in Phase 9. **Open:** export pages are separate queries, not one snapshot (an order changed during the export may appear twice or be missed; re-export) — accepted; xlsx shows the literal `'` prefix of escaped cells (cosmetic, safe).
+- ~~Phase 8 review (Medium): `pdfRenderGate` has no per-user share~~ — done in Phase 9 (D27: `pdfUserRenderGate` 1 running + 1 waiting per user → 429 + Retry-After; renders of disconnected clients skipped).
+- Phase 8 review (Low): ~~`inertia_middleware` unread count try/catch~~, ~~statements xlsx emails (D28)~~, ~~open-redirect guard `/\`~~ (`isLocalPath`), ~~download limiter before building the statement~~ — done in Phase 9. **Open:** `monthly_fee` uses the current subscription status — **needs a decision** (D29, pending; not active); statements "today" uses APP_TIMEZONE (same as the school's, one school) — accepted; admin statements overview recomputes the school per visit — accepted (a few SQL sums, < 50 ms on the demo data; cache only if a school grows past ~2,000 children).
+- Phase 8 QA note: statements pages fall back to the current month on a malformed `?month=` (PDF/export 404) — intentional.
+
+### Phase 9 QA + final security review
+- ~~QA: ImportStore cap could drop the newest previews on same-millisecond ties~~ — done (in-process sequence tie-break; inherited by the holiday store).
+- ~~QA: no test for the export hard stop~~ — done (`tests/unit/export_row_cap.spec.ts`).
+- ~~Security H1: multipart auto-processing on every route left temp files (pre-auth disk exhaustion)~~ — done (autoProcess limited to the 2 import routes, 2 MB, `tmp/uploads`, `UploadCleanupMiddleware` deletes on every path; tests for anonymous `/login`, non-upload routes, import failures).
+- ~~Security M1: cookie sessions never expire server-side~~ — done (2 h idle / 12 h absolute, remember-me restarts a fresh session).
+- ~~Security M2: SMTP without requireTLS~~ — done (`requireTLS` in production unless `SMTP_SECURE` or loopback; `SMTP_SECURE` env).
+- ~~Security L1: static headers missing on 404 / early errors~~ — done (server-level middleware + nginx `always` lines documented).
+- ~~Security L2: pg error `detail` in logs~~ — done (stripped in `report`, redacted in the logger).
+- ~~Security L3: unencrypted off-site backups~~ — done (docs: age/gpg/rclone crypt).
+- ~~Security L4: FK migration fails with a bare violation~~ — done (pre-check lists the mismatched children).
+- Security (residual, **open**): Apache `LimitRequestBody` on cPanel may only be settable domain-wide (documented scoping with `<If>`; the app refuses large bodies itself); login POST rate limiting at the proxy depends on the host (`mod_evasive`/Imunify) — the app's own limiters always apply.
+- Final review (Low, post-launch): empty `tmp/uploads` at boot (files left only if the process is killed mid-upload); wrap the expired-session redirect in `isLocalPath()`; fixed maximum lifetime per remember-me chain; decide audit-log IP retention (Moroccan law 09-08).

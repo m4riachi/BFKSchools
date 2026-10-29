@@ -459,7 +459,13 @@ test.group('Statements | pages and access', (group) => {
     await workbook.xlsx.load(xlsx.body() as any)
     const families = workbook.worksheets[0]
     const totalRow = families.getRow(families.rowCount).values as unknown[]
-    assert.equal(totalRow[8], 199)
+    // D28: no email column — parent, children, counts and amounts only.
+    assert.equal(totalRow[7], 199)
+    for (const sheet of workbook.worksheets) {
+      sheet.eachRow((row) => {
+        assert.notInclude(JSON.stringify(row.values), '@', `no email in ${sheet.name}`)
+      })
+    }
     const children = workbook.worksheets[1]
     assert.equal(children.rowCount, 1 + 3 + 1)
 

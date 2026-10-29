@@ -99,9 +99,7 @@
     "no_subscription_note": "{name} has no active subscription on this day: only extras can be ordered.",
     "add_one": "Add one {name}",
     "remove_one": "Remove one {name}",
-    "none_selected": "Nothing selected",
     "nothing_ordered": "Nothing ordered",
-    "auto_note": "Without a choice at the deadline, subscribed children get the default meal.",
     "holiday_text": "No school lunch on this day.",
     "apply_all": "Same choice for all my children",
     "apply_all_title": "Apply this choice",
@@ -117,7 +115,6 @@
     "no_children_title": "No child registered",
     "no_children_body": "No active child is linked to your account. Please contact BFK.",
     "saving": "Saving…",
-    "by_staff": "Changed by BFK",
     "auto_assigned": "Default meal assigned"
   },
   "history": {

@@ -1,4 +1,8 @@
+/* eslint-disable @unicorn/no-await-expression-member */
 import { test } from '@japa/runner'
+import db from '@adonisjs/lucid/services/db'
+import { UserFactory } from '#database/factories/user_factory'
+import { MON, addItem, menuOf, setupMenuSchool } from '#tests/helpers/menus'
 import sharp from 'sharp'
 import drive from '@adonisjs/drive/services/main'
 import testUtils from '@adonisjs/core/services/test_utils'
@@ -462,11 +466,35 @@ test.group('Meal photos | serving', (group) => {
     client,
     assert,
   }) => {
-    const manager = await createStaff('manager')
-    const parent = await createStaff('parent')
+    const { school, manager } = await setupMenuSchool()
+    const parent = await UserFactory.apply('parent').merge({ schoolId: school.id }).create()
+    const kitchen = await createStaff('kitchen')
     const meal = await createMeal()
     await upload(client, manager, meal, [{ data: await pngBuffer(), filename: 'a.png' }])
     const [photo] = await photosOf(meal.id)
+
+    // MealPolicy.viewPhoto: kitchen sees every photo; a parent only meals on a
+    // published menu of their school (or ordered) — otherwise 404.
+    ;(await client.get(`/media/meal-photos/${photo.id}/thumb`).loginAs(kitchen)).assertStatus(200)
+    ;(await client.get(`/media/meal-photos/${photo.id}/thumb`).loginAs(parent)).assertStatus(404)
+    await addItem(school, manager, MON, meal)
+    const menu = await menuOf(school)
+    ;(await client.get(`/media/meal-photos/${photo.id}/thumb`).loginAs(parent)).assertStatus(404)
+    const at = new Date('2026-11-19T10:00:00Z')
+    await db
+      .from('weekly_menus')
+      .where('id', menu.id)
+      .update({
+        status: 'published',
+        publish_at: at,
+        published_at: at,
+        order_deadline_at: new Date('2026-11-22T20:00:00Z'),
+      })
+    const otherSchool = await setupMenuSchool()
+    const stranger = await UserFactory.apply('parent')
+      .merge({ schoolId: otherSchool.school.id })
+      .create()
+    ;(await client.get(`/media/meal-photos/${photo.id}/thumb`).loginAs(stranger)).assertStatus(404)
 
     for (const variant of ['full', 'thumb']) {
       const response = await client.get(`/media/meal-photos/${photo.id}/${variant}`).loginAs(parent)

@@ -99,9 +99,7 @@
     "no_subscription_note": "{name} n'a pas d'abonnement actif ce jour : seuls les suppléments sont possibles.",
     "add_one": "Ajouter un {name}",
     "remove_one": "Retirer un {name}",
-    "none_selected": "Aucun choix",
     "nothing_ordered": "Rien de commandé",
-    "auto_note": "Sans choix à la clôture, le plat par défaut sera servi aux enfants abonnés.",
     "holiday_text": "Pas de repas à l'école ce jour.",
     "apply_all": "Même choix pour tous mes enfants",
     "apply_all_title": "Appliquer ce choix",
@@ -117,7 +115,6 @@
     "no_children_title": "Aucun enfant inscrit",
     "no_children_body": "Aucun enfant actif n'est rattaché à votre compte. Contactez BFK.",
     "saving": "Enregistrement…",
-    "by_staff": "Modifié par BFK",
     "auto_assigned": "Plat par défaut attribué"
   },
   "history": {

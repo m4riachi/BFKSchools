@@ -2,6 +2,7 @@ import app from '@adonisjs/core/services/app'
 import env from '#start/env'
 import { defineConfig, transports } from '@adonisjs/mail'
 import { LogTransport } from '#app/mail/log_transport'
+import { smtpTlsOptions } from '#support/env_guards'
 
 const smtpUser = env.get('SMTP_USERNAME')
 
@@ -24,6 +25,19 @@ const mailConfig = defineConfig({
     smtp: transports.smtp({
       host: env.get('SMTP_HOST', '127.0.0.1'),
       port: env.get('SMTP_PORT', 1025),
+      // SMTP_SECURE=true → TLS from the start (465); production otherwise
+      // requires STARTTLS unless the relay is on loopback (env_guards.ts).
+      ...smtpTlsOptions({
+        NODE_ENV: env.get('NODE_ENV'),
+        SMTP_HOST: env.get('SMTP_HOST'),
+        SMTP_SECURE: env.get('SMTP_SECURE'),
+      }),
+      // Bounded waits: a hung SMTP server must not hold a request, a
+      // deferred task or a `mail:dispatch` run (cron) open for minutes
+      // (nodemailer defaults: 2 min connect, 10 min socket).
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 30_000,
       ...(smtpUser
         ? {
             auth: {

@@ -48,6 +48,9 @@ const env = await Env.create(new URL('../', import.meta.url), {
   MAIL_FROM_ADDRESS: Env.schema.string({ format: 'email' }),
   SMTP_HOST: Env.schema.string.optional(),
   SMTP_PORT: Env.schema.number.optional(),
+  // true = implicit TLS (port 465). Otherwise production requires STARTTLS
+  // unless SMTP_HOST is loopback (app/support/env_guards.ts smtpTlsOptions).
+  SMTP_SECURE: Env.schema.boolean.optional(),
   SMTP_USERNAME: Env.schema.string.optional(),
   SMTP_PASSWORD: Env.schema.string.optional(),
   // Outbox (D16): emails sent per `mail:dispatch` run (cron: every minute)

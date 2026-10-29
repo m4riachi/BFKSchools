@@ -229,6 +229,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/statements_controller').default['show']>>>
     }
   }
+  'parent.account': {
+    methods: ["GET","HEAD"]
+    pattern: '/account'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/account_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/account_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/account_controller').default['show']>>>
+    }
+  }
+  'parent.account.password': {
+    methods: ["PUT"]
+    pattern: '/account/password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/passwords').changePasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/passwords').changePasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/account_controller').default['updatePassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/account_controller').default['updatePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/account_controller').default['updatePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'parent.statements.pdf': {
     methods: ["GET","HEAD"]
     pattern: '/statements/pdf'

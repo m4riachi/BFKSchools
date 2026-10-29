@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, rm } from 'node:fs/promises'
 import { inject } from '@adonisjs/core'
 import app from '@adonisjs/core/services/app'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -10,6 +10,7 @@ import { IcsInvalidError } from '#services/ics_parser'
 import { staffSchoolId } from '#policies/parent_policy'
 import { icsConfirmValidator, icsUploadValidator, icsUrlValidator } from '#validators/holidays'
 import { ICS_IMPORT } from '#config/holidays'
+import { holidayImportLimiter, uploadKeys } from '#start/limiter'
 import { schoolYearLabel } from '#controllers/admin/holidays_controller'
 
 /** Reasons shown to the browser as one generic "not allowed or unreachable". */
@@ -41,6 +42,11 @@ export default class HolidayImportsController {
     return School.findOrFail(staffSchoolId(ctx.auth.getUserOrFail()))
   }
 
+  /** 10 imports (file or URL) / 10 min per user, then 429. */
+  protected async consumeImportBudget(ctx: HttpContext) {
+    await holidayImportLimiter().consume(uploadKeys.holidayImport(ctx.auth.getUserOrFail().id))
+  }
+
   protected pageProps(school: School) {
     return {
       schoolYear: {
@@ -65,8 +71,14 @@ export default class HolidayImportsController {
   async upload(ctx: HttpContext) {
     const { request, response, auth } = ctx
     const school = await this.school(ctx)
+    await this.consumeImportBudget(ctx)
     const { calendar } = await request.validateUsing(icsUploadValidator)
-    const content = await readFile(calendar.tmpPath!, 'utf8')
+    let content: string
+    try {
+      content = await readFile(calendar.tmpPath!, 'utf8')
+    } finally {
+      await rm(calendar.tmpPath!, { force: true })
+    }
     return this.keep(ctx, school, auth.getUserOrFail().id, content, response)
   }
 
@@ -74,6 +86,7 @@ export default class HolidayImportsController {
   async fetchUrl(ctx: HttpContext) {
     const { request, response, auth, session, i18n, logger } = ctx
     const school = await this.school(ctx)
+    await this.consumeImportBudget(ctx)
     const { url } = await request.validateUsing(icsUrlValidator)
     const fetcher = await app.container.make(SafeHttpFetcher)
     let content: string

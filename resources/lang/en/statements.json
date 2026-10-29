@@ -1,7 +1,6 @@
 {
   "title": "Monthly statements",
   "parent_title": "Monthly statement",
-  "subtitle": "Subscription meals and extras, at the prices recorded when ordering.",
   "month": "Month",
   "previous_month": "Previous month",
   "next_month": "Next month",
@@ -65,7 +64,6 @@
     "families_sheet": "Families",
     "children_sheet": "Children",
     "parent": "Parent",
-    "email": "Email",
     "children": "Children",
     "last_name": "Last name",
     "first_name": "First name",

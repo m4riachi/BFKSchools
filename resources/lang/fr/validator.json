@@ -38,6 +38,7 @@
       "calendar.file.extname": "Le fichier doit être un calendrier .ics."
     },
     "fields": {
+      "currentPassword": "mot de passe actuel",
       "email": "e-mail",
       "password": "mot de passe",
       "locale": "langue",

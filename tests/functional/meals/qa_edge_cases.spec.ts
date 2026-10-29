@@ -215,7 +215,9 @@ test.group('Meals QA | kitchen read-only', (group) => {
 test.group('Meals QA | media route auth', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
-  test('an inactive user cannot fetch photos; a parent can', async ({ client }) => {
+  test('an inactive user cannot fetch photos; kitchen can, a parent only for menu meals', async ({
+    client,
+  }) => {
     drive.fake('fs')
     const manager = await createStaff('manager')
     const meal = await createMeal()
@@ -231,8 +233,14 @@ test.group('Meals QA | media route auth', (group) => {
     if (res.status() === 200) throw new Error('inactive user was served a photo')
     const ok = await client
       .get(`/media/meal-photos/${photo.id}/thumb`)
-      .loginAs(await createStaff('parent'))
+      .loginAs(await createStaff('kitchen'))
     ok.assertStatus(200)
+    // Phase 9 (MealPolicy.viewPhoto): a meal on no published menu of the
+    // parent's school (nor ordered) is a 404 for them.
+    const parent = await client
+      .get(`/media/meal-photos/${photo.id}/thumb`)
+      .loginAs(await createStaff('parent'))
+    parent.assertStatus(404)
     drive.restore('fs')
   })
 

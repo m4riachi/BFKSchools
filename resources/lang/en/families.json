@@ -94,7 +94,6 @@
     "child_inactive": "Inactive",
     "no_allergies": "No allergies",
     "class": "Class",
-    "grade_class": "{grade} · {className}",
     "subscription": "Subscription",
     "subscription_none": "No subscription",
     "edit_child": "Edit",
@@ -143,7 +142,6 @@
     "end_hint": "Leave empty for an open-ended subscription.",
     "status": "Status",
     "notes": "Notes",
-    "open_ended": "Open-ended",
     "period": "{start} to {end}",
     "period_open": "since {start}",
     "save": "Save",
@@ -207,7 +205,6 @@
     "parent_label": "Parent: {action}",
     "child_label": "Child: {action}",
     "subscription_label": "Period: {action}",
-    "row_ok": "OK",
     "has_errors": "Fix the errors in the file and import it again. No row is saved while errors remain.",
     "nothing_to_do": "Every row is already up to date.",
     "send_invitations": "Send the invitation to new parents",
@@ -230,8 +227,7 @@
       "end_without_start": "subscription_end: also fill in subscription_start.",
       "parent_mismatch": "Same email as row {line} but a different name, phone or language.",
       "duplicate_child": "This child already appears on row {line}.",
-      "email_not_parent": "parent_email: this address belongs to a staff account.",
-      "other_school": "parent_email: this parent belongs to another school."
+      "email_unavailable": "parent_email: this address is already used by another account."
     }
   },
   "errors": {
@@ -243,8 +239,7 @@
     "subscription_overlap": "This period overlaps an existing period ({start} → {end}).",
     "subscription_overlap_generic": "This period overlaps an existing period.",
     "child_duplicate": "This parent already has a child with this first and last name.",
-    "child_has_orders": "This child has orders: deactivate them instead of deleting.",
-    "no_school": "Your account is not linked to a school."
+    "child_has_orders": "This child has orders: deactivate them instead of deleting."
   },
   "flash": {
     "parent_created": "Parent created.",

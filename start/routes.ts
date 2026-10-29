@@ -118,6 +118,11 @@ router
 router
   .group(() => {
     router.get('statements', [controllers.parent.Statements, 'show']).as('statements')
+    // Account tab (D30): details + change password
+    router.get('account', [controllers.parent.Account, 'show']).as('account')
+    router
+      .put('account/password', [controllers.parent.Account, 'updatePassword'])
+      .as('account.password')
     router.get('statements/pdf', [controllers.parent.Statements, 'download']).as('statements.pdf')
     router.get('notifications', [controllers.parent.Notifications, 'index']).as('notifications')
     router

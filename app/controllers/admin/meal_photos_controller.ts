@@ -5,6 +5,7 @@ import MealPhotoService, { type UploadedPhoto } from '#services/meal_photo_servi
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { mealPhotoOrderValidator } from '#validators/meals'
 import { MEAL_PHOTOS } from '#config/meals'
+import { mealPhotoUploadLimiter, uploadKeys } from '#start/limiter'
 
 /** Multipart field of the files: `photos`, `photos[]` or `photos[n]`. */
 const PHOTO_FIELD = /^photos(\[\d{0,2}\])?$/
@@ -25,9 +26,11 @@ export default class MealPhotosController {
     protected photos: MealPhotoService
   ) {}
 
-  async store({ params, request, response, bouncer, session, i18n }: HttpContext) {
+  async store({ params, request, response, bouncer, session, i18n, auth }: HttpContext) {
     await bouncer.with('MealPolicy').authorize('manage')
     const meal = await this.meals.findInCatalog(params.id)
+    // Before reading the body: 20 upload requests / 10 min per user (429).
+    await mealPhotoUploadLimiter().consume(uploadKeys.mealPhotos(auth.getUserOrFail().id))
 
     const files = await this.readPhotos(request)
     const created = await this.photos.upload(meal, files)

@@ -496,8 +496,7 @@ export function sanitizeParseResult(raw: unknown): IcsParseResult | null {
     !value ||
     !Array.isArray(value.ranges) ||
     !Array.isArray(value.ignored) ||
-    value.ranges.length > ICS_IMPORT.maxPreviewRanges ||
-    value.ignored.length > ICS_IMPORT.maxEvents
+    value.ranges.length > ICS_IMPORT.maxPreviewRanges
   ) {
     return null
   }
@@ -526,7 +525,10 @@ export function sanitizeParseResult(raw: unknown): IcsParseResult | null {
       recurring: r.recurring,
     })
   }
+  // A long list of ignored entries is legitimate (e.g. a calendar full of
+  // timed events): keep the first maxEvents for the preview, never reject.
   const ignored = (value.ignored as { summary?: unknown; reason?: unknown }[])
+    .slice(0, ICS_IMPORT.maxEvents)
     .filter(
       (i) =>
         isText(i?.summary, HOLIDAY_NAME_MAX_LENGTH) &&

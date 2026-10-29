@@ -1,4 +1,5 @@
 import { defineConfig } from '@adonisjs/core/bodyparser'
+import { uploadTmpFileName } from '#support/uploads'
 
 const bodyParserConfig = defineConfig({
   /**
@@ -49,9 +50,15 @@ const bodyParserConfig = defineConfig({
    */
   multipart: {
     /**
-     * Automatically process uploaded files into the system tmp directory.
+     * Files are written to disk ONLY for the two import routes (the
+     * bodyparser runs before auth/CSRF: auto-processing every route let any
+     * anonymous multipart POST, e.g. to /login, drop files on the disk).
+     * Every other route leaves a multipart body unparsed. Temporary files go
+     * to tmp/uploads and are deleted at the end of each request by
+     * UploadCleanupMiddleware (start/kernel.ts), whatever the outcome.
      */
-    autoProcess: true,
+    autoProcess: ['/admin/imports/families', '/admin/holidays/import'],
+    tmpFileName: uploadTmpFileName,
 
     /**
      * Normalize empty string values to null.
@@ -66,9 +73,10 @@ const bodyParserConfig = defineConfig({
     processManually: ['/admin/meals/:id/photos'],
 
     /**
-     * Maximum accepted payload size for multipart requests.
+     * Maximum multipart payload of the auto-processed routes (CSV and ICS
+     * files are capped at 1 MB by their validators; 413 above this).
      */
-    limit: '20mb',
+    limit: '2mb',
 
     /**
      * Content types handled by the multipart parser.

@@ -83,8 +83,8 @@ export default class ParentsController {
     return response.redirect(`/admin/parents/${parent.id}`)
   }
 
-  async show({ params, inertia, bouncer }: HttpContext) {
-    const parent = await this.findParent(params.id)
+  async show({ params, inertia, bouncer, auth }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
 
     await parent.load('children', (query) =>
@@ -106,8 +106,8 @@ export default class ParentsController {
     })
   }
 
-  async edit({ params, inertia, bouncer }: HttpContext) {
-    const parent = await this.findParent(params.id)
+  async edit({ params, inertia, bouncer, auth }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
     return inertia.render('admin/parents/edit', {
       parent: {
@@ -120,8 +120,8 @@ export default class ParentsController {
     })
   }
 
-  async update({ params, request, response, bouncer, session, i18n }: HttpContext) {
-    const parent = await this.findParent(params.id)
+  async update({ params, request, response, bouncer, session, i18n, auth }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
 
     const { fullName, email, phone, locale } = await request.validateUsing(parentValidator, {
@@ -135,15 +135,15 @@ export default class ParentsController {
   }
 
   async deactivate({ params, response, bouncer, session, i18n, auth }: HttpContext) {
-    const parent = await this.findParent(params.id)
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
     await this.parents.deactivate(parent, auth.getUserOrFail())
     session.flash('success', i18n.t('families.flash.parent_deactivated'))
     return response.redirect(`/admin/parents/${parent.id}`)
   }
 
-  async activate({ params, response, bouncer, session, i18n }: HttpContext) {
-    const parent = await this.findParent(params.id)
+  async activate({ params, response, bouncer, session, i18n, auth }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
     await this.parents.activate(parent)
     session.flash('success', i18n.t('families.flash.parent_activated'))
@@ -152,7 +152,7 @@ export default class ParentsController {
 
   /** Sends or re-sends the invitation (the previous link stops working). */
   async invite({ params, response, bouncer, auth, session, i18n }: HttpContext) {
-    const parent = await this.findParent(params.id)
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
     const resend = parent.invitedAt !== null
     await this.accountLinks.invite(parent, auth.getUserOrFail())
@@ -165,12 +165,19 @@ export default class ParentsController {
     return response.redirect().back()
   }
 
-  /** Parents only: any other role behind this id is a 404. */
-  protected async findParent(id: unknown) {
+  /**
+   * Parents of the staff member's school only: another role or a parent of
+   * another school behind this id is a 404 (no 403 that would confirm the
+   * account exists). Staff without a school fall through to the policy (403).
+   */
+  protected async findParent(id: unknown, staff: User) {
     const parentId = Number(id)
     if (!Number.isSafeInteger(parentId) || parentId <= 0) {
       return User.query().whereRaw('false').firstOrFail()
     }
-    return User.query().where('id', parentId).where('role', 'parent').firstOrFail()
+    const query = User.query().where('id', parentId).where('role', 'parent')
+    const schoolId = staffSchoolId(staff)
+    if (schoolId !== null) query.where('school_id', schoolId)
+    return query.firstOrFail()
   }
 }

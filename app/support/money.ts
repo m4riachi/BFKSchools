@@ -5,6 +5,9 @@
 
 export type Locale = 'fr' | 'en'
 
+/** Longest text accepted as an amount ("999 999 999,99" is 14 chars). */
+export const MAX_AMOUNT_INPUT_LENGTH = 32
+
 function groupThousands(digits: string, separator: string): string {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, separator)
 }
@@ -30,6 +33,9 @@ export function formatMad(cents: number, locale: Locale = 'fr'): string {
  * with at most 2 decimals.
  */
 export function parseMadToCents(input: string): number | null {
+  // Length guard first: the trim regex below backtracks on long runs of
+  // spaces; no real amount is anywhere near this long.
+  if (input.length > MAX_AMOUNT_INPUT_LENGTH) return null
   // Surrounding spaces are ignored; inside the number, a space (also NBSP or
   // narrow NBSP) is only allowed as a thousands separator before groups of
   // exactly 3 digits ("1 234,50"). "12 50", tabs and newlines are refused.

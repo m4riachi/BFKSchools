@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, rm } from 'node:fs/promises'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import FamilyImportService, {
@@ -46,7 +46,13 @@ export default class FamilyImportsController {
     const user = auth.getUserOrFail()
     const { file } = await request.validateUsing(importUploadValidator)
 
-    const content = await readFile(file.tmpPath!, 'utf8')
+    let content: string
+    try {
+      content = await readFile(file.tmpPath!, 'utf8')
+    } finally {
+      // The bodyparser leaves uploads in the OS temp folder; the store keeps its own copy.
+      await rm(file.tmpPath!, { force: true })
+    }
     const id = await this.store.put(user.id, staffSchoolId(user)!, content)
     return response.redirect(`/admin/imports/families/${id}`)
   }

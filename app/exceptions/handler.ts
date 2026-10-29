@@ -31,7 +31,25 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     return super.handle(error, ctx)
   }
 
+  /**
+   * PostgreSQL errors carry the offending values in `detail` / `where`
+   * (e.g. `Key (lower(email))=(salma@example.test) already exists`) and
+   * knex adds the query bindings: never write those to the log (security
+   * review L2). The error keeps its message, code, constraint and table.
+   */
   async report(error: unknown, ctx: HttpContext) {
+    stripDatabaseDetails(error)
     return super.report(error, ctx)
   }
+}
+
+const SENSITIVE_DB_FIELDS = ['detail', 'where', 'hint', 'internalQuery', 'parameters', 'bindings']
+
+export function stripDatabaseDetails(error: unknown) {
+  if (!error || typeof error !== 'object') return
+  const target = error as Record<string, unknown>
+  for (const field of SENSITIVE_DB_FIELDS) {
+    if (field in target) delete target[field]
+  }
+  if (target.cause && target.cause !== error) stripDatabaseDetails(target.cause)
 }

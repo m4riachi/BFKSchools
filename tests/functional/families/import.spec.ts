@@ -227,7 +227,7 @@ test.group('Families | CSV import', (group) => {
     assert.match(errorsByLine[5][0], /codes inconnus \(kiwi\)/)
     assert.match(errorsByLine[6][0], /^subscription_start: Saisissez une date/)
     assert.match(errorsByLine[7][0], /La fin doit être/)
-    assert.match(errorsByLine[8][0], /compte du personnel/)
+    assert.match(errorsByLine[8][0], /déjà utilisée par un autre compte/)
     assert.match(errorsByLine[9][0], /chevauche/)
     assert.match(errorsByLine[10][0], /apparaît déjà ligne 2/)
     assert.match(errorsByLine[11][0], /Même e-mail que la ligne 2/)

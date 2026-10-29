@@ -67,6 +67,17 @@ export default class UserTokenService {
     return record && this.isUsable(record) && record.user.isActive ? record : null
   }
 
+  /** The user id a raw token belongs to (no lock, no usability check), or null. */
+  async findOwner(raw: string, type: UserTokenType): Promise<number | null> {
+    if (!RAW_TOKEN_RE.test(raw)) return null
+    const record = await UserToken.query()
+      .select('user_id')
+      .where('token_hash', UserTokenService.hash(raw))
+      .where('type', type)
+      .first()
+    return record?.userId ?? null
+  }
+
   /**
    * Locks and consumes a token inside `trx`. Returns null when it cannot be
    * used (the caller shows the "invalid or expired link" page).

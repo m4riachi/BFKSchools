@@ -54,6 +54,9 @@ function centsToNumber(cents: number): number {
 
 @inject()
 export default class ReportExportService {
+  /** Hard stop of one export file (a subclass may lower it, e.g. in tests). */
+  protected maxRows = MAX_EXPORT_ROWS
+
   constructor(protected reports: ProductionReportService) {}
 
   protected detailColumns(locale: string, withAmounts: boolean): Column<ExportDetailRow>[] {
@@ -134,18 +137,38 @@ export default class ReportExportService {
     return columns.map((column) => safeCell(i18n.t(`reports.exports.columns.${column.key}`)))
   }
 
-  /** Pages of cells (header row excluded). */
+  /**
+   * Pages of cells (header row excluded). Hard stop at MAX_EXPORT_ROWS: the
+   * controller counted the rows first, but orders placed while the file is
+   * written (pages are separate queries, not one snapshot) can never make
+   * it grow past the cap.
+   */
   protected async *pages(schoolId: number, options: ExportOptions): AsyncGenerator<Cell[][]> {
-    if (options.kind === 'detail') {
-      const columns = this.detailColumns(options.locale, options.withAmounts)
-      for await (const page of this.reports.exportDetail(schoolId, options.filters)) {
-        yield page.map((row) => columns.map((column) => column.value(row)))
-      }
-    } else {
-      const columns = this.summaryColumns(options.locale, options.withAmounts)
-      for await (const page of this.reports.exportSummary(schoolId, options.filters)) {
-        yield page.map((row) => columns.map((column) => column.value(row)))
-      }
+    let left = this.maxRows
+    const source =
+      options.kind === 'detail'
+        ? this.mapPages(
+            this.reports.exportDetail(schoolId, options.filters),
+            this.detailColumns(options.locale, options.withAmounts)
+          )
+        : this.mapPages(
+            this.reports.exportSummary(schoolId, options.filters),
+            this.summaryColumns(options.locale, options.withAmounts)
+          )
+    for await (const page of source) {
+      const kept = page.slice(0, left)
+      left -= kept.length
+      if (kept.length) yield kept
+      if (left <= 0) return
+    }
+  }
+
+  protected async *mapPages<Row>(
+    pages: AsyncGenerator<Row[]>,
+    columns: Column<Row>[]
+  ): AsyncGenerator<Cell[][]> {
+    for await (const page of pages) {
+      yield page.map((row) => columns.map((column) => column.value(row)))
     }
   }
 
@@ -210,13 +233,15 @@ export default class ReportExportService {
       sheet.getRow(1).font = { bold: true }
       sheet.getRow(1).commit()
       for await (const rows of pages) {
+        // The client went away (response stream destroyed): stop querying.
+        if (output.destroyed) return
         for (const row of rows) sheet.addRow(row).commit()
       }
       sheet.commit()
       await workbook.commit()
     }
     run().catch((error) => {
-      logger.error({ err: error }, 'report export (xlsx) failed')
+      logger.error({ error: (error as Error)?.name ?? 'Error' }, 'report export (xlsx) failed')
       output.destroy(error as Error)
     })
     return output

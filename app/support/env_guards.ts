@@ -57,11 +57,124 @@ export function assertDriveEnv(values: {
 }
 
 /**
- * Public addresses that no trusted proxy list may contain. If one of them is
- * trusted, (almost) any client can set X-Forwarded-For and choose the IP used
- * by the login rate limiters (e.g. `0.0.0.0/1, 128.0.0.0/1`).
+ * Address blocks a trusted-proxy entry may cover at any size: loopback,
+ * private, CGNAT, link-local and IPv6 unique-local / link-local ranges.
  */
-const PUBLIC_SAMPLES = ['1.1.1.1', '8.8.8.8', '203.0.113.1', '2606:4700::1', '2001:4860:4860::8888']
+const PRIVATE_BLOCKS: { family: 4 | 6; cidr: string }[] = [
+  { family: 4, cidr: '127.0.0.0/8' },
+  { family: 4, cidr: '10.0.0.0/8' },
+  { family: 4, cidr: '172.16.0.0/12' },
+  { family: 4, cidr: '192.168.0.0/16' },
+  { family: 4, cidr: '100.64.0.0/10' },
+  { family: 4, cidr: '169.254.0.0/16' },
+  { family: 6, cidr: '::1/128' },
+  { family: 6, cidr: 'fc00::/7' },
+  { family: 6, cidr: 'fe80::/10' },
+]
+
+/**
+ * Smallest prefix length accepted for a public range: wide enough for the
+ * published ranges of CDNs/load balancers (Cloudflare uses IPv4 /13 and
+ * IPv6 /29), narrow enough that "trust the Internet" lists such as
+ * `0.0.0.0/1, 128.0.0.0/1` or `2000::/3` are refused.
+ */
+export const MIN_PUBLIC_PREFIX = { 4: 12, 6: 28 } as const
+
+type ParsedRange = { family: 4 | 6; network: bigint; prefix: number }
+
+function parseIpv4(value: string): bigint | null {
+  const parts = value.split('.')
+  if (parts.length !== 4) return null
+  let out = 0n
+  for (const part of parts) {
+    if (!/^\d{1,3}$/.test(part) || Number(part) > 255) return null
+    out = (out << 8n) | BigInt(Number(part))
+  }
+  return out
+}
+
+function parseIpv6(value: string): bigint | null {
+  let host: string
+  try {
+    // WHATWG URL canonicalizes the address (IPv4-mapped tails become hex).
+    host = new URL(`http://[${value}]/`).hostname.slice(1, -1)
+  } catch {
+    return null
+  }
+  const [head, tail] = host.includes('::') ? host.split('::') : [host, null]
+  const left = head ? head.split(':') : []
+  const right = tail ? tail.split(':') : []
+  const missing = 8 - left.length - right.length
+  if (missing < 0 || (tail === null && missing !== 0)) return null
+  const groups = [...left, ...Array(missing).fill('0'), ...right]
+  let out = 0n
+  for (const group of groups) out = (out << 16n) | BigInt(Number.parseInt(group || '0', 16))
+  return out
+}
+
+function maskToPrefix(mask: string): number | null {
+  const bits = parseIpv4(mask)
+  if (bits === null) return null
+  const binary = bits.toString(2).padStart(32, '0')
+  if (!/^1*0*$/.test(binary)) return null
+  const firstZero = binary.indexOf('0')
+  return firstZero === -1 ? 32 : firstZero
+}
+
+/** Parses `addr`, `addr/len` or `addr/netmask` (the forms proxy-addr accepts). */
+export function parseRange(entry: string): ParsedRange | null {
+  const [address, suffix] = entry.split('/')
+  const v4 = parseIpv4(address)
+  const family: 4 | 6 = v4 !== null ? 4 : 6
+  const bits = v4 ?? parseIpv6(address)
+  if (bits === null) return null
+  const width = family === 4 ? 32 : 128
+  let prefix = width
+  if (suffix !== undefined) {
+    prefix = /^\d{1,3}$/.test(suffix)
+      ? Number(suffix)
+      : family === 4
+        ? (maskToPrefix(suffix) ?? -1)
+        : -1
+    if (prefix < 0 || prefix > width) return null
+  }
+  // An IPv4-mapped IPv6 range (::ffff:a.b.c.d/96+) is an IPv4 range.
+  if (family === 6 && prefix >= 96 && bits >> 32n === 0xffffn) {
+    return toNetwork({ family: 4, network: bits & 0xffffffffn, prefix: prefix - 96 })
+  }
+  return toNetwork({ family, network: bits, prefix })
+}
+
+function toNetwork(range: ParsedRange): ParsedRange {
+  const width = range.family === 4 ? 32n : 128n
+  const host = width - BigInt(range.prefix)
+  return { ...range, network: (range.network >> host) << host }
+}
+
+function isInside(inner: ParsedRange, outer: ParsedRange) {
+  if (inner.family !== outer.family || inner.prefix < outer.prefix) return false
+  const width = inner.family === 4 ? 32n : 128n
+  const host = width - BigInt(outer.prefix)
+  return inner.network >> host === outer.network >> host
+}
+
+const PRIVATE_RANGES = PRIVATE_BLOCKS.map((block) => parseRange(block.cidr)!)
+
+/**
+ * Why a TRUST_PROXY entry is refused, or null when it is acceptable: a
+ * keyword (`loopback`, `linklocal`, `uniquelocal`), a range inside a
+ * private block, or a public range no wider than MIN_PUBLIC_PREFIX.
+ */
+export function trustProxyEntryIssue(entry: string): string | null {
+  if (['loopback', 'linklocal', 'uniquelocal'].includes(entry.toLowerCase())) return null
+  const range = parseRange(entry)
+  if (!range) return `"${entry}" is not an IP address or CIDR range`
+  if (PRIVATE_RANGES.some((block) => isInside(range, block))) return null
+  if (range.prefix < MIN_PUBLIC_PREFIX[range.family]) {
+    return `"${entry}" covers too many public addresses (at most /${MIN_PUBLIC_PREFIX[range.family]} for IPv${range.family})`
+  }
+  return null
+}
 
 export type TrustProxyFn = (address: string, distance: number) => boolean
 
@@ -77,8 +190,10 @@ export type TrustProxyFn = (address: string, distance: number) => boolean
  * - otherwise a comma-separated list of IPs, CIDRs or the proxy-addr names
  *   `loopback`, `linklocal`, `uniquelocal` (e.g. `loopback, 10.0.0.0/8`).
  *
- * `true` / `*` (trust any hop), and any list that trusts a public address,
- * are refused: they would let clients choose the IP used for rate limiting.
+ * `true` / `*` (trust any hop), and any entry covering a wide public range
+ * (shorter prefix than MIN_PUBLIC_PREFIX), are refused: they would let
+ * clients choose the IP used for rate limiting. A single public proxy
+ * address or a CDN's published ranges are accepted.
  */
 export function parseTrustProxy(raw: string | undefined): TrustProxyFn | false {
   const value = (raw ?? '').trim()
@@ -101,11 +216,38 @@ export function parseTrustProxy(raw: string | undefined): TrustProxyFn | false {
     throw new Error(`TRUST_PROXY is invalid: ${(error as Error).message}`)
   }
 
-  const publicHit = PUBLIC_SAMPLES.find((address) => trust(address, 0))
-  if (publicHit) {
-    throw new Error(
-      `TRUST_PROXY must only list your own proxies: it trusts the public address ${publicHit}.`
-    )
+  for (const entry of list) {
+    const issue = trustProxyEntryIssue(entry)
+    if (issue) throw new Error(`TRUST_PROXY must only list your own proxies: ${issue}.`)
   }
   return trust
+}
+
+/** localhost, 127.0.0.0/8 or ::1 (an SMTP relay on the same host). */
+export function isLoopbackHost(host: string | undefined): boolean {
+  const value = (host ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/^\[|\]$/g, '')
+  return value === 'localhost' || value === '::1' || /^127(\.\d{1,3}){3}$/.test(value)
+}
+
+/**
+ * TLS options of the SMTP transport (security review M2):
+ * - `SMTP_SECURE=true` → implicit TLS from the first byte (port 465);
+ * - otherwise, in production, STARTTLS is **required** (`requireTLS`): a
+ *   server or a man-in-the-middle that strips STARTTLS makes the send fail
+ *   instead of sending the login and the invitation/reset links in clear —
+ *   except for a relay on the same host (loopback), where there is no wire.
+ * In development (Mailpit on 127.0.0.1:1025) nothing is required.
+ */
+export function smtpTlsOptions(values: {
+  NODE_ENV?: string
+  SMTP_HOST?: string
+  SMTP_SECURE?: boolean
+}): { secure: boolean; requireTLS: boolean } {
+  const secure = values.SMTP_SECURE === true
+  const requireTLS =
+    !secure && values.NODE_ENV === 'production' && !isLoopbackHost(values.SMTP_HOST ?? '127.0.0.1')
+  return { secure, requireTLS }
 }

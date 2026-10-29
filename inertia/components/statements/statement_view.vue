@@ -118,7 +118,7 @@ const { t, formatDate } = useI18n()
       </div>
 
       <details v-if="child.days.length" class="group rounded-xl bg-subtle px-3 py-2">
-        <summary class="min-h-9 cursor-pointer py-1.5 text-sm font-bold text-ink-2">
+        <summary class="min-h-11 cursor-pointer py-3 text-sm font-bold text-ink-2">
           {{ t('statements.show_days') }}
         </summary>
         <ul class="flex flex-col divide-y divide-line-soft">

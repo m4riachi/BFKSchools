@@ -1,7 +1,6 @@
 {
   "title": "Relevés mensuels",
   "parent_title": "Relevé du mois",
-  "subtitle": "Repas d’abonnement et suppléments, d’après les prix enregistrés à la commande.",
   "month": "Mois",
   "previous_month": "Mois précédent",
   "next_month": "Mois suivant",
@@ -65,7 +64,6 @@
     "families_sheet": "Familles",
     "children_sheet": "Enfants",
     "parent": "Parent",
-    "email": "E-mail",
     "children": "Enfants",
     "last_name": "Nom",
     "first_name": "Prénom",

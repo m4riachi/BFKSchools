@@ -110,6 +110,18 @@ const routes = {
     tokens: [[0,"statements"]],
     types: placeholder as Registry['parent.statements']['types'],
   },
+  'parent.account': {
+    methods: ["GET","HEAD"],
+    pattern: '/account',
+    tokens: [[0,"account"]],
+    types: placeholder as Registry['parent.account']['types'],
+  },
+  'parent.account.password': {
+    methods: ["PUT"],
+    pattern: '/account/password',
+    tokens: [[0,"account"],[0,"password"]],
+    types: placeholder as Registry['parent.account.password']['types'],
+  },
   'parent.statements.pdf': {
     methods: ["GET","HEAD"],
     pattern: '/statements/pdf',

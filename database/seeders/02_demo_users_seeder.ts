@@ -4,10 +4,12 @@ import User from '#models/user'
 import type { Role } from '#enums/roles'
 import type { AppLocale } from '#enums/locales'
 
+import { DEMO_PASSWORD, assertDemoSeeding } from '#database/demo/support'
+
 /**
- * One demo account per role (development only). All use the same password.
+ * One demo account per role (development/test only). All use the same
+ * password; it is reset on every run.
  */
-export const DEMO_PASSWORD = 'Demo1234!'
 
 export const DEMO_USERS: { email: string; fullName: string; role: Role; locale: AppLocale }[] = [
   { email: 'admin@bfk.test', fullName: 'Nadia Lahlou', role: 'admin', locale: 'fr' },
@@ -20,12 +22,14 @@ export default class DemoUsersSeeder extends BaseSeeder {
   static environment = ['development', 'test']
 
   async run() {
+    assertDemoSeeding()
     const school = await School.findByOrFail('slug', 'britech-school')
 
     for (const demo of DEMO_USERS) {
       const user = (await User.findByEmail(demo.email)) ?? new User()
       user.merge({
         ...demo,
+        credentialsVersion: user.credentialsVersion ?? 0,
         password: DEMO_PASSWORD,
         isActive: true,
         // Phase 2: parents must belong to a school, and staff only manage

@@ -6,6 +6,7 @@
 
 import emitter from '@adonisjs/core/services/emitter'
 import logger from '@adonisjs/core/services/logger'
+import { safeMailError } from '#services/outbox_service'
 
 /**
  * Any email queued in memory with `mail.sendLater` has no caller to report
@@ -14,5 +15,5 @@ import logger from '@adonisjs/core/services/logger'
  * from DeferredTasks, after the response.)
  */
 emitter.on('queued:mail:error', ({ error, mailerName }) => {
-  logger.error({ err: error, mailer: mailerName }, 'queued email failed')
+  logger.error({ error: safeMailError(error), mailer: mailerName }, 'queued email failed')
 })

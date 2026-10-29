@@ -16,10 +16,13 @@ export default class SchoolPolicy extends BasePolicy {
     if (user && !user.isActive) return false
   }
 
-  /** Staff of all schools (school_id null) or of this school can view it. */
+  /**
+   * Staff of this school can view it. Like every policy since Phase 2, a
+   * staff user without a school sees nothing (null never means "all").
+   */
   view(user: User, school: School): AuthorizerResponse {
     if (user.role === 'parent') return false
-    return user.schoolId === null || user.schoolId === school.id
+    return typeof user.schoolId === 'number' && user.schoolId === school.id
   }
 
   /**

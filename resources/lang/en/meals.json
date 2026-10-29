@@ -52,7 +52,6 @@
     "no_results_title": "No matching meals",
     "no_results_body": "Change the search or the filters.",
     "photos_count": "{count, plural, =0 {No photo} one {# photo} other {# photos}}",
-    "no_photo": "No photo",
     "edit": "Edit",
     "view": "View",
     "edit_label": "Edit {name}",
@@ -141,6 +140,7 @@
       "corrupt": "“{name}” can't be read or is damaged.",
       "too_many_pixels": "“{name}” has too high a resolution (max {pixels} megapixels).",
       "too_small": "“{name}” is too small (at least {min} pixels per side).",
+      "busy": "The server is busy processing other photos. Try again in a moment.",
       "order_mismatch": "The photo list changed. Reload the page and try again."
     }
   },

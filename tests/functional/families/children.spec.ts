@@ -156,7 +156,7 @@ test.group('Families | children', (group) => {
       .get(`/admin/parents/${parent.id}/children/${child.id}/edit`)
       .loginAs(otherManager)
       .withInertia()
-    page.assertStatus(403)
+    page.assertStatus(404)
 
     await client
       .put(`/admin/parents/${parent.id}/children/${child.id}`)

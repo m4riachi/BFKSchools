@@ -19,8 +19,7 @@
     "final": "Commandes figées — chiffres définitifs.",
     "editable_until": "Prévision : les parents peuvent encore modifier jusqu’au {when}.",
     "no_school_title": "Aucune école associée",
-    "no_school_body": "Votre compte n’est rattaché à aucune école : il n’y a rien à afficher.",
-    "printed_at": "Imprimé le {when}"
+    "no_school_body": "Votre compte n’est rattaché à aucune école : il n’y a rien à afficher."
   },
   "production": {
     "title": "Production du jour",
@@ -120,6 +119,7 @@
     }
   },
   "errors": {
+    "export_failed": "L’export a échoué. Veuillez réessayer.",
     "invalid_filters": "Filtres d’export invalides.",
     "invalid_date": "Date invalide.",
     "range_order": "La date de fin doit suivre la date de début.",

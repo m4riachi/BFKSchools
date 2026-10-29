@@ -19,6 +19,8 @@ server.use([
 ])
 
 router.use([
+  // Must stay first: deletes the bodyparser's temp files after every request.
+  () => import('#middleware/upload_cleanup_middleware'),
   () => import('@adonisjs/core/bodyparser_middleware'),
   () => import('@adonisjs/session/session_middleware'),
   () => import('@adonisjs/shield/shield_middleware'),

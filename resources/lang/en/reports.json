@@ -19,8 +19,7 @@
     "final": "Orders locked — final figures.",
     "editable_until": "Forecast: parents can still change their choice until {when}.",
     "no_school_title": "No school assigned",
-    "no_school_body": "Your account is not linked to a school: there is nothing to show.",
-    "printed_at": "Printed on {when}"
+    "no_school_body": "Your account is not linked to a school: there is nothing to show."
   },
   "production": {
     "title": "Daily production",
@@ -120,6 +119,7 @@
     }
   },
   "errors": {
+    "export_failed": "The export failed. Please try again.",
     "invalid_filters": "Invalid export filters.",
     "invalid_date": "Invalid date.",
     "range_order": "The end date must come after the start date.",

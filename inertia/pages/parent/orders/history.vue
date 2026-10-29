@@ -38,7 +38,7 @@ const { t, formatDate } = useI18n()
     >
       <Link
         href="/orders/history"
-        class="min-h-10 rounded-full border px-4 py-2 text-sm font-bold no-underline"
+        class="min-h-11 rounded-full border px-4 py-2 text-sm font-bold no-underline"
         :class="
           childId === null
             ? 'border-brand bg-brand-soft text-brand-strong'
@@ -51,7 +51,7 @@ const { t, formatDate } = useI18n()
         v-for="c in children"
         :key="c.id"
         :href="`/orders/history?child=${c.id}`"
-        class="min-h-10 rounded-full border px-4 py-2 text-sm font-bold no-underline"
+        class="min-h-11 rounded-full border px-4 py-2 text-sm font-bold no-underline"
         :class="
           childId === c.id
             ? 'border-brand bg-brand-soft text-brand-strong'

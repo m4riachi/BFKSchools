@@ -10,7 +10,7 @@ import StatementPdfService from '#services/statement_pdf_service'
 import StatementExportService from '#services/statement_export_service'
 import { schoolStatementQueryValidator, statementQueryValidator } from '#validators/statements'
 import { staffSchoolId } from '#policies/parent_policy'
-import { pickMonth, sendStatementPdf } from '#support/statement_access'
+import { consumeDownload, pickMonth, sendStatementPdf } from '#support/statement_access'
 import { attachmentHeader } from '#support/report_access'
 import {
   presentFamilyStatement,
@@ -109,8 +109,8 @@ export default class StatementsController {
     response.header('Cache-Control', 'no-store')
     response.header('X-Content-Type-Options', 'nosniff')
     return response.stream(this.exporter.xlsx(statement, i18n.locale), (error) => {
-      logger.error({ err: error }, 'statement export failed')
-      return ['Export failed', 500]
+      logger.error({ error: error?.code ?? error?.name ?? 'Error' }, 'statement export failed')
+      return [i18n.t('reports.errors.export_failed'), 500]
     })
   }
 
@@ -173,6 +173,8 @@ export default class StatementsController {
 
   /** GET /admin/statements/parents/:id/pdf?month= */
   async download(ctx: HttpContext) {
+    // The download limiter first: a client over it costs no statement query.
+    await consumeDownload(ctx)
     const built = await this.family(ctx, true)
     if (!built || !('statement' in built)) return built
     const { statement, month, parent } = built

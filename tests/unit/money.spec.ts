@@ -27,4 +27,12 @@ test.group('Money helpers', () => {
     assert.isNull(parseMadToCents('abc'))
     assert.isNull(parseMadToCents(''))
   })
+
+  test('refuses over-long input quickly (no regex backtracking)', ({ assert }) => {
+    const started = process.hrtime.bigint()
+    assert.isNull(parseMadToCents(`1${' '.repeat(50_000)}x`))
+    assert.isNull(parseMadToCents('1'.repeat(33)))
+    assert.isBelow(Number(process.hrtime.bigint() - started) / 1e6, 50)
+    assert.equal(parseMadToCents('  1 234 567,50  '), 123456750)
+  })
 })

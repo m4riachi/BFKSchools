@@ -26,6 +26,36 @@ const loggerConfig = defineConfig({
       level: env.get('LOG_LEVEL'),
 
       /**
+       * Defence in depth: no log line may carry a password, a token or a
+       * cookie, even if a future log call passes a whole object (the app
+       * itself only logs masked emails and error codes).
+       */
+      redact: {
+        paths: [
+          'password',
+          'password_confirmation',
+          'currentPassword',
+          'token',
+          '*.password',
+          '*.password_confirmation',
+          '*.currentPassword',
+          '*.token',
+          '*.tokenHash',
+          '*.token_hash',
+          'req.headers.cookie',
+          'req.headers.authorization',
+          'headers.cookie',
+          'headers.authorization',
+          'err.detail',
+          'err.where',
+          'err.parameters',
+          'err.bindings',
+          'error.detail',
+        ],
+        censor: '[redacted]',
+      },
+
+      /**
        * Configure where logs are written.
        * Pretty logs in development, stdout in production.
        */

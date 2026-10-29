@@ -193,6 +193,7 @@ function apply() {
           @click="go({ child: c.id })"
         >
           <span
+            aria-hidden="true"
             class="flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-extrabold"
             :class="c.id === childId ? 'bg-brand text-white' : 'bg-brand-tint text-brand-strong'"
           >

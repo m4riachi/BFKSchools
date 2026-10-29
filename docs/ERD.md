@@ -336,7 +336,7 @@ Invitation status shown in the parents list is derived: `password IS NOT NULL` �
 |---|---|---|---|---|
 | id | integer identity | NN | | |
 | parent_id | integer | NN | | FK → users ON DELETE RESTRICT (a parent with children is deactivated, not deleted). App check: the user's role is `parent`. |
-| school_id | integer | NN | | FK → schools ON DELETE RESTRICT |
+| school_id | integer | NN | | FK → schools ON DELETE RESTRICT. Phase 9: composite FK `children_parent_school_fk` (parent_id, school_id) → users (id, school_id) (with `users_id_school_id_unique`): a child always has its parent's school; moving a parent with children to another school is refused. |
 | first_name | text | NN | | |
 | last_name | text | NN | | |
 | grade | text | null | | e.g. "G3", "KG2" — free text, kept as text for the school's own labels |

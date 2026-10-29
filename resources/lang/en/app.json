@@ -4,7 +4,6 @@
   "partner": "× {school}",
   "tagline": "School lunches for Britech School families",
   "school_year": "School year",
-  "school_year_value": "{start}–{end} · {school}",
   "back_office": "Back-office",
   "kitchen": "Kitchen",
   "language": "Language",
@@ -13,7 +12,5 @@
   "close_menu": "Close menu",
   "notifications": "Notifications",
   "coming_soon": "Coming soon",
-  "help": "Help",
-  "privacy": "Privacy",
   "school_name": "Britech School"
 }

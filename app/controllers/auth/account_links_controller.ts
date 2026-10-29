@@ -6,7 +6,7 @@ import UserTokenService from '#services/user_token_service'
 import LoginService from '#services/login_service'
 import { setPasswordValidator } from '#validators/passwords'
 import { passwordLinkConfirmLimiter, passwordLinkKeys } from '#start/limiter'
-import { startUserSession } from '#support/login_session'
+import { endSession, startUserSession } from '#support/login_session'
 import { homePathFor } from '#enums/roles'
 import { PASSWORD_MIN_LENGTH } from '#validators/rules'
 import type { UserTokenType } from '#enums/user_tokens'
@@ -75,7 +75,7 @@ export default class AccountLinksController {
       return response.redirect(back)
     }
 
-    if (auth.user) await auth.use('web').logout()
+    if (auth.user) await endSession(ctx)
     await startUserSession(ctx, user)
     await this.loginService.recordLogin(user)
 

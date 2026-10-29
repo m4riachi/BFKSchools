@@ -52,7 +52,6 @@
     "no_results_title": "Aucun repas ne correspond",
     "no_results_body": "Modifiez la recherche ou les filtres.",
     "photos_count": "{count, plural, =0 {Pas de photo} one {# photo} other {# photos}}",
-    "no_photo": "Pas de photo",
     "edit": "Modifier",
     "view": "Voir",
     "edit_label": "Modifier {name}",
@@ -141,6 +140,7 @@
       "corrupt": "« {name} » est illisible ou endommagé.",
       "too_many_pixels": "« {name} » a une trop grande résolution (maximum {pixels} mégapixels).",
       "too_small": "« {name} » est trop petite (au moins {min} pixels de côté).",
+      "busy": "Le serveur traite déjà d’autres photos. Réessayez dans un instant.",
       "order_mismatch": "La liste des photos a changé. Rechargez la page et réessayez."
     }
   },

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { inject } from '@adonisjs/core'
+import Clock from '#services/clock'
 import db from '@adonisjs/lucid/services/db'
 import drive from '@adonisjs/drive/services/main'
 import logger from '@adonisjs/core/services/logger'
@@ -49,7 +50,10 @@ export function displayFileName(name: string): string {
  */
 @inject()
 export default class MealPhotoService {
-  constructor(protected images: ImageProcessor) {}
+  constructor(
+    protected images: ImageProcessor,
+    protected clock: Clock
+  ) {}
 
   /** Disk used for new uploads (DRIVE_DISK). */
   defaultDisk(): DiskName {
@@ -158,7 +162,7 @@ export default class MealPhotoService {
           .from('meal_photos')
           .where('id', id)
           .where('meal_id', meal.id)
-          .update({ position, updated_at: new Date() })
+          .update({ position, updated_at: this.clock.now().toJSDate() })
       }
     })
   }
@@ -174,11 +178,11 @@ export default class MealPhotoService {
         .where('meal_id', meal.id)
         .where('is_cover', true)
         .whereNot('id', photo.id)
-        .update({ is_cover: false, updated_at: new Date() })
+        .update({ is_cover: false, updated_at: this.clock.now().toJSDate() })
       await trx
         .from('meal_photos')
         .where('id', photo.id)
-        .update({ is_cover: true, updated_at: new Date() })
+        .update({ is_cover: true, updated_at: this.clock.now().toJSDate() })
     })
   }
 

@@ -209,7 +209,7 @@ test.group('Families | parents CRUD', (group) => {
     const foreign = await createParent(otherSchool.id)
 
     const show = await client.get(`/admin/parents/${foreign.id}`).loginAs(manager).withInertia()
-    show.assertStatus(403)
+    show.assertStatus(404)
 
     const update = await client
       .put(`/admin/parents/${foreign.id}`)
@@ -217,7 +217,7 @@ test.group('Families | parents CRUD', (group) => {
       .form({ fullName: 'Hacked', email: foreign.email, locale: 'fr' })
       .withCsrfToken()
       .redirects(0)
-    update.assertStatus(302)
+    update.assertStatus(404)
     await foreign.refresh()
     if (foreign.fullName === 'Hacked') throw new Error('foreign parent was updated')
   })

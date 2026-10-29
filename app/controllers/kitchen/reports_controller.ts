@@ -13,11 +13,15 @@ import ReportExportService, {
 import { MEAL_TYPES } from '#enums/meals'
 import { exportQueryValidator, labelsQueryValidator, reportDayValidator } from '#validators/reports'
 import { reportDate, resolvePeriod } from '#support/report_period'
-import { attachmentHeader, reportSchool, requireReportSchool } from '#support/report_access'
+import {
+  attachmentHeader,
+  renderPdfForUser,
+  reportSchool,
+  requireReportSchool,
+} from '#support/report_access'
 import { presentAllergyRows, presentLabels } from '#support/report_presenters'
 import { fileNamePart } from '#support/spreadsheet_safety'
 import { addDays } from '#support/dates'
-import { pdfRenderGate, RenderBusyError } from '#support/render_gate'
 
 /** Labels shown as an on-screen preview (the PDF has them all). */
 const LABEL_PREVIEW = 12
@@ -138,21 +142,16 @@ export default class ReportsController {
       className,
       limit: MAX_LABELS_PER_PDF,
     })
-    let pdf: Buffer
-    try {
-      // At most 2 PDF renders at a time (the render also yields every 48 labels).
-      pdf = await pdfRenderGate.run(() =>
-        this.pdf.render(rows, {
-          grid,
-          locale: i18n.locale,
-          title: i18n.t('reports.labels.pdf_title', { date }),
-        })
-      )
-    } catch (error) {
-      if (!(error instanceof RenderBusyError)) throw error
-      response.header('Retry-After', '10')
-      return response.serviceUnavailable(i18n.t('errors.busy'))
-    }
+    // D27: 1 running + 1 waiting per user, 2 at a time server-wide (the
+    // render also yields every 48 labels).
+    const pdf = await renderPdfForUser(ctx, () =>
+      this.pdf.render(rows, {
+        grid,
+        locale: i18n.locale,
+        title: i18n.t('reports.labels.pdf_title', { date }),
+      })
+    )
+    if (pdf === null) return
     const name = ['bfk-labels', date, className ? fileNamePart(className) : null]
       .filter(Boolean)
       .join('-')
@@ -224,8 +223,8 @@ export default class ReportsController {
     response.header('X-Content-Type-Options', 'nosniff')
     response.header('X-Export-Rows', String(rows))
     const onError = (error: NodeJS.ErrnoException): [string, number] => {
-      logger.error({ err: error }, 'report export failed')
-      return ['Export failed', 500]
+      logger.error({ error: error?.code ?? error?.name ?? 'Error' }, 'report export failed')
+      return [i18n.t('reports.errors.export_failed'), 500]
     }
     if (options.format === 'csv') {
       response.header('Content-Type', 'text/csv; charset=utf-8')

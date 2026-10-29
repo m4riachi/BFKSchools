@@ -43,21 +43,29 @@ export default class AccountLinkService {
    * access, or when the email cannot be sent.
    */
   async invite(parent: User, sentBy: User) {
-    if (parent.role !== 'parent') throw new BusinessRuleException('families.errors.not_a_parent')
-    if (!parent.isActive) throw new BusinessRuleException('families.errors.invite_inactive')
-    if (parent.password) throw new BusinessRuleException('families.errors.already_has_access')
+    const assertInvitable = (user: User) => {
+      if (user.role !== 'parent') throw new BusinessRuleException('families.errors.not_a_parent')
+      if (!user.isActive) throw new BusinessRuleException('families.errors.invite_inactive')
+      if (user.password) throw new BusinessRuleException('families.errors.already_has_access')
+    }
+    assertInvitable(parent)
 
-    const { token, record } = await db.transaction(async (trx) => {
-      parent.useTransaction(trx)
-      const issued = await this.tokens.issue(parent, 'invitation', { trx, createdBy: sentBy.id })
-      parent.invitedAt = this.clock.now()
-      await parent.save()
-      return issued
+    const { token, record, locked } = await db.transaction(async (trx) => {
+      // Re-check on the locked row: the parent may have accepted an earlier
+      // invitation or been deactivated since the caller loaded it.
+      const current = await User.query({ client: trx }).where('id', parent.id).forUpdate().first()
+      if (!current) throw new BusinessRuleException('families.errors.not_a_parent')
+      assertInvitable(current)
+      const issued = await this.tokens.issue(current, 'invitation', { trx, createdBy: sentBy.id })
+      current.invitedAt = this.clock.now()
+      await current.save()
+      return { ...issued, locked: current }
     })
+    parent.invitedAt = locked.invitedAt
 
     try {
       await mail.send(
-        new AccountLinkMail('invitation', parent, linkUrl('invitation', token), record.expiresAt)
+        new AccountLinkMail('invitation', locked, linkUrl('invitation', token), record.expiresAt)
       )
     } catch (error) {
       logger.error(
@@ -108,12 +116,19 @@ export default class AccountLinkService {
    * link is not usable.
    */
   async setPassword(type: UserTokenType, rawToken: string, password: string): Promise<User | null> {
-    return db.transaction(async (trx) => {
-      const record = await this.tokens.consume(rawToken, type, trx)
-      if (!record) return null
+    // Lock order = user row, then its tokens — the same order as
+    // UserTokenService.issue() (resend / new reset request), so the two can
+    // never deadlock. The token is looked up without a lock first to find
+    // its user, then consumed (locked) after the user row.
+    const owner = await this.tokens.findOwner(rawToken, type)
+    if (owner === null) return null
 
-      const user = await User.query({ client: trx }).where('id', record.userId).forUpdate().first()
+    return db.transaction(async (trx) => {
+      const user = await User.query({ client: trx }).where('id', owner).forUpdate().first()
       if (!user || !user.isActive) return null
+
+      const record = await this.tokens.consume(rawToken, type, trx)
+      if (!record || record.userId !== user.id) return null
 
       user.password = password
       await user.save()

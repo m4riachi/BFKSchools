@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import logger from '@adonisjs/core/services/logger'
 import type { NextFn } from '@adonisjs/core/types/http'
 import UserTransformer from '#transformers/user_transformer'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
@@ -27,12 +28,22 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     }
   }
 
-  /** Unread count of a parent (one indexed count query); null for staff and guests. */
+  /**
+   * Unread count of a parent (one indexed count query); null for staff and
+   * guests — and null when the query fails: the badge is not worth breaking
+   * every parent page (and the error page itself, which renders through
+   * this middleware) over a database hiccup.
+   */
   protected async unreadNotifications(ctx: HttpContext): Promise<number | null> {
     const user = (ctx as Partial<HttpContext>).auth?.user
     if (!user || user.role !== 'parent' || !user.isActive) return null
-    const center = await ctx.containerResolver.make(NotificationCenterService)
-    return center.unreadCount(user.id)
+    try {
+      const center = await ctx.containerResolver.make(NotificationCenterService)
+      return await center.unreadCount(user.id)
+    } catch (error) {
+      logger.warn({ error: (error as Error)?.name ?? 'Error' }, 'unread notifications count failed')
+      return null
+    }
   }
 
   flash(ctx: HttpContext) {

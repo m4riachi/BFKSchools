@@ -21,6 +21,8 @@ export type ScannedRoutes = {
     'parent.orders.absent': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.apply_all': { paramsTuple: [ParamValue]; params: {'date': ParamValue} }
     'parent.statements': { paramsTuple?: []; params?: {} }
+    'parent.account': { paramsTuple?: []; params?: {} }
+    'parent.account.password': { paramsTuple?: []; params?: {} }
     'parent.statements.pdf': { paramsTuple?: []; params?: {} }
     'parent.notifications': { paramsTuple?: []; params?: {} }
     'parent.notifications.read_all': { paramsTuple?: []; params?: {} }
@@ -119,6 +121,7 @@ export type ScannedRoutes = {
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
     'parent.statements': { paramsTuple?: []; params?: {} }
+    'parent.account': { paramsTuple?: []; params?: {} }
     'parent.statements.pdf': { paramsTuple?: []; params?: {} }
     'parent.notifications': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
@@ -165,6 +168,7 @@ export type ScannedRoutes = {
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
     'parent.statements': { paramsTuple?: []; params?: {} }
+    'parent.account': { paramsTuple?: []; params?: {} }
     'parent.statements.pdf': { paramsTuple?: []; params?: {} }
     'parent.notifications': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
@@ -246,6 +250,7 @@ export type ScannedRoutes = {
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
+    'parent.account.password': { paramsTuple?: []; params?: {} }
     'parent.notifications.preferences': { paramsTuple?: []; params?: {} }
     'admin.parents.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.children.update': { paramsTuple: [ParamValue,ParamValue]; params: {'parentId': ParamValue,'id': ParamValue} }

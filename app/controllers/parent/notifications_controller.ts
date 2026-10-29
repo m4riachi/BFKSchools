@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { isLocalPath } from '#support/safe_redirect'
 import School from '#models/school'
 import NotificationCenterService from '#services/notification_center_service'
 import SchoolSettingsService from '#services/school_settings_service'
@@ -67,8 +68,7 @@ export default class NotificationsController {
     if (!notification) return response.notFound()
     const [presented] = await this.center.present(user, [notification], i18n.locale)
     // Server-built local path only (never a URL taken from the data as-is).
-    const href =
-      presented.href.startsWith('/') && !presented.href.startsWith('//') ? presented.href : '/'
+    const href = isLocalPath(presented.href) ? presented.href : '/'
     return response.redirect().withQs(false).toPath(href)
   }
 

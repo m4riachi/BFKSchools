@@ -4,7 +4,6 @@
   "partner": "× {school}",
   "tagline": "Les repas scolaires des familles de Britech School",
   "school_year": "Année scolaire",
-  "school_year_value": "{start}–{end} · {school}",
   "back_office": "Back-office",
   "kitchen": "Cuisine",
   "language": "Langue",
@@ -13,7 +12,5 @@
   "close_menu": "Fermer le menu",
   "notifications": "Notifications",
   "coming_soon": "Bientôt disponible",
-  "help": "Aide",
-  "privacy": "Confidentialité",
   "school_name": "Britech School"
 }

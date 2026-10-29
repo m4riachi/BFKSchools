@@ -46,7 +46,7 @@
   --color-info: #2f4db3;
   --color-info-soft: #eef1fb;
   --color-info-line: #dce2f5;
-  --color-accent: #d9822b; /* unread dot */
+  --color-accent: #b45f12; /* unread dot + badge (white text 4.6:1) */
   --color-violet: #6b3fa0; /* imported holidays */
   --color-violet-soft: #f3edfa;
   --color-violet-line: #e2d5f2;

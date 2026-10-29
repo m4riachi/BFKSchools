@@ -30,7 +30,6 @@
   },
   "legend": "Legend",
   "disabled_legend": "Disabled (normal school day)",
-  "non_school_day": "Not a school day",
   "actions": {
     "add": "Add a holiday",
     "generate": "Generate holidays for {year}",
@@ -92,7 +91,6 @@
     "empty_body": "Generate the school year's holidays, add breaks or import the school calendar.",
     "search": "Search",
     "search_placeholder": "Holiday name",
-    "filter": "Filter",
     "active": "Enabled",
     "disabled": "Disabled",
     "range_badge": "Range",
@@ -104,6 +102,7 @@
     "month_empty": "No holidays this month."
   },
   "errors": {
+    "changed_meanwhile": "This range was changed meanwhile. Reload the page and try again.",
     "end_before_start": "The end date must be after the start date.",
     "range_too_long": "A range cannot be longer than {max} days.",
     "no_school_day": "No school day in these dates (weekend or outside the school year).",

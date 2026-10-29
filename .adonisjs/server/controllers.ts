@@ -31,6 +31,7 @@ export const controllers = {
   Locale: () => import('#controllers/locale_controller'),
   Media: () => import('#controllers/media_controller'),
   parent: {
+    Account: () => import('#controllers/parent/account_controller'),
     Notifications: () => import('#controllers/parent/notifications_controller'),
     Orders: () => import('#controllers/parent/orders_controller'),
     Statements: () => import('#controllers/parent/statements_controller'),

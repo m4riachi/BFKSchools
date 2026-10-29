@@ -100,3 +100,39 @@ export function reportDownloadLimiter() {
 export const reportKeys = {
   download: (userId: number) => `reports:download:${userId}`,
 }
+
+/*
+|--------------------------------------------------------------------------
+| Uploads and account changes (Phase 9)
+|--------------------------------------------------------------------------
+|
+| - meal photo uploads: 20 requests / 10 min per user (each request is up to
+|   10 photos decoded by sharp), then 429.
+| - holiday ICS imports (file or URL): 10 / 10 min per user.
+| - parent "change password": 5 attempts / 15 min per user, then blocked
+|   15 min (each attempt checks the current password).
+|
+*/
+export const UPLOAD_LIMITS = {
+  mealPhotos: { requests: 20, duration: '10 mins' },
+  holidayImport: { requests: 10, duration: '10 mins' },
+  changePassword: { requests: 5, duration: '15 mins', blockDuration: '15 mins' },
+} as const
+
+export function mealPhotoUploadLimiter() {
+  return limiter.use({ ...UPLOAD_LIMITS.mealPhotos })
+}
+
+export function holidayImportLimiter() {
+  return limiter.use({ ...UPLOAD_LIMITS.holidayImport })
+}
+
+export function changePasswordLimiter() {
+  return limiter.use({ ...UPLOAD_LIMITS.changePassword })
+}
+
+export const uploadKeys = {
+  mealPhotos: (userId: number) => `uploads:meal_photos:${userId}`,
+  holidayImport: (userId: number) => `uploads:holiday_import:${userId}`,
+  changePassword: (userId: number) => `account:change_password:${userId}`,
+}

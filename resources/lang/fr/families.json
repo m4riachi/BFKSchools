@@ -94,7 +94,6 @@
     "child_inactive": "Inactif",
     "no_allergies": "Aucune allergie",
     "class": "Classe",
-    "grade_class": "{grade} · {className}",
     "subscription": "Abonnement",
     "subscription_none": "Pas d'abonnement",
     "edit_child": "Modifier",
@@ -143,7 +142,6 @@
     "end_hint": "Laissez vide pour un abonnement sans date de fin.",
     "status": "Statut",
     "notes": "Notes",
-    "open_ended": "Sans fin",
     "period": "du {start} au {end}",
     "period_open": "depuis le {start}",
     "save": "Enregistrer",
@@ -207,7 +205,6 @@
     "parent_label": "Parent : {action}",
     "child_label": "Enfant : {action}",
     "subscription_label": "Période : {action}",
-    "row_ok": "OK",
     "has_errors": "Corrigez les erreurs dans le fichier puis importez-le à nouveau. Aucune ligne n'est enregistrée tant qu'il reste des erreurs.",
     "nothing_to_do": "Toutes les lignes sont déjà à jour.",
     "send_invitations": "Envoyer l'invitation aux nouveaux parents",
@@ -230,8 +227,7 @@
       "end_without_start": "subscription_end : renseignez aussi subscription_start.",
       "parent_mismatch": "Même e-mail que la ligne {line} mais nom, téléphone ou langue différents.",
       "duplicate_child": "Cet enfant apparaît déjà ligne {line}.",
-      "email_not_parent": "parent_email : cette adresse appartient à un compte du personnel.",
-      "other_school": "parent_email : ce parent appartient à une autre école."
+      "email_unavailable": "parent_email : cette adresse est déjà utilisée par un autre compte."
     }
   },
   "errors": {
@@ -243,8 +239,7 @@
     "subscription_overlap": "Cette période chevauche une période existante ({start} → {end}).",
     "subscription_overlap_generic": "Cette période chevauche une période existante.",
     "child_duplicate": "Ce parent a déjà un enfant avec ce prénom et ce nom.",
-    "child_has_orders": "Cet enfant a des commandes : désactivez-le au lieu de le supprimer.",
-    "no_school": "Votre compte n'est rattaché à aucune école."
+    "child_has_orders": "Cet enfant a des commandes : désactivez-le au lieu de le supprimer."
   },
   "flash": {
     "parent_created": "Parent créé.",

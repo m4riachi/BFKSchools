@@ -2,7 +2,13 @@ import { test } from '@japa/runner'
 import { rateLimitIpKey } from '#support/ip'
 import proxyaddr from 'proxy-addr'
 import { defineConfig } from '@adonisjs/core/http'
-import { assertDriveEnv, assertSafeProductionEnv, parseTrustProxy } from '#support/env_guards'
+import {
+  assertDriveEnv,
+  assertSafeProductionEnv,
+  isLoopbackHost,
+  parseTrustProxy,
+  smtpTlsOptions,
+} from '#support/env_guards'
 import type { TrustProxyFn } from '#support/env_guards'
 import { LogTransport, maskEmail } from '#app/mail/log_transport'
 import type { NodeMailerMessage } from '@adonisjs/mail/types'
@@ -89,12 +95,50 @@ test.group('Environment guards', () => {
     assert.equal(clientIp('198.51.100.50', '1.2.3.4'), '198.51.100.50')
   })
 
-  test('TRUST_PROXY refuses lists that trust public addresses', ({ assert }) => {
-    assert.throws(() => parseTrustProxy('0.0.0.0/1, 128.0.0.0/1'), /public address 1\.1\.1\.1/)
-    assert.throws(() => parseTrustProxy('loopback, 1.0.0.0/8'), /public address 1\.1\.1\.1/)
-    assert.throws(() => parseTrustProxy('2000::/3'), /public address 2606:4700::1/)
-    assert.throws(() => parseTrustProxy('1.1.1.1'), /public address 1\.1\.1\.1/)
+  test('TRUST_PROXY refuses wide public ranges (prefix length check)', ({ assert }) => {
+    assert.throws(() => parseTrustProxy('0.0.0.0/1, 128.0.0.0/1'), /too many public addresses/)
+    assert.throws(() => parseTrustProxy('loopback, 1.0.0.0/8'), /too many public addresses/)
+    assert.throws(() => parseTrustProxy('2000::/3'), /too many public addresses/)
+    assert.throws(() => parseTrustProxy('0.0.0.0/0'), /TRUST_PROXY/)
+    assert.throws(() => parseTrustProxy('::/0'), /TRUST_PROXY/)
+    // IPv4-mapped IPv6 covering all of IPv4, netmask notation
+    assert.throws(() => parseTrustProxy('::ffff:0:0/96'), /too many public addresses/)
+    assert.throws(() => parseTrustProxy('1.0.0.0/255.0.0.0'), /too many public addresses/)
+    // A private range of any size, a single public proxy, CDN ranges
     assert.doesNotThrow(() => parseTrustProxy('loopback, uniquelocal, linklocal'))
+    assert.doesNotThrow(() => parseTrustProxy('10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16'))
+    assert.doesNotThrow(() => parseTrustProxy('fd00::/8, 100.64.0.0/10'))
+    assert.doesNotThrow(() => parseTrustProxy('1.1.1.1, 203.0.113.0/24'))
+    // Cloudflare's published ranges (IPv4 /13 … /22, IPv6 /29 … /32)
+    assert.doesNotThrow(() =>
+      parseTrustProxy(
+        '173.245.48.0/20, 104.16.0.0/13, 172.64.0.0/13, 2606:4700::/32, 2a06:98c0::/29'
+      )
+    )
+    // A "private-looking" range that leaves the private block is public
+    assert.throws(() => parseTrustProxy('172.0.0.0/8'), /too many public addresses/)
+  })
+})
+
+test.group('SMTP TLS options', () => {
+  test('production requires STARTTLS unless implicit TLS or a loopback relay', ({ assert }) => {
+    assert.deepEqual(smtpTlsOptions({ NODE_ENV: 'production', SMTP_HOST: 'smtp.example.ma' }), {
+      secure: false,
+      requireTLS: true,
+    })
+    assert.deepEqual(
+      smtpTlsOptions({ NODE_ENV: 'production', SMTP_HOST: 'smtp.example.ma', SMTP_SECURE: true }),
+      { secure: true, requireTLS: false }
+    )
+    for (const host of ['127.0.0.1', 'localhost', '::1', '[::1]', '127.0.0.2']) {
+      assert.isFalse(smtpTlsOptions({ NODE_ENV: 'production', SMTP_HOST: host }).requireTLS, host)
+    }
+    assert.isFalse(
+      smtpTlsOptions({ NODE_ENV: 'development', SMTP_HOST: 'smtp.example.ma' }).requireTLS
+    )
+    assert.isFalse(smtpTlsOptions({ NODE_ENV: 'production' }).requireTLS)
+    assert.isFalse(isLoopbackHost('127.evil.example'))
+    assert.isFalse(isLoopbackHost('10.0.0.1'))
   })
 })
 

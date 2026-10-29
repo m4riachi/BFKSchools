@@ -58,7 +58,7 @@ function print() {
     >
       <Link
         :href="childHref(null)"
-        class="min-h-10 rounded-full border px-4 py-2 text-sm font-bold no-underline"
+        class="min-h-11 rounded-full border px-4 py-2 text-sm font-bold no-underline"
         :class="
           childId === null
             ? 'border-brand bg-brand-soft text-brand-strong'
@@ -71,7 +71,7 @@ function print() {
         v-for="c in children"
         :key="c.id"
         :href="childHref(c.id)"
-        class="min-h-10 rounded-full border px-4 py-2 text-sm font-bold no-underline"
+        class="min-h-11 rounded-full border px-4 py-2 text-sm font-bold no-underline"
         :class="
           childId === c.id
             ? 'border-brand bg-brand-soft text-brand-strong'

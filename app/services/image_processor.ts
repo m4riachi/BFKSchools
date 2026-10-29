@@ -1,5 +1,13 @@
 import sharp, { type Metadata, type Sharp } from 'sharp'
 import { MEAL_PHOTOS } from '#config/meals'
+import { RenderBusyError, RenderGate } from '#support/render_gate'
+
+/**
+ * Decodes at most 2 uploads at a time in this process (libvips uses its
+ * own threads, but every decode of a 50 MP image costs ~200 MB): others
+ * wait, past 10 waiting the upload is refused as `busy`.
+ */
+export const imageDecodeGate = new RenderGate(2, 10)
 
 /**
  * Keep libvips from caching decoded images between uploads (memory stays
@@ -9,7 +17,8 @@ sharp.cache(false)
 
 export type ImageFormat = (typeof MEAL_PHOTOS.formats)[number]
 
-export type InvalidImageReason = 'type' | 'too_large' | 'too_many_pixels' | 'too_small' | 'corrupt'
+export type InvalidImageReason =
+  'type' | 'too_large' | 'too_many_pixels' | 'too_small' | 'corrupt' | 'busy'
 
 export class InvalidImageError extends Error {
   constructor(readonly reason: InvalidImageReason) {
@@ -55,6 +64,15 @@ export function detectImageFormat(buffer: Buffer): ImageFormat | null {
  */
 export default class ImageProcessor {
   async process(input: Buffer): Promise<{ full: EncodedImage; thumb: EncodedImage }> {
+    try {
+      return await imageDecodeGate.run(() => this.processNow(input))
+    } catch (error) {
+      if (error instanceof RenderBusyError) throw new InvalidImageError('busy')
+      throw error
+    }
+  }
+
+  protected async processNow(input: Buffer): Promise<{ full: EncodedImage; thumb: EncodedImage }> {
     if (input.length === 0 || input.length > MEAL_PHOTOS.maxFileBytes) {
       throw new InvalidImageError(input.length === 0 ? 'corrupt' : 'too_large')
     }

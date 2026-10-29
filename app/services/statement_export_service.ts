@@ -16,7 +16,8 @@ export function centsToNumber(cents: number): number {
 /**
  * Excel export of the statements of every family of a school for a month
  * (back-office): sheet 1 one row per family, sheet 2 one row per child,
- * both with a total row. Built from the `SchoolStatement` already computed
+ * both with a total row. No email addresses (D28): names, children and
+ * amounts only. Built from the `SchoolStatement` already computed
  * (bounded by the number of children of the school) and written with the
  * streaming workbook writer. Every text cell goes through `safeCell()`;
  * amounts are numbers (format 0.00 MAD).
@@ -42,7 +43,6 @@ export default class StatementExportService {
       })
       familySheet.columns = [
         { key: 'parent', width: 28 },
-        { key: 'email', width: 30 },
         { key: 'children', width: 10 },
         { key: 'sub_count', width: 14 },
         { key: 'sub_amount', width: 16, style: money },
@@ -60,7 +60,6 @@ export default class StatementExportService {
         .commit()
       const familyHeader = familySheet.addRow([
         label('parent'),
-        label('email'),
         label('children'),
         label('subscription_count'),
         label('subscription_amount'),
@@ -74,7 +73,6 @@ export default class StatementExportService {
         familySheet
           .addRow([
             safeCell(family.parentName),
-            safeCell(family.parentEmail),
             family.children.length,
             family.totals.subscriptionCount,
             centsToNumber(family.totals.subscriptionCents),
@@ -86,7 +84,6 @@ export default class StatementExportService {
       }
       const familyTotal = familySheet.addRow([
         label('grand_total'),
-        '',
         statement.totals.children,
         statement.totals.subscriptionCount,
         centsToNumber(statement.totals.subscriptionCents),
@@ -167,7 +164,7 @@ export default class StatementExportService {
       await workbook.commit()
     }
     run().catch((error) => {
-      logger.error({ err: error }, 'statement export (xlsx) failed')
+      logger.error({ error: (error as Error)?.name ?? 'Error' }, 'statement export (xlsx) failed')
       output.destroy(error as Error)
     })
     return output

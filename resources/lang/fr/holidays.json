@@ -30,7 +30,6 @@
   },
   "legend": "Légende",
   "disabled_legend": "Désactivé (jour d'école normal)",
-  "non_school_day": "Pas un jour d'école",
   "actions": {
     "add": "Ajouter un jour férié",
     "generate": "Générer les jours fériés {year}",
@@ -92,7 +91,6 @@
     "empty_body": "Générez les jours fériés de l'année scolaire, ajoutez des vacances ou importez le calendrier de l'école.",
     "search": "Rechercher",
     "search_placeholder": "Nom du jour férié",
-    "filter": "Filtrer",
     "active": "Actif",
     "disabled": "Désactivé",
     "range_badge": "Période",
@@ -104,6 +102,7 @@
     "month_empty": "Aucun jour férié ce mois-ci."
   },
   "errors": {
+    "changed_meanwhile": "Cette période a été modifiée entre-temps. Rechargez la page et réessayez.",
     "end_before_start": "La date de fin doit être après la date de début.",
     "range_too_long": "Une période ne peut pas dépasser {max} jours.",
     "no_school_day": "Aucun jour d'école dans ces dates (week-end ou hors année scolaire).",

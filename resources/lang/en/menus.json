@@ -44,7 +44,6 @@
     "recipients": "{count, plural, =0 {No active family has an active child yet.} one {On publication, # family receives an email and a notification.} other {On publication, # families receive an email and a notification.}}",
     "recipients_no_email": "{count, plural, =0 {No active family has an active child yet.} one {On publication, # family receives a notification (emails are off in the settings).} other {On publication, # families receive a notification (emails are off in the settings).}}",
     "published_on": "Published on {date}",
-    "closed_on": "Closed on {date}",
     "edit_rule": {
       "none": "No changes after the deadline",
       "until_cutoff_same_day": "Until {time} the same day",
@@ -72,7 +71,6 @@
     "unavailable": "Inactive",
     "day_summary": "{meals, plural, =0 {No dish} one {# dish} other {# dishes}} · {supplements, plural, =0 {no supplement} one {# supplement} other {# supplements}}",
     "day_no_default": "Default dish to choose",
-    "day_empty": "No meal this day",
     "holiday": "Holiday",
     "holiday_detail": "No meal this day.",
     "see_calendar": "See the calendar",
@@ -122,8 +120,7 @@
     "report_skipped_meal": "{name} skipped: inactive or deleted meal.",
     "report_new_default": "{day}: the original default dish was skipped, the first remaining dish became the default.",
     "dismiss": "Dismiss",
-    "ordered": "{count, plural, =0 {No orders} one {# ordered} other {# ordered}}",
-    "remove_impact": "Remove…"
+    "ordered": "{count, plural, =0 {No orders} one {# ordered} other {# ordered}}"
   },
   "issues": {
     "missing_times": "Set the publication date and the order deadline.",
@@ -141,7 +138,6 @@
     "holiday": "This day is a holiday ({name}): no meal can be added.",
     "meal_unavailable": "This meal is not available (inactive or deleted).",
     "duplicate": "This meal is already on that day's menu.",
-    "remove_published": "This menu is published: a dish can't be removed from it yet, because parents may have ordered it. Add another dish instead, or contact the technical team.",
     "default_supplement": "Only a subscription dish can be the default.",
     "no_previous_week": "The previous week has no menu to copy.",
     "template_empty": "This template has no dish.",

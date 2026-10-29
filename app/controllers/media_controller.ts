@@ -5,9 +5,10 @@ import MealPhotoService from '#services/meal_photo_service'
 import type { MealPhotoVariant } from '#enums/meals'
 
 /**
- * Serves meal photos to logged-in users (any role: parents see meal photos
- * in the portal from Phase 6). Photos of soft-deleted meals stay available
- * for order history.
+ * Serves meal photos to logged-in users, authorized by MealPolicy.viewPhoto
+ * (staff/kitchen: all; parents: meals on their school's published menus or
+ * in their children's orders; otherwise 404 — no hint that the id exists).
+ * Photos of soft-deleted meals stay available for order history.
  *
  * The browser never sees a storage key: the photo is looked up by id and
  * the key comes from the database (no path traversal possible).
@@ -19,8 +20,11 @@ import type { MealPhotoVariant } from '#enums/meals'
 export default class MediaController {
   constructor(protected photos: MealPhotoService) {}
 
-  async mealPhoto({ params, response }: HttpContext) {
+  async mealPhoto({ params, response, bouncer }: HttpContext) {
     const photo = await MealPhoto.findOrFail(Number(params.id))
+    if (await bouncer.with('MealPolicy').denies('viewPhoto', photo)) {
+      return response.notFound('Not found')
+    }
     const variant = params.variant as MealPhotoVariant
     const key = variant === 'thumb' ? photo.thumbPath : photo.path
     const disk = this.photos.disk(photo.disk)

@@ -10,6 +10,7 @@ import Child from '#models/child'
 import Subscription from '#models/subscription'
 import SubscriptionService from '#services/subscription_service'
 import AccountLinkService from '#services/account_link_service'
+import { safeMailError } from '#services/outbox_service'
 import { ALLERGENS, isAllergenCode, type AllergenCode } from '#enums/allergens'
 import type { AppLocale } from '#enums/locales'
 import { emailRule, isoDateRule, nameRule, phoneRule } from '#validators/rules'
@@ -17,6 +18,8 @@ import { emailRule, isoDateRule, nameRule, phoneRule } from '#validators/rules'
 export const CSV_IMPORT_MAX_BYTES = '1mb'
 const BOM = String.fromCodePoint(0xfeff)
 export const CSV_IMPORT_MAX_ROWS = 2000
+/** Import invitations stop after this many failures in a row (SMTP down). */
+export const IMPORT_INVITE_MAX_CONSECUTIVE_FAILURES = 3
 
 /** Columns of the import file, in template order. */
 export const CSV_COLUMNS = [
@@ -212,13 +215,27 @@ export default class FamilyImportService {
 
     if (options.sendInvitations && newParentIds.length) {
       const parents = await User.query().whereIn('id', newParentIds).orderBy('id')
+      // Sent synchronously (the admin sees the counts). When the SMTP server
+      // is down, stop trying after a few consecutive failures instead of
+      // waiting for a timeout per parent; the rest count as failures and can
+      // be re-sent from each parent's record.
+      let consecutiveFailures = 0
       for (const parent of parents) {
+        if (consecutiveFailures >= IMPORT_INVITE_MAX_CONSECUTIVE_FAILURES) {
+          result.invitationFailures++
+          continue
+        }
         try {
           await this.accountLinks.invite(parent, options.staff)
           result.invited++
+          consecutiveFailures = 0
         } catch (error) {
+          consecutiveFailures++
           result.invitationFailures++
-          logger.error({ err: error, parentId: parent.id }, 'import: invitation failed')
+          logger.error(
+            { error: safeMailError(error), parentId: parent.id },
+            'import: invitation failed'
+          )
         }
       }
     }
@@ -403,12 +420,11 @@ export default class FamilyImportService {
       const user = usersByEmail.get(clean.email)
 
       // Parent
-      if (user && user.role !== 'parent') {
-        row.errors.push(i18n.t('families.import.errors.email_not_parent'))
-        continue
-      }
-      if (user && user.schoolId !== schoolId) {
-        row.errors.push(i18n.t('families.import.errors.other_school'))
+      // One generic message for a staff account and a parent of another
+      // school (emails are unique across the app, so "already used" is all
+      // the parent form reveals too; no hint about which kind of account).
+      if (user && (user.role !== 'parent' || user.schoolId !== schoolId)) {
+        row.errors.push(i18n.t('families.import.errors.email_unavailable'))
         continue
       }
       const firstRowOfParent = !parentSeen.has(clean.email)

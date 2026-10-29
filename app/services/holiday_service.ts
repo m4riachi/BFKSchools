@@ -372,13 +372,21 @@ export default class HolidayService {
 
     await this.saveUnique(async (trx) => {
       await this.lockSchool(trx, school.id)
+      // Decide on the row as it is now (it may have been disabled, moved or
+      // deleted since it was read for the form).
+      const fresh = await Holiday.query({ client: trx })
+        .withScopes((scopes) => scopes.listed())
+        .where('id', holiday.id)
+        .where('school_id', school.id)
+        .forUpdate()
+        .firstOrFail()
       const newDates =
-        holiday.isActive && date !== holiday.date
+        fresh.isActive && date !== fresh.date
           ? [...(await this.datesBecomingHoliday(trx, school.id, [date]))]
           : []
-      holiday.useTransaction(trx)
-      holiday.merge({ name: input.name, date })
-      await holiday.save()
+      fresh.merge({ name: input.name, date })
+      await fresh.save()
+      holiday.merge({ name: fresh.name, date: fresh.date, isActive: fresh.isActive })
       if (newDates.length) {
         await this.applyImpact(trx, school.id, newDates, options)
       }
@@ -422,6 +430,21 @@ export default class HolidayService {
 
     await this.saveUnique(async (trx) => {
       await this.lockSchool(trx, school.id)
+      // The range may have changed since it was read (another tab, the
+      // generator): refuse instead of applying a plan built on stale rows.
+      const fresh = await Holiday.query({ client: trx })
+        .withScopes((scopes) => scopes.listed())
+        .where('school_id', school.id)
+        .where('group_id', groupId)
+        .forUpdate()
+      const signature = (list: Holiday[]) =>
+        list
+          .map((row) => `${row.id}:${row.date}:${row.isActive}`)
+          .sort()
+          .join(',')
+      if (signature(fresh) !== signature(rows)) {
+        throw new BusinessRuleException('holidays.errors.changed_meanwhile')
+      }
       const newDates = isActive ? [...(await this.datesBecomingHoliday(trx, school.id, added))] : []
       if (removed.length) {
         await trx
@@ -460,15 +483,27 @@ export default class HolidayService {
 
   /** Enables or disables holidays (one row or a whole range). */
   async setActive(school: School, rows: Holiday[], active: boolean, options: WriteOptions = {}) {
-    const changing = rows.filter((row) => row.isActive !== active)
-    if (changing.length === 0) return
-    const dates = changing.map((row) => row.date)
+    if (!rows.some((row) => row.isActive !== active)) return
     if (active) {
+      const dates = rows.filter((row) => row.isActive !== active).map((row) => row.date)
       const newDates = await this.datesBecomingHolidays(school.id, dates)
       await this.assertImpactConfirmed(school.id, newDates, options)
     }
     await db.transaction(async (trx) => {
       await this.lockSchool(trx, school.id)
+      // Re-read the rows inside the lock: only rows still listed and still
+      // in the other state change (applyImpact re-checks the order count).
+      const changing = await Holiday.query({ client: trx })
+        .withScopes((scopes) => scopes.listed())
+        .where('school_id', school.id)
+        .whereIn(
+          'id',
+          rows.map((row) => row.id)
+        )
+        .where('is_active', !active)
+        .forUpdate()
+      if (changing.length === 0) return
+      const dates = changing.map((row) => row.date)
       const newDates = active ? [...(await this.datesBecomingHoliday(trx, school.id, dates))] : []
       await trx
         .from('holidays')

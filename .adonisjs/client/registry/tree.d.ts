@@ -36,6 +36,9 @@ export interface ApiDefinition {
     statements: typeof routes['parent.statements'] & {
       pdf: typeof routes['parent.statements.pdf']
     }
+    account: typeof routes['parent.account'] & {
+      password: typeof routes['parent.account.password']
+    }
     notifications: typeof routes['parent.notifications'] & {
       readAll: typeof routes['parent.notifications.read_all']
       preferences: typeof routes['parent.notifications.preferences']

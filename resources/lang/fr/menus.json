@@ -44,7 +44,6 @@
     "recipients": "{count, plural, =0 {Aucune famille active n'a d'enfant actif pour le moment.} one {À la publication, # famille reçoit un e-mail et une notification.} other {À la publication, # familles reçoivent un e-mail et une notification.}}",
     "recipients_no_email": "{count, plural, =0 {Aucune famille active n'a d'enfant actif pour le moment.} one {À la publication, # famille reçoit une notification (e-mails désactivés dans les paramètres).} other {À la publication, # familles reçoivent une notification (e-mails désactivés dans les paramètres).}}",
     "published_on": "Publié le {date}",
-    "closed_on": "Clôturé le {date}",
     "edit_rule": {
       "none": "Aucune modification après la clôture",
       "until_cutoff_same_day": "Jusqu'à {time} le jour même",
@@ -72,7 +71,6 @@
     "unavailable": "Inactif",
     "day_summary": "{meals, plural, =0 {Aucun plat} one {# plat} other {# plats}} · {supplements, plural, =0 {aucun supplément} one {# supplément} other {# suppléments}}",
     "day_no_default": "Plat par défaut à choisir",
-    "day_empty": "Aucun repas ce jour",
     "holiday": "Férié",
     "holiday_detail": "Aucun repas ce jour.",
     "see_calendar": "Voir le calendrier",
@@ -122,8 +120,7 @@
     "report_skipped_meal": "{name} ignoré : repas inactif ou supprimé.",
     "report_new_default": "{day} : le plat par défaut d'origine a été ignoré, le premier plat restant devient le plat par défaut.",
     "dismiss": "Masquer",
-    "ordered": "{count, plural, =0 {Aucune commande} one {# commandé} other {# commandés}}",
-    "remove_impact": "Retirer…"
+    "ordered": "{count, plural, =0 {Aucune commande} one {# commandé} other {# commandés}}"
   },
   "issues": {
     "missing_times": "Renseignez la date de publication et la clôture des commandes.",
@@ -141,7 +138,6 @@
     "holiday": "Ce jour est férié ({name}) : aucun repas ne peut y être ajouté.",
     "meal_unavailable": "Ce repas n'est pas disponible (inactif ou supprimé).",
     "duplicate": "Ce repas est déjà au menu de ce jour.",
-    "remove_published": "Ce menu est publié : un plat ne peut pas encore en être retiré, car des parents ont pu le commander. Ajoutez plutôt un autre plat, ou contactez l'équipe technique.",
     "default_supplement": "Seul un plat d'abonnement peut être le plat par défaut.",
     "no_previous_week": "La semaine précédente n'a pas de menu à copier.",
     "template_empty": "Ce modèle ne contient aucun plat.",
