@@ -502,6 +502,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['invite']>>>
     }
   }
+  'admin.parents.invite_whatsapp': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/invitation/whatsapp'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['inviteWhatsapp']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['inviteWhatsapp']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['inviteWhatsapp']>>>
+    }
+  }
   'admin.children.create': {
     methods: ["GET","HEAD"]
     pattern: '/admin/parents/:parentId/children/create'
@@ -1048,6 +1061,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['copyPrevious']>>>
     }
   }
+  'admin.menus.copy_from': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/copy-from'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/menus').menuCopyFromValidator)>>
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/menus').menuCopyFromValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['copyFrom']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['copyFrom']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['copyFrom']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.menus.templates.apply': {
     methods: ["POST"]
     pattern: '/admin/menus/:week/apply-template'
@@ -1280,6 +1306,123 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['download']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['download']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/statements_controller').default['download']>>>
+    }
+  }
+  'admin.users.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/users'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['index']>>>
+    }
+  }
+  'admin.users.store': {
+    methods: ["POST"]
+    pattern: '/admin/users'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/users').staffUserValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/users').staffUserValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.users.update': {
+    methods: ["PUT"]
+    pattern: '/admin/users/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/users').staffUserValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/users').staffUserValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.users.active': {
+    methods: ["PUT"]
+    pattern: '/admin/users/:id/active'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/users').staffActiveValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/users').staffActiveValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['setActive']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['setActive']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['setActive']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.users.invite': {
+    methods: ["POST"]
+    pattern: '/admin/users/:id/invite'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['invite']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['invite']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['invite']>>>
+    }
+  }
+  'admin.roles.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/roles'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleIndex']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleIndex']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleIndex']>>>
+    }
+  }
+  'admin.roles.store': {
+    methods: ["POST"]
+    pattern: '/admin/roles'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/users').staffRoleValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/users').staffRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleStore']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleStore']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleStore']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.roles.update': {
+    methods: ["PUT"]
+    pattern: '/admin/roles/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/users').staffRoleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/users').staffRoleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleUpdate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleUpdate']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleUpdate']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.roles.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/roles/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleDestroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleDestroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/users_controller').default['roleDestroy']>>>
     }
   }
   'admin.settings.show': {

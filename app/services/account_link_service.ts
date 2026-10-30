@@ -2,6 +2,7 @@ import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import mail from '@adonisjs/mail/services/main'
 import logger from '@adonisjs/core/services/logger'
+import i18nManager from '@adonisjs/i18n/services/main'
 import env from '#start/env'
 import User from '#models/user'
 import Clock from '#services/clock'
@@ -12,6 +13,8 @@ import BusinessRuleException from '#exceptions/business_rule_exception'
 import type { UserTokenType } from '#enums/user_tokens'
 import { maskEmail } from '#app/mail/log_transport'
 import { safeMailError } from '#services/outbox_service'
+import { APP_TIMEZONE } from '#support/time'
+import { whatsappNumber } from '#support/whatsapp'
 
 /** Public paths of the links (also used by start/routes.ts). */
 export const LINK_PATHS: Record<UserTokenType, string> = {
@@ -36,15 +39,56 @@ export default class AccountLinkService {
   ) {}
 
   /**
-   * Sends (or re-sends) an invitation to a parent who has no password yet.
+   * Sends (or re-sends) an invitation to a parent (or a staff user, D42) who
+   * has no password yet.
    * Any previous invitation link stops working.
    *
    * @throws BusinessRuleException when the parent is inactive or already has
    * access, or when the email cannot be sent.
    */
-  async invite(parent: User, sentBy: User) {
+  async invite(parent: User, sentBy: User, audience: 'parent' | 'staff' = 'parent') {
+    const { token, record, locked } = await this.issueInvitation(parent, sentBy, audience)
+
+    try {
+      await mail.send(
+        new AccountLinkMail('invitation', locked, linkUrl('invitation', token), record.expiresAt)
+      )
+    } catch (error) {
+      logger.error(
+        { error: safeMailError(error), to: maskEmail(parent.email) },
+        'invitation email failed'
+      )
+      throw new BusinessRuleException('families.errors.invitation_email_failed')
+    }
+    return record
+  }
+
+  /**
+   * The same invitation, for a parent reached on WhatsApp (D43): returns the
+   * wa.me link that opens a chat with the message ready. Staff press send
+   * themselves, so nothing is sent from here and no email goes out.
+   */
+  async whatsappInvitation(parent: User, sentBy: User) {
+    const number = whatsappNumber(parent.phone)
+    if (!number) throw new BusinessRuleException('families.errors.no_whatsapp_number')
+    const { token, record, locked } = await this.issueInvitation(parent, sentBy, 'parent')
+    const locale = locked.locale
+    const message = i18nManager.locale(locale).t('emails.invitation.whatsapp', {
+      name: locked.fullName,
+      url: linkUrl('invitation', token),
+      date: record.expiresAt
+        .setZone(APP_TIMEZONE)
+        .setLocale(locale)
+        .toLocaleString({ dateStyle: 'long', timeStyle: 'short' }),
+    })
+    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`
+  }
+
+  protected async issueInvitation(parent: User, sentBy: User, audience: 'parent' | 'staff') {
     const assertInvitable = (user: User) => {
-      if (user.role !== 'parent') throw new BusinessRuleException('families.errors.not_a_parent')
+      if ((user.role === 'parent') !== (audience === 'parent')) {
+        throw new BusinessRuleException('families.errors.not_a_parent')
+      }
       if (!user.isActive) throw new BusinessRuleException('families.errors.invite_inactive')
       if (user.password) throw new BusinessRuleException('families.errors.already_has_access')
     }
@@ -62,19 +106,7 @@ export default class AccountLinkService {
       return { ...issued, locked: current }
     })
     parent.invitedAt = locked.invitedAt
-
-    try {
-      await mail.send(
-        new AccountLinkMail('invitation', locked, linkUrl('invitation', token), record.expiresAt)
-      )
-    } catch (error) {
-      logger.error(
-        { error: safeMailError(error), to: maskEmail(parent.email) },
-        'invitation email failed'
-      )
-      throw new BusinessRuleException('families.errors.invitation_email_failed')
-    }
-    return record
+    return { token, record, locked }
   }
 
   /**

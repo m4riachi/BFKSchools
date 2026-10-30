@@ -8,7 +8,7 @@ import BusinessRuleException from '#exceptions/business_rule_exception'
 import { assertDemoSeeding } from '#database/demo/support'
 
 /**
- * Holidays of Britech School's configured school year: the US federal
+ * Holidays of British Academy School Marrakech's configured school year: the US federal
  * holidays (same idempotent generator as the back-office button and
  * `holidays:generate`), plus two demo breaks added by hand (winter and
  * spring break, as an admin would). Runs before the demo menus/orders, so

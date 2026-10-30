@@ -3,6 +3,7 @@ import { BasePolicy } from '@adonisjs/bouncer'
 import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 import { KITCHEN_ROLES } from '#enums/roles'
 import { staffSchoolId } from '#policies/parent_policy'
+import StaffRoleService from '#services/staff_role_service'
 
 /**
  * School whose reports the user may read: an **active** admin, manager or
@@ -31,8 +32,13 @@ export default class ReportPolicy extends BasePolicy {
     return reportSchoolId(user) !== null
   }
 
-  /** Amounts (dashboard month-to-date, price columns of the exports). */
-  viewAmounts(user: User): AuthorizerResponse {
-    return staffSchoolId(user) !== null
+  /**
+   * Amounts (dashboard month-to-date, price columns of the exports). D42: a
+   * custom role also needs an area about money, so permissions only narrow.
+   */
+  async viewAmounts(user: User): Promise<AuthorizerResponse> {
+    if (staffSchoolId(user) === null) return false
+    const permissions = await new StaffRoleService().permissionsOf(user)
+    return permissions.includes('statements') || permissions.includes('reports')
   }
 }

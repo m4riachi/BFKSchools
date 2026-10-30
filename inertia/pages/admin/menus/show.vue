@@ -49,6 +49,7 @@ const props = defineProps<{
   issues: MenuIssue[]
   templates: MenuTemplateView[]
   hasPreviousWeek: boolean
+  pastWeeks: { weekStart: string; first: string; last: string; status: string; items: number }[]
   recipients: number
   editRule: {
     allowParentEdits: boolean
@@ -256,6 +257,31 @@ function askCopy() {
   else copyPrevious()
 }
 
+/* D40: copy the menu of any earlier week */
+const pastWeeksOpen = ref(false)
+const copySource = ref<string | null>(null)
+function copyFrom() {
+  router.post(
+    `${base.value}/copy-from`,
+    { sourceWeek: copySource.value },
+    {
+      ...visitOptions,
+      onStart: () => (processing.value = true),
+      onFinish: () => {
+        processing.value = false
+        copySource.value = null
+        pastWeeksOpen.value = false
+      },
+    }
+  )
+}
+const copySourceOpen = ref(false)
+function askCopyFrom(weekStart: string) {
+  copySource.value = weekStart
+  if (itemsCount.value > 0) copySourceOpen.value = true
+  else copyFrom()
+}
+
 const templatesOpen = ref(false)
 const templateForm = useForm({ name: '', description: '' })
 function saveTemplate() {
@@ -355,6 +381,14 @@ const segmentClass = (active: boolean) =>
           @click="askCopy"
         >
           {{ t('menus.builder.copy_previous') }}
+        </AppButton>
+        <AppButton
+          v-if="can.replaceItems && pastWeeks.length"
+          variant="secondary"
+          :disabled="processing"
+          @click="pastWeeksOpen = true"
+        >
+          {{ t('menus.builder.copy_from') }}
         </AppButton>
         <AppButton variant="secondary" @click="templatesOpen = true">
           {{ t('menus.builder.templates') }}
@@ -704,6 +738,51 @@ const segmentClass = (active: boolean) =>
       </template>
     </ModalDialog>
 
+    <ModalDialog v-model:open="pastWeeksOpen" :title="t('menus.builder.copy_from_title')">
+      <div class="flex flex-col gap-2">
+        <p class="text-sm text-ink-3">{{ t('menus.builder.copy_from_hint') }}</p>
+        <div
+          v-for="past in pastWeeks"
+          :key="past.weekStart"
+          class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line p-3"
+        >
+          <span class="flex min-w-0 flex-col gap-0.5">
+            <span class="text-sm font-bold">
+              {{ formatDate(past.first, { day: 'numeric', month: 'short' }) }} –
+              {{ formatDate(past.last, { day: 'numeric', month: 'short', year: 'numeric' }) }}
+            </span>
+            <span class="text-xs text-ink-4">
+              {{ t('menus.builder.copy_from_items', { count: past.items }) }} ·
+              {{ t(`menus.status.${past.status}`) }}
+            </span>
+          </span>
+          <span class="flex items-center gap-3">
+            <a
+              :href="`/admin/menus/${past.weekStart}`"
+              target="_blank"
+              rel="noopener"
+              class="text-sm font-bold"
+              >{{ t('menus.builder.copy_from_view') }}</a
+            >
+            <AppButton
+              size="sm"
+              :disabled="processing"
+              :loading="processing && copySource === past.weekStart"
+              @click="askCopyFrom(past.weekStart)"
+            >
+              {{ t('menus.builder.copy_from_apply') }}
+            </AppButton>
+          </span>
+        </div>
+      </div>
+    </ModalDialog>
+    <ConfirmDialog
+      v-model:open="copySourceOpen"
+      :title="t('menus.builder.copy_from_confirm_title')"
+      :message="t('menus.builder.copy_from_confirm_body')"
+      :processing="processing"
+      @confirm="copyFrom"
+    />
     <ConfirmDialog
       v-model:open="copyOpen"
       :title="t('menus.builder.copy_confirm_title')"

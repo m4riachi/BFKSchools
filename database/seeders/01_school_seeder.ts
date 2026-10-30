@@ -34,7 +34,7 @@ export default class SchoolSeeder extends BaseSeeder {
     const year = schoolYearFor(clock.today())
     await School.create({
       slug: 'britech-school',
-      name: 'Britech School',
+      name: 'British Academy School Marrakech',
       timezone: 'Africa/Casablanca',
       schoolDays: [1, 2, 3, 4, 5],
       schoolYearStart: year.start,

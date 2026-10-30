@@ -5,11 +5,14 @@
   "invitation": {
     "subject": "Votre accès British Academy × Beldi Fusion",
     "title": "Bienvenue sur British Academy × Beldi Fusion",
-    "intro": "BFK vous a créé un compte pour choisir chaque semaine les déjeuners de vos enfants à Britech School. Choisissez votre mot de passe pour activer votre accès.",
+    "intro": "BFK vous a créé un compte pour choisir chaque semaine les déjeuners de vos enfants à British Academy School Marrakech. Choisissez votre mot de passe pour activer votre accès.",
+    "whatsapp": "Bonjour {name}, BFK vous invite à choisir chaque semaine les déjeuners de vos enfants à British Academy School Marrakech. Choisissez votre mot de passe avec ce lien personnel, valable jusqu’au {date} : {url}",
+    "intro_staff": "BFK vous a créé un compte pour travailler sur l’application des repas de British Academy School Marrakech. Choisissez votre mot de passe pour activer votre accès.",
+    "footer_staff": "Vous recevez cet e-mail car BFK vous a créé un accès d’équipe.",
     "action": "Choisir mon mot de passe",
     "expiry": "Ce lien est valable jusqu'au {date} et ne peut être utilisé qu'une seule fois.",
     "ignore": "Si vous n'attendiez pas cet e-mail, vous pouvez l'ignorer.",
-    "footer": "Vous recevez cet e-mail car BFK a créé un accès pour votre famille à Britech School."
+    "footer": "Vous recevez cet e-mail car BFK a créé un accès pour votre famille à British Academy School Marrakech."
   },
   "password_reset": {
     "subject": "Réinitialisation de votre mot de passe",
@@ -26,10 +29,10 @@
     "intro": "Le menu de la semaine {week} est publié. Choisissez dès maintenant les déjeuners de vos enfants.",
     "deadline": "Vous pouvez faire vos choix jusqu'au {date}.",
     "action": "Choisir les repas",
-    "footer": "Vous recevez cet e-mail car votre famille est inscrite à la restauration BFK de Britech School."
+    "footer": "Vous recevez cet e-mail car votre famille est inscrite à la restauration BFK de British Academy School Marrakech."
   },
   "order_line": "{child} — {date}",
-  "order_footer": "Vous recevez cet e-mail car il concerne les repas de vos enfants à Britech School.",
+  "order_footer": "Vous recevez cet e-mail car il concerne les repas de vos enfants à British Academy School Marrakech.",
   "deadline_reminder": {
     "subject": "Rappel : choisissez les repas de la semaine {week}",
     "title": "Repas de la semaine {week}",
@@ -79,7 +82,7 @@
     "intro": "{count, plural, one {L’abonnement ne couvre plus ce jour : le plat principal a été retiré :} other {L’abonnement ne couvre plus ces # jours : le plat principal a été retiré :}}"
   },
   "layout": {
-    "partner": "BFK Resto × Britech School",
+    "partner": "BFK Resto × British Academy School Marrakech",
     "preferences": "Gérer mes préférences d’e-mails",
     "automatic": "E-mail automatique, merci de ne pas y répondre"
   }

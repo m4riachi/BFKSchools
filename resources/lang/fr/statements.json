@@ -27,7 +27,7 @@
   "meals_count": "{count, plural, =0 {Aucun repas} one {# repas} other {# repas}}",
   "pdf": {
     "title": "Relevé mensuel — {month}",
-    "partner": "BFK Resto × Britech School",
+    "partner": "BFK Resto × British Academy School Marrakech",
     "generated": "édité le {date}",
     "footer": "British Academy × Beldi Fusion · page {page} / {pages}",
     "snapshot_note": "Les montants des suppléments utilisent leur prix au moment de la commande. Les jours annulés (absence, jour férié, changement de menu) ne sont pas facturés."

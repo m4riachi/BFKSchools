@@ -251,7 +251,7 @@ Format: `column — type — null? — default — notes`. "NN" = `NOT NULL`.
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
 | id | integer identity | NN | | PK |
-| name | text | NN | | "Britech School" |
+| name | text | NN | | "British Academy School Marrakech" |
 | slug | text | NN | | UNIQUE |
 | timezone | text | NN | `'Africa/Casablanca'` | IANA name; validated with Luxon `IANAZone.isValidZone` in the app |
 | school_days | smallint[] | NN | `'{1,2,3,4,5}'` | ISO weekdays (1 = Mon). CHECK `school_days <@ '{1,2,3,4,5,6,7}' AND cardinality(school_days) > 0` |
@@ -595,6 +595,10 @@ One pair per school: `school_id` (unique, cascade), `public_key` (unique), `secr
 ### link_clicks — D38 (reports)
 
 Clicks on the parent portal's outside links: `school_id` (cascade), `user_id` (users, set null), `link` (`glovo` or `delivery`), `clicked_at`. Index (`school_id`, `clicked_at`).
+
+### staff_roles — D42
+
+Custom roles: `school_id` (cascade), `name` (unique per school, case-insensitive), `permissions` (text[], values in `app/enums/permissions.ts`). `users.staff_role_id` points here (restrict); null = built-in role.
 
 ## 3. Hot queries → indexes (summary)
 

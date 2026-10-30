@@ -4,8 +4,10 @@ import type { NextFn } from '@adonisjs/core/types/http'
 import UserTransformer from '#transformers/user_transformer'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import { clientTranslations } from '#support/client_translations'
+import { zoneOffsets } from '#support/time'
 import NotificationCenterService from '#services/notification_center_service'
 import SchoolSettingsService from '#services/school_settings_service'
+import StaffRoleService from '#services/staff_role_service'
 import School from '#models/school'
 import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from '#enums/locales'
 
@@ -27,8 +29,12 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       user: ctx.inertia.always(user ? UserTransformer.transform(user) : undefined),
       locale: ctx.inertia.always(locale),
       messages: ctx.inertia.always(clientTranslations(locale)),
+      /** D41: so hours follow the server's time zone data, not the browser's. */
+      zoneOffsets: ctx.inertia.always(zoneOffsets()),
       /** Parents: unread notifications for the header bell (null for staff / guests). */
       unreadNotifications: ctx.inertia.always(await this.unreadNotifications(ctx)),
+      /** D42: what a staff user may open, for the menu (the server checks each route). */
+      access: ctx.inertia.always(await this.access(ctx)),
       /** D33: optional modules of the user's school (everything off for guests). */
       features: ctx.inertia.always(
         school
@@ -63,6 +69,17 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       return await center.unreadCount(user.id)
     } catch (error) {
       logger.warn({ error: (error as Error)?.name ?? 'Error' }, 'unread notifications count failed')
+      return null
+    }
+  }
+
+  protected async access(ctx: HttpContext) {
+    const user = (ctx as Partial<HttpContext>).auth?.user
+    if (!user || user.role === 'parent') return null
+    try {
+      return await new StaffRoleService().accessOf(user)
+    } catch (error) {
+      logger.warn({ error: (error as Error)?.name ?? 'Error' }, 'staff access read failed')
       return null
     }
   }

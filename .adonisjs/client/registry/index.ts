@@ -236,6 +236,12 @@ const routes = {
     tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"invitation"]],
     types: placeholder as Registry['admin.parents.invite']['types'],
   },
+  'admin.parents.invite_whatsapp': {
+    methods: ["POST"],
+    pattern: '/admin/parents/:id/invitation/whatsapp',
+    tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"invitation"],[0,"whatsapp"]],
+    types: placeholder as Registry['admin.parents.invite_whatsapp']['types'],
+  },
   'admin.children.create': {
     methods: ["GET","HEAD"],
     pattern: '/admin/parents/:parentId/children/create',
@@ -488,6 +494,12 @@ const routes = {
     tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"copy-previous"]],
     types: placeholder as Registry['admin.menus.copy']['types'],
   },
+  'admin.menus.copy_from': {
+    methods: ["POST"],
+    pattern: '/admin/menus/:week/copy-from',
+    tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"copy-from"]],
+    types: placeholder as Registry['admin.menus.copy_from']['types'],
+  },
   'admin.menus.templates.apply': {
     methods: ["POST"],
     pattern: '/admin/menus/:week/apply-template',
@@ -595,6 +607,60 @@ const routes = {
     pattern: '/admin/statements/parents/:id/pdf',
     tokens: [[0,"admin"],[0,"statements"],[0,"parents"],[1,"id"],[0,"pdf"]],
     types: placeholder as Registry['admin.statements.pdf']['types'],
+  },
+  'admin.users.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/users',
+    tokens: [[0,"admin"],[0,"users"]],
+    types: placeholder as Registry['admin.users.index']['types'],
+  },
+  'admin.users.store': {
+    methods: ["POST"],
+    pattern: '/admin/users',
+    tokens: [[0,"admin"],[0,"users"]],
+    types: placeholder as Registry['admin.users.store']['types'],
+  },
+  'admin.users.update': {
+    methods: ["PUT"],
+    pattern: '/admin/users/:id',
+    tokens: [[0,"admin"],[0,"users"],[1,"id"]],
+    types: placeholder as Registry['admin.users.update']['types'],
+  },
+  'admin.users.active': {
+    methods: ["PUT"],
+    pattern: '/admin/users/:id/active',
+    tokens: [[0,"admin"],[0,"users"],[1,"id"],[0,"active"]],
+    types: placeholder as Registry['admin.users.active']['types'],
+  },
+  'admin.users.invite': {
+    methods: ["POST"],
+    pattern: '/admin/users/:id/invite',
+    tokens: [[0,"admin"],[0,"users"],[1,"id"],[0,"invite"]],
+    types: placeholder as Registry['admin.users.invite']['types'],
+  },
+  'admin.roles.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/roles',
+    tokens: [[0,"admin"],[0,"roles"]],
+    types: placeholder as Registry['admin.roles.index']['types'],
+  },
+  'admin.roles.store': {
+    methods: ["POST"],
+    pattern: '/admin/roles',
+    tokens: [[0,"admin"],[0,"roles"]],
+    types: placeholder as Registry['admin.roles.store']['types'],
+  },
+  'admin.roles.update': {
+    methods: ["PUT"],
+    pattern: '/admin/roles/:id',
+    tokens: [[0,"admin"],[0,"roles"],[1,"id"]],
+    types: placeholder as Registry['admin.roles.update']['types'],
+  },
+  'admin.roles.destroy': {
+    methods: ["DELETE"],
+    pattern: '/admin/roles/:id',
+    tokens: [[0,"admin"],[0,"roles"],[1,"id"]],
+    types: placeholder as Registry['admin.roles.destroy']['types'],
   },
   'admin.settings.show': {
     methods: ["GET","HEAD"],

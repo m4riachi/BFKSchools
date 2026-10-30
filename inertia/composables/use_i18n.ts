@@ -38,17 +38,27 @@ export function useI18n() {
   }
 
   /**
-   * Formats an ISO instant (timestamptz) in the business time zone
-   * (always the IANA name, never a fixed offset).
+   * Formats an ISO instant (timestamptz) in the business time zone, with the
+   * offset the server gives for that instant (D41): the browser's own time
+   * zone data can be out of date. Without the table (should not happen), it
+   * falls back to the browser's data for the IANA name.
    */
   function formatDateTime(
     iso: string,
     options: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' }
   ) {
-    return new Intl.DateTimeFormat(locale.value, {
-      ...options,
-      timeZone: 'Africa/Casablanca',
-    }).format(new Date(iso))
+    const ms = new Date(iso).getTime()
+    const offsets = page.props.zoneOffsets
+    if (!offsets?.length) {
+      return new Intl.DateTimeFormat(locale.value, {
+        ...options,
+        timeZone: 'Africa/Casablanca',
+      }).format(ms)
+    }
+    const offset = offsets.findLast((entry) => entry.fromMs <= ms) ?? offsets[0]
+    return new Intl.DateTimeFormat(locale.value, { ...options, timeZone: 'UTC' }).format(
+      ms + offset.offsetMinutes * 60_000
+    )
   }
 
   return { t, locale, formatDate, formatDateTime }

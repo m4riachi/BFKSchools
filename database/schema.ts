@@ -432,6 +432,23 @@ export class SchoolSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class StaffRoleSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'name', 'permissions', 'schoolId', 'updatedAt'] as const
+  $columns = StaffRoleSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare permissions: any
+  @column()
+  declare schoolId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class SubscriptionSchema extends BaseModel {
   static $columns = ['childId', 'createdAt', 'endDate', 'id', 'notes', 'startDate', 'status', 'updatedAt'] as const
   $columns = SubscriptionSchema.$columns
@@ -479,7 +496,7 @@ export class UserTokenSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'credentialsVersion', 'email', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'role', 'schoolId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'credentialsVersion', 'email', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'role', 'schoolId', 'staffRoleId', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -509,6 +526,8 @@ export class UserSchema extends BaseModel {
   declare role: Role
   @column()
   declare schoolId: number | null
+  @column()
+  declare staffRoleId: number | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }

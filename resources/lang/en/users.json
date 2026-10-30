@@ -1,0 +1,86 @@
+{
+  "title": "Users",
+  "description": "Team accounts and their roles. Parents are managed in Families.",
+  "manage_roles": "Manage roles",
+  "add": "Add a user",
+  "add_title": "Add a user",
+  "edit_title": "Edit user",
+  "invite_hint": "The person receives an email to choose their password.",
+  "you": "(you)",
+  "edit": "Edit",
+  "save": "Save",
+  "create": "Create and invite",
+  "cancel": "Cancel",
+  "resend": "Resend invitation",
+  "activate": "Reactivate",
+  "deactivate": "Deactivate",
+  "activate_title": "Reactivate this account?",
+  "activate_body": "The person will be able to log in again.",
+  "deactivate_title": "Deactivate this account?",
+  "deactivate_body": "The person is logged out and can no longer log in. Their history is kept.",
+  "columns": {
+    "name": "Name",
+    "role": "Role",
+    "status": "Status"
+  },
+  "status": {
+    "active": "Active",
+    "invited": "Invitation sent",
+    "inactive": "Deactivated"
+  },
+  "fields": {
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "locale": "Language"
+  },
+  "permissions": {
+    "dashboard": "Dashboard",
+    "families": "Families",
+    "meals": "Meals",
+    "menus": "Weekly menus",
+    "holidays": "Holidays",
+    "orders": "Orders",
+    "pos": "Place an order",
+    "kitchen": "Kitchen",
+    "statements": "Statements",
+    "reports": "Reports"
+  },
+  "roles": {
+    "title": "Roles",
+    "description": "Create roles and choose what each one can open.",
+    "back": "Back to users",
+    "add": "Add a role",
+    "add_title": "Add a role",
+    "edit_title": "Edit role",
+    "name": "Role name",
+    "permissions": "Access",
+    "delete": "Delete",
+    "delete_title": "Delete this role?",
+    "delete_body": "The role “{name}” will be deleted.",
+    "users_count": "{count, plural, =0 {No users} one {# user} other {# users}}",
+    "admin_only_hint": "Users, roles and settings stay reserved for administrators.",
+    "builtin_admin": "Built-in role: everything, including users, roles and settings.",
+    "builtin_manager": "Built-in role: the whole back-office, except users, roles and settings.",
+    "builtin_kitchen": "Built-in role: the kitchen only, read-only."
+  },
+  "flash": {
+    "created": "User created, invitation sent.",
+    "created_not_sent": "User created, but the email could not be sent. Resend the invitation.",
+    "updated": "User updated.",
+    "activated": "Account reactivated.",
+    "deactivated": "Account deactivated.",
+    "invited": "Invitation sent.",
+    "role_saved": "Role saved.",
+    "role_deleted": "Role deleted."
+  },
+  "errors": {
+    "role_in_use": "This role is assigned to users: change their role first.",
+    "role_name_taken": "A role already has this name.",
+    "unknown_role": "This role does not exist.",
+    "own_access": "You cannot change your own role.",
+    "own_account": "You cannot deactivate your own account.",
+    "not_admin_anymore": "You are no longer an administrator."
+  }
+}

@@ -12,6 +12,8 @@ export type NavItem = {
   /** Only match the exact path (e.g. a dashboard at the root of an area). */
   exact?: boolean
   roles?: string[]
+  /** Shown only with this permission (D42); the server checks the route anyway. */
+  permission?: string
 }
 
 export function useActiveNav() {

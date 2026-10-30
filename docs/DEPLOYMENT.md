@@ -63,7 +63,7 @@ cp /home/bfk/.env.production build/.env    # see "Environment" below
 cd build
 npm ci --omit=dev                          # installs sharp's native binary for this host
 node ace migration:run --force
-node ace db:seed                           # production: only creates Britech School
+node ace db:seed                           # production: only creates British Academy School Marrakech
 node ace users:create-staff --email=admin@your-domain --name="Admin Name" --role=admin
 ```
 

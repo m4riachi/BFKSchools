@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import AdminLayout from '~/layouts/admin_layout.vue'
@@ -8,12 +8,19 @@ import AppButton from '~/components/ui/app_button.vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import EmptyState from '~/components/ui/empty_state.vue'
 import ConfirmDialog from '~/components/ui/confirm_dialog.vue'
+import ModalDialog from '~/components/ui/modal_dialog.vue'
 import AccessBadge from '~/components/families/access_badge.vue'
 import type { ChildRow, ParentRow, SubscriptionRow } from '~/components/families/types'
 import { useI18n } from '~/composables/use_i18n'
 import { useFeatures, usePlacement } from '~/composables/use_features'
 
-const props = defineProps<{ parent: ParentRow; children: ChildRow[]; today: string }>()
+const props = defineProps<{
+  parent: ParentRow
+  children: ChildRow[]
+  today: string
+  hasWhatsapp: boolean
+  whatsappInvite: string | null
+}>()
 
 const { t, formatDate, formatDateTime } = useI18n()
 const features = useFeatures()
@@ -23,6 +30,12 @@ const canInvite = computed(() => props.parent.isActive && !props.parent.hasPassw
 const isResend = computed(() => props.parent.invitedAt !== null)
 
 const processing = ref(false)
+const whatsappOpen = ref(false)
+watch(
+  () => props.whatsappInvite,
+  (url) => (whatsappOpen.value = Boolean(url)),
+  { immediate: true }
+)
 const confirmOpen = ref(false)
 
 function post(url: string) {
@@ -152,6 +165,15 @@ const languageLabel = computed(() =>
             {{ isResend ? t('families.parent_show.resend') : t('families.parent_show.invite') }}
           </AppButton>
           <AppButton
+            v-if="canInvite"
+            variant="secondary"
+            :disabled="!hasWhatsapp || processing"
+            :title="hasWhatsapp ? undefined : t('families.parent_show.whatsapp_no_phone')"
+            @click="post(`/admin/parents/${parent.id}/invitation/whatsapp`)"
+          >
+            {{ t('families.parent_show.invite_whatsapp') }}
+          </AppButton>
+          <AppButton
             :variant="parent.isActive ? 'secondary' : 'primary'"
             @click="confirmOpen = true"
           >
@@ -162,6 +184,9 @@ const languageLabel = computed(() =>
             }}
           </AppButton>
         </div>
+        <p v-if="canInvite && !hasWhatsapp" class="text-[13px] text-ink-4">
+          {{ t('families.parent_show.whatsapp_no_phone') }}
+        </p>
         <p v-if="canInvite && isResend" class="text-[13px] text-ink-4">
           {{ t('families.parent_show.resend_hint') }}
         </p>
@@ -265,5 +290,27 @@ const languageLabel = computed(() =>
       :processing="processing"
       @confirm="toggleActive"
     />
+    <ModalDialog
+      v-model:open="whatsappOpen"
+      :title="t('families.parent_show.whatsapp_ready_title')"
+      size="sm"
+    >
+      <p class="m-0 text-sm text-ink-2">{{ t('families.parent_show.whatsapp_ready_body') }}</p>
+      <template #footer>
+        <AppButton variant="secondary" @click="whatsappOpen = false">
+          {{ t('families.parent_show.whatsapp_close') }}
+        </AppButton>
+        <a
+          v-if="whatsappInvite"
+          :href="whatsappInvite"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex min-h-11 items-center rounded-xl bg-[#25D366] px-4 text-sm font-bold text-white no-underline hover:bg-[#1EBE5B] hover:text-white"
+          @click="whatsappOpen = false"
+        >
+          {{ t('families.parent_show.whatsapp_open') }}
+        </a>
+      </template>
+    </ModalDialog>
   </AdminLayout>
 </template>

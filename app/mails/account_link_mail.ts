@@ -35,6 +35,8 @@ export default class AccountLinkMail extends BrandedMail {
     const locale = this.user.locale
     const i18n = i18nManager.locale(locale)
     const prefix = `emails.${this.kind}`
+    // D42: a staff member has no children to feed.
+    const forStaff = this.kind === 'invitation' && this.user.role !== 'parent'
     const expires = this.expiresAt
       .setZone(APP_TIMEZONE)
       .setLocale(locale)
@@ -43,10 +45,10 @@ export default class AccountLinkMail extends BrandedMail {
       subject: i18n.t(`${prefix}.subject`),
       title: i18n.t(`${prefix}.title`),
       greeting: i18n.t('emails.greeting', { name: this.user.fullName }),
-      paragraphs: [i18n.t(`${prefix}.intro`)],
+      paragraphs: [i18n.t(`${prefix}.${forStaff ? 'intro_staff' : 'intro'}`)],
       action: { label: i18n.t(`${prefix}.action`), path: this.url },
       notes: [i18n.t(`${prefix}.expiry`, { date: expires }), i18n.t(`${prefix}.ignore`)],
-      footer: i18n.t(`${prefix}.footer`),
+      footer: i18n.t(`${prefix}.${forStaff ? 'footer_staff' : 'footer'}`),
     }
   }
 }

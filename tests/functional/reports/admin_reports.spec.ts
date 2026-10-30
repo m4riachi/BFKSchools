@@ -95,7 +95,6 @@ test.group('Reports page', (group) => {
   }) => {
     const { school, admin } = await setupMenuSchool()
     const { parent } = await family(school)
-    // Morocco is UTC+1 here: still the 23rd in UTC, already the 24th at school.
     freezeClock('2026-11-24T00:10')
     await client.get('/out/glovo').loginAs(parent).redirects(0)
 

@@ -18,6 +18,7 @@ import { staffSchoolId } from '#policies/parent_policy'
 import {
   menuItemCreateValidator,
   menuItemUpdateValidator,
+  menuCopyFromValidator,
   menuTemplateApplyValidator,
   menuTemplateSaveValidator,
   menuTimesValidator,
@@ -171,6 +172,7 @@ export default class WeeklyMenusController {
       : []
     const issues = menu ? this.calendar.readiness(school, menu, days, items) : []
     const defaults = this.calendar.defaultTimes(school, week)
+    const pastWeeks = await this.builder.pastWeeks(school.id, week)
 
     const catalog = await Meal.query()
       .withScopes((scopes) => scopes.offerable())
@@ -273,6 +275,10 @@ export default class WeeklyMenusController {
         itemsCount: Number(template.$extras.items_count ?? 0),
       })),
       hasPreviousWeek: Number(previousCount[0]?.$extras.total ?? 0) > 0,
+      pastWeeks: pastWeeks.map((past) => ({
+        ...past,
+        ...weekBounds(past.weekStart, school.schoolDays),
+      })),
       recipients: await this.publication.countRecipients(school.id),
       editRule: {
         allowParentEdits: settings.allow_parent_edits,
@@ -437,6 +443,18 @@ export default class WeeklyMenusController {
     const school = await this.school(ctx)
     const week = this.week(ctx)
     const report = await this.builder.copyPreviousWeek(school, week, auth.getUserOrFail())
+    session.flash('menuReport', { kind: 'copy', ...report } satisfies MenuReportFlash)
+    session.flash('success', i18n.t('menus.flash.copied', { count: report.added }))
+    return this.backToWeek(ctx, week)
+  }
+
+  /** D40: replaces a draft week with the menu of any earlier week. */
+  async copyFrom(ctx: HttpContext) {
+    const { auth, request, session, i18n } = ctx
+    const school = await this.school(ctx)
+    const week = this.week(ctx)
+    const { sourceWeek } = await request.validateUsing(menuCopyFromValidator)
+    const report = await this.builder.copyWeek(school, week, sourceWeek, auth.getUserOrFail())
     session.flash('menuReport', { kind: 'copy', ...report } satisfies MenuReportFlash)
     session.flash('success', i18n.t('menus.flash.copied', { count: report.added }))
     return this.backToWeek(ctx, week)

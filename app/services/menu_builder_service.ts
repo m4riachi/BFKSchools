@@ -13,9 +13,12 @@ import Clock from '#services/clock'
 import MenuCalendar from '#services/menu_calendar'
 import MenuChangeService, { type RemovalResolution } from '#services/menu_change_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
-import { addDays, isoWeekday, type IsoDate } from '#support/dates'
+import { addDays, diffInDays, isoWeekday, type IsoDate } from '#support/dates'
+import type { WeeklyMenuStatus } from '#enums/menus'
 
 const PG_UNIQUE_VIOLATION = '23505'
+/** Old menus offered for copying (about six months). */
+const PAST_WEEKS_LISTED = 26
 
 function isUniqueViolation(error: unknown) {
   return (error as { code?: string } | null)?.code === PG_UNIQUE_VIOLATION
@@ -330,21 +333,62 @@ export default class MenuBuilderService {
    * that are inactive or deleted are skipped and reported.
    */
   async copyPreviousWeek(school: School, weekStart: IsoDate, actor: User): Promise<CopyReport> {
-    const previous = await this.findWeek(school.id, addDays(weekStart, -7))
-    const sourceItems = previous
+    return this.copyWeek(
+      school,
+      weekStart,
+      addDays(weekStart, -7),
+      actor,
+      'menus.errors.no_previous_week'
+    )
+  }
+
+  /** Earlier weeks of the school that have a menu to copy, the most recent first. */
+  async pastWeeks(schoolId: number, before: IsoDate) {
+    const rows = await db
+      .from('weekly_menus as wm')
+      .join('menu_items as mi', 'mi.weekly_menu_id', 'wm.id')
+      .where('wm.school_id', schoolId)
+      .where('wm.week_start', '<', before)
+      .whereNull('mi.removed_at')
+      .groupBy('wm.id')
+      .orderBy('wm.week_start', 'desc')
+      .limit(PAST_WEEKS_LISTED)
+      .select('wm.status', db.raw('wm.week_start::text AS week_start'))
+      .select(db.raw('count(*)::int AS items'))
+    return rows.map((row) => ({
+      weekStart: row.week_start as IsoDate,
+      status: row.status as WeeklyMenuStatus,
+      items: Number(row.items),
+    }))
+  }
+
+  /**
+   * Same as copyPreviousWeek, from any earlier week of the school (D40). Each
+   * meal lands on the same weekday; the source week is not changed.
+   */
+  async copyWeek(
+    school: School,
+    weekStart: IsoDate,
+    sourceWeek: IsoDate,
+    actor: User,
+    emptyError = 'menus.errors.no_source_week'
+  ): Promise<CopyReport> {
+    const source = sourceWeek < weekStart ? await this.findWeek(school.id, sourceWeek) : null
+    const sourceItems = source
       ? await MenuItem.query()
           .withScopes((scopes) => scopes.current())
-          .where('weekly_menu_id', previous.id)
+          .where('weekly_menu_id', source.id)
       : []
-    if (!sourceItems.length) throw new BusinessRuleException('menus.errors.no_previous_week')
+    if (!sourceItems.length) throw new BusinessRuleException(emptyError)
 
+    const shift = diffInDays(sourceWeek, weekStart)
     return this.withMenu(school, weekStart, actor, async (trx, menu) => {
       return this.replaceItems(
         trx,
         school,
         menu,
         sourceItems.map((item) => ({
-          date: addDays(item.date, 7),
+          date: addDays(item.date, shift),
           mealId: item.mealId,
           isDefault: item.isDefault,
           maxQuantity: item.maxQuantity,

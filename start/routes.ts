@@ -198,6 +198,10 @@ router
       .post('parents/:id/invitation', [controllers.admin.Parents, 'invite'])
       .where('id', id)
       .as('parents.invite')
+    router
+      .post('parents/:id/invitation/whatsapp', [controllers.admin.Parents, 'inviteWhatsapp'])
+      .where('id', id)
+      .as('parents.invite_whatsapp')
 
     router
       .group(() => {
@@ -338,6 +342,7 @@ router
           .where('id', id)
           .as('items.remove')
         router.post('copy-previous', [controllers.admin.WeeklyMenus, 'copyPrevious']).as('copy')
+        router.post('copy-from', [controllers.admin.WeeklyMenus, 'copyFrom']).as('copy_from')
         router
           .post('apply-template', [controllers.admin.WeeklyMenus, 'applyTemplate'])
           .as('templates.apply')
@@ -401,6 +406,29 @@ router
       .where('id', id)
       .as('statements.pdf')
 
+    // Staff users and custom roles (D42, admin only, SchoolPolicy.manageUsers)
+    router.get('users', [controllers.admin.Users, 'index']).as('users.index')
+    router.post('users', [controllers.admin.Users, 'store']).as('users.store')
+    router.put('users/:id', [controllers.admin.Users, 'update']).where('id', id).as('users.update')
+    router
+      .put('users/:id/active', [controllers.admin.Users, 'setActive'])
+      .where('id', id)
+      .as('users.active')
+    router
+      .post('users/:id/invite', [controllers.admin.Users, 'invite'])
+      .where('id', id)
+      .as('users.invite')
+    router.get('roles', [controllers.admin.Users, 'roleIndex']).as('roles.index')
+    router.post('roles', [controllers.admin.Users, 'roleStore']).as('roles.store')
+    router
+      .put('roles/:id', [controllers.admin.Users, 'roleUpdate'])
+      .where('id', id)
+      .as('roles.update')
+    router
+      .delete('roles/:id', [controllers.admin.Users, 'roleDestroy'])
+      .where('id', id)
+      .as('roles.destroy')
+
     // School settings (admin only, SchoolPolicy.updateSettings)
     router.get('settings', [controllers.admin.Settings, 'show']).as('settings.show')
     router.put('settings', [controllers.admin.Settings, 'update']).as('settings.update')
@@ -430,7 +458,11 @@ router
   })
   .prefix('admin')
   .as('admin')
-  .use([middleware.auth(), middleware.role({ roles: ['admin', 'manager'] })])
+  .use([
+    middleware.auth(),
+    middleware.role({ roles: ['admin', 'manager'] }),
+    middleware.permission(),
+  ])
 
 /**
  * Kitchen area: admin + manager + kitchen (read-only — GET routes only;
@@ -449,4 +481,8 @@ router
   })
   .prefix('kitchen')
   .as('kitchen')
-  .use([middleware.auth(), middleware.role({ roles: ['admin', 'manager', 'kitchen'] })])
+  .use([
+    middleware.auth(),
+    middleware.role({ roles: ['admin', 'manager', 'kitchen'] }),
+    middleware.permission(),
+  ])

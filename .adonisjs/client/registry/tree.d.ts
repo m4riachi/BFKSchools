@@ -69,6 +69,7 @@ export interface ApiDefinition {
       deactivate: typeof routes['admin.parents.deactivate']
       activate: typeof routes['admin.parents.activate']
       invite: typeof routes['admin.parents.invite']
+      inviteWhatsapp: typeof routes['admin.parents.invite_whatsapp']
     }
     children: {
       create: typeof routes['admin.children.create']
@@ -129,6 +130,7 @@ export interface ApiDefinition {
         remove: typeof routes['admin.menus.items.remove']
       }
       copy: typeof routes['admin.menus.copy']
+      copyFrom: typeof routes['admin.menus.copy_from']
       templates: {
         apply: typeof routes['admin.menus.templates.apply']
         save: typeof routes['admin.menus.templates.save']
@@ -157,6 +159,19 @@ export interface ApiDefinition {
       export: typeof routes['admin.statements.export']
       show: typeof routes['admin.statements.show']
       pdf: typeof routes['admin.statements.pdf']
+    }
+    users: {
+      index: typeof routes['admin.users.index']
+      store: typeof routes['admin.users.store']
+      update: typeof routes['admin.users.update']
+      active: typeof routes['admin.users.active']
+      invite: typeof routes['admin.users.invite']
+    }
+    roles: {
+      index: typeof routes['admin.roles.index']
+      store: typeof routes['admin.roles.store']
+      update: typeof routes['admin.roles.update']
+      destroy: typeof routes['admin.roles.destroy']
     }
     settings: {
       show: typeof routes['admin.settings.show']

@@ -60,8 +60,8 @@ function assertLayout(
   const url = `${APP}${options.link}`
   // Shared branded layout, both parts, the right link in both.
   assert.include(rendered.html, '<html lang="' + options.locale + '">')
-  assert.include(rendered.html, 'BFK Resto × Britech School')
-  assert.include(rendered.text, 'BFK Resto × Britech School')
+  assert.include(rendered.html, 'BFK Resto × British Academy School Marrakech')
+  assert.include(rendered.text, 'BFK Resto × British Academy School Marrakech')
   assert.include(rendered.html, `href="${escaped(url)}"`)
   assert.include(rendered.text, url)
   // The text part carries no markup of the layout.

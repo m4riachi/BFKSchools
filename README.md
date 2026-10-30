@@ -1,6 +1,6 @@
 # BFK School Meals
 
-Web app for **BFK Resto × Britech School**: parents choose their children's weekly school
+Web app for **BFK Resto × British Academy School Marrakech**: parents choose their children's weekly school
 lunches on their phone; BFK staff manage the meal catalog, school holidays, weekly menus,
 kitchen production and monthly statements.
 
@@ -72,7 +72,7 @@ Reset everything: `node ace migration:fresh --seed`.
 `node ace db:seed` (development and test only — the demo seeders refuse to run with
 `NODE_ENV=production`) creates, idempotently:
 
-- Britech School with its current school year and default settings;
+- British Academy School Marrakech with its current school year and default settings;
 - 194 meals: 13 subscription trays (BFK's real lunches, free — D31 — with the real photos in
   `database/demo/meal_photos/`) and BFK's restaurant menu, 181 supplements with photos
   (`database/catalog/`, D32): inactive, except 8 turned on for the demo menus (water, juices,
@@ -237,7 +237,7 @@ cp .env.production build/.env     # your production env (NODE_ENV=production …
 cd build
 npm ci --omit=dev
 node ace migration:run --force
-node ace db:seed                  # production: only creates Britech School (demo seeders are skipped)
+node ace db:seed                  # production: only creates British Academy School Marrakech (demo seeders are skipped)
 node ace users:create-staff --email=you@example.com --name="Your Name" --role=admin
 node bin/server.js                # behind nginx/Apache, under PM2/systemd/Passenger
 ```
@@ -250,7 +250,7 @@ node bin/server.js                # behind nginx/Apache, under PM2/systemd/Passe
 
 | Profile | What it creates | Needs |
 |---|---|---|
-| `catalog` | Britech School, the 13 real trays (active, photos), BFK's restaurant menu as 181 **inactive** supplements with photos (D32: set allergens + price, then activate), **one** staff account | `--email=… [--name="…"] [--role=admin\|manager\|kitchen]`; password asked, or `BFK_NEW_PASSWORD` |
+| `catalog` | British Academy School Marrakech, the 13 real trays (active, photos), BFK's restaurant menu as 181 **inactive** supplements with photos (D32: set allergens + price, then activate), **one** staff account | `--email=… [--name="…"] [--role=admin\|manager\|kitchen]`; password asked, or `BFK_NEW_PASSWORD` |
 | `demo` | everything `db:seed` creates in development (all roles, families, holidays, menus, orders; the BFK menu with 8 items active) | in production: `ALLOW_DEMO_SEED=true` **and** `BFK_DEMO_PASSWORD` (10+ chars, letter + digit) — the password of every demo account, so the public `Demo1234!` is never used online |
 
 Remove `ALLOW_DEMO_SEED` once the test deployment is seeded. To go from demo data to real data,

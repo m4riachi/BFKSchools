@@ -21,7 +21,7 @@ export type HolidayRule = {
 )
 
 /**
- * US federal holidays closed by Britech School (brief §5.3), computed by rule
+ * US federal holidays closed by British Academy School Marrakech (brief §5.3), computed by rule
  * in `UsHolidayCalculator`. Fixed-date holidays follow the federal "observed"
  * rule (Saturday → Friday, Sunday → Monday). Rule keys: `us_<code>_<year>`.
  */

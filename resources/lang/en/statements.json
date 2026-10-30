@@ -27,7 +27,7 @@
   "meals_count": "{count, plural, =0 {No meals} one {# meal} other {# meals}}",
   "pdf": {
     "title": "Monthly statement — {month}",
-    "partner": "BFK Resto × Britech School",
+    "partner": "BFK Resto × British Academy School Marrakech",
     "generated": "issued {date}",
     "footer": "British Academy × Beldi Fusion · page {page} / {pages}",
     "snapshot_note": "Extras use their price at the time of the order. Cancelled days (absence, holiday, menu change) are not billed."

@@ -42,6 +42,7 @@ export type ScannedRoutes = {
     'admin.parents.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.invite_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.children.create': { paramsTuple: [ParamValue]; params: {'parentId': ParamValue} }
     'admin.children.store': { paramsTuple: [ParamValue]; params: {'parentId': ParamValue} }
     'admin.children.edit': { paramsTuple: [ParamValue,ParamValue]; params: {'parentId': ParamValue,'id': ParamValue} }
@@ -84,6 +85,7 @@ export type ScannedRoutes = {
     'admin.menus.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.copy': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
+    'admin.menus.copy_from': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.templates.apply': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.templates.save': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.times': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
@@ -102,6 +104,15 @@ export type ScannedRoutes = {
     'admin.statements.export': { paramsTuple?: []; params?: {} }
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.users.index': { paramsTuple?: []; params?: {} }
+    'admin.users.store': { paramsTuple?: []; params?: {} }
+    'admin.users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.users.active': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.users.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.roles.index': { paramsTuple?: []; params?: {} }
+    'admin.roles.store': { paramsTuple?: []; params?: {} }
+    'admin.roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.update': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
@@ -158,6 +169,8 @@ export type ScannedRoutes = {
     'admin.statements.export': { paramsTuple?: []; params?: {} }
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.users.index': { paramsTuple?: []; params?: {} }
+    'admin.roles.index': { paramsTuple?: []; params?: {} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
@@ -210,6 +223,8 @@ export type ScannedRoutes = {
     'admin.statements.export': { paramsTuple?: []; params?: {} }
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.users.index': { paramsTuple?: []; params?: {} }
+    'admin.roles.index': { paramsTuple?: []; params?: {} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
@@ -241,6 +256,7 @@ export type ScannedRoutes = {
     'admin.parents.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.invite_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.children.store': { paramsTuple: [ParamValue]; params: {'parentId': ParamValue} }
     'admin.children.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'parentId': ParamValue,'childId': ParamValue} }
     'admin.meals.store': { paramsTuple?: []; params?: {} }
@@ -257,6 +273,7 @@ export type ScannedRoutes = {
     'admin.menus.items.store': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.items.default': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.copy': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
+    'admin.menus.copy_from': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.templates.apply': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.templates.save': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.schedule': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
@@ -266,6 +283,9 @@ export type ScannedRoutes = {
     'admin.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.pos.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.pos.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.users.store': { paramsTuple?: []; params?: {} }
+    'admin.users.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.roles.store': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -283,6 +303,9 @@ export type ScannedRoutes = {
     'admin.holidays.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.menus.items.update': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.times': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
+    'admin.users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.users.active': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.update': { paramsTuple?: []; params?: {} }
   }
   DELETE: {
@@ -294,6 +317,7 @@ export type ScannedRoutes = {
     'admin.holidays.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.menus.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menu_templates.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

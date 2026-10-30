@@ -25,6 +25,7 @@ onBeforeUnmount(() => document.body.classList.remove('theme-academy'))
 
 // Bound on purpose: Vite would resolve a literal `src` as a module import.
 const academyLogoUrl = '/logo-academy.png'
+const academySiteUrl = 'https://basm.uk/'
 
 /** Unread notifications (shared by the server for parents on every page). */
 const unread = computed(() => Number(page.props.unreadNotifications ?? 0))
@@ -105,13 +106,20 @@ const nav: NavItem[] = [
         class="flex items-center justify-between gap-4 border-b border-line bg-surface px-4 py-2"
       >
         <BrandMark size="header" />
-        <img
-          :src="academyLogoUrl"
-          :alt="t('app.academy_name')"
-          width="631"
-          height="160"
-          class="h-11 w-auto min-w-0 object-contain"
-        />
+        <a
+          :href="academySiteUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex min-w-0 items-center"
+        >
+          <img
+            :src="academyLogoUrl"
+            :alt="t('app.academy_name')"
+            width="631"
+            height="160"
+            class="h-11 w-auto min-w-0 object-contain"
+          />
+        </a>
       </div>
     </header>
 

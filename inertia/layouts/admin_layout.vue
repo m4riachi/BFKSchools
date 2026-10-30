@@ -21,22 +21,38 @@ const { isActive } = useActiveNav()
  * Areas are added by later phases (set `href` when the area exists).
  */
 const nav: NavItem[] = [
-  { labelKey: 'nav.dashboard', href: '/admin', icon: 'dashboard', exact: true },
-  { labelKey: 'nav.families', href: '/admin/parents', icon: 'families' },
-  { labelKey: 'nav.meals', href: '/admin/meals', icon: 'meals' },
-  { labelKey: 'nav.weekly_menus', href: '/admin/menus', icon: 'calendar' },
-  { labelKey: 'nav.holidays', href: '/admin/holidays', icon: 'holidays' },
-  { labelKey: 'nav.orders', href: '/admin/orders', icon: 'orders' },
-  { labelKey: 'nav.pos', href: '/admin/pos', icon: 'pos' },
-  { labelKey: 'nav.kitchen', href: '/kitchen', icon: 'kitchen' },
-  { labelKey: 'nav.statements', href: '/admin/statements', icon: 'statements' },
-  { labelKey: 'nav.reports', href: '/admin/reports', icon: 'reports' },
+  {
+    labelKey: 'nav.dashboard',
+    href: '/admin',
+    icon: 'dashboard',
+    exact: true,
+    permission: 'dashboard',
+  },
+  { labelKey: 'nav.families', href: '/admin/parents', icon: 'families', permission: 'families' },
+  { labelKey: 'nav.meals', href: '/admin/meals', icon: 'meals', permission: 'meals' },
+  { labelKey: 'nav.weekly_menus', href: '/admin/menus', icon: 'calendar', permission: 'menus' },
+  { labelKey: 'nav.holidays', href: '/admin/holidays', icon: 'holidays', permission: 'holidays' },
+  { labelKey: 'nav.orders', href: '/admin/orders', icon: 'orders', permission: 'orders' },
+  { labelKey: 'nav.pos', href: '/admin/pos', icon: 'pos', permission: 'pos' },
+  { labelKey: 'nav.kitchen', href: '/kitchen', icon: 'kitchen', permission: 'kitchen' },
+  {
+    labelKey: 'nav.statements',
+    href: '/admin/statements',
+    icon: 'statements',
+    permission: 'statements',
+  },
+  { labelKey: 'nav.reports', href: '/admin/reports', icon: 'reports', permission: 'reports' },
+  { labelKey: 'nav.users', href: '/admin/users', icon: 'families', roles: ['admin'] },
   { labelKey: 'nav.settings', href: '/admin/settings', icon: 'settings', roles: ['admin'] },
 ]
 
 const user = computed(() => page.props.user)
 const items = computed(() =>
-  nav.filter((item) => !item.roles || (user.value && item.roles.includes(user.value.role)))
+  nav.filter(
+    (item) =>
+      (!item.roles || (user.value && item.roles.includes(user.value.role))) &&
+      (!item.permission || page.props.access?.permissions.includes(item.permission as never))
+  )
 )
 
 const drawerOpen = ref(false)
@@ -119,7 +135,9 @@ const itemClass = (item: NavItem) => [
         <UserAvatar :initials="user.initials" />
         <div class="flex min-w-0 flex-1 flex-col gap-px">
           <span class="truncate text-sm font-semibold">{{ user.fullName }}</span>
-          <span class="text-xs text-ink-4">{{ t(`roles.${user.role}`) }}</span>
+          <span class="text-xs text-ink-4">{{
+            page.props.access?.roleName ?? t(`roles.${user.role}`)
+          }}</span>
         </div>
         <Link
           route="session.destroy"

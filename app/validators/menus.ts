@@ -4,6 +4,11 @@ import { isoDateRule, nameRule } from '#validators/rules'
 /** Database id (int4) sent by the browser. */
 const idRule = () => vine.number().withoutDecimals().range([1, 2147483647])
 
+/** The week to copy a menu from (D40). */
+export const menuCopyFromValidator = vine.create({
+  sourceWeek: isoDateRule(),
+})
+
 /** Optional per-item cap on portions (Phase 6 enforces it when ordering). */
 const maxQuantityRule = () => vine.number().withoutDecimals().range([1, 10000]).nullable()
 

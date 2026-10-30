@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import { whatsappNumber } from '#support/whatsapp'
 import type { HttpContext } from '@adonisjs/core/http'
 import { safeTranslate } from '#support/safe_translate'
 import User from '#models/user'
@@ -83,7 +84,7 @@ export default class ParentsController {
     return response.redirect(`/admin/parents/${parent.id}`)
   }
 
-  async show({ params, inertia, bouncer, auth }: HttpContext) {
+  async show({ params, inertia, bouncer, auth, session }: HttpContext) {
     const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
 
@@ -103,6 +104,9 @@ export default class ParentsController {
       }),
       children: parent.children.map(presentChild),
       today: this.clock.today(),
+      hasWhatsapp: whatsappNumber(parent.phone) !== null,
+      /** D43: only right after "Inviter par WhatsApp"; it holds the invitation link. */
+      whatsappInvite: session.flashMessages.get('whatsappInvite') ?? null,
     })
   }
 
@@ -161,6 +165,17 @@ export default class ParentsController {
       i18n.t(resend ? 'families.flash.invitation_resent' : 'families.flash.invitation_sent', {
         email: parent.email,
       })
+    )
+    return response.redirect().back()
+  }
+
+  /** D43: a new invitation link, ready to send on WhatsApp (the previous link stops working). */
+  async inviteWhatsapp({ params, response, bouncer, auth, session }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
+    await bouncer.with('ParentPolicy').authorize('manage', parent)
+    session.flash(
+      'whatsappInvite',
+      await this.accountLinks.whatsappInvitation(parent, auth.getUserOrFail())
     )
     return response.redirect().back()
   }

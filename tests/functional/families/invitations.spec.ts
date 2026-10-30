@@ -1,8 +1,11 @@
+/* eslint-disable @unicorn/no-await-expression-member */
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import mail from '@adonisjs/mail/services/main'
 import testUtils from '@adonisjs/core/services/test_utils'
 import limiter from '@adonisjs/limiter/services/main'
+import { SchoolFactory } from '#database/factories/school_factory'
+import { UserFactory } from '#database/factories/user_factory'
 import type User from '#models/user'
 import UserToken from '#models/user_token'
 import UserTokenService from '#services/user_token_service'
@@ -12,6 +15,15 @@ import { freezeClock, restoreClock } from '#tests/helpers/clock'
 import { createParent, linkValid, pathOf, setupSchool, tokenOf } from '#tests/helpers/families'
 
 const NEW_PASSWORD = 'Couscous2026'
+
+async function whatsappFamily(phone: string | null, locale: 'fr' | 'en' = 'fr') {
+  const school = await SchoolFactory.create()
+  const manager = await UserFactory.apply('manager').merge({ schoolId: school.id }).create()
+  const parent = await UserFactory.apply('invited')
+    .merge({ schoolId: school.id, phone, locale, role: 'parent' })
+    .create()
+  return { school, manager, parent }
+}
 
 test.group('Families | invitations', (group) => {
   let mails: ReturnType<typeof mail.fake>['mails']
@@ -23,6 +35,99 @@ test.group('Families | invitations', (group) => {
       mail.restore()
       restoreClock()
     }
+  })
+
+  async function inviteWhatsapp(client: any, staff: User, parent: User) {
+    return client
+      .post(`/admin/parents/${parent.id}/invitation/whatsapp`)
+      .loginAs(staff)
+      .header('referer', `/admin/parents/${parent.id}`)
+      .withCsrfToken()
+      .redirects(0)
+  }
+
+  test('WhatsApp: a working link in the parent’s language, ready to send, and no email', async ({
+    client,
+    assert,
+  }) => {
+    const { manager, parent } = await whatsappFamily('0612345678', 'en')
+    const response = await inviteWhatsapp(client, manager, parent)
+    response.assertStatus(302)
+
+    const url = new URL(response.flashMessage('whatsappInvite') as string)
+    assert.equal(url.origin + url.pathname, 'https://wa.me/212612345678')
+    const message = url.searchParams.get('text')!
+    assert.include(message, 'Hello')
+    assert.include(message, parent.fullName)
+    mails.assertNoneSent()
+
+    const link = message.match(/https?:\/\/\S+\/invitation\/\S+/)![0]
+    const path = new URL(link).pathname
+    // Opening the link (or WhatsApp previewing it) does not use it up.
+    ;(await client.get(path)).assertStatus(200)
+    ;(await client.get(path)).assertStatus(200)
+
+    await parent.refresh()
+    assert.isNotNull(parent.invitedAt)
+    const page = await client.get(`/admin/parents/${parent.id}`).loginAs(manager).withInertia()
+    assert.equal(page.body().props.parent.accessStatus, 'invited')
+    assert.isTrue(page.body().props.hasWhatsapp)
+    assert.isNull(page.body().props.whatsappInvite)
+  })
+
+  test('WhatsApp: a new link ends the previous one', async ({ client, assert }) => {
+    const { manager, parent } = await whatsappFamily('+212612345678')
+    const linkPath = (response: any) => {
+      const message = new URL(response.flashMessage('whatsappInvite')).searchParams.get('text')!
+      return new URL(message.match(/https?:\/\/\S+\/invitation\/\S+/)![0]).pathname
+    }
+    const first = linkPath(await inviteWhatsapp(client, manager, parent))
+    const second = linkPath(await inviteWhatsapp(client, manager, parent))
+    ;(await client.get(second)).assertStatus(200)
+    assert.notEqual(first, second)
+    const open = await UserToken.query()
+      .where('user_id', parent.id)
+      .whereNull('revoked_at')
+      .whereNull('used_at')
+    assert.lengthOf(open, 1)
+  })
+
+  test('WhatsApp: refused without a number, or once the parent has access', async ({
+    client,
+    assert,
+  }) => {
+    const none = await whatsappFamily(null)
+    const noPhone = await inviteWhatsapp(client, none.manager, none.parent)
+    assert.isUndefined(noPhone.flashMessage('whatsappInvite'))
+    await none.parent.refresh()
+    assert.isNull(none.parent.invitedAt)
+
+    const active = await whatsappFamily('0612345678')
+    active.parent.password = 'Secret12345'
+    await active.parent.save()
+    const refused = await inviteWhatsapp(client, active.manager, active.parent)
+    assert.isUndefined(refused.flashMessage('whatsappInvite'))
+  })
+
+  test('WhatsApp: kitchen, parents and other schools cannot', async ({ client, assert }) => {
+    const { school, parent } = await whatsappFamily('0612345678')
+    const kitchen = await UserFactory.apply('kitchen').merge({ schoolId: school.id }).create()
+    const other = await SchoolFactory.create()
+    const stranger = await UserFactory.apply('manager').merge({ schoolId: other.id }).create()
+    for (const [user, status] of [
+      [kitchen, 403],
+      [parent, 403],
+      [stranger, 404],
+    ] as const) {
+      const response = await client
+        .post(`/admin/parents/${parent.id}/invitation/whatsapp`)
+        .loginAs(user)
+        .withCsrfToken()
+        .header('Accept', 'application/json')
+      assert.equal(response.status(), status)
+    }
+    await parent.refresh()
+    assert.isNull(parent.invitedAt)
   })
 
   async function invite(client: any, manager: User, parent: User) {

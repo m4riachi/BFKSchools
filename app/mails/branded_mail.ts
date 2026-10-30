@@ -6,7 +6,7 @@ import type { AppLocale } from '#enums/locales'
 
 /**
  * Every email of the app shares one branded layout (British Academy × Beldi Fusion ×
- * Britech School): `resources/views/emails/layout_html.edge` (escaped with
+ * British Academy School Marrakech): `resources/views/emails/layout_html.edge` (escaped with
  * `{{ }}` only) and `layout_text.edge` (plain-text part). A mail class only
  * builds an `EmailContent` in the recipient's language; the layout adds
  * the header, the button + fallback link, the signature and the footer

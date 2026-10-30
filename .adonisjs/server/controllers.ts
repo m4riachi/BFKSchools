@@ -19,6 +19,7 @@ export const controllers = {
     Settings: () => import('#controllers/admin/settings_controller'),
     Statements: () => import('#controllers/admin/statements_controller'),
     Subscriptions: () => import('#controllers/admin/subscriptions_controller'),
+    Users: () => import('#controllers/admin/users_controller'),
     WeeklyMenus: () => import('#controllers/admin/weekly_menus_controller'),
   },
   api: {

@@ -1,0 +1,86 @@
+{
+  "title": "Utilisateurs",
+  "description": "Les comptes de l’équipe et leurs rôles. Les parents se gèrent dans Familles.",
+  "manage_roles": "Gérer les rôles",
+  "add": "Ajouter un utilisateur",
+  "add_title": "Ajouter un utilisateur",
+  "edit_title": "Modifier l’utilisateur",
+  "invite_hint": "La personne reçoit un e-mail pour choisir son mot de passe.",
+  "you": "(vous)",
+  "edit": "Modifier",
+  "save": "Enregistrer",
+  "create": "Créer et inviter",
+  "cancel": "Annuler",
+  "resend": "Renvoyer l’invitation",
+  "activate": "Réactiver",
+  "deactivate": "Désactiver",
+  "activate_title": "Réactiver ce compte ?",
+  "activate_body": "La personne pourra de nouveau se connecter.",
+  "deactivate_title": "Désactiver ce compte ?",
+  "deactivate_body": "La personne est déconnectée et ne peut plus se connecter. Son historique est conservé.",
+  "columns": {
+    "name": "Nom",
+    "role": "Rôle",
+    "status": "Statut"
+  },
+  "status": {
+    "active": "Actif",
+    "invited": "Invitation envoyée",
+    "inactive": "Désactivé"
+  },
+  "fields": {
+    "name": "Nom complet",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "role": "Rôle",
+    "locale": "Langue"
+  },
+  "permissions": {
+    "dashboard": "Tableau de bord",
+    "families": "Familles",
+    "meals": "Repas",
+    "menus": "Menus de la semaine",
+    "holidays": "Jours fériés",
+    "orders": "Commandes",
+    "pos": "Passer une commande",
+    "kitchen": "Cuisine",
+    "statements": "Relevés",
+    "reports": "Rapports"
+  },
+  "roles": {
+    "title": "Rôles",
+    "description": "Créez des rôles et choisissez ce que chacun peut ouvrir.",
+    "back": "Retour aux utilisateurs",
+    "add": "Ajouter un rôle",
+    "add_title": "Ajouter un rôle",
+    "edit_title": "Modifier le rôle",
+    "name": "Nom du rôle",
+    "permissions": "Accès",
+    "delete": "Supprimer",
+    "delete_title": "Supprimer ce rôle ?",
+    "delete_body": "Le rôle « {name} » sera supprimé.",
+    "users_count": "{count, plural, =0 {Aucun utilisateur} one {# utilisateur} other {# utilisateurs}}",
+    "admin_only_hint": "Les utilisateurs, les rôles et les paramètres restent réservés aux administrateurs.",
+    "builtin_admin": "Rôle intégré : tout, y compris les utilisateurs, les rôles et les paramètres.",
+    "builtin_manager": "Rôle intégré : tout le back-office, sauf les utilisateurs, les rôles et les paramètres.",
+    "builtin_kitchen": "Rôle intégré : la cuisine uniquement, en lecture."
+  },
+  "flash": {
+    "created": "Utilisateur créé, invitation envoyée.",
+    "created_not_sent": "Utilisateur créé, mais l’e-mail n’a pas pu être envoyé. Renvoyez l’invitation.",
+    "updated": "Utilisateur modifié.",
+    "activated": "Compte réactivé.",
+    "deactivated": "Compte désactivé.",
+    "invited": "Invitation envoyée.",
+    "role_saved": "Rôle enregistré.",
+    "role_deleted": "Rôle supprimé."
+  },
+  "errors": {
+    "role_in_use": "Ce rôle est attribué à des utilisateurs : changez d’abord leur rôle.",
+    "role_name_taken": "Un rôle porte déjà ce nom.",
+    "unknown_role": "Ce rôle n’existe pas.",
+    "own_access": "Vous ne pouvez pas changer votre propre rôle.",
+    "own_account": "Vous ne pouvez pas désactiver votre propre compte.",
+    "not_admin_anymore": "Vous n’êtes plus administrateur."
+  }
+}
