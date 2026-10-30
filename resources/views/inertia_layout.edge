@@ -15,12 +15,21 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
 
+    <style>
+      #app-splash { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #fff; transition: opacity 0.3s; }
+      #app-splash[hidden] { display: none; }
+      #app-splash.app-splash-out { opacity: 0; }
+      #app-splash img { width: min(70vw, 320px); height: auto; }
+    </style>
+
     @vite(['inertia/app.ts'])
     @inertiaHead()
     @stack('dumper')
   </head>
 
   <body>
+    <div id="app-splash" hidden aria-hidden="true"></div>
+    <script src="/splash.js"></script>
     @inertia()
   </body>
 

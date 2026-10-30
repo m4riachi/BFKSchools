@@ -124,10 +124,14 @@ defineProps<{ name: NavIconName; size?: number }>()
       <path d="M17 16v-8" />
     </template>
     <template v-else-if="name === 'delivery'">
-      <circle cx="5.5" cy="17.5" r="3.5" />
-      <circle cx="18.5" cy="17.5" r="3.5" />
-      <circle cx="15" cy="5" r="1" />
-      <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
+      <!-- Delivery scooter with its box on the back -->
+      <rect x="2.5" y="4.5" width="8" height="6.5" rx="1" />
+      <path d="M6.5 4.5v2.5" />
+      <circle cx="6" cy="18.5" r="2.5" />
+      <circle cx="18.5" cy="18.5" r="2.5" />
+      <path d="M8.5 18.5H16c0-3.5 1-5 2.5-6.5L16.5 5H14" />
+      <path d="M3.5 16c.5-2.5 2-4 4.5-4h3.5l2 4" />
+      <path d="M15 8h3" />
     </template>
     <template v-else-if="name === 'install'">
       <path d="M12 4v11" />

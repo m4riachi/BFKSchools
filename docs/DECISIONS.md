@@ -49,6 +49,7 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D42 | Staff users, roles and permissions | answered | `/admin/users` and `/admin/roles`, admins only. Staff join by invitation; accounts are deactivated, never deleted; nobody changes their own role or deactivates themselves. Built-in roles stay (admin, manager, kitchen). Custom roles = name + areas (`app/enums/permissions.ts`), per school. `users.role` stays the access level (kitchen when the role only opens the kitchen, otherwise manager), so data rules are unchanged and permissions only narrow them, in `PermissionMiddleware`. A route in no area is admin-only. Users, roles and settings are never assignable, so nobody can give themselves more. Amounts in the dashboard and exports need `statements` or `reports`. Known gap: admins can change each other without re-entering a password, and staff changes have no audit trail |
 | D43 | Invite parents on WhatsApp | answered | Click-to-chat, no WhatsApp Business account: "Inviter par WhatsApp" on the parent page issues the same 72-hour invitation (previous link stops working) and opens `wa.me/<number>` with the message ready; staff press Send. Numbers written 0… are read as Moroccan (212). No email goes out. The sending cannot be confirmed, so the status says invited as soon as the link is created. Staff handle the raw link, which is flashed once in the encrypted session |
 | D44 | School name | answered | The school is shown as "British Academy School Marrakech" everywhere (screens, emails, PDFs, exports); existing rows are renamed by a migration. The slug `britech-school` stays, it is internal. The academy logo in the parent header links to https://basm.uk/ |
+| D45 | Animated logo at launch | answered | Phones draw their first screen from the static icon, which cannot animate. `public/splash.js` then shows `bfk-logo-animated.svg` on white in the installed app only, once per launch, at least 1.8 s and at most 6 s |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
@@ -74,3 +75,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-10-30 — D42: staff users, custom roles and permissions
 2026-10-30 — D43: parent invitation on WhatsApp through click-to-chat
 2026-10-30 — D44: school renamed British Academy School Marrakech
+2026-10-30 — D45: animated logo when the installed app starts

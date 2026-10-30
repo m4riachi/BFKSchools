@@ -11,6 +11,7 @@ import ParentLayout from '~/layouts/parent_layout.vue'
 import EmptyState from '~/components/ui/empty_state.vue'
 import ModalDialog from '~/components/ui/modal_dialog.vue'
 import DayCard from '~/components/orders/day_card.vue'
+import SavingOverlay from '~/components/ui/saving_overlay.vue'
 import { useI18n } from '~/composables/use_i18n'
 import { usePlacement } from '~/composables/use_features'
 import type { Selection, WeekView } from '~/components/orders/types'
@@ -378,5 +379,6 @@ function apply() {
         </button>
       </div>
     </ModalDialog>
+    <SavingOverlay :show="saving !== null" />
   </ParentLayout>
 </template>
