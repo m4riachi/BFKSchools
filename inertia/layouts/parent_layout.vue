@@ -3,7 +3,7 @@
  * Parent portal layout — mobile-first: compact header with the language
  * switcher, content column, and a bottom navigation bar.
  */
-import { computed } from 'vue'
+import { computed, onBeforeUnmount } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import BrandMark from '~/components/ui/brand_mark.vue'
@@ -16,6 +16,13 @@ import { useActiveNav, type NavItem } from '~/composables/use_nav'
 const { t } = useI18n()
 const { isActive } = useActiveNav()
 const page = usePage()
+
+// On <body>: the page background, dialogs and toasts sit outside this layout.
+if (typeof document !== 'undefined') document.body.classList.add('theme-academy')
+onBeforeUnmount(() => document.body.classList.remove('theme-academy'))
+
+// Bound on purpose: Vite would resolve a literal `src` as a module import.
+const academyLogoUrl = '/logo-academy.png'
 
 /** Unread notifications (shared by the server for parents on every page). */
 const unread = computed(() => Number(page.props.unreadNotifications ?? 0))
@@ -31,38 +38,49 @@ const nav: NavItem[] = [
 
 <template>
   <div class="mx-auto flex min-h-dvh w-full max-w-[560px] flex-col bg-canvas">
-    <header class="flex items-center justify-between px-4 pt-4">
-      <div class="flex items-center gap-2.5">
-        <BrandMark size="sm" />
-        <span class="text-[15px] font-extrabold">{{ t('app.short_name') }}</span>
-      </div>
-      <div class="flex gap-1.5">
-        <LocaleSwitcher compact />
-        <Link
-          href="/notifications"
-          class="relative flex size-11 items-center justify-center rounded-xl border text-ink-2 hover:bg-subtle"
-          :class="bellActive ? 'border-brand bg-brand-soft' : 'border-line bg-surface'"
-          :aria-label="t('notifications.bell', { count: unread })"
-          :title="t('notifications.bell', { count: unread })"
-          :aria-current="bellActive ? 'page' : undefined"
-        >
-          <NavIcon name="bell" />
-          <span
-            v-if="unread > 0"
-            aria-hidden="true"
-            class="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-surface bg-accent px-1 text-[10px] leading-none font-extrabold text-white"
-            >{{ unread > 99 ? '99+' : unread }}</span
+    <header>
+      <div class="flex items-center justify-between gap-2 bg-brand px-4 py-2 text-white">
+        <span class="truncate text-[15px] font-extrabold">{{ t('app.short_name') }}</span>
+        <div class="flex shrink-0 gap-1.5">
+          <LocaleSwitcher compact />
+          <Link
+            href="/notifications"
+            class="relative flex size-11 items-center justify-center rounded-xl border text-white hover:bg-white/10 hover:text-white"
+            :class="bellActive ? 'border-white bg-white/15' : 'border-white/30'"
+            :aria-label="t('notifications.bell', { count: unread })"
+            :title="t('notifications.bell', { count: unread })"
+            :aria-current="bellActive ? 'page' : undefined"
           >
-        </Link>
-        <Link
-          route="session.destroy"
-          as="button"
-          class="flex size-11 items-center justify-center rounded-xl border border-line bg-surface text-ink-2 hover:bg-subtle"
-          :aria-label="t('app.logout')"
-          :title="t('app.logout')"
-        >
-          <NavIcon name="logout" />
-        </Link>
+            <NavIcon name="bell" />
+            <span
+              v-if="unread > 0"
+              aria-hidden="true"
+              class="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-brand bg-accent px-1 text-[10px] leading-none font-extrabold text-white"
+              >{{ unread > 99 ? '99+' : unread }}</span
+            >
+          </Link>
+          <Link
+            route="session.destroy"
+            as="button"
+            class="flex size-11 items-center justify-center rounded-xl border border-white/30 text-white hover:bg-white/10"
+            :aria-label="t('app.logout')"
+            :title="t('app.logout')"
+          >
+            <NavIcon name="logout" />
+          </Link>
+        </div>
+      </div>
+      <div
+        class="flex items-center justify-between gap-4 border-b border-line bg-surface px-4 py-2"
+      >
+        <BrandMark size="sm" />
+        <img
+          :src="academyLogoUrl"
+          :alt="t('app.academy_name')"
+          width="631"
+          height="160"
+          class="h-10 w-auto min-w-0 object-contain"
+        />
       </div>
     </header>
 

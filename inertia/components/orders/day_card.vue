@@ -307,7 +307,7 @@ function mainNote(option: OptionView) {
           class="flex items-start gap-3 rounded-[14px] border-[1.5px] p-3"
           :class="[
             qtyOf(option) === 1
-              ? 'border-brand bg-[#eef6f1]'
+              ? 'border-brand bg-brand-wash'
               : canAdd(option)
                 ? 'cursor-pointer border-line bg-surface'
                 : 'cursor-not-allowed border-line bg-[#f6f7f6]',
@@ -387,7 +387,7 @@ function mainNote(option: OptionView) {
           v-for="option in extras"
           :key="option.menuItemId"
           class="flex items-center justify-between gap-2.5 rounded-[14px] border py-1.5 pr-1.5 pl-3.5"
-          :class="qtyOf(option) > 0 ? 'border-[#9ccbb2] bg-[#f3f9f6]' : 'border-line bg-surface'"
+          :class="qtyOf(option) > 0 ? 'border-brand-line bg-brand-faint' : 'border-line bg-surface'"
         >
           <div class="flex min-w-0 flex-col gap-0.5">
             <span class="text-sm font-bold">{{ option.name }}</span>

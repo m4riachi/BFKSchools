@@ -191,7 +191,7 @@ function apply() {
           type="button"
           :aria-pressed="c.id === childId ? 'true' : 'false'"
           class="flex min-h-[60px] min-w-0 flex-1 items-center gap-2.5 rounded-[14px] border-[1.5px] px-3 py-2.5 text-left"
-          :class="c.id === childId ? 'border-brand bg-[#eef6f1]' : 'border-line bg-surface'"
+          :class="c.id === childId ? 'border-brand bg-brand-wash' : 'border-line bg-surface'"
           @click="go({ child: c.id })"
         >
           <span

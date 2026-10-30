@@ -34,6 +34,9 @@
   --color-brand-deep: #0f4a2f; /* hover */
   --color-brand-soft: #e6f2ec; /* active nav background, success pill */
   --color-brand-tint: #dce5e0; /* avatars */
+  --color-brand-wash: #eef6f1; /* selected card */
+  --color-brand-faint: #f3f9f6; /* selected extra */
+  --color-brand-line: #9ccbb2; /* selected extra border */
 
   /* Status */
   --color-warning: #8a4b08;
@@ -62,6 +65,36 @@
   /* Shadows */
   --shadow-pressed: 0 1px 2px rgba(20, 33, 27, 0.14); /* selected segment */
   --shadow-overlay: 0 12px 32px rgba(20, 33, 27, 0.18); /* modals, toasts */
+}
+
+/*
+ * Parent portal: colours of the school's website (basm.uk, burgundy #571b1e
+ * on neutral greys). Set on <body> by the parent layout so dialogs and toasts
+ * rendered outside the layout get them too. Status colours stay the same.
+ */
+.theme-academy {
+  --color-canvas: #f6f6f6;
+  --color-subtle: #f1f1f1;
+  --color-muted-bg: #e8e8e8;
+
+  --color-line: #e4e4e4;
+  --color-line-strong: #d8d8d8;
+  --color-line-input: #cdcdcd;
+  --color-line-soft: #efefef;
+
+  --color-ink: #1b1b1b;
+  --color-ink-2: #333333;
+  --color-ink-3: #474747;
+  --color-ink-4: #5e5e5e;
+
+  --color-brand: #571b1e;
+  --color-brand-strong: #571b1e;
+  --color-brand-deep: #6f292d;
+  --color-brand-soft: #f6eced;
+  --color-brand-tint: #e8d9da;
+  --color-brand-wash: #f6eced;
+  --color-brand-faint: #faf5f5;
+  --color-brand-line: #d4b4b6;
 }
 
 @layer base {
