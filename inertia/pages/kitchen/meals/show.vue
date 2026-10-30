@@ -11,9 +11,11 @@ import MealThumb from '~/components/meals/meal_thumb.vue'
 import MealBadges from '~/components/meals/meal_badges.vue'
 import type { MealDetail } from '~/components/meals/types'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 
 const props = defineProps<{ meal: MealDetail }>()
 const { t } = useI18n()
+const features = useFeatures()
 
 const selected = ref(
   Math.max(
@@ -88,7 +90,7 @@ const current = computed(() => props.meal.photos[selected.value] ?? null)
               {{ meal.description ?? t('meals.detail.no_description') }}
             </dd>
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div v-if="features.allergens" class="flex flex-col gap-1.5">
             <dt class="text-xs font-extrabold tracking-[0.07em] text-ink-4 uppercase">
               {{ t('meals.detail.allergens') }}
             </dt>

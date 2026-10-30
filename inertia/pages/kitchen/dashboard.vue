@@ -9,6 +9,7 @@ import EmptyState from '~/components/ui/empty_state.vue'
 import DayNav from '~/components/reports/day_nav.vue'
 import ProductionTable from '~/components/reports/production_table.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 import type { DayInfo, ProductionView } from '~/components/reports/types'
 
 const props = defineProps<{
@@ -21,7 +22,18 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate, formatDateTime } = useI18n()
-const groupBy = ref<'grade' | 'class'>('grade')
+const features = useFeatures()
+const groupOptions = computed(() => [
+  ...(features.value.grade ? (['grade'] as const) : []),
+  ...(features.value.className ? (['class'] as const) : []),
+])
+const chosenGroup = ref<'grade' | 'class'>('grade')
+// D33: only the enabled breakdowns; none = totals only.
+const groupBy = computed(() =>
+  groupOptions.value.includes(chosenGroup.value as never)
+    ? chosenGroup.value
+    : (groupOptions.value[0] ?? 'none')
+)
 const nav = computed(() => ({
   date: props.date,
   today: props.today,
@@ -74,7 +86,11 @@ const supplementTotal = computed(() => props.sheet?.totals.supplement.total ?? 0
       <template #actions>
         <DayNav path="/kitchen" :nav="nav">
           <template v-if="sheet">
-            <AppButton variant="secondary" :href="`/kitchen/labels?date=${date}`">
+            <AppButton
+              v-if="features.labels"
+              variant="secondary"
+              :href="`/kitchen/labels?date=${date}`"
+            >
               {{ t('reports.production.labels_pdf') }}
             </AppButton>
             <AppButton variant="secondary" :href="`/kitchen/exports?date=${date}`">
@@ -102,7 +118,10 @@ const supplementTotal = computed(() => props.sheet?.totals.supplement.total ?? 0
         {{ notice.text }}
       </p>
 
-      <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div
+        class="grid grid-cols-2 gap-3"
+        :class="features.allergens ? 'lg:grid-cols-4' : 'lg:grid-cols-3'"
+      >
         <div class="card flex flex-col gap-1 p-4">
           <span class="tabular text-[28px] font-extrabold">{{ subscriptionTotal }}</span>
           <span class="text-sm text-ink-3">{{
@@ -116,6 +135,7 @@ const supplementTotal = computed(() => props.sheet?.totals.supplement.total ?? 0
           }}</span>
         </div>
         <Link
+          v-if="features.allergens"
           :href="`/kitchen/allergies?date=${date}`"
           class="card flex flex-col gap-1 p-4 no-underline"
           :class="sheet.orders.withAllergies ? 'border-danger-line bg-danger-soft' : ''"
@@ -143,18 +163,19 @@ const supplementTotal = computed(() => props.sheet?.totals.supplement.total ?? 0
         >
           <h2 class="text-base font-bold">{{ t('reports.production.table_title') }}</h2>
           <div
+            v-if="groupOptions.length > 1"
             class="flex rounded-xl bg-subtle p-1 print:hidden"
             role="group"
             :aria-label="t('reports.common.breakdown')"
           >
             <button
-              v-for="option in ['grade', 'class'] as const"
+              v-for="option in groupOptions"
               :key="option"
               type="button"
               class="h-9 rounded-[10px] px-3 text-[13px] font-bold"
               :class="option === groupBy ? 'bg-surface shadow-pressed' : 'text-ink-3'"
               :aria-pressed="option === groupBy"
-              @click="groupBy = option"
+              @click="chosenGroup = option"
             >
               {{ t(`reports.common.by_${option}`) }}
             </button>

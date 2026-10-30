@@ -17,6 +17,7 @@ import MealThumb from '~/components/meals/meal_thumb.vue'
 import MealBadges from '~/components/meals/meal_badges.vue'
 import type { MealFilters, MealOptions, MealSummary } from '~/components/meals/types'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 
 const props = defineProps<{
   meals: MealSummary[]
@@ -31,6 +32,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const features = useFeatures()
 
 const search = ref(props.filters.q)
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -91,7 +93,9 @@ const columns = computed(() => [
   { key: 'meal', label: t('meals.list.columns.meal') },
   { key: 'type', label: t('meals.list.columns.type') },
   { key: 'price', label: t('meals.list.columns.price'), align: 'right' as const },
-  { key: 'allergens', label: t('meals.list.columns.allergens') },
+  ...(features.value.allergens
+    ? [{ key: 'allergens', label: t('meals.list.columns.allergens') }]
+    : []),
   { key: 'status', label: t('meals.list.columns.status') },
   { key: 'actions', label: t('meals.list.columns.actions'), align: 'right' as const },
 ])

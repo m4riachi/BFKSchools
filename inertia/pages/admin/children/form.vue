@@ -16,6 +16,7 @@ import ConfirmDialog from '~/components/ui/confirm_dialog.vue'
 import AllergenPicker from '~/components/families/allergen_picker.vue'
 import type { ChildRow, SubscriptionRow } from '~/components/families/types'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 
 const props = defineProps<{
   parent: { id: number; fullName: string }
@@ -25,6 +26,7 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate } = useI18n()
+const features = useFeatures()
 const base = computed(() => `/admin/parents/${props.parent.id}/children`)
 const childName = computed(() =>
   props.child ? `${props.child.firstName} ${props.child.lastName}` : ''
@@ -157,6 +159,7 @@ const day = (iso: string) => formatDate(iso, { dateStyle: 'medium' })
           :error="form.errors.lastName"
         />
         <TextInput
+          v-if="features.grade"
           id="grade"
           v-model="form.grade"
           autocomplete="off"
@@ -165,6 +168,7 @@ const day = (iso: string) => formatDate(iso, { dateStyle: 'medium' })
           :error="form.errors.grade"
         />
         <TextInput
+          v-if="features.className"
           id="className"
           v-model="form.className"
           autocomplete="off"
@@ -175,6 +179,7 @@ const day = (iso: string) => formatDate(iso, { dateStyle: 'medium' })
       </div>
 
       <AllergenPicker
+        v-if="features.allergens"
         v-model="form.allergies"
         :allergens="allergens"
         :label="t('families.child_form.allergies')"

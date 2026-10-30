@@ -14,7 +14,12 @@ export const SchoolFactory = factory
       schoolDays: [1, 2, 3, 4, 5],
       schoolYearStart: '2026-08-24',
       schoolYearEnd: '2027-06-11',
-      settings: {},
+      settings: {
+        allergens_enabled: true,
+        labels_enabled: true,
+        grade_enabled: true,
+        class_enabled: true,
+      },
     }
   })
   .build()

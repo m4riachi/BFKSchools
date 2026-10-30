@@ -13,7 +13,9 @@
     "notifications": "E-mails de notification",
     "notifications_hint": "Les notifications dans l'application sont toujours créées ; ces réglages ne concernent que les e-mails.",
     "kitchen": "Cuisine",
-    "kitchen_hint": "Format des planches d’étiquettes A4 (par défaut 3 × 8, soit 70 × 37 mm)."
+    "kitchen_hint": "Format des planches d’étiquettes A4 (par défaut 3 × 8, soit 70 × 37 mm).",
+    "modules": "Modules optionnels",
+    "modules_hint": "Un module désactivé disparaît de l’application et ses règles ne s’appliquent plus. Ses données sont conservées et reviennent si vous le réactivez."
   },
   "fields": {
     "school_days": "Jours d'école",
@@ -46,7 +48,15 @@
     "email_menu_change": "Changement de menu",
     "edit_cutoff_days_before_not_applicable": "Sans objet en mode « jour même » : seul le repas du jour peut être modifié, avant l’heure limite.",
     "label_grid_cols": "Étiquettes : colonnes par page (1 à 6)",
-    "label_grid_rows": "Étiquettes : lignes par page (1 à 20)"
+    "label_grid_rows": "Étiquettes : lignes par page (1 à 20)",
+    "allergens_enabled": "Allergènes",
+    "allergens_enabled_hint": "Allergènes des repas et allergies des enfants : blocage ou confirmation à la commande, fiche allergies, mentions sur les écrans, les étiquettes et les exports. Désactivé, aucun contrôle d’allergie n’est fait à la commande.",
+    "labels_enabled": "Étiquettes",
+    "labels_enabled_hint": "Page Étiquettes de la cuisine et PDF à imprimer.",
+    "grade_enabled": "Niveau",
+    "grade_enabled_hint": "Niveau des enfants : fiches, listes, répartition de la production, étiquettes, exports et relevés.",
+    "class_enabled": "Classe",
+    "class_enabled_hint": "Classe des enfants : fiches, filtres, répartition de la production, étiquettes, exports et relevés."
   },
   "weekdays": {
     "1": "Lundi",

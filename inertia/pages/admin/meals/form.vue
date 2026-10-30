@@ -14,6 +14,7 @@ import AllergenPicker from '~/components/families/allergen_picker.vue'
 import PhotoManager from '~/components/meals/photo_manager.vue'
 import type { MealDetail, MealOptions, PhotoLimits } from '~/components/meals/types'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 
 const props = defineProps<{
   meal: MealDetail | null
@@ -22,6 +23,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const features = useFeatures()
 
 const form = useForm({
   nameFr: props.meal?.nameFr ?? '',
@@ -203,6 +205,7 @@ const typeClass = (selected: boolean) => [
         />
 
         <AllergenPicker
+          v-if="features.allergens"
           v-model="form.allergens"
           :allergens="options.allergens"
           :label="t('meals.form.allergens')"

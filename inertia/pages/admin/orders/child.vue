@@ -12,6 +12,7 @@ import PageHeader from '~/components/ui/page_header.vue'
 import TextInput from '~/components/ui/text_input.vue'
 import DayCard from '~/components/orders/day_card.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { usePlacement } from '~/composables/use_features'
 import type { Selection, WeekView } from '~/components/orders/types'
 
 const props = defineProps<{
@@ -39,6 +40,7 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate, formatDateTime } = useI18n()
+const placement = usePlacement()
 const page = usePage()
 const reason = ref('')
 const saving = ref<string | null>(null)
@@ -73,7 +75,9 @@ function cancel(date: string) {
     />
     <PageHeader
       :title="t('orders.admin.child_title', { name: `${child.firstName} ${child.lastName}` })"
-      :eyebrow="[child.grade, child.className, child.parentName].filter(Boolean).join(' · ')"
+      :eyebrow="
+        [placement(child.grade, child.className), child.parentName].filter(Boolean).join(' · ')
+      "
     />
     <div class="flex flex-wrap items-center gap-3 text-sm font-bold">
       <Link href="/admin/orders">← {{ t('orders.admin.back') }}</Link>

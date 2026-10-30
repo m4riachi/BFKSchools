@@ -16,6 +16,7 @@ import OrderAuditService, { orderSnapshot } from '#services/order_audit_service'
 import OrderNotifier from '#services/order_notifier'
 import {
   checkSelection,
+  effectiveAllergyRule,
   evaluate,
   staffCanOverride,
   staffMayChangeDate,
@@ -112,7 +113,7 @@ export default class OrderService {
   selectionRules(school: School): SelectionRules {
     const settings = this.settings.get(school)
     return {
-      allergyRule: settings.allergy_rule,
+      allergyRule: effectiveAllergyRule(settings),
       supplementMaxQuantity: settings.supplement_max_quantity,
       subscriptionRequired: settings.subscription_required_for_main_meal,
     }

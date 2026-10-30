@@ -1,3 +1,4 @@
+import app from '@adonisjs/core/services/app'
 import i18nManager from '@adonisjs/i18n/services/main'
 import { DateTime } from 'luxon'
 import type { FamilyStatement, StatementLine } from '#services/statement_service'
@@ -40,7 +41,12 @@ type I18n = ReturnType<typeof i18nManager.locale>
 export default class StatementPdfService {
   async render(
     statement: FamilyStatement,
-    options: { locale: string; generatedAt: DateTime }
+    options: {
+      locale: string
+      generatedAt: DateTime
+      /** D33: Niveau / Classe modules (shown when not given). */
+      show?: { grade: boolean; className: boolean }
+    }
   ): Promise<Buffer> {
     const locale: Locale = options.locale === 'en' ? 'en' : 'fr'
     const i18n = i18nManager.locale(locale)
@@ -64,7 +70,12 @@ export default class StatementPdfService {
       writer.ensure(80)
       writer.gap(10)
       const name = `${cleanText(child.firstName)} ${cleanText(child.lastName)}`
-      const meta = [child.grade, child.className].map((part) => cleanText(part)).filter(Boolean)
+      const meta = [
+        options.show?.grade === false ? null : child.grade,
+        options.show?.className === false ? null : child.className,
+      ]
+        .map((part) => cleanText(part))
+        .filter(Boolean)
       writer.band(name, meta.join(' · '), formatMad(child.totalCents, locale))
 
       // Subscription meals: counted, included (D31 — never priced)
@@ -147,13 +158,9 @@ export default class StatementPdfService {
   ) {
     const { doc } = writer
     const top = PAGE.margin
-    doc.save()
-    doc.roundedRect(PAGE.margin, top, 40, 40, 9).fill(COLORS.brand)
-    doc.restore()
-    doc.font('bold').fontSize(11).fillColor('#FFFFFF')
-    doc.text('BFK', PAGE.margin, top + 14, { width: 40, align: 'center', lineBreak: false })
-    drawLine(doc, 'BFK School Meals', PAGE.margin + 52, top + 4, 260, { bold: true, size: 13 })
-    drawLine(doc, options.i18n.t('statements.pdf.partner'), PAGE.margin + 52, top + 22, 260, {
+    doc.image(app.makePath('public/logo-bfk.png'), PAGE.margin, top, { height: 40 })
+    drawLine(doc, 'BFK School Meals', PAGE.margin + 74, top + 4, 260, { bold: true, size: 13 })
+    drawLine(doc, options.i18n.t('statements.pdf.partner'), PAGE.margin + 74, top + 22, 260, {
       size: 9,
       color: COLORS.muted,
     })

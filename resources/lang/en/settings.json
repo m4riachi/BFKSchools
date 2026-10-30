@@ -13,7 +13,9 @@
     "notifications": "Notification emails",
     "notifications_hint": "In-app notifications are always created; these settings only affect emails.",
     "kitchen": "Kitchen",
-    "kitchen_hint": "A4 label sheet layout (default 3 × 8, i.e. 70 × 37 mm)."
+    "kitchen_hint": "A4 label sheet layout (default 3 × 8, i.e. 70 × 37 mm).",
+    "modules": "Optional modules",
+    "modules_hint": "A disabled module disappears from the app and its rules stop applying. Its data is kept and comes back if you turn it on again."
   },
   "fields": {
     "school_days": "School days",
@@ -46,7 +48,15 @@
     "email_menu_change": "Menu change",
     "edit_cutoff_days_before_not_applicable": "Not applicable in same-day mode: only today's meal can be changed, before the cutoff time.",
     "label_grid_cols": "Labels: columns per page (1–6)",
-    "label_grid_rows": "Labels: rows per page (1–20)"
+    "label_grid_rows": "Labels: rows per page (1–20)",
+    "allergens_enabled": "Allergens",
+    "allergens_enabled_hint": "Meal allergens and children's allergies: blocking or confirmation when ordering, allergy sheet, mentions on screens, labels and exports. When off, no allergy check is done when ordering.",
+    "labels_enabled": "Labels",
+    "labels_enabled_hint": "Kitchen Labels page and printable PDF.",
+    "grade_enabled": "Grade",
+    "grade_enabled_hint": "Children's grade: forms, lists, production breakdown, labels, exports and statements.",
+    "class_enabled": "Class",
+    "class_enabled_hint": "Children's class: forms, filters, production breakdown, labels, exports and statements."
   },
   "weekdays": {
     "1": "Monday",

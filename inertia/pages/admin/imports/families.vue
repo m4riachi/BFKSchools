@@ -9,6 +9,7 @@ import StatusBadge from '~/components/ui/status_badge.vue'
 import CheckboxField from '~/components/ui/checkbox_field.vue'
 import FormField from '~/components/ui/form_field.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures, usePlacement } from '~/composables/use_features'
 
 type Action = 'create' | 'update' | 'unchanged' | 'none'
 type PreviewRow = {
@@ -49,6 +50,17 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const features = useFeatures()
+const placement = usePlacement()
+/** D33: the CSV columns of the school's enabled modules (the others are still accepted). */
+const visibleColumns = computed(() =>
+  props.columns.filter(
+    (column) =>
+      (column !== 'allergies' || features.value.allergens) &&
+      (column !== 'grade' || features.value.grade) &&
+      (column !== 'class_name' || features.value.className)
+  )
+)
 
 /* Step 1: upload */
 const upload = useForm<{ file: File | null }>({ file: null })
@@ -108,14 +120,16 @@ const actionTone = (action: Action) =>
 
       <div class="flex flex-col gap-2 rounded-xl bg-subtle p-4 text-[13px] text-ink-2">
         <span class="font-bold">{{ t('families.import.columns') }}</span>
-        <code class="text-xs leading-relaxed break-words text-ink">{{ columns.join(', ') }}</code>
+        <code class="text-xs leading-relaxed break-words text-ink">{{
+          visibleColumns.join(', ')
+        }}</code>
         <span>{{ t('families.import.required_columns') }}</span>
         <span>{{ t('families.import.date_format') }}</span>
-        <span>
+        <span v-if="features.allergens">
           {{ t('families.import.allergen_codes') }}
           <code class="text-xs text-ink">{{ allergens.join(', ') }}</code>
         </span>
-        <span>{{ t('families.import.allergies_note') }}</span>
+        <span v-if="features.allergens">{{ t('families.import.allergies_note') }}</span>
         <span>{{ t('families.import.max_rows', { max: maxRows }) }}</span>
       </div>
 
@@ -212,8 +226,8 @@ const actionTone = (action: Action) =>
                   'line',
                   'parent',
                   'child',
-                  'class',
-                  'allergies',
+                  ...(features.grade || features.className ? ['class'] : []),
+                  ...(features.allergens ? ['allergies'] : []),
                   'subscription',
                   'changes',
                 ]"
@@ -240,10 +254,13 @@ const actionTone = (action: Action) =>
                 </div>
               </td>
               <td class="p-3 font-semibold whitespace-nowrap">{{ row.childName || '—' }}</td>
-              <td class="p-3 whitespace-nowrap text-ink-3">
-                {{ [row.grade, row.className].filter(Boolean).join(' · ') || '—' }}
+              <td
+                v-if="features.grade || features.className"
+                class="p-3 whitespace-nowrap text-ink-3"
+              >
+                {{ placement(row.grade, row.className) || '—' }}
               </td>
-              <td class="p-3">
+              <td v-if="features.allergens" class="p-3">
                 <div class="flex min-w-[120px] flex-wrap gap-1">
                   <StatusBadge v-for="code in row.allergies" :key="code" tone="danger">
                     {{ t(`allergens.${code}`) }}

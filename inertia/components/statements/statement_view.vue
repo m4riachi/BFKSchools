@@ -9,11 +9,13 @@
 import StatusBadge from '~/components/ui/status_badge.vue'
 import EmptyState from '~/components/ui/empty_state.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { usePlacement } from '~/composables/use_features'
 import type { FamilyStatement } from '~/components/statements/types'
 
 defineProps<{ statement: FamilyStatement }>()
 
 const { t, formatDate } = useI18n()
+const placement = usePlacement()
 </script>
 
 <template>
@@ -38,7 +40,7 @@ const { t, formatDate } = useI18n()
         <div class="flex min-w-0 flex-col gap-0.5">
           <h2 class="text-[17px] font-extrabold">{{ child.firstName }} {{ child.lastName }}</h2>
           <span class="text-[13px] text-ink-3">
-            {{ [child.grade, child.className].filter(Boolean).join(' · ') }}
+            {{ placement(child.grade, child.className) }}
           </span>
           <StatusBadge v-if="!child.isActive" tone="neutral">{{
             t('statements.inactive')

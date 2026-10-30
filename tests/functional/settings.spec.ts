@@ -141,7 +141,12 @@ test.group('Settings screen', (group) => {
       assert.isTrue(field in errors, `${field} in ${JSON.stringify(errors)}`)
     }
     const fresh = await School.findOrFail(school.id)
-    assert.deepEqual(fresh.settings, {})
+    assert.deepEqual(fresh.settings, {
+      allergens_enabled: true,
+      labels_enabled: true,
+      grade_enabled: true,
+      class_enabled: true,
+    })
     assert.equal(fresh.schoolYearEnd, '2027-06-11')
   })
 
@@ -173,7 +178,12 @@ test.group('Settings screen', (group) => {
       .withCsrfToken()
       .json(validForm())
       .redirects(0)
-    assert.deepEqual((await School.findOrFail(school.id)).settings, {})
+    assert.deepEqual((await School.findOrFail(school.id)).settings, {
+      allergens_enabled: true,
+      labels_enabled: true,
+      grade_enabled: true,
+      class_enabled: true,
+    })
     assert.equal(
       (await app.container.make(SchoolSettingsService)).get(
         await School.findOrFail(other.school.id)

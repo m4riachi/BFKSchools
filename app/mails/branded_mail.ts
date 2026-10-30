@@ -61,6 +61,7 @@ export function layoutData(content: EmailContent, locale: AppLocale) {
     preferencesLabel: i18n.t('emails.layout.preferences'),
     automatic: i18n.t('emails.layout.automatic'),
     homeUrl: appUrl('/'),
+    logoUrl: appUrl('/logo-bfk.png'),
   }
 }
 

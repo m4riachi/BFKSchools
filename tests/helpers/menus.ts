@@ -29,7 +29,15 @@ export const SAT = '2026-11-28'
 
 /** A school (year 2026-08-24 → 2027-06-11, Mon–Fri) with a manager and an admin. */
 export async function setupMenuSchool(settings: Record<string, unknown> = {}) {
-  const school = await SchoolFactory.merge({ settings }).create()
+  const school = await SchoolFactory.merge({
+    settings: {
+      allergens_enabled: true,
+      labels_enabled: true,
+      grade_enabled: true,
+      class_enabled: true,
+      ...settings,
+    },
+  }).create()
   const manager = await UserFactory.apply('manager').merge({ schoolId: school.id }).create()
   const admin = await UserFactory.apply('admin').merge({ schoolId: school.id }).create()
   return { school, manager, admin }

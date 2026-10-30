@@ -1,3 +1,5 @@
+import School from '#models/school'
+import SchoolSettingsService from '#services/school_settings_service'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { FamilyStatement } from '#services/statement_service'
 import type StatementPdfService from '#services/statement_pdf_service'
@@ -45,9 +47,12 @@ export async function sendStatementPdf(
   clock: Clock,
   fileName: string
 ) {
-  const { response, i18n } = ctx
+  const { response, i18n, auth } = ctx
+  // D33: the PDF hides the Niveau / Classe the school turned off.
+  const school = await School.findOrFail(auth.getUserOrFail().schoolId)
+  const show = new SchoolSettingsService().features(school)
   const bytes = await renderPdfForUser(ctx, () =>
-    pdf.render(statement, { locale: i18n.locale, generatedAt: clock.now() })
+    pdf.render(statement, { locale: i18n.locale, generatedAt: clock.now(), show })
   )
   if (bytes === null) return
   response.header('Content-Type', 'application/pdf')

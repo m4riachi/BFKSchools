@@ -12,6 +12,7 @@ import EmptyState from '~/components/ui/empty_state.vue'
 import ModalDialog from '~/components/ui/modal_dialog.vue'
 import DayCard from '~/components/orders/day_card.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { usePlacement } from '~/composables/use_features'
 import type { Selection, WeekView } from '~/components/orders/types'
 
 type ChildItem = {
@@ -42,6 +43,7 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate, formatDateTime } = useI18n()
+const placement = usePlacement()
 const page = usePage()
 const firstName = computed(() => page.props.user?.fullName.split(' ')[0] ?? '')
 const child = computed(() => props.children.find((c) => c.id === props.childId) ?? null)
@@ -201,9 +203,7 @@ function apply() {
           </span>
           <span class="flex min-w-0 flex-col gap-px">
             <span class="truncate text-[15px] font-bold text-ink">{{ c.firstName }}</span>
-            <span class="truncate text-xs text-ink-3">{{
-              [c.grade, c.className].filter(Boolean).join(' · ')
-            }}</span>
+            <span class="truncate text-xs text-ink-3">{{ placement(c.grade, c.className) }}</span>
           </span>
         </button>
       </div>

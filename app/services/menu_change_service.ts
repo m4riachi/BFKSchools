@@ -249,6 +249,11 @@ export default class MenuChangeService {
 
     let target: MenuItem | null = null
     let targetMeal: Meal | null = null
+    const checkAllergies = this.settings.get(school).allergens_enabled // D33
+    const hasConflict = (allergies: string[] | null) =>
+      checkAllergies &&
+      targetMeal !== null &&
+      allergyConflicts(targetMeal.allergens, allergies ?? []).length > 0
     if (resolution.mode === 'switch') {
       // M1: never move orders onto a day that is no longer a school day
       // (weekday removed or outside the school year): cancel them instead.
@@ -287,7 +292,7 @@ export default class MenuChangeService {
       if (target.maxQuantity !== null) {
         let needed = 0
         for (const order of orders) {
-          if (allergyConflicts(targetMeal.allergens, order.allergies ?? []).length) continue
+          if (hasConflict(order.allergies)) continue
           needed += linesOf(Number(order.id)).find((l) => l.menu_item_id === item.id)?.quantity ?? 0
         }
         const remaining = target.maxQuantity - (await this.orderedQuantity(trx, target.id))
@@ -317,9 +322,7 @@ export default class MenuChangeService {
       let switched = false
       let priceLowered = false
 
-      const conflict =
-        targetMeal !== null &&
-        allergyConflicts(targetMeal.allergens, order.allergies ?? []).length > 0
+      const conflict = hasConflict(order.allergies)
       if (target && targetMeal && !conflict) {
         const existingTarget = current.find((line) => line.menu_item_id === target!.id)
         // D25: the parent keeps the original price when the new meal costs

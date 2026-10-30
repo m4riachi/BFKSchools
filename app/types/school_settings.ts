@@ -25,7 +25,14 @@ export type SchoolSettings = {
   edit_cutoff_days_before: number
   edit_cutoff_time: string
   auto_assign_default_meal: boolean
+  /** D33: allergens module (rules + display). Off = data kept, nothing applied or shown. */
+  allergens_enabled: boolean
   allergy_rule: AllergyRule
+  /** D33: kitchen labels module (page + PDF). */
+  labels_enabled: boolean
+  /** D33: child fields Niveau / Classe (forms, sheets, exports, PDFs). Off = values kept, hidden. */
+  grade_enabled: boolean
+  class_enabled: boolean
   generate_moroccan_holidays: boolean
   ics_calendar_url: string | null
   email_notifications: EmailNotificationSettings

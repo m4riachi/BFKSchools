@@ -7,18 +7,22 @@
 import { computed } from 'vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 import type { ProductionView } from '~/components/reports/types'
 
-const props = defineProps<{ sheet: ProductionView; groupBy: 'grade' | 'class' }>()
+const props = defineProps<{ sheet: ProductionView; groupBy: 'grade' | 'class' | 'none' }>()
 const { t } = useI18n()
+const features = useFeatures()
 
 const columns = computed(() =>
-  props.groupBy === 'grade'
-    ? props.sheet.grades.map((key) => ({ key, label: key || t('reports.common.none') }))
-    : props.sheet.classes.map((entry) => ({
-        key: entry.className,
-        label: entry.className || t('reports.common.none'),
-      }))
+  props.groupBy === 'none'
+    ? []
+    : props.groupBy === 'grade'
+      ? props.sheet.grades.map((key) => ({ key, label: key || t('reports.common.none') }))
+      : props.sheet.classes.map((entry) => ({
+          key: entry.className,
+          label: entry.className || t('reports.common.none'),
+        }))
 )
 const field = computed<'byGrade' | 'byClass'>(() =>
   props.groupBy === 'grade' ? 'byGrade' : 'byClass'
@@ -72,7 +76,7 @@ const sections = computed(() =>
           <th scope="row" class="px-4 py-2.5 font-semibold">
             <span>{{ line.name }}</span>
             <span
-              v-if="line.allergens.length"
+              v-if="features.allergens && line.allergens.length"
               class="ml-2 inline-flex flex-wrap gap-1 align-middle"
             >
               <StatusBadge v-for="a in line.allergens" :key="a.code" tone="warning">{{

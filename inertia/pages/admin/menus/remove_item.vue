@@ -12,6 +12,7 @@ import AdminLayout from '~/layouts/admin_layout.vue'
 import PageHeader from '~/components/ui/page_header.vue'
 import AppButton from '~/components/ui/app_button.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures, usePlacement } from '~/composables/use_features'
 
 const props = defineProps<{
   week: string
@@ -43,6 +44,8 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate } = useI18n()
+const features = useFeatures()
+const placement = usePlacement()
 const page = usePage()
 const mode = ref<'switch' | 'cancel'>(props.alternatives.length ? 'switch' : 'cancel')
 const target = ref<number | null>(props.alternatives[0]?.id ?? null)
@@ -88,10 +91,12 @@ function submit() {
           <thead class="text-xs font-bold text-ink-4 uppercase">
             <tr class="border-b border-line">
               <th class="py-2 pr-3">{{ t('menus.remove.child') }}</th>
-              <th class="py-2 pr-3">{{ t('menus.remove.class') }}</th>
+              <th v-if="features.grade || features.className" class="py-2 pr-3">
+                {{ t('menus.remove.class') }}
+              </th>
               <th class="py-2 pr-3">{{ t('menus.remove.parent') }}</th>
               <th class="py-2 pr-3">{{ t('menus.remove.quantity') }}</th>
-              <th class="py-2">{{ t('menus.remove.allergies') }}</th>
+              <th v-if="features.allergens" class="py-2">{{ t('menus.remove.allergies') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -101,12 +106,14 @@ function submit() {
               class="border-b border-line-soft last:border-0"
             >
               <td class="py-2 pr-3 font-bold">{{ row.childName }}</td>
-              <td class="py-2 pr-3">
-                {{ [row.grade, row.className].filter(Boolean).join(' · ') }}
+              <td v-if="features.grade || features.className" class="py-2 pr-3">
+                {{ placement(row.grade, row.className) }}
               </td>
               <td class="py-2 pr-3">{{ row.parentName }}</td>
               <td class="tabular py-2 pr-3">{{ row.quantity }}</td>
-              <td class="py-2 text-danger">{{ row.allergies.map((a) => a.label).join(', ') }}</td>
+              <td v-if="features.allergens" class="py-2 text-danger">
+                {{ row.allergies.map((a) => a.label).join(', ') }}
+              </td>
             </tr>
           </tbody>
         </table>

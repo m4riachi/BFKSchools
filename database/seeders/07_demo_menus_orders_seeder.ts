@@ -77,10 +77,15 @@ export default class DemoMenusOrdersSeeder extends BaseSeeder {
     }
   }
 
-  /** Emails on/off for this school (restored after seeding). */
+  /**
+   * Emails on/off for this school (restored after seeding). Allergy checks
+   * stay on while seeding (D33): demo orders must stay valid if the allergens
+   * module is turned on later.
+   */
   protected async setEmails(school: School, enabled: boolean) {
     const settings: StoredSchoolSettings = { ...(school.settings ?? {}) }
     settings.email_notifications = { ...(settings.email_notifications ?? {}), enabled }
+    settings.allergens_enabled = true
     await School.query().where('id', school.id).update({ settings })
     await school.refresh()
   }

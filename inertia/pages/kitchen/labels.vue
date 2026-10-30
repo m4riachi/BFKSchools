@@ -13,6 +13,7 @@ import TextInput from '~/components/ui/text_input.vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import DayNav from '~/components/reports/day_nav.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 import type { LabelView } from '~/components/reports/types'
 
 const props = defineProps<{
@@ -29,6 +30,7 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate } = useI18n()
+const features = useFeatures()
 const form = reactive({
   className: props.className ?? '',
   cols: props.grid.cols,
@@ -95,6 +97,7 @@ const dateLabel = computed(() =>
 
     <section class="card flex flex-wrap items-end gap-4 p-4">
       <SelectInput
+        v-if="features.className"
         id="className"
         v-model="form.className"
         :label="t('reports.labels.class_filter')"

@@ -24,6 +24,10 @@ type Settings = {
   edit_cutoff_days_before: number
   edit_cutoff_time: string
   auto_assign_default_meal: boolean
+  allergens_enabled: boolean
+  labels_enabled: boolean
+  grade_enabled: boolean
+  class_enabled: boolean
   allergy_rule: 'block' | 'warn_confirm'
   generate_moroccan_holidays: boolean
   email_notifications: {
@@ -56,7 +60,8 @@ const form = useForm({
   schoolDays: [...props.school.schoolDays],
   schoolYearStart: props.school.schoolYearStart,
   schoolYearEnd: props.school.schoolYearEnd,
-  settings: structuredClone(props.settings) as Settings,
+  // Inertia props are reactive proxies: structuredClone throws DataCloneError on them.
+  settings: JSON.parse(JSON.stringify(props.settings)) as Settings,
 })
 
 const errors = computed(() => form.errors as Record<string, string | undefined>)
@@ -257,6 +262,35 @@ function submit() {
       </section>
 
       <section class="card flex flex-col gap-4 p-5">
+        <h2 class="text-lg font-bold">{{ t('settings.sections.modules') }}</h2>
+        <p class="text-sm text-ink-3">{{ t('settings.sections.modules_hint') }}</p>
+        <CheckboxField
+          id="allergens_enabled"
+          v-model="form.settings.allergens_enabled"
+          :label="t('settings.fields.allergens_enabled')"
+          :hint="t('settings.fields.allergens_enabled_hint')"
+        />
+        <CheckboxField
+          id="labels_enabled"
+          v-model="form.settings.labels_enabled"
+          :label="t('settings.fields.labels_enabled')"
+          :hint="t('settings.fields.labels_enabled_hint')"
+        />
+        <CheckboxField
+          id="grade_enabled"
+          v-model="form.settings.grade_enabled"
+          :label="t('settings.fields.grade_enabled')"
+          :hint="t('settings.fields.grade_enabled_hint')"
+        />
+        <CheckboxField
+          id="class_enabled"
+          v-model="form.settings.class_enabled"
+          :label="t('settings.fields.class_enabled')"
+          :hint="t('settings.fields.class_enabled_hint')"
+        />
+      </section>
+
+      <section class="card flex flex-col gap-4 p-5">
         <h2 class="text-lg font-bold">{{ t('settings.sections.orders') }}</h2>
         <CheckboxField
           id="auto_assign_default_meal"
@@ -270,6 +304,7 @@ function submit() {
         />
         <div class="grid gap-4 sm:grid-cols-2">
           <SelectInput
+            v-if="form.settings.allergens_enabled"
             id="allergy_rule"
             v-model="form.settings.allergy_rule"
             :options="[
@@ -291,7 +326,7 @@ function submit() {
         </div>
       </section>
 
-      <section class="card flex flex-col gap-4 p-5">
+      <section v-if="form.settings.labels_enabled" class="card flex flex-col gap-4 p-5">
         <h2 class="text-lg font-bold">{{ t('settings.sections.kitchen') }}</h2>
         <p class="text-sm text-ink-3">{{ t('settings.sections.kitchen_hint') }}</p>
         <div class="grid gap-4 sm:grid-cols-2">

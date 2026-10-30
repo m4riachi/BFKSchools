@@ -1,17 +1,23 @@
 <script setup lang="ts">
 withDefaults(defineProps<{ size?: 'sm' | 'md' | 'lg' }>(), { size: 'md' })
+
+// Bound on purpose: Vite would resolve a literal `src` as a module import, and
+// this file is served by the app from `public/`, outside Vite's root.
+const logoUrl = '/logo-bfk.png'
 </script>
 
 <template>
-  <div
+  <img
+    :src="logoUrl"
+    alt=""
     aria-hidden="true"
-    class="bg-brand flex shrink-0 items-center justify-center font-extrabold tracking-[0.02em] text-white"
+    width="429"
+    height="277"
+    class="w-auto shrink-0 object-contain"
     :class="{
-      'size-9 rounded-[10px] text-[11px]': size === 'sm',
-      'size-10 rounded-xl text-[13px]': size === 'md',
-      'size-16 rounded-[18px] text-[17px]': size === 'lg',
+      'h-10': size === 'sm',
+      'h-12': size === 'md',
+      'h-24': size === 'lg',
     }"
-  >
-    BFK
-  </div>
+  />
 </template>

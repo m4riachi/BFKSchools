@@ -42,6 +42,11 @@ export type ExportOptions = {
   filters: ExportFilters
   locale: string
   withAmounts: boolean
+  /** D33: allergens module on (adds the allergies column of the detail export). */
+  withAllergens: boolean
+  /** D33: Niveau / Classe modules on (their columns). */
+  withGrade: boolean
+  withClass: boolean
 }
 
 type Cell = string | number
@@ -64,7 +69,11 @@ export default class ReportExportService {
 
   constructor(protected reports: ProductionReportService) {}
 
-  protected detailColumns(locale: string, withAmounts: boolean): Column<ExportDetailRow>[] {
+  protected detailColumns(
+    locale: string,
+    withAmounts: boolean,
+    withAllergens: boolean
+  ): Column<ExportDetailRow>[] {
     const i18n = i18nManager.locale(locale)
     const columns: Column<ExportDetailRow>[] = [
       { key: 'date', width: 12, value: (row) => row.date },
@@ -72,16 +81,20 @@ export default class ReportExportService {
       { key: 'class', width: 10, value: (row) => safeCell(row.className) },
       { key: 'last_name', width: 18, value: (row) => safeCell(row.lastName) },
       { key: 'first_name', width: 18, value: (row) => safeCell(row.firstName) },
-      {
-        key: 'allergies',
-        width: 24,
-        value: (row) =>
-          safeCell(
-            allergenLabels(row.allergies, locale)
-              .map((entry) => entry.label)
-              .join(', ')
-          ),
-      },
+      ...(withAllergens
+        ? [
+            {
+              key: 'allergies',
+              width: 24,
+              value: (row: ExportDetailRow) =>
+                safeCell(
+                  allergenLabels(row.allergies, locale)
+                    .map((entry) => entry.label)
+                    .join(', ')
+                ),
+            },
+          ]
+        : []),
       { key: 'meal_type', width: 14, value: (row) => i18n.t(`meals.types.${row.mealType}`) },
       {
         key: 'category',
@@ -154,11 +167,14 @@ export default class ReportExportService {
       options.kind === 'detail'
         ? this.mapPages(
             this.reports.exportDetail(schoolId, options.filters),
-            this.detailColumns(options.locale, options.withAmounts)
+            this.visible(
+              this.detailColumns(options.locale, options.withAmounts, options.withAllergens),
+              options
+            )
           )
         : this.mapPages(
             this.reports.exportSummary(schoolId, options.filters),
-            this.summaryColumns(options.locale, options.withAmounts)
+            this.visible(this.summaryColumns(options.locale, options.withAmounts), options)
           )
     for await (const page of source) {
       const kept = page.slice(0, left)
@@ -177,10 +193,22 @@ export default class ReportExportService {
     }
   }
 
+  /** D33: without the columns of the disabled Niveau / Classe modules. */
+  protected visible<Row>(columns: Column<Row>[], options: ExportOptions): Column<Row>[] {
+    return columns.filter(
+      (column) =>
+        (column.key !== 'grade' || options.withGrade) &&
+        (column.key !== 'class' || options.withClass)
+    )
+  }
+
   protected columns(options: ExportOptions): Column<any>[] {
     return options.kind === 'detail'
-      ? this.detailColumns(options.locale, options.withAmounts)
-      : this.summaryColumns(options.locale, options.withAmounts)
+      ? this.visible(
+          this.detailColumns(options.locale, options.withAmounts, options.withAllergens),
+          options
+        )
+      : this.visible(this.summaryColumns(options.locale, options.withAmounts), options)
   }
 
   /**

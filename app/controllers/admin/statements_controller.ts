@@ -8,6 +8,7 @@ import Clock from '#services/clock'
 import StatementService from '#services/statement_service'
 import StatementPdfService from '#services/statement_pdf_service'
 import StatementExportService from '#services/statement_export_service'
+import SchoolSettingsService from '#services/school_settings_service'
 import { schoolStatementQueryValidator, statementQueryValidator } from '#validators/statements'
 import { staffSchoolId } from '#policies/parent_policy'
 import { consumeDownload, pickMonth, sendStatementPdf } from '#support/statement_access'
@@ -106,10 +107,13 @@ export default class StatementsController {
     response.header('Content-Disposition', attachmentHeader(`bfk-statements-${month}.xlsx`))
     response.header('Cache-Control', 'no-store')
     response.header('X-Content-Type-Options', 'nosniff')
-    return response.stream(this.exporter.xlsx(statement, i18n.locale), (error) => {
-      logger.error({ error: error?.code ?? error?.name ?? 'Error' }, 'statement export failed')
-      return [i18n.t('reports.errors.export_failed'), 500]
-    })
+    return response.stream(
+      this.exporter.xlsx(statement, i18n.locale, new SchoolSettingsService().features(school)),
+      (error) => {
+        logger.error({ error: error?.code ?? error?.name ?? 'Error' }, 'statement export failed')
+        return [i18n.t('reports.errors.export_failed'), 500]
+      }
+    )
   }
 
   /** The family (parent of the staff member's school) of `:id`, or a 404. */

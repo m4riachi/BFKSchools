@@ -24,7 +24,11 @@ export function centsToNumber(cents: number): number {
  * amounts are numbers (format 0.00 MAD).
  */
 export default class StatementExportService {
-  xlsx(statement: SchoolStatement, locale: string): Readable {
+  xlsx(
+    statement: SchoolStatement,
+    locale: string,
+    show: { grade: boolean; className: boolean } = { grade: true, className: true }
+  ): Readable {
     const output = new PassThrough()
     const i18n = i18nManager.locale(locale)
     const label = (key: string) => safeCell(i18n.t(`statements.export.${key}`))
@@ -94,8 +98,8 @@ export default class StatementExportService {
         { key: 'parent', width: 28 },
         { key: 'last_name', width: 18 },
         { key: 'first_name', width: 18 },
-        { key: 'grade', width: 8 },
-        { key: 'class', width: 10 },
+        ...(show.grade ? [{ key: 'grade', width: 8 }] : []),
+        ...(show.className ? [{ key: 'class', width: 10 }] : []),
         { key: 'sub_count', width: 18 },
         { key: 'sup_count', width: 14 },
         { key: 'total', width: 18, style: money },
@@ -104,8 +108,8 @@ export default class StatementExportService {
         label('parent'),
         label('last_name'),
         label('first_name'),
-        label('grade'),
-        label('class'),
+        ...(show.grade ? [label('grade')] : []),
+        ...(show.className ? [label('class')] : []),
         label('subscription_count'),
         label('supplement_count'),
         label('total'),
@@ -119,8 +123,8 @@ export default class StatementExportService {
               safeCell(family.parentName),
               safeCell(child.lastName),
               safeCell(child.firstName),
-              safeCell(child.grade),
-              safeCell(child.className),
+              ...(show.grade ? [safeCell(child.grade)] : []),
+              ...(show.className ? [safeCell(child.className)] : []),
               child.totals.subscriptionCount,
               child.totals.supplementCount,
               centsToNumber(child.totals.totalCents),

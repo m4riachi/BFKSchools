@@ -11,10 +11,13 @@ import ConfirmDialog from '~/components/ui/confirm_dialog.vue'
 import AccessBadge from '~/components/families/access_badge.vue'
 import type { ChildRow, ParentRow, SubscriptionRow } from '~/components/families/types'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures, usePlacement } from '~/composables/use_features'
 
 const props = defineProps<{ parent: ParentRow; children: ChildRow[]; today: string }>()
 
 const { t, formatDate, formatDateTime } = useI18n()
+const features = useFeatures()
+const placement = usePlacement()
 
 const canInvite = computed(() => props.parent.isActive && !props.parent.hasPassword)
 const isResend = computed(() => props.parent.invitedAt !== null)
@@ -188,7 +191,7 @@ const languageLabel = computed(() =>
                 {{ child.firstName }} {{ child.lastName }}
               </h3>
               <span class="text-[13px] text-ink-4">
-                {{ [child.grade, child.className].filter(Boolean).join(' · ') || '—' }}
+                {{ placement(child.grade, child.className) }}
               </span>
             </div>
             <StatusBadge v-if="!child.isActive">
@@ -196,7 +199,7 @@ const languageLabel = computed(() =>
             </StatusBadge>
           </div>
 
-          <div class="flex flex-wrap gap-1.5">
+          <div v-if="features.allergens" class="flex flex-wrap gap-1.5">
             <StatusBadge v-for="code in child.allergies" :key="code" tone="danger">
               {{ t(`allergens.${code}`) }}
             </StatusBadge>

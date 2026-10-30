@@ -398,6 +398,7 @@ export default class WeeklyMenusController {
     const affected = await this.changes.affectedOrders(db.connection(), item.id)
     const alternatives = await this.changes.alternatives(db.connection(), item)
     const locale = i18n.locale
+    const allergensEnabled = this.settings.features(school).allergens // D33
     return inertia.render('admin/menus/remove_item', {
       week: menu.weekStart,
       menuStatus: menu.status,
@@ -411,18 +412,20 @@ export default class WeeklyMenusController {
       },
       affected: affected.map((order) => ({
         ...order,
-        allergies: allergenLabels(order.allergies as never, locale),
+        allergies: allergensEnabled ? allergenLabels(order.allergies as never, locale) : [],
       })),
       alternatives: alternatives.map((option) => ({
         id: option.id,
         name: mealName(option.meal, locale),
         price: presentMealSummary(option.meal, locale).price,
-        allergens: [...option.meal.allergens],
+        allergens: allergensEnabled ? [...option.meal.allergens] : [],
         maxQuantity: option.maxQuantity,
         // Children of the list who are allergic to this alternative lose the line instead.
-        allergicChildren: affected.filter((order) =>
-          option.meal.allergens.some((code) => order.allergies.includes(code))
-        ).length,
+        allergicChildren: allergensEnabled
+          ? affected.filter((order) =>
+              option.meal.allergens.some((code) => order.allergies.includes(code))
+            ).length
+          : 0,
       })),
     })
   }

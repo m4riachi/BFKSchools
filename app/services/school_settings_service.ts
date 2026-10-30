@@ -31,7 +31,11 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   edit_cutoff_days_before: 1,
   edit_cutoff_time: '18:00',
   auto_assign_default_meal: true, // D10
+  allergens_enabled: false, // D33
   allergy_rule: 'block', // D9
+  labels_enabled: false, // D33
+  grade_enabled: false, // D33
+  class_enabled: false, // D33
   generate_moroccan_holidays: false, // D6
   ics_calendar_url: null, // D7
   email_notifications: {
@@ -80,6 +84,17 @@ export default class SchoolSettingsService {
    */
   get(school: Pick<School, 'settings'>): SchoolSettings {
     return deepMerge(DEFAULT_SCHOOL_SETTINGS as SchoolSettings, school.settings ?? {})
+  }
+
+  /** D33: optional modules of the school (server checks + shared Inertia prop). */
+  features(school: Pick<School, 'settings'>) {
+    const settings = this.get(school)
+    return {
+      allergens: settings.allergens_enabled,
+      labels: settings.labels_enabled,
+      grade: settings.grade_enabled,
+      className: settings.class_enabled,
+    }
   }
 
   /**

@@ -185,7 +185,8 @@ export type SelectionRequest = {
 }
 
 export type SelectionRules = {
-  allergyRule: SchoolSettings['allergy_rule']
+  /** `off` (D33): allergens module disabled, no allergy check at all. */
+  allergyRule: SchoolSettings['allergy_rule'] | 'off'
   supplementMaxQuantity: number
   /** D2: subscription meals need a covering active subscription. */
   subscriptionRequired: boolean
@@ -207,6 +208,13 @@ export type SelectedLine = { option: DayOption; qty: number }
 export type SelectionResult =
   | { ok: true; lines: SelectedLine[] }
   | { ok: false; error: SelectionError; mealId?: number; values?: Record<string, number> }
+
+/** D33: the rule to apply for a school, `off` when the allergens module is disabled. */
+export function effectiveAllergyRule(
+  settings: Pick<SchoolSettings, 'allergens_enabled' | 'allergy_rule'>
+): SelectionRules['allergyRule'] {
+  return settings.allergens_enabled ? settings.allergy_rule : 'off'
+}
 
 /** Allergens of a meal that the child is allergic to (in the meal's order). */
 export function allergyConflicts(
@@ -303,7 +311,10 @@ export function checkSelection(input: SelectionInput): SelectionResult {
         },
       }
     }
-    if (allergyConflicts(line.option.allergens, input.childAllergies).length) {
+    if (
+      rules.allergyRule !== 'off' &&
+      allergyConflicts(line.option.allergens, input.childAllergies).length
+    ) {
       if (rules.allergyRule === 'block') {
         return { ok: false, error: 'ALLERGY_BLOCKED', mealId: line.option.mealId }
       }
@@ -330,7 +341,10 @@ export function describeOption(
     existingQty: number
   }
 ) {
-  const conflicts = allergyConflicts(option.allergens, context.childAllergies)
+  const conflicts =
+    context.rules.allergyRule === 'off'
+      ? []
+      : allergyConflicts(option.allergens, context.childAllergies)
   const remaining = remainingFor(option, context.existingQty)
   const noSubscription =
     option.mealType === 'subscription' &&
@@ -368,4 +382,5 @@ export default class OrderWindowService {
   static staffMayChangeDate = staffMayChangeDate
   static cutoffFor = cutoffFor
   static allergyConflicts = allergyConflicts
+  static effectiveAllergyRule = effectiveAllergyRule
 }

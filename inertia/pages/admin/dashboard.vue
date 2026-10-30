@@ -13,6 +13,7 @@ import PageHeader from '~/components/ui/page_header.vue'
 import EmptyState from '~/components/ui/empty_state.vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 import type { ProductionView } from '~/components/reports/types'
 
 type Day = {
@@ -54,6 +55,7 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate, formatDateTime } = useI18n()
+const features = useFeatures()
 const page = usePage()
 const firstName = computed(() => page.props.user?.fullName.split(' ')[0] ?? '')
 const selected = ref(0)
@@ -304,7 +306,9 @@ const statusTone = (status: string) =>
                   class="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-[13px] font-semibold no-underline"
                 >
                   {{ child.firstName }} {{ child.lastName }}
-                  <span v-if="child.className" class="text-ink-4">{{ child.className }}</span>
+                  <span v-if="features.className && child.className" class="text-ink-4">{{
+                    child.className
+                  }}</span>
                 </Link>
               </li>
             </ul>

@@ -6,6 +6,7 @@
 import { computed } from 'vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 
 const props = withDefaults(defineProps<{ tags?: string[]; allergens?: string[]; max?: number }>(), {
   tags: () => [],
@@ -13,13 +14,15 @@ const props = withDefaults(defineProps<{ tags?: string[]; allergens?: string[]; 
   max: 99,
 })
 const { t } = useI18n()
+const features = useFeatures()
 
-const shown = computed(() => props.allergens.slice(0, props.max))
-const hidden = computed(() => props.allergens.length - shown.value.length)
+const visible = computed(() => (features.value.allergens ? props.allergens : []))
+const shown = computed(() => visible.value.slice(0, props.max))
+const hidden = computed(() => visible.value.length - shown.value.length)
 </script>
 
 <template>
-  <div v-if="tags.length || allergens.length" class="flex flex-wrap gap-1.5">
+  <div v-if="tags.length || visible.length" class="flex flex-wrap gap-1.5">
     <StatusBadge v-for="tag in tags" :key="`t-${tag}`" tone="brand">
       {{ t(`meals.tags.${tag}`) }}
     </StatusBadge>

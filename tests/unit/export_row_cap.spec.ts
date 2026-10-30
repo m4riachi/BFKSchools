@@ -48,6 +48,9 @@ const options: ExportOptions = {
   filters: { from: '2026-11-23', to: '2026-11-23', className: null, mealType: null },
   locale: 'fr',
   withAmounts: false,
+  withAllergens: true,
+  withGrade: true,
+  withClass: true,
 }
 
 async function text(stream: NodeJS.ReadableStream) {

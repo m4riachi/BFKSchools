@@ -13,6 +13,7 @@ import MenuCalendar from '#services/menu_calendar'
 import SchoolSettingsService from '#services/school_settings_service'
 import {
   describeOption,
+  effectiveAllergyRule,
   evaluate,
   staffCanOverride,
   staffMayChangeDate,
@@ -114,7 +115,7 @@ export default class OrderWeekService {
     }
 
     const rules: SelectionRules = {
-      allergyRule: settings.allergy_rule,
+      allergyRule: effectiveAllergyRule(settings),
       supplementMaxQuantity: settings.supplement_max_quantity,
       subscriptionRequired: settings.subscription_required_for_main_meal,
     }
@@ -170,7 +171,9 @@ export default class OrderWeekService {
           // D31: subscription meals have no price (null → "included").
           priceCents: isBilledType(item.mealType) ? item.meal.priceCents : 0,
           price: isBilledType(item.mealType) ? money(item.meal.priceCents) : null,
-          allergens: allergenLabels(item.meal.allergens as AllergenCode[], locale),
+          allergens: settings.allergens_enabled
+            ? allergenLabels(item.meal.allergens as AllergenCode[], locale)
+            : [],
           tags: [...item.meal.tags],
           cover: mealCoverUrls(item.meal),
           ...flags,
@@ -241,13 +244,13 @@ export default class OrderWeekService {
           }
         : null,
       rules: {
-        allergyRule: settings.allergy_rule,
+        allergyRule: effectiveAllergyRule(settings),
         supplementMax: settings.supplement_max_quantity,
         allowParentEdits: settings.allow_parent_edits,
         editMode: settings.edit_mode,
         cutoffDaysBefore: settings.edit_cutoff_days_before,
       },
-      allergies: allergenLabels(child.allergies, locale),
+      allergies: settings.allergens_enabled ? allergenLabels(child.allergies, locale) : [],
       days: dayViews,
       totalCents,
       total: money(totalCents),

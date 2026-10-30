@@ -12,6 +12,7 @@ import StatusBadge from '~/components/ui/status_badge.vue'
 import EmptyState from '~/components/ui/empty_state.vue'
 import PaginationNav, { type PaginationMeta } from '~/components/ui/pagination_nav.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures, usePlacement } from '~/composables/use_features'
 
 const props = defineProps<{
   filters: { date: string; status: string; q: string; className: string }
@@ -36,6 +37,8 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate } = useI18n()
+const features = useFeatures()
+const placement = usePlacement()
 const form = reactive({ ...props.filters })
 
 function apply() {
@@ -84,6 +87,7 @@ function apply() {
         ]"
       />
       <SelectInput
+        v-if="features.className"
         id="className"
         v-model="form.className"
         :label="t('orders.admin.class')"
@@ -104,7 +108,9 @@ function apply() {
         <thead class="text-xs font-bold text-ink-4 uppercase">
           <tr class="border-b border-line">
             <th class="px-4 py-3">{{ t('orders.admin.child') }}</th>
-            <th class="px-4 py-3">{{ t('orders.admin.class') }}</th>
+            <th v-if="features.grade || features.className" class="px-4 py-3">
+              {{ t('orders.admin.class') }}
+            </th>
             <th class="px-4 py-3">{{ t('orders.admin.meals') }}</th>
             <th class="px-4 py-3">{{ t('orders.admin.status') }}</th>
             <th class="px-4 py-3 text-right">{{ t('orders.admin.total') }}</th>
@@ -126,8 +132,8 @@ function apply() {
                 t('orders.admin.allergy_badge')
               }}</StatusBadge>
             </td>
-            <td class="px-4 py-3 text-ink-3">
-              {{ [order.grade, order.className].filter(Boolean).join(' · ') }}
+            <td v-if="features.grade || features.className" class="px-4 py-3 text-ink-3">
+              {{ placement(order.grade, order.className) }}
             </td>
             <td class="px-4 py-3">
               <template v-if="order.status === 'active'">

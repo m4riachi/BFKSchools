@@ -2,7 +2,7 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import logger from '@adonisjs/core/services/logger'
 import Clock from '#services/clock'
-import ProductionReportService from '#services/production_report_service'
+import ProductionReportService, { type LabelRow } from '#services/production_report_service'
 import SchoolSettingsService from '#services/school_settings_service'
 import LabelPdfService, { MAX_LABELS_PER_PDF } from '#services/label_pdf_service'
 import ReportExportService, {
@@ -38,6 +38,25 @@ type ExportQuery = Partial<{
   format: 'csv' | 'xlsx'
 }>
 
+/** D33: labels without what the school's disabled modules hide. */
+function visibleLabels(
+  rows: LabelRow[],
+  features: ReturnType<SchoolSettingsService['features']>
+): LabelRow[] {
+  return rows.map((row) => ({
+    ...row,
+    grade: features.grade ? row.grade : null,
+    className: features.className ? row.className : null,
+    ...(features.allergens
+      ? {}
+      : {
+          allergies: [],
+          hasConflict: false,
+          lines: row.lines.map((line) => ({ ...line, allergens: [], conflicts: [] })),
+        }),
+  }))
+}
+
 /**
  * Kitchen area reports (brief §5.8): allergy sheet, labels (preview + PDF)
  * and Excel/CSV exports. **GET only** — admin, manager and kitchen read;
@@ -69,6 +88,7 @@ export default class ReportsController {
     const date = reportDate(query.date, today)
     const nav = { date, today, previous: addDays(date, -1), next: addDays(date, 1) }
     if (!school) return inertia.render('kitchen/allergies', { ...nav, rows: null })
+    if (!this.settings.features(school).allergens) return ctx.response.notFound()
     const rows = await this.reports.allergySheet(school.id, date)
     return inertia.render('kitchen/allergies', {
       ...nav,
@@ -104,6 +124,8 @@ export default class ReportsController {
         preview: [],
       })
     }
+    const features = this.settings.features(school)
+    if (!features.labels) return ctx.response.notFound()
     const grid = this.settings.get(school).label_grid
     const count = await this.reports.countLabels(school.id, date, className)
     const preview = await this.reports.labels(school.id, date, { className, limit: LABEL_PREVIEW })
@@ -114,7 +136,7 @@ export default class ReportsController {
       count,
       grid: { cols: query.cols ?? grid.cols, rows: query.rows ?? grid.rows },
       max: MAX_LABELS_PER_PDF,
-      preview: presentLabels(preview, i18n.locale),
+      preview: presentLabels(visibleLabels(preview, features), i18n.locale),
     })
   }
 
@@ -122,6 +144,8 @@ export default class ReportsController {
   async labelsPdf(ctx: HttpContext) {
     const { request, response, session, i18n } = ctx
     const school = await requireReportSchool(ctx)
+    const features = this.settings.features(school)
+    if (!features.labels) return response.notFound()
     const query = await labelsQueryValidator.validate(request.qs())
     const date = reportDate(query.date, this.clock.today())
     const className = query.className || null
@@ -145,7 +169,7 @@ export default class ReportsController {
     // D27: 1 running + 1 waiting per user, 2 at a time server-wide (the
     // render also yields every 48 labels).
     const pdf = await renderPdfForUser(ctx, () =>
-      this.pdf.render(rows, {
+      this.pdf.render(visibleLabels(rows, features), {
         grid,
         locale: i18n.locale,
         title: i18n.t('reports.labels.pdf_title', { date }),
@@ -192,6 +216,7 @@ export default class ReportsController {
       session.flash('error', i18n.t(`reports.errors.${period.error}`, { max: MAX_EXPORT_DAYS }))
       return response.redirect().withQs(false).toPath('/kitchen/exports')
     }
+    const features = this.settings.features(school)
     const options: ExportOptions = {
       kind: query.kind ?? 'detail',
       format: query.format ?? 'xlsx',
@@ -200,9 +225,14 @@ export default class ReportsController {
         to: period.to,
         className: query.className || null,
         mealType: query.mealType ?? null,
+        mergeGrades: !features.grade,
+        mergeClasses: !features.className,
       },
       locale: i18n.locale,
       withAmounts: await bouncer.with('ReportPolicy').allows('viewAmounts'),
+      withAllergens: features.allergens,
+      withGrade: features.grade,
+      withClass: features.className,
     }
     const rows = await this.reports.countExportRows(school.id, options.filters, options.kind)
     if (rows > MAX_EXPORT_ROWS) {

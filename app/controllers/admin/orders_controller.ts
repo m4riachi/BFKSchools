@@ -3,6 +3,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import Child from '#models/child'
 import School from '#models/school'
+import SchoolSettingsService from '#services/school_settings_service'
 import Clock from '#services/clock'
 import OrderService from '#services/order_service'
 import OrderWeekService from '#services/order_week_service'
@@ -34,6 +35,7 @@ function likePattern(search: string) {
 @inject()
 export default class OrdersController {
   constructor(
+    protected settings: SchoolSettingsService,
     protected clock: Clock,
     protected orders: OrderService,
     protected weeks: OrderWeekService
@@ -64,6 +66,7 @@ export default class OrdersController {
   async index(ctx: HttpContext) {
     const { request, inertia, i18n } = ctx
     const school = await this.school(ctx)
+    const allergensEnabled = this.settings.features(school).allergens // D33
     let filters: {
       date?: string
       status?: 'all' | 'active' | 'cancelled'
@@ -176,7 +179,7 @@ export default class OrdersController {
           childName: `${row.first_name} ${row.last_name}`,
           grade: row.grade,
           className: row.class_name,
-          hasAllergies: (row.allergies ?? []).length > 0,
+          hasAllergies: allergensEnabled && (row.allergies ?? []).length > 0,
           parentName: row.parent_name,
           status: row.status,
           cancelReason: row.cancel_reason,

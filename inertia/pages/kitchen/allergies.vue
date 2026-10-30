@@ -11,6 +11,7 @@ import EmptyState from '~/components/ui/empty_state.vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import DayNav from '~/components/reports/day_nav.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures, usePlacement } from '~/composables/use_features'
 import type { AllergyRowView } from '~/components/reports/types'
 
 const props = defineProps<{
@@ -22,6 +23,8 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate } = useI18n()
+const features = useFeatures()
+const placement = usePlacement()
 const nav = computed(() => ({
   date: props.date,
   today: props.today,
@@ -69,7 +72,9 @@ const conflicts = computed(() => (props.rows ?? []).filter((row) => row.hasConfl
             <thead class="text-xs font-bold text-ink-4 uppercase">
               <tr class="border-b border-line">
                 <th scope="col" class="px-4 py-3">{{ t('reports.allergies.child') }}</th>
-                <th scope="col" class="px-4 py-3">{{ t('reports.common.class') }}</th>
+                <th v-if="features.grade || features.className" scope="col" class="px-4 py-3">
+                  {{ t('reports.common.class') }}
+                </th>
                 <th scope="col" class="px-4 py-3">{{ t('reports.allergies.allergies') }}</th>
                 <th scope="col" class="px-4 py-3">{{ t('reports.allergies.meal_of_day') }}</th>
                 <th scope="col" class="px-4 py-3">{{ t('reports.allergies.notes') }}</th>
@@ -83,8 +88,8 @@ const conflicts = computed(() => (props.rows ?? []).filter((row) => row.hasConfl
                 :class="row.hasConflict ? 'bg-danger-soft' : ''"
               >
                 <th scope="row" class="px-4 py-3 font-bold">{{ row.name }}</th>
-                <td class="px-4 py-3 text-ink-3">
-                  {{ [row.className, row.grade].filter(Boolean).join(' · ') }}
+                <td v-if="features.grade || features.className" class="px-4 py-3 text-ink-3">
+                  {{ placement(row.grade, row.className) }}
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex flex-wrap gap-1">

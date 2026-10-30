@@ -18,6 +18,10 @@ export const schoolSettingsValidator = vine.create({
   edit_cutoff_days_before: vine.number().withoutDecimals().range([0, 7]).optional(),
   edit_cutoff_time: time().optional(),
   auto_assign_default_meal: vine.boolean().optional(),
+  allergens_enabled: vine.boolean().optional(),
+  labels_enabled: vine.boolean().optional(),
+  grade_enabled: vine.boolean().optional(),
+  class_enabled: vine.boolean().optional(),
   allergy_rule: vine.enum(['block', 'warn_confirm'] as const).optional(),
   generate_moroccan_holidays: vine.boolean().optional(),
   ics_calendar_url: vine
@@ -72,6 +76,10 @@ export const schoolSettingsFormValidator = vine.create({
     edit_cutoff_days_before: vine.number().withoutDecimals().range([0, 7]),
     edit_cutoff_time: time(),
     auto_assign_default_meal: vine.boolean(),
+    allergens_enabled: vine.boolean().optional(),
+    labels_enabled: vine.boolean().optional(),
+    grade_enabled: vine.boolean().optional(),
+    class_enabled: vine.boolean().optional(),
     allergy_rule: vine.enum(['block', 'warn_confirm'] as const),
     generate_moroccan_holidays: vine.boolean(),
     email_notifications: vine.object({

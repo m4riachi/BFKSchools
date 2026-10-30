@@ -12,6 +12,7 @@ import EmptyState from '~/components/ui/empty_state.vue'
 import SelectInput from '~/components/ui/select_input.vue'
 import TextInput from '~/components/ui/text_input.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 
 const props = defineProps<{
   today: string
@@ -23,6 +24,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const features = useFeatures()
 const page = usePage()
 const initialDate = (() => {
   const match = /[?&]date=(\d{4}-\d{2}-\d{2})/.exec(page.url)
@@ -97,6 +99,7 @@ const periods = computed(() =>
       </div>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <SelectInput
+          v-if="features.className"
           id="className"
           v-model="form.className"
           :label="t('reports.exports.class')"

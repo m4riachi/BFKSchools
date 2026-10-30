@@ -366,8 +366,11 @@ export default class OrderDeadlineService {
       .select('id')
     const recheck = await candidateSql(found.map((child) => child.id))
     let candidates: Candidate[] = recheck.rows
+    const checkAllergies = this.settings.get(school).allergens_enabled // D33
     const safe = candidates.filter(
-      (child) => allergyConflicts(meal.allergens ?? [], child.allergies ?? []).length === 0
+      (child) =>
+        !checkAllergies ||
+        allergyConflicts(meal.allergens ?? [], child.allergies ?? []).length === 0
     )
     if (safe.length < candidates.length) report.skipped.allergy = candidates.length - safe.length
     candidates = safe

@@ -5,6 +5,8 @@ import UserTransformer from '#transformers/user_transformer'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 import { clientTranslations } from '#support/client_translations'
 import NotificationCenterService from '#services/notification_center_service'
+import SchoolSettingsService from '#services/school_settings_service'
+import School from '#models/school'
 import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from '#enums/locales'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
@@ -25,6 +27,8 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       messages: ctx.inertia.always(clientTranslations(locale)),
       /** Parents: unread notifications for the header bell (null for staff / guests). */
       unreadNotifications: ctx.inertia.always(await this.unreadNotifications(ctx)),
+      /** D33: optional modules of the user's school (everything off for guests). */
+      features: ctx.inertia.always(await this.features(ctx)),
     }
   }
 
@@ -43,6 +47,20 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     } catch (error) {
       logger.warn({ error: (error as Error)?.name ?? 'Error' }, 'unread notifications count failed')
       return null
+    }
+  }
+
+  /** One primary-key read; a database hiccup hides the modules, not the page. */
+  protected async features(ctx: HttpContext) {
+    const off = { allergens: false, labels: false, grade: false, className: false }
+    const schoolId = (ctx as Partial<HttpContext>).auth?.user?.schoolId
+    if (typeof schoolId !== 'number') return off
+    try {
+      const school = await School.find(schoolId)
+      return school ? new SchoolSettingsService().features(school) : off
+    } catch (error) {
+      logger.warn({ error: (error as Error)?.name ?? 'Error' }, 'school features read failed')
+      return off
     }
   }
 

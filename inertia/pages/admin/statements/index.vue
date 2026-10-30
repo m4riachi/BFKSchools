@@ -17,6 +17,7 @@ import PaginationNav, { type PaginationMeta } from '~/components/ui/pagination_n
 import MonthNav from '~/components/statements/month_nav.vue'
 import type { MonthNav as MonthNavProps, Totals } from '~/components/statements/types'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 
 const props = defineProps<{
   nav: MonthNavProps
@@ -40,6 +41,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const features = useFeatures()
 const form = reactive({ ...props.filters })
 
 function apply() {
@@ -146,7 +148,10 @@ function apply() {
                   class="text-xs text-ink-3"
                 >
                   {{ child.name
-                  }}<template v-if="child.className"> · {{ child.className }}</template> ·
+                  }}<template v-if="features.className && child.className">
+                    · {{ child.className }}</template
+                  >
+                  ·
                   {{ child.totals.total }}
                 </span>
               </div>

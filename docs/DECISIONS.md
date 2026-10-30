@@ -37,6 +37,7 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D30 | Parent "change password" page (brief §5.5) | answered | Build it in Phase 9 under the parent "Compte" tab (current password + new password; ends other sessions like a reset) |
 | D31 | Do subscription (abonnement) meals have a price? | answered | No — subscription meals are free in the app: no price field, `price_cents = 0`, never charged. Only supplements are priced and billed. Statements and totals show supplements only (subscription meals may be listed/counted as "inclus"); this applies to every month, including subscription order lines priced before D31. Replaces D1 |
 | D32 | BFK restaurant menu in the catalog | answered | The 181 dishes and drinks of the BFK ordering site (names, FR/EN descriptions, prices, photos, taken 2026-10-29) are seeded as **inactive supplements** (`node ace bfk:seed catalog\|demo`, key `external_recipe_ref = bfk-site:<id>`). Allergens are unknown (empty) and prices are the restaurant's: staff set allergens and the school price before activating a meal. The 9 generated demo supplements are removed; the demo activates 8 BFK menu items instead (`DEMO_ACTIVE_SUPPLEMENTS`) |
+| D33 | Can allergens, labels, Niveau and Classe be turned off? | answered | Yes — modules in `/admin/settings`, **off by default**: `grade_enabled` / `class_enabled` (off = field hidden from forms, lists, production breakdown, labels, exports and statements; stored values kept); `allergens_enabled` (off = no allergy check when ordering, auto-assigning or switching meals; no allergen on any screen, label or export; `/kitchen/allergies` → 404) and `labels_enabled` (off = `/kitchen/labels` and its PDF → 404, no nav link). Stored allergen data is kept and comes back when the module is turned on |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
@@ -49,3 +50,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-10-29 — D31: subscription meals are free (no price, not billed); only supplements are billed. Supersedes D1
 2026-10-29 — D29 obsolete (D31); D31 clarified: pre-D31 priced subscription lines are never billed
 2026-10-29 — D32: BFK restaurant menu (181 items) seeded as inactive supplements; staff review allergens and prices before activating
+2026-10-30 — D33: allergens, labels, Niveau and Classe are optional modules in the settings, off by default

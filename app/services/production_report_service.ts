@@ -131,6 +131,17 @@ export type ExportFilters = {
   to: IsoDate
   className?: string | null
   mealType?: MealType | null
+  /** D33: disabled Niveau / Classe: one summary row instead of one per grade / class. */
+  mergeGrades?: boolean
+  mergeClasses?: boolean
+}
+
+/** D33: SQL of the grade / class group keys of the summary export. */
+function summaryKeys(filters: ExportFilters) {
+  return {
+    grade: filters.mergeGrades ? 'NULL::text' : 'c.grade',
+    className: filters.mergeClasses ? 'NULL::text' : 'c.class_name',
+  }
 }
 
 export type ExportDetailRow = {
@@ -647,10 +658,12 @@ export default class ProductionReportService {
       const row = await base.count('* as total').first()
       return toInt(row?.total)
     }
+    const keys = summaryKeys(filters)
     const row = await db
       .from(
         base
-          .groupBy('mo.date', 'moi.meal_type', 'moi.meal_id', 'c.grade', 'c.class_name')
+          .groupBy('mo.date', 'moi.meal_type', 'moi.meal_id')
+          .groupByRaw(`${keys.grade}, ${keys.className}`)
           .select(db.raw('1'))
           .as('g')
       )
@@ -720,24 +733,17 @@ export default class ProductionReportService {
     filters: ExportFilters,
     pageSize = 2000
   ): AsyncGenerator<ExportSummaryRow[]> {
+    const keys = summaryKeys(filters)
     for (let offset = 0; ; offset += pageSize) {
       const rows = await this.exportBase(schoolId, filters)
-        .groupBy(
-          'mo.date',
-          'moi.meal_type',
-          'moi.meal_id',
-          'm.category',
-          'm.name_fr',
-          'm.name_en',
-          'c.grade',
-          'c.class_name'
-        )
+        .groupBy('mo.date', 'moi.meal_type', 'moi.meal_id', 'm.category', 'm.name_fr', 'm.name_en')
+        .groupByRaw(`${keys.grade}, ${keys.className}`)
         .orderBy('mo.date')
         .orderBy('moi.meal_type', 'asc')
         .orderBy('m.name_fr')
         .orderBy('moi.meal_id')
-        .orderByRaw('c.grade ASC NULLS LAST')
-        .orderByRaw('c.class_name ASC NULLS LAST')
+        .orderByRaw(`${keys.grade} ASC NULLS LAST`)
+        .orderByRaw(`${keys.className} ASC NULLS LAST`)
         .limit(pageSize)
         .offset(offset)
         .select(
@@ -746,8 +752,8 @@ export default class ProductionReportService {
           'm.category',
           'm.name_fr',
           'm.name_en',
-          'c.grade',
-          'c.class_name',
+          db.raw(`${keys.grade} AS grade`),
+          db.raw(`${keys.className} AS class_name`),
           db.raw('SUM(moi.quantity)::int AS quantity'),
           db.raw('SUM(moi.line_total_cents)::bigint AS amount')
         )

@@ -11,19 +11,21 @@ import NavIcon from '~/components/ui/nav_icon.vue'
 import UserAvatar from '~/components/ui/user_avatar.vue'
 import FlashToasts from '~/components/ui/flash_toasts.vue'
 import { useI18n } from '~/composables/use_i18n'
+import { useFeatures } from '~/composables/use_features'
 import { useActiveNav, type NavItem } from '~/composables/use_nav'
 
 const page = usePage()
 const { t } = useI18n()
+const features = useFeatures()
 const { isActive } = useActiveNav()
 
-const nav: NavItem[] = [
+const nav = computed<NavItem[]>(() => [
   { labelKey: 'nav.production', href: '/kitchen', exact: true },
-  { labelKey: 'nav.allergies', href: '/kitchen/allergies' },
-  { labelKey: 'nav.labels', href: '/kitchen/labels' },
+  ...(features.value.allergens ? [{ labelKey: 'nav.allergies', href: '/kitchen/allergies' }] : []),
+  ...(features.value.labels ? [{ labelKey: 'nav.labels', href: '/kitchen/labels' }] : []),
   { labelKey: 'nav.exports', href: '/kitchen/exports' },
   { labelKey: 'nav.meal_catalog', href: '/kitchen/meals' },
-]
+])
 
 const user = computed(() => page.props.user)
 const isStaff = computed(() => user.value?.role === 'admin' || user.value?.role === 'manager')
