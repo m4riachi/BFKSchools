@@ -1,3 +1,4 @@
+import type AdminReportService from '#services/admin_report_service'
 import type { Dashboard } from '#services/dashboard_service'
 import type {
   AllergyLine,
@@ -7,6 +8,8 @@ import type {
 } from '#services/production_report_service'
 import { allergenLabels, mealName } from '#support/meal_display'
 import { formatMad } from '#support/money'
+
+type AdminReport = Awaited<ReturnType<AdminReportService['build']>>
 
 /**
  * Inertia presenters of the Phase 7 reports: localized meal names and
@@ -98,3 +101,51 @@ export function presentDashboard(dashboard: Dashboard, locale: string) {
   }
 }
 export type DashboardView = ReturnType<typeof presentDashboard>
+
+/** Back-office reports page (D38). */
+export function presentAdminReport(report: AdminReport, locale: string) {
+  const money = moneyLocale(locale)
+  return {
+    from: report.from,
+    to: report.to,
+    revenue: formatMad(report.totals.totalCents, money),
+    subscriptionMeals: report.totals.subscriptionMeals,
+    subscriptionAmount: formatMad(report.totals.subscriptionAmountCents, money),
+    extras: report.totals.extras,
+    extrasAmount: formatMad(report.totals.extrasAmountCents, money),
+    activeSubscriptions: report.activeSubscriptions,
+    activeChildren: report.activeChildren,
+    links: report.links,
+    topExtras: report.extras.map((extra: AdminReport['extras'][number]) => ({
+      id: extra.id,
+      name: locale === 'en' ? extra.nameEn : extra.nameFr,
+      quantity: extra.quantity,
+      amount: formatMad(extra.amountCents, money),
+      // First row = the largest amount (the query sorts by it).
+      barPercent: (extra.amountCents * 100) / Math.max(1, report.extras[0].amountCents),
+    })),
+    chart: {
+      byWeek: report.chart.byWeek,
+      points: report.chart.points.map((point) => ({
+        date: point.date,
+        subscriptionMeals: point.subscriptionMeals,
+        extras: point.extras,
+        subscriptionAmountCents: point.subscriptionAmountCents,
+        extrasAmountCents: point.extrasAmountCents,
+        subscriptionAmount: formatMad(point.subscriptionAmountCents, money),
+        extrasAmount: formatMad(point.extrasAmountCents, money),
+        total: formatMad(point.totalCents, money),
+        glovo: point.glovo,
+        delivery: point.delivery,
+      })),
+    },
+    days: report.days.map((day) => ({
+      date: day.date,
+      subscriptionMeals: day.subscriptionMeals,
+      extras: day.extras,
+      total: formatMad(day.totalCents, money),
+      glovo: day.glovo,
+      delivery: day.delivery,
+    })),
+  }
+}

@@ -45,7 +45,7 @@ const nav: NavItem[] = [
         <div class="flex min-w-0 items-center gap-1.5">
           <a
             v-if="page.props.deliveryOrderUrl"
-            :href="page.props.deliveryOrderUrl"
+            href="/out/delivery"
             target="_blank"
             rel="noopener noreferrer"
             class="flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl bg-white px-2.5 text-xs leading-tight font-bold text-brand no-underline hover:bg-white/90 hover:text-brand"
@@ -57,7 +57,7 @@ const nav: NavItem[] = [
           </a>
           <a
             v-if="page.props.glovoUrl"
-            :href="page.props.glovoUrl"
+            href="/out/glovo"
             target="_blank"
             rel="noopener noreferrer"
             class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#FFC244] hover:bg-[#FFB81F]"

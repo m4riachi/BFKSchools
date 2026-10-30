@@ -25,6 +25,7 @@ declare module '@adonisjs/inertia/types' {
     'admin/parents/edit': ExtractProps<(typeof import('../../inertia/pages/admin/parents/edit.vue'))['default']>
     'admin/parents/index': ExtractProps<(typeof import('../../inertia/pages/admin/parents/index.vue'))['default']>
     'admin/parents/show': ExtractProps<(typeof import('../../inertia/pages/admin/parents/show.vue'))['default']>
+    'admin/reports/index': ExtractProps<(typeof import('../../inertia/pages/admin/reports/index.vue'))['default']>
     'admin/settings': ExtractProps<(typeof import('../../inertia/pages/admin/settings.vue'))['default']>
     'admin/statements/index': ExtractProps<(typeof import('../../inertia/pages/admin/statements/index.vue'))['default']>
     'admin/statements/show': ExtractProps<(typeof import('../../inertia/pages/admin/statements/show.vue'))['default']>

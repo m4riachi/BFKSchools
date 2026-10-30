@@ -40,7 +40,7 @@
     "allergy_rule_warn_confirm": "Avertir et demander une confirmation",
     "supplement_max_quantity": "Quantité maximale par supplément, par enfant et par jour",
     "subscription_meal_price": "Montant d’un repas en abonnement (MAD)",
-    "subscription_meal_price_hint": "Sert à calculer le chiffre d’affaires de l’API. Les relevés et les parents ne sont pas concernés. Un changement s’applique aussi aux jours passés.",
+    "subscription_meal_price_hint": "Sert à calculer le chiffre d’affaires. Les relevés et les parents ne sont pas concernés. Un changement s’applique aussi aux jours passés. Laissé vide : 50 MAD.",
     "subscription_required_for_main_meal": "Le plat principal nécessite un abonnement actif",
     "generate_moroccan_holidays": "Générer aussi les jours fériés marocains à date fixe",
     "email_enabled": "Envoyer des e-mails aux parents",
@@ -88,7 +88,6 @@
   "api": {
     "title": "API chiffre d’affaires",
     "hint": "Permet à une autre application de lire le chiffre d’affaires de chaque jour : repas d’abonnement × montant d’un repas, plus les suppléments.",
-    "no_meal_price": "Le montant d’un repas en abonnement n’est pas renseigné (section Commandes) : le chiffre d’affaires ne compte que les suppléments.",
     "endpoint": "Point d’accès",
     "usage": "Paramètres : ?date=AAAA-MM-JJ, ou ?from=AAAA-MM-JJ&to=AAAA-MM-JJ (366 jours maximum). Sans paramètre : aujourd’hui. En-têtes : X-Api-Key et X-Api-Secret.",
     "public_key": "Clé publique",

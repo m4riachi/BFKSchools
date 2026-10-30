@@ -16,6 +16,12 @@ export const reportDayValidator = vine.create({
 
 const className = () => vine.string().trim().maxLength(60)
 
+/** Back-office reports page (D38). */
+export const adminReportQueryValidator = vine.create({
+  from: isoDateRule().optional(),
+  to: isoDateRule().optional(),
+})
+
 /** Labels page and PDF. */
 export const labelsQueryValidator = vine.create({
   date: isoDateRule().optional(),

@@ -40,7 +40,7 @@
     "allergy_rule_warn_confirm": "Warn and ask for confirmation",
     "supplement_max_quantity": "Maximum quantity per supplement, per child and per day",
     "subscription_meal_price": "Amount of one subscription meal (MAD)",
-    "subscription_meal_price_hint": "Used to calculate the revenue in the API. Statements and parents are not concerned. A change also applies to past days.",
+    "subscription_meal_price_hint": "Used to calculate the revenue. Statements and parents are not concerned. A change also applies to past days. Left empty: 50 MAD.",
     "subscription_required_for_main_meal": "The main dish requires an active subscription",
     "generate_moroccan_holidays": "Also generate Moroccan fixed-date holidays",
     "email_enabled": "Send emails to parents",
@@ -88,7 +88,6 @@
   "api": {
     "title": "Revenue API",
     "hint": "Lets another app read the revenue of each day: subscription meals × the amount of one meal, plus the extras.",
-    "no_meal_price": "The amount of one subscription meal is not set (Orders section): the revenue only counts the extras.",
     "endpoint": "Endpoint",
     "usage": "Parameters: ?date=YYYY-MM-DD, or ?from=YYYY-MM-DD&to=YYYY-MM-DD (366 days at most). No parameter: today. Headers: X-Api-Key and X-Api-Secret.",
     "public_key": "Public key",

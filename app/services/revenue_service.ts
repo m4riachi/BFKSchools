@@ -64,8 +64,7 @@ export default class RevenueService {
   }
 
   async daily(school: School, from: IsoDate, to: IsoDate) {
-    const unitPrice = this.settings.get(school).subscription_meal_price_cents
-    const unitCents = unitPrice ?? 0
+    const unitCents = this.settings.get(school).subscription_meal_price_cents
     const rows = await this.reports.dailyQuantities(school.id, from, to)
     const today = this.clock.today()
 
@@ -89,8 +88,7 @@ export default class RevenueService {
       currency: 'MAD',
       from,
       to,
-      // Null: the amount is not set, so totals only hold the extras.
-      subscriptionMealPriceCents: unitPrice,
+      subscriptionMealPriceCents: unitCents,
       days,
       totals: amounts(meals, unitCents, extras, extrasCents),
     }

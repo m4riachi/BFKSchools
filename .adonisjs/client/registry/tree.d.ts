@@ -22,6 +22,9 @@ export interface ApiDefinition {
   locale: {
     update: typeof routes['locale.update']
   }
+  outbound: {
+    show: typeof routes['outbound.show']
+  }
   api: {
     revenue: {
       daily: typeof routes['api.revenue.daily']
@@ -53,6 +56,9 @@ export interface ApiDefinition {
   }
   admin: {
     dashboard: typeof routes['admin.dashboard']
+    reports: {
+      show: typeof routes['admin.reports.show']
+    }
     parents: {
       index: typeof routes['admin.parents.index']
       create: typeof routes['admin.parents.create']

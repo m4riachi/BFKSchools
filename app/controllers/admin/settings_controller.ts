@@ -44,10 +44,10 @@ export default class SettingsController {
         schoolYearStart: school.schoolYearStart,
         schoolYearEnd: school.schoolYearEnd,
       },
-      subscriptionMealPrice:
-        values.subscription_meal_price_cents === null
-          ? ''
-          : centsToInput(values.subscription_meal_price_cents, ctx.i18n.locale as Locale),
+      subscriptionMealPrice: centsToInput(
+        values.subscription_meal_price_cents,
+        ctx.i18n.locale as Locale
+      ),
       // Never the secret: see apiSecret().
       api: {
         endpoint: new URL('/api/v1/revenue/daily', env.get('APP_URL')).toString(),

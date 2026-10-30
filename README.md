@@ -170,8 +170,7 @@ Parameters: `date=YYYY-MM-DD`, or `from` + `to` (366 days at most); none means t
 
 - Revenue = subscription meals × the amount in the settings + extras, active orders only.
   Every date of the period is listed, with zeros when nothing was ordered.
-- The amount is the current setting: changing it changes past days too.
-  `subscriptionMealPriceCents: null` means it is not set, so totals only hold the extras.
+- The amount is the current setting (50 MAD by default): changing it changes past days too.
 - `provisional: true`: today or later, orders can still change.
 - Errors are JSON, `{ "error": { "code", "message" } }`: `401` keys, `422` query, `429` after
   60 requests per minute from one IP (see `Retry-After`).

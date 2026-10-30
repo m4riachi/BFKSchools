@@ -198,7 +198,7 @@ test.group('Settings screen', (group) => {
       new SchoolSettingsService().get(await School.findOrFail(school.id))
         .subscription_meal_price_cents
 
-    assert.isNull(await stored())
+    assert.equal(await stored(), 5000)
 
     await save('32,50')
     assert.equal(await stored(), 3250)
@@ -215,8 +215,11 @@ test.group('Settings screen', (group) => {
     await save(undefined)
     assert.equal(await stored(), 3250)
 
+    // Emptied: back to the default amount, on the page too.
     await save('')
-    assert.isNull(await stored())
+    assert.equal(await stored(), 5000)
+    const emptied = await client.get('/admin/settings').loginAs(admin).withInertia()
+    assert.equal(emptied.body().props.subscriptionMealPrice, '50,00')
   })
 
   test('the delivery link can be changed, must be https and can be removed', async ({

@@ -11,8 +11,6 @@ import { useI18n } from '~/composables/use_i18n'
 
 const props = defineProps<{
   api: { endpoint: string; publicKey: string | null; generatedAt: string | null }
-  /** Is the amount of one subscription meal set? */
-  hasMealPrice: boolean
 }>()
 
 const { t, formatDateTime } = useI18n()
@@ -82,13 +80,6 @@ function askGenerate() {
       <h2 class="text-lg font-bold">{{ t('settings.api.title') }}</h2>
       <p class="text-[13px] text-ink-4">{{ t('settings.api.hint') }}</p>
     </div>
-
-    <p
-      v-if="!hasMealPrice"
-      class="rounded-xl bg-warning-soft p-3 text-[13px] font-semibold text-warning-ink"
-    >
-      {{ t('settings.api.no_meal_price') }}
-    </p>
 
     <div class="flex flex-col gap-1.5">
       <span class="text-[13px] font-bold">{{ t('settings.api.endpoint') }}</span>

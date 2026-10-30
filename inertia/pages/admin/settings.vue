@@ -334,7 +334,7 @@ function submit() {
             id="subscriptionMealPrice"
             v-model="form.subscriptionMealPrice"
             autocomplete="off"
-            placeholder="30,00"
+            placeholder="50,00"
             :label="t('settings.fields.subscription_meal_price')"
             :hint="t('settings.fields.subscription_meal_price_hint')"
             :error="err('subscriptionMealPrice')"
@@ -432,6 +432,6 @@ function submit() {
       </div>
     </form>
 
-    <ApiKeysCard class="mt-5" :api="api" :has-meal-price="subscriptionMealPrice !== ''" />
+    <ApiKeysCard class="mt-5" :api="api" />
   </AdminLayout>
 </template>

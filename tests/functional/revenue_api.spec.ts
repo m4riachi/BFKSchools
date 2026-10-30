@@ -110,7 +110,7 @@ test.group('Revenue API', (group) => {
     assert.equal(totals.subscriptionMeals, 2)
   })
 
-  test('without an amount in the settings, only the extras count and it says so', async ({
+  test('without an amount in the settings, a meal counts for 50 MAD', async ({
     client,
     assert,
   }) => {
@@ -120,10 +120,10 @@ test.group('Revenue API', (group) => {
       .qs({ date: TUE })
       .header('X-Api-Key', keys.publicKey)
       .header('X-Api-Secret', keys.secret)
-    assert.isNull(response.body().subscriptionMealPriceCents)
+    assert.equal(response.body().subscriptionMealPriceCents, 5000)
     assert.equal(response.body().totals.subscriptionMeals, 2)
-    assert.equal(response.body().totals.subscriptionAmountCents, 0)
-    assert.equal(response.body().totals.totalCents, 2000)
+    assert.equal(response.body().totals.subscriptionAmountCents, 10000)
+    assert.equal(response.body().totals.totalCents, 12000)
   })
 
   test('without parameters: today in the school time zone', async ({ client, assert }) => {

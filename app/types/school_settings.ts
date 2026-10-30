@@ -43,8 +43,8 @@ export type SchoolSettings = {
   glovo_url: string | null
   email_notifications: EmailNotificationSettings
   subscription_required_for_main_meal: boolean
-  /** D35: amount of one subscription meal, stored only for now (not billed, D31). */
-  subscription_meal_price_cents: number | null
+  /** D35: amount of one subscription meal, for revenue only (never billed, D31). */
+  subscription_meal_price_cents: number
   supplement_max_quantity: number
   label_grid: { cols: number; rows: number }
 }

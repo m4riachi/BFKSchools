@@ -50,7 +50,7 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
     menu_change: true,
   },
   subscription_required_for_main_meal: true, // D2
-  subscription_meal_price_cents: null, // D35
+  subscription_meal_price_cents: 5000, // D35: 50 MAD
   supplement_max_quantity: 5, // D14
   label_grid: { cols: 3, rows: 8 },
 })
@@ -87,7 +87,10 @@ export default class SchoolSettingsService {
    * Full settings of a school: stored JSON deep-merged over the defaults.
    */
   get(school: Pick<School, 'settings'>): SchoolSettings {
-    return deepMerge(DEFAULT_SCHOOL_SETTINGS as SchoolSettings, school.settings ?? {})
+    const settings = deepMerge(DEFAULT_SCHOOL_SETTINGS as SchoolSettings, school.settings ?? {})
+    // An emptied field is stored as null: it means the default amount.
+    settings.subscription_meal_price_cents ??= DEFAULT_SCHOOL_SETTINGS.subscription_meal_price_cents
+    return settings
   }
 
   /** D33: optional modules of the school (server checks + shared Inertia prop). */

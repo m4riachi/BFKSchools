@@ -39,6 +39,12 @@
   --color-brand-line: #9ccbb2; /* selected extra border */
 
   /* Status */
+  /* Chart series (validated together: colour-blind safe, a table holds the same numbers). */
+  --color-chart-meals: #2a78d6;
+  --color-chart-extras: #eb6834;
+  --color-chart-delivery: #6250d6;
+  --color-chart-glovo: #eda100;
+
   --color-success: #1f7a4d; /* "meal chosen" check, same green in every theme */
   --color-warning: #8a4b08;
   --color-warning-ink: #6e3c06;

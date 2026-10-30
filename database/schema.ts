@@ -75,6 +75,21 @@ export class HolidaySchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class LinkClickSchema extends BaseModel {
+  static $columns = ['clickedAt', 'id', 'link', 'schoolId', 'userId'] as const
+  $columns = LinkClickSchema.$columns
+  @column.dateTime()
+  declare clickedAt: DateTime
+  @column({ isPrimary: true })
+  declare id: bigint | number
+  @column()
+  declare link: string
+  @column()
+  declare schoolId: number
+  @column()
+  declare userId: number | null
+}
+
 export class MealOrderItemSchema extends BaseModel {
   static $columns = ['createdAt', 'id', 'lineTotalCents', 'mealId', 'mealOrderId', 'mealType', 'menuItemId', 'quantity', 'unitPriceCents', 'updatedAt'] as const
   $columns = MealOrderItemSchema.$columns

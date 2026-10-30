@@ -14,6 +14,7 @@ export type ScannedRoutes = {
     'password.reset.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
+    'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
@@ -31,6 +32,7 @@ export type ScannedRoutes = {
     'parent.notifications.read': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'parent.notifications.open': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
+    'admin.reports.show': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
     'admin.parents.store': { paramsTuple?: []; params?: {} }
@@ -120,6 +122,7 @@ export type ScannedRoutes = {
     'password.forgot': { paramsTuple?: []; params?: {} }
     'invitation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
@@ -129,6 +132,7 @@ export type ScannedRoutes = {
     'parent.statements.pdf': { paramsTuple?: []; params?: {} }
     'parent.notifications': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
+    'admin.reports.show': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
     'admin.parents.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -169,6 +173,7 @@ export type ScannedRoutes = {
     'password.forgot': { paramsTuple?: []; params?: {} }
     'invitation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
@@ -178,6 +183,7 @@ export type ScannedRoutes = {
     'parent.statements.pdf': { paramsTuple?: []; params?: {} }
     'parent.notifications': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
+    'admin.reports.show': { paramsTuple?: []; params?: {} }
     'admin.parents.index': { paramsTuple?: []; params?: {} }
     'admin.parents.create': { paramsTuple?: []; params?: {} }
     'admin.parents.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

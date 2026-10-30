@@ -592,6 +592,10 @@ Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` 
 
 One pair per school: `school_id` (unique, cascade), `public_key` (unique), `secret_encrypted` (APP_KEY, displayed again to admins), `generated_by` (users, set null), `generated_at`.
 
+### link_clicks — D38 (reports)
+
+Clicks on the parent portal's outside links: `school_id` (cascade), `user_id` (users, set null), `link` (`glovo` or `delivery`), `clicked_at`. Index (`school_id`, `clicked_at`).
+
 ## 3. Hot queries → indexes (summary)
 
 | Query | Index |

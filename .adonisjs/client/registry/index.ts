@@ -68,6 +68,12 @@ const routes = {
     tokens: [[0,"logout"]],
     types: placeholder as Registry['session.destroy']['types'],
   },
+  'outbound.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/out/:link',
+    tokens: [[0,"out"],[1,"link"]],
+    types: placeholder as Registry['outbound.show']['types'],
+  },
   'api.revenue.daily': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/revenue/daily',
@@ -169,6 +175,12 @@ const routes = {
     pattern: '/admin',
     tokens: [[0,"admin"]],
     types: placeholder as Registry['admin.dashboard']['types'],
+  },
+  'admin.reports.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/reports',
+    tokens: [[0,"admin"],[0,"reports"]],
+    types: placeholder as Registry['admin.reports.show']['types'],
   },
   'admin.parents.index': {
     methods: ["GET","HEAD"],

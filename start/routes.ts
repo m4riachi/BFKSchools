@@ -65,6 +65,15 @@ router
   .use(middleware.auth())
 
 /**
+ * Glovo and home delivery buttons of the parent portal: count, then redirect (D38).
+ */
+router
+  .get('out/:link', [controllers.parent.OutboundLinks, 'show'])
+  .where('link', { match: /^(glovo|delivery)$/ })
+  .as('outbound.show')
+  .use([middleware.auth(), middleware.role({ roles: ['parent'] })])
+
+/**
  * External API (D36): X-Api-Key + X-Api-Secret, see ApiKeyMiddleware.
  */
 router
@@ -159,6 +168,7 @@ const id = dbIdMatcher
 router
   .group(() => {
     router.get('/', [controllers.admin.Dashboard, 'show']).as('dashboard')
+    router.get('reports', [controllers.admin.Reports, 'show']).as('reports.show')
 
     // Families (Phase 2): parents, children, subscription periods
     router.get('parents', [controllers.admin.Parents, 'index']).as('parents.index')

@@ -138,6 +138,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
+  'outbound.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/out/:link'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { link: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/parent/outbound_links_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/parent/outbound_links_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/parent/outbound_links_controller').default['show']>>>
+    }
+  }
   'api.revenue.daily': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/revenue/daily'
@@ -357,6 +370,19 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/dashboard_controller').default['show']>>>
+    }
+  }
+  'admin.reports.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/reports'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/reports_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/reports_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/reports_controller').default['show']>>>
     }
   }
   'admin.parents.index': {

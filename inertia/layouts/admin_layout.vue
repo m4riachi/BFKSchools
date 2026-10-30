@@ -29,6 +29,7 @@ const nav: NavItem[] = [
   { labelKey: 'nav.orders', href: '/admin/orders', icon: 'orders' },
   { labelKey: 'nav.kitchen', href: '/kitchen', icon: 'kitchen' },
   { labelKey: 'nav.statements', href: '/admin/statements', icon: 'statements' },
+  { labelKey: 'nav.reports', href: '/admin/reports', icon: 'reports' },
   { labelKey: 'nav.settings', href: '/admin/settings', icon: 'settings', roles: ['admin'] },
 ]
 
