@@ -57,9 +57,21 @@
     "active": "Commandé",
     "cancelled": "Annulé"
   },
+  "pos": {
+    "title": "Passer une commande",
+    "description": "Pour un parent qui ne choisit pas lui-même : trouvez la famille, choisissez l’enfant, puis les repas.",
+    "search": "Parent, enfant, téléphone ou e-mail",
+    "search_action": "Rechercher",
+    "empty": "Aucune famille trouvée",
+    "empty_hint": "Vérifiez l’orthographe ou cherchez avec un autre nom.",
+    "back": "Changer de famille",
+    "notice": "La commande est enregistrée à votre nom, marquée « Passée par l’admin », et le parent est prévenu.",
+    "reason": "Commande passée par l’admin pour le parent",
+    "saved": "Commande enregistrée."
+  },
   "origins": {
     "parent": "Parent",
-    "staff": "BFK",
+    "staff": "Passée par l’admin",
     "system": "Automatique"
   },
   "week": {

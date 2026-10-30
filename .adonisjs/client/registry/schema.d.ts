@@ -1191,6 +1191,45 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/orders_controller').default['cancelDay']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.pos.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/pos'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['show']>>>
+    }
+  }
+  'admin.pos.save': {
+    methods: ["POST"]
+    pattern: '/admin/pos/children/:childId/days/:date'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/orders').posDaySelectionValidator)>>
+      paramsTuple: [ParamValue, ParamValue]
+      params: { childId: ParamValue; date: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/orders').posDaySelectionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['saveDay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['saveDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['saveDay']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.pos.cancel': {
+    methods: ["POST"]
+    pattern: '/admin/pos/children/:childId/days/:date/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { childId: ParamValue; date: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['cancelDay']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['cancelDay']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/pos_controller').default['cancelDay']>>>
+    }
+  }
   'admin.statements.index': {
     methods: ["GET","HEAD"]
     pattern: '/admin/statements'

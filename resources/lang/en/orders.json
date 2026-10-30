@@ -57,9 +57,21 @@
     "active": "Ordered",
     "cancelled": "Cancelled"
   },
+  "pos": {
+    "title": "Place an order",
+    "description": "For a parent who does not choose themselves: find the family, pick the child, then the meals.",
+    "search": "Parent, child, phone or email",
+    "search_action": "Search",
+    "empty": "No family found",
+    "empty_hint": "Check the spelling or search with another name.",
+    "back": "Change family",
+    "notice": "The order is saved under your name, marked “Placed by admin”, and the parent is notified.",
+    "reason": "Order placed by admin for the parent",
+    "saved": "Order saved."
+  },
   "origins": {
     "parent": "Parent",
-    "staff": "BFK",
+    "staff": "Placed by admin",
     "system": "Automatic"
   },
   "week": {

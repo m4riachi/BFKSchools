@@ -21,6 +21,7 @@ export type NavIconName =
   | 'install'
   | 'delivery'
   | 'reports'
+  | 'pos'
 
 defineProps<{ name: NavIconName; size?: number }>()
 </script>
@@ -110,6 +111,11 @@ defineProps<{ name: NavIconName; size?: number }>()
       <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" />
       <path d="M10 16l-4-4 4-4" />
       <path d="M6 12h10" />
+    </template>
+    <template v-else-if="name === 'pos'">
+      <circle cx="9" cy="20" r="1.5" />
+      <circle cx="18" cy="20" r="1.5" />
+      <path d="M3 4h2.5l2.4 12h10.6l2-8.5H6.3" />
     </template>
     <template v-else-if="name === 'reports'">
       <path d="M4 20h16" />

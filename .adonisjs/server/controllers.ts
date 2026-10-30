@@ -14,6 +14,7 @@ export const controllers = {
     Meals: () => import('#controllers/admin/meals_controller'),
     Orders: () => import('#controllers/admin/orders_controller'),
     Parents: () => import('#controllers/admin/parents_controller'),
+    Pos: () => import('#controllers/admin/pos_controller'),
     Reports: () => import('#controllers/admin/reports_controller'),
     Settings: () => import('#controllers/admin/settings_controller'),
     Statements: () => import('#controllers/admin/statements_controller'),

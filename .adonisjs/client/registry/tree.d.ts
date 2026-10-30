@@ -147,6 +147,11 @@ export interface ApiDefinition {
       save: typeof routes['admin.orders.save']
       cancel: typeof routes['admin.orders.cancel']
     }
+    pos: {
+      show: typeof routes['admin.pos.show']
+      save: typeof routes['admin.pos.save']
+      cancel: typeof routes['admin.pos.cancel']
+    }
     statements: {
       index: typeof routes['admin.statements.index']
       export: typeof routes['admin.statements.export']

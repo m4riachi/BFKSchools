@@ -35,6 +35,15 @@ export const staffDaySelectionValidator = vine.create({
   reason: reasonRule(),
 })
 
+/** Ordering desk (D39): the audit reason is filled in by the server. */
+export const posDaySelectionValidator = vine.create(selectionFields)
+
+export const posQueryValidator = vine.create({
+  q: vine.string().trim().maxLength(100).optional(),
+  child: idRule().optional(),
+  week: isoDateRule().optional(),
+})
+
 export const staffCancelValidator = vine.create({
   reason: reasonRule(),
 })

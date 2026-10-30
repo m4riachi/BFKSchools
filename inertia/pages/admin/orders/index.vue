@@ -151,7 +151,14 @@ function apply() {
                     : t(`orders.statuses.${order.status}`)
                 }}
               </StatusBadge>
-              <span class="ml-1 text-xs text-ink-4">{{ t(`orders.origins.${order.origin}`) }}</span>
+              <span
+                v-if="order.origin === 'staff'"
+                class="ml-1 rounded-full bg-info-soft px-2 py-0.5 text-xs font-bold text-info"
+                >{{ t('orders.origins.staff') }}</span
+              >
+              <span v-else class="ml-1 text-xs text-ink-4">{{
+                t(`orders.origins.${order.origin}`)
+              }}</span>
             </td>
             <td class="tabular px-4 py-3 text-right font-bold">{{ order.total }}</td>
             <td class="px-4 py-3 text-right">

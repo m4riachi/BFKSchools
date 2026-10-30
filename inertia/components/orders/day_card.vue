@@ -274,6 +274,12 @@ function mainNote(option: OptionView) {
             <span class="rounded-full px-[9px] py-[3px] text-xs font-bold" :class="pill.cls">
               {{ pill.label }}
             </span>
+            <span
+              v-if="chosen && day.order?.origin === 'staff'"
+              class="rounded-full bg-info-soft px-[9px] py-[3px] text-xs font-bold text-info"
+            >
+              {{ t('orders.origins.staff') }}
+            </span>
           </span>
           <span class="text-[13px] font-normal text-ink-3">{{ note }}</span>
         </span>

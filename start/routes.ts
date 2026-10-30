@@ -374,6 +374,19 @@ router
       .where('date', isoDay)
       .as('orders.cancel')
 
+    // Ordering desk (D39): staff order for a parent
+    router.get('pos', [controllers.admin.Pos, 'show']).as('pos.show')
+    router
+      .post('pos/children/:childId/days/:date', [controllers.admin.Pos, 'saveDay'])
+      .where('childId', id)
+      .where('date', isoDay)
+      .as('pos.save')
+    router
+      .post('pos/children/:childId/days/:date/cancel', [controllers.admin.Pos, 'cancelDay'])
+      .where('childId', id)
+      .where('date', isoDay)
+      .as('pos.cancel')
+
     // Monthly statements (Phase 8, D11: no payment tracking)
     router.get('statements', [controllers.admin.Statements, 'index']).as('statements.index')
     router

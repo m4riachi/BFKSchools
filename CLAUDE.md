@@ -38,6 +38,7 @@ AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setu
 - Support WhatsApp (D34): setting `support_whatsapp` (digits only, `whatsappRule()`), shared Inertia prop `supportWhatsapp` (parents only), `whatsapp_button.vue` in the parent layout.
 - Revenue API (D36): `GET /api/v1/revenue/daily`, `ApiKeyMiddleware` (headers `X-Api-Key` + `X-Api-Secret`, 60 requests/min per IP), `RevenueService`, `ApiKeyService`, table `school_api_keys`; keys in `/admin/settings`. Details in `README.md`.
 - Reports (D38): `/admin/reports` (`AdminReportService`, `presentAdminReport`); parent buttons go through `/out/glovo` and `/out/delivery`, which fill `link_clicks` and redirect.
+- Ordering desk (D39): `/admin/pos` (`PosController`, `PosService`), writes through `OrderService` with an automatic audit reason; `meal_orders.origin` says who chose last.
 - Mail in dev: `MAIL_MAILER=smtp` sends to Mailpit (127.0.0.1:1025); `MAIL_MAILER=log` (no SMTP server; dev/test only, refused in production) logs subject + masked recipient; add `MAIL_LOG_BODY=true` to also log the body (invitation/reset links). `MAIL_LOG_BODY` is ignored in production. Tests always use `mail.fake()`.
 
 ## Golden rules (never break)

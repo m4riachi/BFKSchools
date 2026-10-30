@@ -554,6 +554,24 @@ const routes = {
     tokens: [[0,"admin"],[0,"orders"],[0,"children"],[1,"childId"],[0,"days"],[1,"date"],[0,"cancel"]],
     types: placeholder as Registry['admin.orders.cancel']['types'],
   },
+  'admin.pos.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/pos',
+    tokens: [[0,"admin"],[0,"pos"]],
+    types: placeholder as Registry['admin.pos.show']['types'],
+  },
+  'admin.pos.save': {
+    methods: ["POST"],
+    pattern: '/admin/pos/children/:childId/days/:date',
+    tokens: [[0,"admin"],[0,"pos"],[0,"children"],[1,"childId"],[0,"days"],[1,"date"]],
+    types: placeholder as Registry['admin.pos.save']['types'],
+  },
+  'admin.pos.cancel': {
+    methods: ["POST"],
+    pattern: '/admin/pos/children/:childId/days/:date/cancel',
+    tokens: [[0,"admin"],[0,"pos"],[0,"children"],[1,"childId"],[0,"days"],[1,"date"],[0,"cancel"]],
+    types: placeholder as Registry['admin.pos.cancel']['types'],
+  },
   'admin.statements.index': {
     methods: ["GET","HEAD"],
     pattern: '/admin/statements',

@@ -397,6 +397,8 @@ export default class OrderService {
         saved.useTransaction(trx)
         saved.merge({
           status: 'active',
+          // D39: the tag says who chose last.
+          origin: context.staff ? 'staff' : 'parent',
           cancelReason: null,
           cancelNote: null,
           cancelledAt: null,

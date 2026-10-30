@@ -95,6 +95,9 @@ export type ScannedRoutes = {
     'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
     'admin.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.pos.show': { paramsTuple?: []; params?: {} }
+    'admin.pos.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.pos.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.statements.index': { paramsTuple?: []; params?: {} }
     'admin.statements.export': { paramsTuple?: []; params?: {} }
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -150,6 +153,7 @@ export type ScannedRoutes = {
     'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.orders.index': { paramsTuple?: []; params?: {} }
     'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
+    'admin.pos.show': { paramsTuple?: []; params?: {} }
     'admin.statements.index': { paramsTuple?: []; params?: {} }
     'admin.statements.export': { paramsTuple?: []; params?: {} }
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -201,6 +205,7 @@ export type ScannedRoutes = {
     'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.orders.index': { paramsTuple?: []; params?: {} }
     'admin.orders.child': { paramsTuple: [ParamValue]; params: {'childId': ParamValue} }
+    'admin.pos.show': { paramsTuple?: []; params?: {} }
     'admin.statements.index': { paramsTuple?: []; params?: {} }
     'admin.statements.export': { paramsTuple?: []; params?: {} }
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -259,6 +264,8 @@ export type ScannedRoutes = {
     'admin.menus.publish': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.pos.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.pos.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
