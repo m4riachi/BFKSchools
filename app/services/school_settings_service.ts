@@ -38,6 +38,7 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   class_enabled: false, // D33
   generate_moroccan_holidays: false, // D6
   ics_calendar_url: null, // D7
+  support_whatsapp: null, // D34
   email_notifications: {
     enabled: true,
     menu_published: true,

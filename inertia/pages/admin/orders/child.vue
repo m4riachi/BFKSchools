@@ -40,6 +40,10 @@ const props = defineProps<{
 }>()
 
 const { t, formatDate, formatDateTime } = useI18n()
+
+/* One day open at a time (the day the server puts forward at first). */
+const openDate = ref(props.view.days.find((day) => day.isFocus)?.date ?? null)
+const toggleDay = (date: string) => (openDate.value = openDate.value === date ? null : date)
 const placement = usePlacement()
 const page = usePage()
 const reason = ref('')
@@ -123,6 +127,8 @@ function cancel(date: string) {
         :child-name="child.firstName"
         mode="staff"
         :saving="saving === day.date"
+        :open="openDate === day.date"
+        @toggle="toggleDay(day.date)"
         @change="(selection, confirm) => save(day.date, selection, confirm)"
         @absent="cancel(day.date)"
       />

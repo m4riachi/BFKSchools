@@ -58,7 +58,7 @@ export default class StatementPdfService {
       bufferPages: true,
       info: {
         Title: cleanText(`${title} — ${statement.parent.fullName}`),
-        Creator: 'BFK School Meals',
+        Creator: 'British Academy × Beldi Fusion',
       },
     })
     const writer = new Writer(doc)
@@ -159,7 +159,10 @@ export default class StatementPdfService {
     const { doc } = writer
     const top = PAGE.margin
     doc.image(app.makePath('public/logo-bfk.png'), PAGE.margin, top, { height: 40 })
-    drawLine(doc, 'BFK School Meals', PAGE.margin + 74, top + 4, 260, { bold: true, size: 13 })
+    drawLine(doc, 'British Academy × Beldi Fusion', PAGE.margin + 74, top + 4, 260, {
+      bold: true,
+      size: 13,
+    })
     drawLine(doc, options.i18n.t('statements.pdf.partner'), PAGE.margin + 74, top + 22, 260, {
       size: 9,
       color: COLORS.muted,
@@ -198,7 +201,7 @@ export default class StatementPdfService {
     writer.rule()
   }
 
-  /** "BFK School Meals · page 1 / 2" on every page (pages are buffered). */
+  /** "British Academy × Beldi Fusion · page 1 / 2" on every page (pages are buffered). */
   protected footer(doc: Doc, i18n: I18n) {
     const range = doc.bufferedPageRange()
     for (let index = range.start; index < range.start + range.count; index += 1) {

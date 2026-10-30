@@ -16,6 +16,63 @@ test.group('Orders | parent portal', (group) => {
   group.each.setup(() => testUtils.db().truncate())
   group.each.teardown(() => restoreClock())
 
+  for (const [label, now] of [
+    ['Saturday', '2026-11-21T10:00'],
+    ['Sunday', '2026-11-22T10:00'],
+  ]) {
+    test(`on ${label} the default week is next week and Monday is put forward`, async ({
+      client,
+      assert,
+    }) => {
+      const { school } = await orderSchool()
+      const { parent } = await family(school)
+      freezeClock(now)
+      const response = await client.get('/').loginAs(parent).withInertia()
+      const props = response.inertiaProps as Props
+      assert.equal(props.week.start, '2026-11-23')
+      const focused = (props.view.days as Props[]).filter((d) => d.isFocus)
+      assert.deepEqual(
+        focused.map((d) => d.date),
+        ['2026-11-23']
+      )
+      assert.isFalse(focused[0].isToday)
+    })
+  }
+
+  test('another week opens on its Monday, without the current-day highlight', async ({
+    client,
+    assert,
+  }) => {
+    const { school } = await orderSchool()
+    const { parent } = await family(school)
+    freezeClock('2026-11-17T10:00')
+    const response = await client.get('/?week=2026-11-23').loginAs(parent).withInertia()
+    const days = (response.inertiaProps as Props).view.days as Props[]
+    assert.deepEqual(
+      days.filter((d) => d.isFocus).map((d) => d.date),
+      ['2026-11-23']
+    )
+    assert.isEmpty(days.filter((d) => d.isCurrent))
+  })
+
+  test('on a school day the current week is shown and today is put forward', async ({
+    client,
+    assert,
+  }) => {
+    const { school } = await orderSchool()
+    const { parent } = await family(school)
+    freezeClock('2026-11-24T10:00')
+    const response = await client.get('/').loginAs(parent).withInertia()
+    const props = response.inertiaProps as Props
+    assert.equal(props.week.start, '2026-11-23')
+    const focused = (props.view.days as Props[]).filter((d) => d.isFocus)
+    assert.deepEqual(
+      focused.map((d) => d.date),
+      [TUE]
+    )
+    assert.isTrue(focused[0].isToday)
+  })
+
   test('the week view comes from the server: states, reasons, flags, totals', async ({
     client,
     assert,
@@ -44,6 +101,7 @@ test.group('Orders | parent portal', (group) => {
     const days = props.view.days as Props[]
     const tue = days.find((d) => d.date === TUE)!
     assert.equal(tue.state, 'open')
+    assert.isFalse(tue.isToday) // the clock is frozen before this week
     // D31: the day total is the extras only; the subscription meal has no price.
     assert.equal(tue.totalCents, 2000)
     const mainDish = tue.options.find((o: Props) => o.mealId === main.id)

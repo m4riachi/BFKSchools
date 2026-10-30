@@ -83,7 +83,10 @@ test.group('Emails | every template in FR and EN', (group) => {
     const { parent } = await family(school, { parent: { fullName: 'Salma <b>Idrissi</b>' } })
     const expiresAt = DateTime.fromISO('2026-11-03T10:00', { zone: 'Africa/Casablanca' })
     const expected = {
-      invitation: { fr: 'Votre accès BFK School Meals', en: 'Your BFK School Meals access' },
+      invitation: {
+        fr: 'Votre accès British Academy × Beldi Fusion',
+        en: 'Your British Academy × Beldi Fusion access',
+      },
       password_reset: {
         fr: 'Réinitialisation de votre mot de passe',
         en: 'Reset your password',

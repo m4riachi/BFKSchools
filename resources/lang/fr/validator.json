@@ -20,6 +20,7 @@
       "email.database.unique": "Un compte existe déjà avec cet e-mail.",
       "parent_email.regex": "Saisissez une adresse e-mail valide.",
       "email.regex": "Saisissez une adresse e-mail valide.",
+      "settings.support_whatsapp.regex": "Saisissez le numéro avec l’indicatif du pays, par exemple +212 6 12 34 56 78.",
       "phone.regex": "Saisissez un numéro de téléphone valide (chiffres, espaces, +).",
       "parent_phone.regex": "Numéro de téléphone invalide.",
       "in": "La valeur du champ {field} n'est pas valide.",

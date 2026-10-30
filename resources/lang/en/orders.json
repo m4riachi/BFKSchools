@@ -82,9 +82,9 @@
     "allergies_confirm": "Meals that contain them need a confirmation.",
     "change_until": "Change until {date}",
     "locked_note": "For an urgent change, contact BFK.",
+    "meal_chosen": "Meal chosen",
     "main_meal": "Main meal",
     "extras": "Extras",
-    "default": "Default",
     "no_meal": "No meal this day (absent)",
     "absent_text": "{name} won't have lunch on this day. Nothing is charged.",
     "order_instead": "Order a meal instead",
@@ -115,7 +115,9 @@
     "no_children_title": "No child registered",
     "no_children_body": "No active child is linked to your account. Please contact BFK.",
     "saving": "Saving…",
-    "auto_assigned": "Default meal assigned"
+    "auto_assigned": "Default meal assigned",
+    "today": "Today",
+    "next_school_day": "Next day"
   },
   "history": {
     "title": "Order history",

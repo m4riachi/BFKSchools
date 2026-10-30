@@ -43,6 +43,18 @@ export function weekStart(iso: IsoDate): IsoDate {
   return parse(iso).startOf('week').toISODate()!
 }
 
+/**
+ * The day the order view puts forward: today on a school day, otherwise the
+ * next school day (Saturday and Sunday → Monday on a Mon–Fri school).
+ */
+export function focusDay(today: IsoDate, schoolDays: readonly number[]): IsoDate {
+  for (let offset = 0; offset < 7; offset += 1) {
+    const date = addDays(today, offset)
+    if (schoolDays.includes(isoWeekday(date))) return date
+  }
+  return today
+}
+
 /** Every date from `from` to `to`, both included. */
 export function datesBetween(from: IsoDate, to: IsoDate): IsoDate[] {
   const dates: IsoDate[] = []

@@ -8,6 +8,8 @@ import { usePage } from '@inertiajs/vue3'
 import { Link } from '@adonisjs/inertia/vue'
 import BrandMark from '~/components/ui/brand_mark.vue'
 import NavIcon from '~/components/ui/nav_icon.vue'
+import InstallButton from '~/components/ui/install_button.vue'
+import WhatsappButton from '~/components/ui/whatsapp_button.vue'
 import LocaleSwitcher from '~/components/ui/locale_switcher.vue'
 import FlashToasts from '~/components/ui/flash_toasts.vue'
 import { useI18n } from '~/composables/use_i18n'
@@ -37,10 +39,9 @@ const nav: NavItem[] = [
 </script>
 
 <template>
-  <div class="mx-auto flex min-h-dvh w-full max-w-[560px] flex-col bg-canvas">
+  <div class="mx-auto flex min-h-dvh w-full max-w-[560px] flex-col">
     <header>
-      <div class="flex items-center justify-between gap-2 bg-brand px-4 py-2 text-white">
-        <span class="truncate text-[15px] font-extrabold">{{ t('app.short_name') }}</span>
+      <div class="flex items-center justify-end gap-2 bg-brand px-4 py-2 text-white">
         <div class="flex shrink-0 gap-1.5">
           <LocaleSwitcher compact />
           <Link
@@ -92,6 +93,10 @@ const nav: NavItem[] = [
       :aria-label="t('nav.parent_nav')"
       class="sticky bottom-0 z-20 px-4 pt-2 pb-[max(12px,env(safe-area-inset-bottom))]"
     >
+      <div class="mb-2 flex items-center justify-end gap-2 empty:hidden">
+        <InstallButton variant="pill" />
+        <WhatsappButton />
+      </div>
       <div class="flex gap-1 rounded-3xl border border-line bg-surface p-1.5">
         <template v-for="item in nav" :key="item.labelKey">
           <Link

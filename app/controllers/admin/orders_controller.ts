@@ -14,7 +14,7 @@ import {
   staffCancelValidator,
   staffDaySelectionValidator,
 } from '#validators/orders'
-import { addDays, isIsoDate, weekStart as mondayOf, type IsoDate } from '#support/dates'
+import { addDays, focusDay, isIsoDate, weekStart as mondayOf, type IsoDate } from '#support/dates'
 import { formatMad } from '#support/money'
 import { isBilledType, mealName } from '#support/meal_display'
 import { weekBounds } from '#support/menu_display'
@@ -200,7 +200,7 @@ export default class OrdersController {
   /** GET /admin/orders/children/:childId — a child's week (view + audited edits). */
   async childWeek(ctx: HttpContext) {
     const { request, inertia, i18n } = ctx
-    await this.school(ctx)
+    const school = await this.school(ctx)
     const child = await this.child(ctx)
     let query: { week?: string } = {}
     try {
@@ -208,7 +208,7 @@ export default class OrdersController {
     } catch {
       query = {}
     }
-    const week = mondayOf(query.week ?? this.clock.today())
+    const week = mondayOf(query.week ?? focusDay(this.clock.today(), school.schoolDays))
     const view = await this.weeks.week(child, week, i18n.locale)
     const audit = await this.weeks.auditTrail(child.id, week)
     await child.load('parent')

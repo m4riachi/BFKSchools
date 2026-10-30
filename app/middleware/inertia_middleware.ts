@@ -19,6 +19,8 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     const user = auth?.user
 
     const locale: AppLocale = isAppLocale(i18n?.locale) ? i18n.locale : DEFAULT_LOCALE
+    const school = await this.userSchool(ctx)
+    const settings = new SchoolSettingsService()
 
     return {
       errors: ctx.inertia.always(this.getValidationErrors(ctx)),
@@ -28,7 +30,15 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
       /** Parents: unread notifications for the header bell (null for staff / guests). */
       unreadNotifications: ctx.inertia.always(await this.unreadNotifications(ctx)),
       /** D33: optional modules of the user's school (everything off for guests). */
-      features: ctx.inertia.always(await this.features(ctx)),
+      features: ctx.inertia.always(
+        school
+          ? settings.features(school)
+          : { allergens: false, labels: false, grade: false, className: false }
+      ),
+      /** D34: WhatsApp number of the support (parents only, null otherwise). */
+      supportWhatsapp: ctx.inertia.always(
+        school && user?.role === 'parent' ? settings.get(school).support_whatsapp : null
+      ),
     }
   }
 
@@ -51,16 +61,14 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
   }
 
   /** One primary-key read; a database hiccup hides the modules, not the page. */
-  protected async features(ctx: HttpContext) {
-    const off = { allergens: false, labels: false, grade: false, className: false }
+  protected async userSchool(ctx: HttpContext) {
     const schoolId = (ctx as Partial<HttpContext>).auth?.user?.schoolId
-    if (typeof schoolId !== 'number') return off
+    if (typeof schoolId !== 'number') return null
     try {
-      const school = await School.find(schoolId)
-      return school ? new SchoolSettingsService().features(school) : off
+      return await School.find(schoolId)
     } catch (error) {
       logger.warn({ error: (error as Error)?.name ?? 'Error' }, 'school features read failed')
-      return off
+      return null
     }
   }
 

@@ -1,10 +1,10 @@
 {
   "greeting": "Bonjour {name},",
-  "signature": "L'équipe BFK School Meals",
+  "signature": "L'équipe British Academy × Beldi Fusion",
   "link_fallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
   "invitation": {
-    "subject": "Votre accès BFK School Meals",
-    "title": "Bienvenue sur BFK School Meals",
+    "subject": "Votre accès British Academy × Beldi Fusion",
+    "title": "Bienvenue sur British Academy × Beldi Fusion",
     "intro": "BFK vous a créé un compte pour choisir chaque semaine les déjeuners de vos enfants à Britech School. Choisissez votre mot de passe pour activer votre accès.",
     "action": "Choisir mon mot de passe",
     "expiry": "Ce lien est valable jusqu'au {date} et ne peut être utilisé qu'une seule fois.",
@@ -14,11 +14,11 @@
   "password_reset": {
     "subject": "Réinitialisation de votre mot de passe",
     "title": "Réinitialiser votre mot de passe",
-    "intro": "Nous avons reçu une demande de réinitialisation du mot de passe de votre compte BFK School Meals.",
+    "intro": "Nous avons reçu une demande de réinitialisation du mot de passe de votre compte British Academy × Beldi Fusion.",
     "action": "Choisir un nouveau mot de passe",
     "expiry": "Ce lien est valable jusqu'au {date} et ne peut être utilisé qu'une seule fois.",
     "ignore": "Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe ne changera pas.",
-    "footer": "Vous recevez cet e-mail suite à une demande faite sur BFK School Meals."
+    "footer": "Vous recevez cet e-mail suite à une demande faite sur British Academy × Beldi Fusion."
   },
   "menu_published": {
     "subject": "Le menu de la semaine {week} est en ligne",

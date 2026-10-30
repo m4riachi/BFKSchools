@@ -53,6 +53,7 @@ export default class SettingsController {
         class_enabled: values.class_enabled,
         allergy_rule: values.allergy_rule,
         generate_moroccan_holidays: values.generate_moroccan_holidays,
+        support_whatsapp: values.support_whatsapp,
         email_notifications: { ...values.email_notifications },
         subscription_required_for_main_meal: values.subscription_required_for_main_meal,
         supplement_max_quantity: values.supplement_max_quantity,

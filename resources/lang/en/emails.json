@@ -1,10 +1,10 @@
 {
   "greeting": "Hello {name},",
-  "signature": "The BFK School Meals team",
+  "signature": "The British Academy × Beldi Fusion team",
   "link_fallback": "If the button does not work, copy this link into your browser:",
   "invitation": {
-    "subject": "Your BFK School Meals access",
-    "title": "Welcome to BFK School Meals",
+    "subject": "Your British Academy × Beldi Fusion access",
+    "title": "Welcome to British Academy × Beldi Fusion",
     "intro": "BFK created an account for you to choose your children's school lunches at Britech School every week. Choose your password to activate your access.",
     "action": "Choose my password",
     "expiry": "This link is valid until {date} and can only be used once.",
@@ -14,11 +14,11 @@
   "password_reset": {
     "subject": "Reset your password",
     "title": "Reset your password",
-    "intro": "We received a request to reset the password of your BFK School Meals account.",
+    "intro": "We received a request to reset the password of your British Academy × Beldi Fusion account.",
     "action": "Choose a new password",
     "expiry": "This link is valid until {date} and can only be used once.",
     "ignore": "If you did not ask for this, ignore this email: your password will not change.",
-    "footer": "You receive this email following a request made on BFK School Meals."
+    "footer": "You receive this email following a request made on British Academy × Beldi Fusion."
   },
   "menu_published": {
     "subject": "The menu for {week} is online",

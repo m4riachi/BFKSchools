@@ -82,9 +82,9 @@
     "allergies_confirm": "Les plats qui en contiennent demandent une confirmation.",
     "change_until": "Modifiable jusqu'au {date}",
     "locked_note": "Pour un changement urgent, contactez BFK.",
+    "meal_chosen": "Repas choisi",
     "main_meal": "Plat principal",
     "extras": "Suppléments",
-    "default": "Par défaut",
     "no_meal": "Pas de repas ce jour (absent)",
     "absent_text": "{name} ne déjeunera pas ce jour. Rien n'est facturé.",
     "order_instead": "Commander un repas",
@@ -115,7 +115,9 @@
     "no_children_title": "Aucun enfant inscrit",
     "no_children_body": "Aucun enfant actif n'est rattaché à votre compte. Contactez BFK.",
     "saving": "Enregistrement…",
-    "auto_assigned": "Plat par défaut attribué"
+    "auto_assigned": "Plat par défaut attribué",
+    "today": "Aujourd'hui",
+    "next_school_day": "Prochain jour"
   },
   "history": {
     "title": "Historique des commandes",

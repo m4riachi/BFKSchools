@@ -44,6 +44,11 @@ export type OrderLineView = {
 
 export type DayView = {
   date: string
+  isToday: boolean
+  /** Today, or the next school day on a weekend (badge + animation). */
+  isCurrent: boolean
+  /** The day opened and scrolled to: the current day, else the week's first day. */
+  isFocus: boolean
   state: 'open' | 'locked' | 'holiday' | 'not_published' | 'no_meals'
   reason: string | null
   editable: boolean

@@ -1,4 +1,5 @@
 import vine from '@vinejs/vine'
+import { whatsappRule } from '#validators/rules'
 
 const time = () => vine.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)
 const weekday = () => vine.number().withoutDecimals().range([1, 7])
@@ -29,6 +30,7 @@ export const schoolSettingsValidator = vine.create({
     .url({ protocols: ['https'], require_protocol: true })
     .nullable()
     .optional(),
+  support_whatsapp: whatsappRule().nullable().optional(),
   email_notifications: vine
     .object({
       enabled: vine.boolean().optional(),
@@ -82,6 +84,7 @@ export const schoolSettingsFormValidator = vine.create({
     class_enabled: vine.boolean().optional(),
     allergy_rule: vine.enum(['block', 'warn_confirm'] as const),
     generate_moroccan_holidays: vine.boolean(),
+    support_whatsapp: whatsappRule().nullable().optional(),
     email_notifications: vine.object({
       enabled: vine.boolean(),
       menu_published: vine.boolean(),

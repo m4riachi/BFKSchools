@@ -49,6 +49,10 @@ const firstName = computed(() => page.props.user?.fullName.split(' ')[0] ?? '')
 const child = computed(() => props.children.find((c) => c.id === props.childId) ?? null)
 const nextWeek = computed(() => props.week.following)
 
+/* One day open at a time (the day the server puts forward at first). */
+const openDate = ref(props.view?.days.find((day) => day.isFocus)?.date ?? null)
+const toggleDay = (date: string) => (openDate.value = openDate.value === date ? null : date)
+
 function go(params: { child?: number; week?: string }) {
   router.get(
     '/',
@@ -307,7 +311,9 @@ function apply() {
           :day="day"
           :child-name="child.firstName"
           :saving="saving === day.date"
+          :open="openDate === day.date"
           :can-apply-all="others.length > 0"
+          @toggle="toggleDay(day.date)"
           @change="(selection, confirm) => onChange(day.date, selection, confirm)"
           @absent="onAbsent(day.date)"
           @apply-all="(selection) => askApply(day.date, selection)"

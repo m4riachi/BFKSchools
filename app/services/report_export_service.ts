@@ -253,7 +253,7 @@ export default class ReportExportService {
         useStyles: true,
         useSharedStrings: false,
       })
-      workbook.creator = 'BFK School Meals'
+      workbook.creator = 'British Academy × Beldi Fusion'
       const sheet = workbook.addWorksheet(safeCell(sheetName).slice(0, 31) || 'Export', {
         views: [{ state: 'frozen', ySplit: 1 }],
       })

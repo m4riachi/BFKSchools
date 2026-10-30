@@ -150,6 +150,56 @@ test.group('Settings screen', (group) => {
     assert.equal(fresh.schoolYearEnd, '2027-06-11')
   })
 
+  test('the support WhatsApp number is cleaned, cleared and refused without a country code', async ({
+    client,
+    assert,
+  }) => {
+    const { school, admin } = await setupMenuSchool()
+    const save = (support_whatsapp: string | null) =>
+      client
+        .put('/admin/settings')
+        .loginAs(admin)
+        .withCsrfToken()
+        .json(validForm({}, { support_whatsapp }))
+        .redirects(0)
+    const stored = async () =>
+      new SchoolSettingsService().get(await School.findOrFail(school.id)).support_whatsapp
+
+    for (const typed of ['+212 6 12-34-56-78', '00212612345678', '212612345678']) {
+      await save(typed)
+      assert.equal(await stored(), '212612345678', typed)
+    }
+
+    for (const typed of ['0612345678', '+212', 'wa.me/212612345678', '+1234567890123456']) {
+      const response = await save(typed)
+      assert.properties(response.flashMessage('inputErrorsBag') ?? {}, [
+        'settings.support_whatsapp',
+      ])
+      assert.equal(await stored(), '212612345678', typed)
+    }
+
+    await save('')
+    assert.isNull(await stored())
+  })
+
+  test('the support number is shared with parents only', async ({ client, assert }) => {
+    const { school, admin } = await setupMenuSchool()
+    const parent = await UserFactory.apply('parent').merge({ schoolId: school.id }).create()
+    const shared = async (user: typeof admin) => {
+      const url = user.role === 'parent' ? '/notifications' : '/admin/settings'
+      const response = await client.get(url).loginAs(user).withInertia()
+      response.assertStatus(200)
+      return response.body().props.supportWhatsapp
+    }
+
+    assert.isNull(await shared(parent))
+
+    school.settings = { ...school.settings, support_whatsapp: '212612345678' }
+    await school.save()
+    assert.equal(await shared(parent), '212612345678')
+    assert.isNull(await shared(admin))
+  })
+
   test('managers, kitchen, parents and admins of another school are refused', async ({
     client,
     assert,

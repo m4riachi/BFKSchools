@@ -39,6 +39,7 @@
   --color-brand-line: #9ccbb2; /* selected extra border */
 
   /* Status */
+  --color-success: #1f7a4d; /* "meal chosen" check, same green in every theme */
   --color-warning: #8a4b08;
   --color-warning-ink: #6e3c06;
   --color-warning-soft: #fff4e5;
@@ -97,6 +98,19 @@
   --color-brand-line: #d4b4b6;
 }
 
+/* Faint Beldi Fusion logo behind the parent space (body gets .theme-academy). */
+@media screen {
+  .theme-academy::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: url('/logo-bfk.png') center / 220px auto repeat;
+    opacity: 0.04;
+    pointer-events: none;
+  }
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
@@ -134,6 +148,38 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
+  /* Current day of the weekly order view: a soft pulse around the card. */
+  .day-today {
+    animation: day-today-pulse 2.4s ease-in-out infinite;
+  }
+
+  .day-today-dot {
+    animation: day-today-blink 1.2s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .day-today,
+    .day-today-dot {
+      animation: none;
+    }
+  }
+}
+
+@keyframes day-today-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-brand) 12%, transparent);
+  }
+}
+
+@keyframes day-today-blink {
+  50% {
+    opacity: 0.35;
+  }
 }
 
 /* vue-sonner toasts (unstyled mode) */
@@ -142,8 +188,9 @@
   box-shadow: var(--shadow-overlay);
 }
 
+/* Success toasts carry the logo: the icon box takes the logo's size. */
 [data-sonner-toast][data-type='success'] [data-icon] {
-  @apply text-brand;
+  @apply m-0 flex h-auto w-auto shrink-0 items-center;
 }
 
 [data-sonner-toast][data-type='error'] {

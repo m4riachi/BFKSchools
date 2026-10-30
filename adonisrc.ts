@@ -135,8 +135,9 @@ export default defineConfig({
       reloadServer: false,
     },
     {
+      // Reload: i18n reads these files once at boot, so a new key would show as raw text
       pattern: 'resources/lang/**/*.{json,yaml,yml}',
-      reloadServer: false,
+      reloadServer: true,
     },
     {
       // Real meal photos used by the catalog seeder (node ace bfk:seed catalog)

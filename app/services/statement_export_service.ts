@@ -40,7 +40,7 @@ export default class StatementExportService {
         useStyles: true,
         useSharedStrings: false,
       })
-      workbook.creator = 'BFK School Meals'
+      workbook.creator = 'British Academy × Beldi Fusion'
 
       const familySheet = workbook.addWorksheet(label('families_sheet').slice(0, 31), {
         views: [{ state: 'frozen', ySplit: 2 }],

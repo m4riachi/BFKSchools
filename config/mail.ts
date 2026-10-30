@@ -15,7 +15,7 @@ const mailConfig = defineConfig({
   },
 
   globals: {
-    brandName: 'BFK School Meals',
+    brandName: 'British Academy × Beldi Fusion',
   },
 
   mailers: {

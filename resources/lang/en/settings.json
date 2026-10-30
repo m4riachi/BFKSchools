@@ -14,6 +14,7 @@
     "notifications_hint": "In-app notifications are always created; these settings only affect emails.",
     "kitchen": "Kitchen",
     "kitchen_hint": "A4 label sheet layout (default 3 × 8, i.e. 70 × 37 mm).",
+    "support": "Support",
     "modules": "Optional modules",
     "modules_hint": "A disabled module disappears from the app and its rules stop applying. Its data is kept and comes back if you turn it on again."
   },
@@ -47,6 +48,8 @@
     "email_order_changed_by_staff": "Order changed by BFK",
     "email_menu_change": "Menu change",
     "edit_cutoff_days_before_not_applicable": "Not applicable in same-day mode: only today's meal can be changed, before the cutoff time.",
+    "support_whatsapp": "Support WhatsApp number",
+    "support_whatsapp_hint": "With the country code, for example +212 6 12 34 56 78. Left empty, the WhatsApp icon does not appear in the parent space.",
     "label_grid_cols": "Labels: columns per page (1–6)",
     "label_grid_rows": "Labels: rows per page (1–20)",
     "allergens_enabled": "Allergens",

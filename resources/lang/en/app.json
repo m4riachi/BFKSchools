@@ -1,6 +1,5 @@
 {
-  "name": "BFK School Meals",
-  "short_name": "School Meals",
+  "name": "British Academy × Beldi Fusion",
   "partner": "× {school}",
   "tagline": "School lunches for Britech School families",
   "school_year": "School year",
@@ -13,5 +12,14 @@
   "notifications": "Notifications",
   "coming_soon": "Coming soon",
   "school_name": "Britech School",
-  "academy_name": "British Academy School Marrakech"
+  "academy_name": "British Academy School Marrakech",
+  "support_whatsapp": "Contact support on WhatsApp",
+  "install": "Install the app",
+  "install_ios_step_share": "Tap the Share button in Safari.",
+  "install_ios_step_add": "Choose “Add to Home Screen”.",
+  "install_ios_done": "Got it",
+  "install_title": "Install the app",
+  "install_body": "Order meals faster: the app opens directly from your home screen.",
+  "install_later": "Later",
+  "install_action": "Install"
 }

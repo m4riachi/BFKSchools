@@ -74,7 +74,7 @@ export default class LabelPdfService {
       size: 'A4',
       margin: 0,
       autoFirstPage: false,
-      info: { Title: cleanText(options.title), Creator: 'BFK School Meals' },
+      info: { Title: cleanText(options.title), Creator: 'British Academy × Beldi Fusion' },
     })
 
     const perPage = grid.cols * grid.rows

@@ -30,6 +30,7 @@ type Settings = {
   class_enabled: boolean
   allergy_rule: 'block' | 'warn_confirm'
   generate_moroccan_holidays: boolean
+  support_whatsapp: string | null
   email_notifications: {
     enabled: boolean
     menu_published: boolean
@@ -355,6 +356,19 @@ function submit() {
           id="generate_moroccan_holidays"
           v-model="form.settings.generate_moroccan_holidays"
           :label="t('settings.fields.generate_moroccan_holidays')"
+        />
+      </section>
+
+      <section class="card flex flex-col gap-4 p-5">
+        <h2 class="text-lg font-bold">{{ t('settings.sections.support') }}</h2>
+        <TextInput
+          id="support_whatsapp"
+          v-model="form.settings.support_whatsapp"
+          type="tel"
+          placeholder="+212 6 12 34 56 78"
+          :label="t('settings.fields.support_whatsapp')"
+          :hint="t('settings.fields.support_whatsapp_hint')"
+          :error="err('settings.support_whatsapp')"
         />
       </section>
 

@@ -34,6 +34,22 @@ export function phoneRule() {
     .transform((value) => value.replace(/[ ().-]/g, ''))
 }
 
+/**
+ * WhatsApp number: international format (8 to 15 digits, country code first,
+ * so a local 06… number is refused), stored as digits only as wa.me expects.
+ */
+export function whatsappRule() {
+  return vine
+    .string()
+    .trim()
+    .maxLength(30)
+    .regex(/^(?:\+|00)?[1-9](?:[ ().-]*[0-9]){7,14}$/)
+    .transform(
+      // VineJS also runs this on null when the rule is nullable (field cleared).
+      (value) => value && value.replace(/[ ().-]/g, '').replace(/^(?:\+|00)/, '')
+    )
+}
+
 /** Free text: trimmed, inner whitespace collapsed. */
 export function nameRule(max = 120) {
   return vine

@@ -6,9 +6,11 @@
 import { watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { toast, Toaster } from 'vue-sonner'
-import { CircleAlert, CircleCheck } from 'lucide-vue-next'
+import { CircleAlert } from 'lucide-vue-next'
 
 const page = usePage()
+// Bound on purpose: Vite would resolve a literal `src` as a module import.
+const logoUrl = '/logo-bfk.png'
 
 watch(
   () => page.url,
@@ -28,7 +30,7 @@ watch(
 <template>
   <Toaster position="top-center" :toast-options="{ unstyled: true }">
     <template #success-icon>
-      <CircleCheck :size="18" :stroke-width="1.8" />
+      <img :src="logoUrl" alt="" width="429" height="277" class="h-10 w-auto max-w-none" />
     </template>
     <template #error-icon>
       <CircleAlert :size="18" :stroke-width="1.8" />

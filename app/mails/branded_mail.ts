@@ -5,7 +5,7 @@ import { isSafeEmail } from '#validators/rules'
 import type { AppLocale } from '#enums/locales'
 
 /**
- * Every email of the app shares one branded layout (BFK School Meals ×
+ * Every email of the app shares one branded layout (British Academy × Beldi Fusion ×
  * Britech School): `resources/views/emails/layout_html.edge` (escaped with
  * `{{ }}` only) and `layout_text.edge` (plain-text part). A mail class only
  * builds an `EmailContent` in the recipient's language; the layout adds
@@ -45,7 +45,7 @@ export function layoutData(content: EmailContent, locale: AppLocale) {
     locale,
     subject: content.subject,
     preheader: content.paragraphs[0] ?? content.title,
-    brand: 'BFK School Meals',
+    brand: 'British Academy × Beldi Fusion',
     partner: i18n.t('emails.layout.partner'),
     title: content.title,
     greeting: content.greeting,

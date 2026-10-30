@@ -14,6 +14,7 @@
     "notifications_hint": "Les notifications dans l'application sont toujours créées ; ces réglages ne concernent que les e-mails.",
     "kitchen": "Cuisine",
     "kitchen_hint": "Format des planches d’étiquettes A4 (par défaut 3 × 8, soit 70 × 37 mm).",
+    "support": "Support",
     "modules": "Modules optionnels",
     "modules_hint": "Un module désactivé disparaît de l’application et ses règles ne s’appliquent plus. Ses données sont conservées et reviennent si vous le réactivez."
   },
@@ -47,6 +48,8 @@
     "email_order_changed_by_staff": "Commande modifiée par BFK",
     "email_menu_change": "Changement de menu",
     "edit_cutoff_days_before_not_applicable": "Sans objet en mode « jour même » : seul le repas du jour peut être modifié, avant l’heure limite.",
+    "support_whatsapp": "Numéro WhatsApp du support",
+    "support_whatsapp_hint": "Avec l’indicatif du pays, par exemple +212 6 12 34 56 78. Laissé vide, l’icône WhatsApp n’apparaît pas dans l’espace parents.",
     "label_grid_cols": "Étiquettes : colonnes par page (1 à 6)",
     "label_grid_rows": "Étiquettes : lignes par page (1 à 20)",
     "allergens_enabled": "Allergènes",

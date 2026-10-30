@@ -29,7 +29,7 @@
     "title": "Monthly statement — {month}",
     "partner": "BFK Resto × Britech School",
     "generated": "issued {date}",
-    "footer": "BFK School Meals · page {page} / {pages}",
+    "footer": "British Academy × Beldi Fusion · page {page} / {pages}",
     "snapshot_note": "Extras use their price at the time of the order. Cancelled days (absence, holiday, menu change) are not billed."
   },
   "admin": {

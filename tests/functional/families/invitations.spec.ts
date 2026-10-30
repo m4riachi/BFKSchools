@@ -55,7 +55,10 @@ test.group('Families | invitations', (group) => {
     assert.lengthOf(sent, 1)
     const message = sent[0] as AccountLinkMail
     await message.buildWithContents()
-    assert.equal(message.message.toJSON().message.subject, 'Your BFK School Meals access')
+    assert.equal(
+      message.message.toJSON().message.subject,
+      'Your British Academy × Beldi Fusion access'
+    )
     assert.deepEqual(message.message.toJSON().message.to, [parent.email])
     assert.include(message.message.toJSON().message.html as string, message.url)
     assert.include(message.message.toJSON().message.text as string, 'Hello John Smith,')

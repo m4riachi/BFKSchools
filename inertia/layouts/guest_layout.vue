@@ -3,6 +3,7 @@
  * Layout for the sign-in pages (mobile-first, centered column).
  */
 import BrandMark from '~/components/ui/brand_mark.vue'
+import InstallButton from '~/components/ui/install_button.vue'
 import LocaleSwitcher from '~/components/ui/locale_switcher.vue'
 import { useI18n } from '~/composables/use_i18n'
 
@@ -11,7 +12,8 @@ const { t } = useI18n()
 
 <template>
   <div class="mx-auto flex min-h-dvh w-full max-w-[440px] flex-col gap-6 px-5 pt-5 pb-6">
-    <div class="flex justify-end">
+    <div class="flex items-center justify-end gap-2">
+      <InstallButton />
       <LocaleSwitcher />
     </div>
 

@@ -35,6 +35,7 @@ AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setu
 - Limits (Phase 9): PDFs behind `renderPdfForUser()` (`app/support/report_access.ts`: per-user gate 1 running + 1 waiting → 429, then the shared `pdfRenderGate` → 503); photo decodes behind `imageDecodeGate` (2); upload/import/change-password limiters in `start/limiter.ts` (`UPLOAD_LIMITS`). Redirect targets from data go through `isLocalPath()` (`app/support/safe_redirect.ts`).
 - Settings (admin of the school only): `/admin/settings` (`SchoolSettingsService.updateFromForm`); managers get 403.
 - Optional modules (D33): settings `allergens_enabled` / `labels_enabled` / `grade_enabled` / `class_enabled`, off by default. Server: `SchoolSettingsService.features(school)`, `effectiveAllergyRule()` in `OrderWindowService`. UI: shared Inertia prop `features`, `useFeatures()`, `usePlacement()`. `SchoolFactory` and `setupMenuSchool` turn them all on, so tests that want them off must say so.
+- Support WhatsApp (D34): setting `support_whatsapp` (digits only, `whatsappRule()`), shared Inertia prop `supportWhatsapp` (parents only), `whatsapp_button.vue` in the parent layout.
 - Mail in dev: `MAIL_MAILER=smtp` sends to Mailpit (127.0.0.1:1025); `MAIL_MAILER=log` (no SMTP server; dev/test only, refused in production) logs subject + masked recipient; add `MAIL_LOG_BODY=true` to also log the body (invitation/reset links). `MAIL_LOG_BODY` is ignored in production. Tests always use `mail.fake()`.
 
 ## Golden rules (never break)

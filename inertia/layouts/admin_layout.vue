@@ -57,10 +57,7 @@ const itemClass = (item: NavItem) => [
     <div
       class="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-surface px-4 py-3 lg:hidden"
     >
-      <div class="flex items-center gap-3">
-        <BrandMark size="sm" />
-        <span class="text-[15px] font-extrabold">{{ t('app.short_name') }}</span>
-      </div>
+      <BrandMark size="sm" />
       <button
         type="button"
         class="flex size-11 items-center justify-center rounded-xl border border-line text-ink-2"
@@ -88,12 +85,9 @@ const itemClass = (item: NavItem) => [
     >
       <div class="flex items-center gap-3 px-2">
         <BrandMark />
-        <div class="flex flex-col gap-0.5">
-          <span class="text-[15px] font-extrabold">{{ t('app.short_name') }}</span>
-          <span class="text-xs text-ink-4">{{
-            t('app.partner', { school: t('app.school_name') })
-          }}</span>
-        </div>
+        <span class="text-xs text-ink-4">{{
+          t('app.partner', { school: t('app.school_name') })
+        }}</span>
       </div>
 
       <nav :aria-label="t('nav.main')" class="flex flex-col gap-1">

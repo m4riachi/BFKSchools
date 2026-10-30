@@ -35,6 +35,8 @@ export type SchoolSettings = {
   class_enabled: boolean
   generate_moroccan_holidays: boolean
   ics_calendar_url: string | null
+  /** D34: support number in international format, digits only (wa.me). Null = no button. */
+  support_whatsapp: string | null
   email_notifications: EmailNotificationSettings
   subscription_required_for_main_meal: boolean
   supplement_max_quantity: number

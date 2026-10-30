@@ -22,7 +22,7 @@ import {
 } from '#services/order_window_service'
 import type { WindowReason } from '#enums/orders'
 import type { AllergenCode } from '#enums/allergens'
-import { addDays, type IsoDate } from '#support/dates'
+import { addDays, focusDay, type IsoDate } from '#support/dates'
 import { formatMad } from '#support/money'
 import {
   allergenLabels,
@@ -122,6 +122,10 @@ export default class OrderWeekService {
     const fr = locale === 'en' ? 'en' : 'fr'
     const money = (cents: number) => formatMad(cents, fr)
 
+    // The current day when it is in this week, otherwise the week's first day (Monday).
+    const currentDay = focusDay(this.clock.today(), school.schoolDays)
+    const openDay = days.some((day) => day.date === currentDay) ? currentDay : days[0]?.date
+
     const dayViews = days.map((day) => {
       const dayItems = items.filter((item) => item.date === day.date)
       const order = orderByDate.get(day.date) ?? null
@@ -197,6 +201,9 @@ export default class OrderWeekService {
         order?.status === 'active' ? lines.reduce((sum, line) => sum + line.lineTotalCents, 0) : 0
       return {
         date: day.date,
+        isToday: day.date === this.clock.today(),
+        isCurrent: day.date === currentDay,
+        isFocus: day.date === openDay,
         state: stateOf(decision.reason),
         reason: decision.reason,
         editable: decision.allowed,

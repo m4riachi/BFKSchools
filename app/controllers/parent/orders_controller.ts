@@ -1,6 +1,8 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import Child from '#models/child'
+import School from '#models/school'
+import type User from '#models/user'
 import MealOrder from '#models/meal_order'
 import Clock from '#services/clock'
 import OrderService from '#services/order_service'
@@ -11,7 +13,7 @@ import {
   orderHistoryQueryValidator,
   orderWeekQueryValidator,
 } from '#validators/orders'
-import { addDays, isIsoDate, weekStart as mondayOf, type IsoDate } from '#support/dates'
+import { addDays, focusDay, isIsoDate, weekStart as mondayOf, type IsoDate } from '#support/dates'
 import { formatMad } from '#support/money'
 import { isBilledType, mealName } from '#support/meal_display'
 import { weekBounds } from '#support/menu_display'
@@ -68,13 +70,19 @@ export default class OrdersController {
     return date
   }
 
-  /** The week to show: a Monday within the allowed window, else the current week. */
-  protected pickWeek(value: string | undefined): IsoDate {
-    const current = mondayOf(this.clock.today())
-    if (!value) return current
+  /**
+   * The week to show: a Monday within the allowed window, else the week of
+   * the day put forward (on a weekend, next week and its Monday).
+   */
+  protected async pickWeek(user: User, value: string | undefined): Promise<IsoDate> {
+    const today = this.clock.today()
+    const current = mondayOf(today)
+    const school = user.schoolId ? await School.find(user.schoolId) : null
+    const focused = mondayOf(school ? focusDay(today, school.schoolDays) : today)
+    if (!value) return focused
     const week = mondayOf(value)
     if (week < addDays(current, -7 * WEEKS_BEFORE) || week > addDays(current, 7 * WEEKS_AFTER)) {
-      return current
+      return focused
     }
     return week
   }
@@ -92,7 +100,7 @@ export default class OrdersController {
     } catch {
       query = {}
     }
-    const week = this.pickWeek(query.week)
+    const week = await this.pickWeek(user, query.week)
     const current = mondayOf(this.clock.today())
     // A `child` the parent can't see (another family's, unknown, malformed)
     // is a 404, like every write — never a silent fallback.
