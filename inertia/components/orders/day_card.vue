@@ -30,8 +30,10 @@ const props = withDefaults(
     canApplyAll?: boolean
     /** Accordion: the page keeps one day open at a time. */
     open?: boolean
+    /** Position in the week, for the staggered entrance. */
+    index?: number
   }>(),
-  { mode: 'parent', saving: false, canApplyAll: false, open: false }
+  { mode: 'parent', saving: false, canApplyAll: false, open: false, index: 0 }
 )
 const emit = defineEmits<{
   change: [selection: Selection, confirmAllergy: boolean]
@@ -237,7 +239,8 @@ function mainNote(option: OptionView) {
   <section
     ref="root"
     :aria-label="title"
-    class="flex scroll-mt-3 flex-col rounded-[18px] border"
+    class="stagger-item flex scroll-mt-3 flex-col rounded-[18px] border"
+    :style="{ '--stagger-i': index }"
     :class="[
       day.state === 'holiday' ? 'bg-[#f5f7fd]' : 'bg-surface',
       day.isCurrent
@@ -355,9 +358,11 @@ function mainNote(option: OptionView) {
           >
             <template v-if="day.order?.status === 'active' && day.order.lines.length">
               <span
-                v-for="line in day.order.lines"
+                v-for="(line, lineIndex) in day.order.lines"
                 :key="line.mealId"
                 class="flex items-center gap-2 text-sm font-semibold"
+                :class="open ? 'stagger-item' : ''"
+                :style="{ '--stagger-i': lineIndex }"
               >
                 <svg
                   class="size-4 text-brand"
@@ -425,10 +430,12 @@ function mainNote(option: OptionView) {
                 {{ t('orders.week.no_subscription_note', { name: childName }) }}
               </p>
               <label
-                v-for="option in mains"
+                v-for="(option, mainIndex) in mains"
                 :key="option.menuItemId"
                 class="relative flex flex-col overflow-hidden rounded-[14px] border-[1.5px]"
+                :style="{ '--stagger-i': mainIndex }"
                 :class="[
+                  open ? 'stagger-item' : '',
                   qtyOf(option) === 1
                     ? 'border-brand bg-brand-wash'
                     : canAdd(option)
@@ -517,14 +524,16 @@ function mainNote(option: OptionView) {
               </h3>
               <div class="grid grid-cols-3 gap-2">
                 <div
-                  v-for="option in extras"
+                  v-for="(option, extraIndex) in extras"
                   :key="option.menuItemId"
                   class="flex min-w-0 flex-col overflow-hidden rounded-xl border"
-                  :class="
+                  :style="{ '--stagger-i': Math.min(mains.length + extraIndex, 10) }"
+                  :class="[
+                    open ? 'stagger-item' : '',
                     qtyOf(option) > 0
                       ? 'border-brand-line bg-brand-faint'
-                      : 'border-line bg-surface'
-                  "
+                      : 'border-line bg-surface',
+                  ]"
                 >
                   <MealThumb
                     :src="option.cover?.thumbUrl"

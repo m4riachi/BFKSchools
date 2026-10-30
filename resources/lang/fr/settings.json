@@ -14,7 +14,7 @@
     "notifications_hint": "Les notifications dans l'application sont toujours créées ; ces réglages ne concernent que les e-mails.",
     "kitchen": "Cuisine",
     "kitchen_hint": "Format des planches d’étiquettes A4 (par défaut 3 × 8, soit 70 × 37 mm).",
-    "support": "Support",
+    "support": "Contact et liens",
     "modules": "Modules optionnels",
     "modules_hint": "Un module désactivé disparaît de l’application et ses règles ne s’appliquent plus. Ses données sont conservées et reviennent si vous le réactivez."
   },
@@ -39,6 +39,8 @@
     "allergy_rule_block": "Bloquer la sélection",
     "allergy_rule_warn_confirm": "Avertir et demander une confirmation",
     "supplement_max_quantity": "Quantité maximale par supplément, par enfant et par jour",
+    "subscription_meal_price": "Montant d’un repas en abonnement (MAD)",
+    "subscription_meal_price_hint": "Sert à calculer le chiffre d’affaires de l’API. Les relevés et les parents ne sont pas concernés. Un changement s’applique aussi aux jours passés.",
     "subscription_required_for_main_meal": "Le plat principal nécessite un abonnement actif",
     "generate_moroccan_holidays": "Générer aussi les jours fériés marocains à date fixe",
     "email_enabled": "Envoyer des e-mails aux parents",
@@ -48,6 +50,10 @@
     "email_order_changed_by_staff": "Commande modifiée par BFK",
     "email_menu_change": "Changement de menu",
     "edit_cutoff_days_before_not_applicable": "Sans objet en mode « jour même » : seul le repas du jour peut être modifié, avant l’heure limite.",
+    "delivery_order_url": "Lien du bouton « Commande à domicile »",
+    "delivery_order_url_hint": "Adresse complète commençant par https://. Laissé vide, le bouton n’apparaît pas dans l’espace parents.",
+    "glovo_url": "Lien du bouton « Glovo »",
+    "glovo_url_hint": "Adresse complète commençant par https://. Laissé vide, le bouton n’apparaît pas dans l’espace parents.",
     "support_whatsapp": "Numéro WhatsApp du support",
     "support_whatsapp_hint": "Avec l’indicatif du pays, par exemple +212 6 12 34 56 78. Laissé vide, l’icône WhatsApp n’apparaît pas dans l’espace parents.",
     "label_grid_cols": "Étiquettes : colonnes par page (1 à 6)",
@@ -76,6 +82,28 @@
     "deadline_before_publish": "La clôture doit être après la publication (dans la semaine précédente)."
   },
   "flash": {
-    "saved": "Paramètres enregistrés."
+    "saved": "Paramètres enregistrés.",
+    "api_keys_generated": "Nouvelles clés API générées."
+  },
+  "api": {
+    "title": "API chiffre d’affaires",
+    "hint": "Permet à une autre application de lire le chiffre d’affaires de chaque jour : repas d’abonnement × montant d’un repas, plus les suppléments.",
+    "no_meal_price": "Le montant d’un repas en abonnement n’est pas renseigné (section Commandes) : le chiffre d’affaires ne compte que les suppléments.",
+    "endpoint": "Point d’accès",
+    "usage": "Paramètres : ?date=AAAA-MM-JJ, ou ?from=AAAA-MM-JJ&to=AAAA-MM-JJ (366 jours maximum). Sans paramètre : aujourd’hui. En-têtes : X-Api-Key et X-Api-Secret.",
+    "public_key": "Clé publique",
+    "secret_key": "Clé secrète",
+    "secret_hint": "À garder côté serveur : ne la mettez jamais dans une page web ou une application mobile.",
+    "secret_error": "Impossible d’afficher la clé secrète. Générez de nouvelles clés.",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "copy": "Copier",
+    "copied": "Copié",
+    "generated_at": "Générées le {date}",
+    "empty": "Aucune clé pour l’instant.",
+    "generate": "Générer les clés",
+    "regenerate": "Générer de nouvelles clés",
+    "confirm_title": "Générer de nouvelles clés ?",
+    "confirm_body": "Les clés actuelles cesseront de fonctionner immédiatement. Il faudra mettre à jour l’autre application."
   }
 }

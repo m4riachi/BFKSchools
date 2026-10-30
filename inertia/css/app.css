@@ -105,7 +105,7 @@
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: url('/logo-bfk.png') center / 220px auto repeat;
+    background: url('/bfk-logo-animated.svg') center / 220px auto repeat;
     opacity: 0.04;
     pointer-events: none;
   }
@@ -154,15 +154,37 @@
     animation: day-today-pulse 2.4s ease-in-out infinite;
   }
 
+  /* Staggered list: set --stagger-i on each item. No forward fill, so nothing stays on top after. */
+  .stagger-item {
+    animation: stagger-in 0.4s ease-out backwards;
+    animation-delay: calc(var(--stagger-i, 0) * 60ms);
+  }
+
+  .stagger-item.day-today {
+    animation:
+      stagger-in 0.4s ease-out backwards,
+      day-today-pulse 2.4s ease-in-out infinite;
+    animation-delay: calc(var(--stagger-i, 0) * 60ms), 0s;
+  }
+
   .day-today-dot {
     animation: day-today-blink 1.2s ease-in-out infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .day-today,
-    .day-today-dot {
+    .day-today-dot,
+    .stagger-item,
+    .stagger-item.day-today {
       animation: none;
     }
+  }
+}
+
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }
 

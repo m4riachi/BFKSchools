@@ -375,6 +375,23 @@ export class RememberMeTokenSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class SchoolApiKeySchema extends BaseModel {
+  static $columns = ['generatedAt', 'generatedBy', 'id', 'publicKey', 'schoolId', 'secretEncrypted'] as const
+  $columns = SchoolApiKeySchema.$columns
+  @column.dateTime()
+  declare generatedAt: DateTime
+  @column()
+  declare generatedBy: number | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare publicKey: string
+  @column()
+  declare schoolId: number
+  @column()
+  declare secretEncrypted: string
+}
+
 export class SchoolSchema extends BaseModel {
   static $columns = ['createdAt', 'id', 'name', 'schoolDays', 'schoolYearEnd', 'schoolYearStart', 'settings', 'slug', 'timezone', 'updatedAt'] as const
   $columns = SchoolSchema.$columns

@@ -14,6 +14,7 @@ export type ScannedRoutes = {
     'password.reset.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
+    'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
@@ -98,6 +99,8 @@ export type ScannedRoutes = {
     'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.update': { paramsTuple?: []; params?: {} }
+    'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
+    'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
@@ -117,6 +120,7 @@ export type ScannedRoutes = {
     'password.forgot': { paramsTuple?: []; params?: {} }
     'invitation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
@@ -147,6 +151,7 @@ export type ScannedRoutes = {
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
+    'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -164,6 +169,7 @@ export type ScannedRoutes = {
     'password.forgot': { paramsTuple?: []; params?: {} }
     'invitation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
@@ -194,6 +200,7 @@ export type ScannedRoutes = {
     'admin.statements.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.statements.pdf': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
+    'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -246,6 +253,7 @@ export type ScannedRoutes = {
     'admin.menus.publish': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'admin.orders.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
+    'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }

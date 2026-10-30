@@ -31,8 +31,11 @@ test.group('SchoolSettingsService', (group) => {
       'generate_moroccan_holidays',
       'ics_calendar_url',
       'support_whatsapp',
+      'delivery_order_url',
+      'glovo_url',
       'email_notifications',
       'subscription_required_for_main_meal',
+      'subscription_meal_price_cents',
       'supplement_max_quantity',
       'label_grid',
     ])

@@ -68,6 +68,12 @@ const routes = {
     tokens: [[0,"logout"]],
     types: placeholder as Registry['session.destroy']['types'],
   },
+  'api.revenue.daily': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/revenue/daily',
+    tokens: [[0,"api"],[0,"v1"],[0,"revenue"],[0,"daily"]],
+    types: placeholder as Registry['api.revenue.daily']['types'],
+  },
   'media.meal_photo': {
     methods: ["GET","HEAD"],
     pattern: '/media/meal-photos/:id/:variant',
@@ -571,6 +577,18 @@ const routes = {
     pattern: '/admin/settings',
     tokens: [[0,"admin"],[0,"settings"]],
     types: placeholder as Registry['admin.settings.update']['types'],
+  },
+  'admin.settings.api_keys.generate': {
+    methods: ["POST"],
+    pattern: '/admin/settings/api-keys',
+    tokens: [[0,"admin"],[0,"settings"],[0,"api-keys"]],
+    types: placeholder as Registry['admin.settings.api_keys.generate']['types'],
+  },
+  'admin.settings.api_keys.secret': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/settings/api-keys/secret',
+    tokens: [[0,"admin"],[0,"settings"],[0,"api-keys"],[0,"secret"]],
+    types: placeholder as Registry['admin.settings.api_keys.secret']['types'],
   },
   'admin.imports.create': {
     methods: ["GET","HEAD"],

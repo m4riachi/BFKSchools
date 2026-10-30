@@ -182,6 +182,112 @@ test.group('Settings screen', (group) => {
     assert.isNull(await stored())
   })
 
+  test('the amount of a subscription meal is saved in centimes and changes nothing else', async ({
+    client,
+    assert,
+  }) => {
+    const { school, admin } = await setupMenuSchool()
+    const save = (subscriptionMealPrice?: string | null) =>
+      client
+        .put('/admin/settings')
+        .loginAs(admin)
+        .withCsrfToken()
+        .json(validForm({ subscriptionMealPrice }))
+        .redirects(0)
+    const stored = async () =>
+      new SchoolSettingsService().get(await School.findOrFail(school.id))
+        .subscription_meal_price_cents
+
+    assert.isNull(await stored())
+
+    await save('32,50')
+    assert.equal(await stored(), 3250)
+    const page = await client.get('/admin/settings').loginAs(admin).withInertia()
+    assert.equal(page.body().props.subscriptionMealPrice, '32,50')
+
+    for (const typed of ['abc', '-5', '0', '12,345', '10000,01']) {
+      const response = await save(typed)
+      assert.properties(response.flashMessage('inputErrorsBag') ?? {}, ['subscriptionMealPrice'])
+      assert.equal(await stored(), 3250, typed)
+    }
+
+    // An older client that does not send the field keeps the amount.
+    await save(undefined)
+    assert.equal(await stored(), 3250)
+
+    await save('')
+    assert.isNull(await stored())
+  })
+
+  test('the delivery link can be changed, must be https and can be removed', async ({
+    client,
+    assert,
+  }) => {
+    const { school, admin } = await setupMenuSchool()
+    const parent = await UserFactory.apply('parent').merge({ schoolId: school.id }).create()
+    const save = (delivery_order_url: string | null) =>
+      client
+        .put('/admin/settings')
+        .loginAs(admin)
+        .withCsrfToken()
+        .json(validForm({}, { delivery_order_url }))
+        .redirects(0)
+    const shared = async (user: typeof admin, url: string) =>
+      (await client.get(url).loginAs(user).withInertia()).body().props.deliveryOrderUrl
+
+    assert.equal(
+      await shared(parent, '/notifications'),
+      'https://order.beldifusionkitchen.ma/marrakech/bfk-marrakech/store'
+    )
+
+    await save('https://example.test/store')
+    assert.equal(await shared(parent, '/notifications'), 'https://example.test/store')
+    assert.isNull(await shared(admin, '/admin/settings'))
+
+    for (const typed of ['http://example.test', 'javascript:alert(1)', 'example.test', 'abc']) {
+      const response = await save(typed)
+      assert.properties(response.flashMessage('inputErrorsBag') ?? {}, [
+        'settings.delivery_order_url',
+      ])
+      assert.equal(await shared(parent, '/notifications'), 'https://example.test/store', typed)
+    }
+
+    await save('')
+    assert.isNull(await shared(parent, '/notifications'))
+  })
+
+  test('the Glovo link can be changed, must be https and can be removed', async ({
+    client,
+    assert,
+  }) => {
+    const { school, admin } = await setupMenuSchool()
+    const parent = await UserFactory.apply('parent').merge({ schoolId: school.id }).create()
+    const save = (glovo_url: string | null) =>
+      client
+        .put('/admin/settings')
+        .loginAs(admin)
+        .withCsrfToken()
+        .json(validForm({}, { glovo_url }))
+        .redirects(0)
+    const shared = async (user: typeof admin, url: string) =>
+      (await client.get(url).loginAs(user).withInertia()).body().props.glovoUrl
+
+    assert.equal(
+      await shared(parent, '/notifications'),
+      'https://glovoapp.com/fr/ma/marrakech/stores/beldi-fusion-kitchen'
+    )
+
+    await save('https://example.test/glovo?a=1&b=2')
+    assert.equal(await shared(parent, '/notifications'), 'https://example.test/glovo?a=1&b=2')
+    assert.isNull(await shared(admin, '/admin/settings'))
+
+    const refused = await save('javascript:alert(1)')
+    assert.properties(refused.flashMessage('inputErrorsBag') ?? {}, ['settings.glovo_url'])
+
+    await save('')
+    assert.isNull(await shared(parent, '/notifications'))
+  })
+
   test('the support number is shared with parents only', async ({ client, assert }) => {
     const { school, admin } = await setupMenuSchool()
     const parent = await UserFactory.apply('parent').merge({ schoolId: school.id }).create()

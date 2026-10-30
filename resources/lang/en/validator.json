@@ -20,6 +20,8 @@
       "email.database.unique": "An account already exists with this email.",
       "parent_email.regex": "Enter a valid email address.",
       "email.regex": "Enter a valid email address.",
+      "settings.delivery_order_url.url": "Enter a full address starting with https://.",
+      "settings.glovo_url.url": "Enter a full address starting with https://.",
       "settings.support_whatsapp.regex": "Enter the number with the country code, for example +212 6 12 34 56 78.",
       "phone.regex": "Enter a valid phone number (digits, spaces, +).",
       "parent_phone.regex": "Invalid phone number.",

@@ -121,9 +121,10 @@ function cancel(date: string) {
 
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       <DayCard
-        v-for="day in view.days"
+        v-for="(day, index) in view.days"
         :key="day.date"
         :day="day"
+        :index="index"
         :child-name="child.firstName"
         mode="staff"
         :saving="saving === day.date"

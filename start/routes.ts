@@ -65,6 +65,14 @@ router
   .use(middleware.auth())
 
 /**
+ * External API (D36): X-Api-Key + X-Api-Secret, see ApiKeyMiddleware.
+ */
+router
+  .get('api/v1/revenue/daily', [controllers.api.Revenue, 'daily'])
+  .as('api.revenue.daily')
+  .use(middleware.apiKey())
+
+/**
  * Meal photos for any logged-in user (no storage key in the URL; see
  * MediaController).
  */
@@ -373,6 +381,12 @@ router
     // School settings (admin only, SchoolPolicy.updateSettings)
     router.get('settings', [controllers.admin.Settings, 'show']).as('settings.show')
     router.put('settings', [controllers.admin.Settings, 'update']).as('settings.update')
+    router
+      .post('settings/api-keys', [controllers.admin.Settings, 'generateApiKeys'])
+      .as('settings.api_keys.generate')
+    router
+      .get('settings/api-keys/secret', [controllers.admin.Settings, 'apiSecret'])
+      .as('settings.api_keys.secret')
 
     // CSV import of families
     router.get('imports/families', [controllers.admin.FamilyImports, 'create']).as('imports.create')

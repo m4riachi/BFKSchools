@@ -1,8 +1,16 @@
 import vine from '@vinejs/vine'
+import { MEAL_MAX_PRICE_CENTS } from '#config/meals'
+import { optionalMadPriceRule } from '#validators/meals'
 import { whatsappRule } from '#validators/rules'
 
 const time = () => vine.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)
 const weekday = () => vine.number().withoutDecimals().range([1, 7])
+const httpsUrl = () =>
+  vine
+    .string()
+    .trim()
+    .maxLength(500)
+    .url({ protocols: ['https'], require_protocol: true })
 
 /**
  * Validates a (partial) update of `schools.settings`. Every key is optional;
@@ -31,6 +39,8 @@ export const schoolSettingsValidator = vine.create({
     .nullable()
     .optional(),
   support_whatsapp: whatsappRule().nullable().optional(),
+  delivery_order_url: httpsUrl().nullable().optional(),
+  glovo_url: httpsUrl().nullable().optional(),
   email_notifications: vine
     .object({
       enabled: vine.boolean().optional(),
@@ -42,6 +52,12 @@ export const schoolSettingsValidator = vine.create({
     })
     .optional(),
   subscription_required_for_main_meal: vine.boolean().optional(),
+  subscription_meal_price_cents: vine
+    .number()
+    .withoutDecimals()
+    .range([1, MEAL_MAX_PRICE_CENTS])
+    .nullable()
+    .optional(),
   supplement_max_quantity: vine.number().withoutDecimals().range([1, 20]).optional(),
   label_grid: vine
     .object({
@@ -67,6 +83,8 @@ export const schoolSettingsFormValidator = vine.create({
     .string()
     .trim()
     .regex(/^\d{4}-\d{2}-\d{2}$/),
+  /** Typed amount in MAD, parsed to centimes (D35). */
+  subscriptionMealPrice: optionalMadPriceRule(),
   settings: vine.object({
     publish_weekday: weekday(),
     publish_time: time(),
@@ -85,6 +103,8 @@ export const schoolSettingsFormValidator = vine.create({
     allergy_rule: vine.enum(['block', 'warn_confirm'] as const),
     generate_moroccan_holidays: vine.boolean(),
     support_whatsapp: whatsappRule().nullable().optional(),
+    delivery_order_url: httpsUrl().nullable().optional(),
+    glovo_url: httpsUrl().nullable().optional(),
     email_notifications: vine.object({
       enabled: vine.boolean(),
       menu_published: vine.boolean(),

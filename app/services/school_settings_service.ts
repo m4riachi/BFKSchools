@@ -39,6 +39,8 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   generate_moroccan_holidays: false, // D6
   ics_calendar_url: null, // D7
   support_whatsapp: null, // D34
+  delivery_order_url: 'https://order.beldifusionkitchen.ma/marrakech/bfk-marrakech/store', // D37
+  glovo_url: 'https://glovoapp.com/fr/ma/marrakech/stores/beldi-fusion-kitchen', // D37
   email_notifications: {
     enabled: true,
     menu_published: true,
@@ -48,6 +50,7 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
     menu_change: true,
   },
   subscription_required_for_main_meal: true, // D2
+  subscription_meal_price_cents: null, // D35
   supplement_max_quantity: 5, // D14
   label_grid: { cols: 3, rows: 8 },
 })
@@ -152,7 +155,11 @@ export default class SchoolSettingsService {
         schoolYearStart: input.schoolYearStart,
         schoolYearEnd: input.schoolYearEnd,
       })
-      const changes = await schoolSettingsValidator.validate(values)
+      const changes = await schoolSettingsValidator.validate(
+        input.subscriptionMealPrice === undefined
+          ? values
+          : { ...values, subscription_meal_price_cents: input.subscriptionMealPrice }
+      )
       const next = deepMerge(this.get(locked), changes)
       locked.settings = next as StoredSchoolSettings
       await locked.save()

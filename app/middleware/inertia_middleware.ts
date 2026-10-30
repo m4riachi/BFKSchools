@@ -35,6 +35,13 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
           ? settings.features(school)
           : { allergens: false, labels: false, grade: false, className: false }
       ),
+      /** D37: link of the "Commande à domicile" button (parents only, null otherwise). */
+      deliveryOrderUrl: ctx.inertia.always(
+        school && user?.role === 'parent' ? settings.get(school).delivery_order_url : null
+      ),
+      glovoUrl: ctx.inertia.always(
+        school && user?.role === 'parent' ? settings.get(school).glovo_url : null
+      ),
       /** D34: WhatsApp number of the support (parents only, null otherwise). */
       supportWhatsapp: ctx.inertia.always(
         school && user?.role === 'parent' ? settings.get(school).support_whatsapp : null

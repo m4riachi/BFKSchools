@@ -588,6 +588,10 @@ Phase 6 additions: CHECK `actor_role <> 'system' OR actor_id IS NULL`, `reason` 
 
 ---
 
+### school_api_keys — D36 (external API)
+
+One pair per school: `school_id` (unique, cascade), `public_key` (unique), `secret_encrypted` (APP_KEY, displayed again to admins), `generated_by` (users, set null), `generated_at`.
+
 ## 3. Hot queries → indexes (summary)
 
 | Query | Index |

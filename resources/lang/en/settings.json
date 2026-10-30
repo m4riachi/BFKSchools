@@ -14,7 +14,7 @@
     "notifications_hint": "In-app notifications are always created; these settings only affect emails.",
     "kitchen": "Kitchen",
     "kitchen_hint": "A4 label sheet layout (default 3 × 8, i.e. 70 × 37 mm).",
-    "support": "Support",
+    "support": "Contact and links",
     "modules": "Optional modules",
     "modules_hint": "A disabled module disappears from the app and its rules stop applying. Its data is kept and comes back if you turn it on again."
   },
@@ -39,6 +39,8 @@
     "allergy_rule_block": "Block the selection",
     "allergy_rule_warn_confirm": "Warn and ask for confirmation",
     "supplement_max_quantity": "Maximum quantity per supplement, per child and per day",
+    "subscription_meal_price": "Amount of one subscription meal (MAD)",
+    "subscription_meal_price_hint": "Used to calculate the revenue in the API. Statements and parents are not concerned. A change also applies to past days.",
     "subscription_required_for_main_meal": "The main dish requires an active subscription",
     "generate_moroccan_holidays": "Also generate Moroccan fixed-date holidays",
     "email_enabled": "Send emails to parents",
@@ -48,6 +50,10 @@
     "email_order_changed_by_staff": "Order changed by BFK",
     "email_menu_change": "Menu change",
     "edit_cutoff_days_before_not_applicable": "Not applicable in same-day mode: only today's meal can be changed, before the cutoff time.",
+    "delivery_order_url": "Link of the “Home delivery” button",
+    "delivery_order_url_hint": "Full address starting with https://. Left empty, the button does not appear in the parent space.",
+    "glovo_url": "Link of the “Glovo” button",
+    "glovo_url_hint": "Full address starting with https://. Left empty, the button does not appear in the parent space.",
     "support_whatsapp": "Support WhatsApp number",
     "support_whatsapp_hint": "With the country code, for example +212 6 12 34 56 78. Left empty, the WhatsApp icon does not appear in the parent space.",
     "label_grid_cols": "Labels: columns per page (1–6)",
@@ -76,6 +82,28 @@
     "deadline_before_publish": "The deadline must be after the publication (in the week before)."
   },
   "flash": {
-    "saved": "Settings saved."
+    "saved": "Settings saved.",
+    "api_keys_generated": "New API keys generated."
+  },
+  "api": {
+    "title": "Revenue API",
+    "hint": "Lets another app read the revenue of each day: subscription meals × the amount of one meal, plus the extras.",
+    "no_meal_price": "The amount of one subscription meal is not set (Orders section): the revenue only counts the extras.",
+    "endpoint": "Endpoint",
+    "usage": "Parameters: ?date=YYYY-MM-DD, or ?from=YYYY-MM-DD&to=YYYY-MM-DD (366 days at most). No parameter: today. Headers: X-Api-Key and X-Api-Secret.",
+    "public_key": "Public key",
+    "secret_key": "Secret key",
+    "secret_hint": "Keep it on the server side: never put it in a web page or a mobile app.",
+    "secret_error": "The secret key cannot be displayed. Generate new keys.",
+    "show": "Show",
+    "hide": "Hide",
+    "copy": "Copy",
+    "copied": "Copied",
+    "generated_at": "Generated on {date}",
+    "empty": "No keys yet.",
+    "generate": "Generate keys",
+    "regenerate": "Generate new keys",
+    "confirm_title": "Generate new keys?",
+    "confirm_body": "The current keys will stop working immediately. The other app will have to be updated."
   }
 }

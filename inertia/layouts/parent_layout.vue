@@ -42,7 +42,37 @@ const nav: NavItem[] = [
   <div class="mx-auto flex min-h-dvh w-full max-w-[560px] flex-col">
     <header>
       <div class="flex items-center justify-end gap-2 bg-brand px-4 py-2 text-white">
-        <div class="flex shrink-0 gap-1.5">
+        <div class="flex min-w-0 items-center gap-1.5">
+          <a
+            v-if="page.props.deliveryOrderUrl"
+            :href="page.props.deliveryOrderUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl bg-white px-2.5 text-xs leading-tight font-bold text-brand no-underline hover:bg-white/90 hover:text-brand"
+            :aria-label="t('app.order_delivery')"
+            :title="t('app.order_delivery')"
+          >
+            <NavIcon name="delivery" :size="18" />
+            <span class="max-[350px]:hidden">{{ t('app.order_delivery') }}</span>
+          </a>
+          <a
+            v-if="page.props.glovoUrl"
+            :href="page.props.glovoUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#FFC244] hover:bg-[#FFB81F]"
+            :aria-label="t('app.order_glovo_title')"
+            :title="t('app.order_glovo_title')"
+          >
+            <!-- Glovo colours, not the official logo file. -->
+            <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="#00A082"
+                fill-rule="evenodd"
+                d="M12 2a7.5 7.5 0 0 0-7.5 7.5c0 5.2 6 11.7 6.9 12.2.4.2.8.2 1.2 0 .9-.5 6.9-7 6.9-12.2A7.5 7.5 0 0 0 12 2Zm0 4.2a3.3 3.3 0 1 1 0 6.6 3.3 3.3 0 0 1 0-6.6Z"
+              />
+            </svg>
+          </a>
           <LocaleSwitcher compact />
           <Link
             href="/notifications"
@@ -74,13 +104,13 @@ const nav: NavItem[] = [
       <div
         class="flex items-center justify-between gap-4 border-b border-line bg-surface px-4 py-2"
       >
-        <BrandMark size="sm" />
+        <BrandMark size="header" />
         <img
           :src="academyLogoUrl"
           :alt="t('app.academy_name')"
           width="631"
           height="160"
-          class="h-10 w-auto min-w-0 object-contain"
+          class="h-11 w-auto min-w-0 object-contain"
         />
       </div>
     </header>

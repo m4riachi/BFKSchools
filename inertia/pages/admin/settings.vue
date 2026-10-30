@@ -11,6 +11,7 @@ import AppButton from '~/components/ui/app_button.vue'
 import TextInput from '~/components/ui/text_input.vue'
 import SelectInput from '~/components/ui/select_input.vue'
 import CheckboxField from '~/components/ui/checkbox_field.vue'
+import ApiKeysCard from '~/components/settings/api_keys_card.vue'
 import { useI18n } from '~/composables/use_i18n'
 
 type Settings = {
@@ -31,6 +32,8 @@ type Settings = {
   allergy_rule: 'block' | 'warn_confirm'
   generate_moroccan_holidays: boolean
   support_whatsapp: string | null
+  delivery_order_url: string | null
+  glovo_url: string | null
   email_notifications: {
     enabled: boolean
     menu_published: boolean
@@ -52,6 +55,8 @@ const props = defineProps<{
     schoolYearStart: string
     schoolYearEnd: string
   }
+  subscriptionMealPrice: string
+  api: { endpoint: string; publicKey: string | null; generatedAt: string | null }
   settings: Settings
 }>()
 
@@ -61,6 +66,7 @@ const form = useForm({
   schoolDays: [...props.school.schoolDays],
   schoolYearStart: props.school.schoolYearStart,
   schoolYearEnd: props.school.schoolYearEnd,
+  subscriptionMealPrice: props.subscriptionMealPrice,
   // Inertia props are reactive proxies: structuredClone throws DataCloneError on them.
   settings: JSON.parse(JSON.stringify(props.settings)) as Settings,
 })
@@ -324,6 +330,15 @@ function submit() {
             :error="err('settings.supplement_max_quantity')"
             required
           />
+          <TextInput
+            id="subscriptionMealPrice"
+            v-model="form.subscriptionMealPrice"
+            autocomplete="off"
+            placeholder="30,00"
+            :label="t('settings.fields.subscription_meal_price')"
+            :hint="t('settings.fields.subscription_meal_price_hint')"
+            :error="err('subscriptionMealPrice')"
+          />
         </div>
       </section>
 
@@ -370,6 +385,22 @@ function submit() {
           :hint="t('settings.fields.support_whatsapp_hint')"
           :error="err('settings.support_whatsapp')"
         />
+        <TextInput
+          id="delivery_order_url"
+          v-model="form.settings.delivery_order_url"
+          type="url"
+          :label="t('settings.fields.delivery_order_url')"
+          :hint="t('settings.fields.delivery_order_url_hint')"
+          :error="err('settings.delivery_order_url')"
+        />
+        <TextInput
+          id="glovo_url"
+          v-model="form.settings.glovo_url"
+          type="url"
+          :label="t('settings.fields.glovo_url')"
+          :hint="t('settings.fields.glovo_url_hint')"
+          :error="err('settings.glovo_url')"
+        />
       </section>
 
       <section class="card flex flex-col gap-3 p-5">
@@ -400,5 +431,7 @@ function submit() {
         <AppButton type="submit" :loading="form.processing">{{ t('settings.save') }}</AppButton>
       </div>
     </form>
+
+    <ApiKeysCard class="mt-5" :api="api" :has-meal-price="subscriptionMealPrice !== ''" />
   </AdminLayout>
 </template>

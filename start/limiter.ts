@@ -131,6 +131,24 @@ export function changePasswordLimiter() {
   return limiter.use({ ...UPLOAD_LIMITS.changePassword })
 }
 
+/*
+|--------------------------------------------------------------------------
+| External API (D36)
+|--------------------------------------------------------------------------
+|
+| 60 requests / min per IP, counted before the keys are checked, then 429.
+|
+*/
+export const API_LIMITS = { ip: { requests: 60, duration: '1 min' } } as const
+
+export function apiIpLimiter() {
+  return limiter.use({ ...API_LIMITS.ip })
+}
+
+export const apiKeys = {
+  ip: (ip: string) => `api:ip:${rateLimitIpKey(ip)}`,
+}
+
 export const uploadKeys = {
   mealPhotos: (userId: number) => `uploads:meal_photos:${userId}`,
   holidayImport: (userId: number) => `uploads:holiday_import:${userId}`,

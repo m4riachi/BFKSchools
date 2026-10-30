@@ -133,6 +133,50 @@ Tests read `.env.test` on top of `.env` (memory session/limiter, `bfk_test`, log
 | `S3_FORCE_PATH_STYLE` | `false` | Path-style URLs (MinIO). |
 | `S3_PUBLIC_ORIGIN` | empty | Only if your provider signs URLs on another host: that https origin (no path), allowed in the CSP `img-src`. At boot (production + s3) the app presigns a dummy key and refuses to start if the signed URL's origin is not the one the CSP allows. |
 
+## Revenue API
+
+Lets another app read the revenue of each day (decision D36). Generate the keys in
+**Paramètres → API chiffre d'affaires** (admin only). Call it from a server, over HTTPS, and never
+put the secret key in a web page or a mobile app.
+
+```bash
+curl https://your-domain/api/v1/revenue/daily?from=2026-11-02\&to=2026-11-03 \
+  -H "X-Api-Key: bfk_pk_..." -H "X-Api-Secret: bfk_sk_..."
+```
+
+Parameters: `date=YYYY-MM-DD`, or `from` + `to` (366 days at most); none means today.
+
+```json
+{
+  "currency": "MAD",
+  "from": "2026-11-02",
+  "to": "2026-11-03",
+  "subscriptionMealPriceCents": 3000,
+  "days": [
+    {
+      "date": "2026-11-02",
+      "provisional": true,
+      "subscriptionMeals": 2,
+      "subscriptionAmountCents": 6000,
+      "extras": 2,
+      "extrasAmountCents": 2000,
+      "totalCents": 8000,
+      "total": "80.00"
+    }
+  ],
+  "totals": { "subscriptionMeals": 2, "subscriptionAmountCents": 6000, "extras": 2, "extrasAmountCents": 2000, "totalCents": 8000, "total": "80.00" }
+}
+```
+
+- Revenue = subscription meals × the amount in the settings + extras, active orders only.
+  Every date of the period is listed, with zeros when nothing was ordered.
+- The amount is the current setting: changing it changes past days too.
+  `subscriptionMealPriceCents: null` means it is not set, so totals only hold the extras.
+- `provisional: true`: today or later, orders can still change.
+- Errors are JSON, `{ "error": { "code", "message" } }`: `401` keys, `422` query, `429` after
+  60 requests per minute from one IP (see `Retry-After`).
+- Changing `APP_KEY` makes stored secrets unreadable: generate new keys afterwards.
+
 ## Tests
 
 ```bash

@@ -492,6 +492,35 @@ export default class ProductionReportService {
     }
   }
 
+  /**
+   * Quantities and extras' snapshot amounts per day (both dates included,
+   * days without an active order are absent). One query, integer centimes.
+   */
+  async dailyQuantities(schoolId: number, from: IsoDate, to: IsoDate) {
+    assertDate(from, to)
+    const result = await db.rawQuery(
+      `SELECT mo.date::text AS date,
+              COALESCE(SUM(moi.quantity) FILTER (WHERE moi.meal_type = 'subscription'), 0)::bigint AS subscription_meals,
+              COALESCE(SUM(moi.quantity) FILTER (WHERE moi.meal_type = 'supplement'), 0)::bigint AS extras,
+              COALESCE(SUM(moi.line_total_cents) FILTER (WHERE moi.meal_type = 'supplement'), 0)::bigint AS extras_cents
+         FROM meal_orders mo
+         JOIN meal_order_items moi ON moi.meal_order_id = mo.id
+        WHERE mo.school_id = ? AND mo.status = 'active' AND mo.date BETWEEN ? AND ?
+        GROUP BY mo.date`,
+      [schoolId, from, to]
+    )
+    return new Map<IsoDate, { subscriptionMeals: number; extras: number; extrasCents: number }>(
+      result.rows.map((row: Record<string, unknown>) => [
+        row.date as IsoDate,
+        {
+          subscriptionMeals: toInt(row.subscription_meals),
+          extras: toInt(row.extras),
+          extrasCents: toInt(row.extras_cents),
+        },
+      ])
+    )
+  }
+
   /* ---------------------------------------------------------------------- */
   /* Allergy sheet and labels                                               */
   /* ---------------------------------------------------------------------- */

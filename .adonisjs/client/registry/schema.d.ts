@@ -138,6 +138,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
+  'api.revenue.daily': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/revenue/daily'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api/revenue_controller').default['daily']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api/revenue_controller').default['daily']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/api/revenue_controller').default['daily']>>>
+    }
+  }
   'media.meal_photo': {
     methods: ["GET","HEAD"]
     pattern: '/media/meal-photos/:id/:variant'
@@ -1228,6 +1241,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['update']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.settings.api_keys.generate': {
+    methods: ["POST"]
+    pattern: '/admin/settings/api-keys'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['generateApiKeys']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['generateApiKeys']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['generateApiKeys']>>>
+    }
+  }
+  'admin.settings.api_keys.secret': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/settings/api-keys/secret'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['apiSecret']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['apiSecret']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['apiSecret']>>>
     }
   }
   'admin.imports.create': {

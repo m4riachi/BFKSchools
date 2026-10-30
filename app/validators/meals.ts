@@ -44,6 +44,18 @@ export function madPriceRule() {
     .transform((value) => parseMadToCents(value)!)
 }
 
+/** Same amount, for a field that can stay empty (null). */
+export function optionalMadPriceRule() {
+  return vine
+    .string()
+    .trim()
+    .maxLength(20)
+    .use(madPrice())
+    .transform((value) => (value ? parseMadToCents(value)! : null))
+    .nullable()
+    .optional()
+}
+
 /** Multi-line free text (descriptions): trimmed, no control characters except newlines/tabs. */
 function descriptionRule() {
   return vine

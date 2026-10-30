@@ -306,9 +306,10 @@ function apply() {
         </div>
 
         <DayCard
-          v-for="day in view.days"
+          v-for="(day, index) in view.days"
           :key="`${childId}-${day.date}`"
           :day="day"
+          :index="index"
           :child-name="child.firstName"
           :saving="saving === day.date"
           :open="openDate === day.date"

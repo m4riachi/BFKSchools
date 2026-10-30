@@ -37,8 +37,14 @@ export type SchoolSettings = {
   ics_calendar_url: string | null
   /** D34: support number in international format, digits only (wa.me). Null = no button. */
   support_whatsapp: string | null
+  /** D37: "Commande à domicile" button of the parent portal. Null = no button. */
+  delivery_order_url: string | null
+  /** D37: Glovo button of the parent portal. Null = no button. */
+  glovo_url: string | null
   email_notifications: EmailNotificationSettings
   subscription_required_for_main_meal: boolean
+  /** D35: amount of one subscription meal, stored only for now (not billed, D31). */
+  subscription_meal_price_cents: number | null
   supplement_max_quantity: number
   label_grid: { cols: number; rows: number }
 }

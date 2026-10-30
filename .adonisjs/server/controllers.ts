@@ -19,6 +19,9 @@ export const controllers = {
     Subscriptions: () => import('#controllers/admin/subscriptions_controller'),
     WeeklyMenus: () => import('#controllers/admin/weekly_menus_controller'),
   },
+  api: {
+    Revenue: () => import('#controllers/api/revenue_controller'),
+  },
   auth: {
     AccountLinks: () => import('#controllers/auth/account_links_controller'),
     PasswordReset: () => import('#controllers/auth/password_reset_controller'),

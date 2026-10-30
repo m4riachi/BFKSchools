@@ -22,6 +22,11 @@ export interface ApiDefinition {
   locale: {
     update: typeof routes['locale.update']
   }
+  api: {
+    revenue: {
+      daily: typeof routes['api.revenue.daily']
+    }
+  }
   media: {
     mealPhoto: typeof routes['media.meal_photo']
   }
@@ -145,6 +150,10 @@ export interface ApiDefinition {
     settings: {
       show: typeof routes['admin.settings.show']
       update: typeof routes['admin.settings.update']
+      apiKeys: {
+        generate: typeof routes['admin.settings.api_keys.generate']
+        secret: typeof routes['admin.settings.api_keys.secret']
+      }
     }
     imports: {
       create: typeof routes['admin.imports.create']
