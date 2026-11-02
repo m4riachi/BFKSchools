@@ -30,3 +30,6 @@ yarn-error.log
 
 # Original meal photos from BFK (seeder uses resized copies in database/demo/meal_photos)
 /repas/
+
+# Print agent settings (API keys): never committed
+scripts/print-agent.env

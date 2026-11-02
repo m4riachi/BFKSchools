@@ -4,14 +4,32 @@
  * printer, asks the app for queued ticket print jobs and sends them to the
  * printer (ESC/POS over the network, port 9100). Node 18+, no dependency.
  *
- *   APP_URL=https://your-app  API_KEY=bfk_pk_…  API_SECRET=bfk_sk_…  \
- *   PRINTER_HOST=192.168.100.242  PRINTER_PORT=9100  node scripts/print-agent.mjs
+ *   node scripts/print-agent.mjs            (reads scripts/print-agent.env)
+ *   node scripts/print-agent.mjs my.env     (or any other settings file)
  *
- * The API keys come from /admin/settings (Revenue API card); the printer's
- * IP is printed on its self-test page. POLL_SECONDS (default 5) sets the
- * polling interval. Leave it running (a service, a scheduled task at logon…).
+ * The settings file holds one KEY=VALUE per line (see print-agent.env.example):
+ * APP_URL, API_KEY, API_SECRET (from /admin/settings, Revenue API card),
+ * PRINTER_HOST (printed on the printer's self-test page), PRINTER_PORT
+ * (9100) and POLL_SECONDS (5). Environment variables override the file.
+ * Leave it running (a service, a scheduled task at logon…).
  */
+import fs from 'node:fs'
 import net from 'node:net'
+import path from 'node:path'
+
+// Settings file: the first argument, or print-agent.env next to this script.
+const envFile = process.argv[2] ?? path.join(path.dirname(new URL(import.meta.url).pathname), 'print-agent.env')
+if (fs.existsSync(envFile)) {
+  for (const raw of fs.readFileSync(envFile, 'utf8').split(/\r?\n/)) {
+    const line = raw.trim()
+    if (!line || line.startsWith('#')) continue
+    const eq = line.indexOf('=')
+    if (eq < 1) continue
+    const key = line.slice(0, eq).trim()
+    const value = line.slice(eq + 1).trim().replace(/^["']|["']$/g, '')
+    if (process.env[key] === undefined) process.env[key] = value
+  }
+}
 
 const env = (name, fallback) => {
   const value = process.env[name] ?? fallback
