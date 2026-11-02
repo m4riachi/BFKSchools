@@ -2,8 +2,9 @@
 /**
  * School display board (D46): one layout, made for the portrait screen at
  * the school (490 × 1800 mm), opened on its public address, no login. Shows
- * the published menu one dish at a time — the whole photo, never cropped —
- * with the day's supplements under it; after the last dish, the next day.
+ * the published menu two dishes at a time, side by side — the whole photo,
+ * never cropped — with the day's supplements under them; after the last
+ * dishes, the next day.
  * Slides change on their own; the menu reloads every minute
  * (SchoolBoardService). Sizes follow the narrow side of the screen (vmin).
  */
@@ -41,30 +42,36 @@ const logoUrl = '/bfk-logo-animated.svg'
 const schoolLogoUrl = '/logo-academy.png'
 const watermarkUrl = '/logo-bfk.png'
 
-/** Seconds each dish stays on screen. */
-const SLIDE_SECONDS = 8
+/** Seconds each pair of dishes stays on screen. */
+const SLIDE_SECONDS = 10
+/** Dishes shown side by side on one slide. */
+const PER_SLIDE = 2
 
 usePoll(60_000, { only: ['board'] })
 
 type Slide = {
   key: string
   day: BoardDay
-  /** Null on a holiday or a day without dishes: the day gets one slide. */
-  dish: BoardMeal | null
-  index: number
+  /** Empty on a holiday or a day without dishes: the day gets one slide. */
+  dishes: BoardMeal[]
+  /** Position of the first dish in the day's menu. */
+  offset: number
 }
-/** One slide per dish, in day order; the week is read in that order. */
+/** One slide per pair of dishes, in day order; the week is read in that order. */
 const slides = computed<Slide[]>(() =>
-  props.board.days.flatMap((day): Slide[] =>
-    day.holiday || !day.dishes.length
-      ? [{ key: day.date, day, dish: null, index: 0 }]
-      : day.dishes.map((dish, index) => ({
-          key: `${day.date}-${dish.mealId}`,
-          day,
-          dish,
-          index,
-        }))
-  )
+  props.board.days.flatMap((day): Slide[] => {
+    if (day.holiday || !day.dishes.length) return [{ key: day.date, day, dishes: [], offset: 0 }]
+    const groups: Slide[] = []
+    for (let offset = 0; offset < day.dishes.length; offset += PER_SLIDE) {
+      groups.push({
+        key: `${day.date}-${offset}`,
+        day,
+        dishes: day.dishes.slice(offset, offset + PER_SLIDE),
+        offset,
+      })
+    }
+    return groups
+  })
 )
 const startIndex = () => {
   const today = slides.value.findIndex((slide) => slide.day.date === props.board.today)
@@ -226,14 +233,14 @@ function initial(name: string) {
         </div>
 
         <div
-          v-else-if="!slide.dish"
+          v-else-if="!slide.dishes.length"
           class="flex flex-1 items-center justify-center rounded-3xl bg-black/5 p-10 text-[3vmin] font-bold text-ink-3"
         >
           {{ t('board.no_menu') }}
         </div>
 
         <template v-else>
-          <!-- The dish: the whole photo, never cropped, then its name -->
+          <!-- Two dishes side by side: the whole photo, never cropped, then the name -->
           <section class="flex min-h-0 flex-1 flex-col gap-[1.2vmin]">
             <div class="flex items-center justify-between">
               <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
@@ -244,43 +251,53 @@ function initial(name: string) {
                   v-for="(dish, dot) in slide.day.dishes"
                   :key="dish.mealId"
                   class="h-[1.2vmin] rounded-full transition-all duration-300"
-                  :class="dot === slide.index ? 'w-[4vmin] bg-brand' : 'w-[1.2vmin] bg-black/15'"
+                  :class="
+                    dot >= slide.offset && dot < slide.offset + slide.dishes.length
+                      ? 'w-[4vmin] bg-brand'
+                      : 'w-[1.2vmin] bg-black/15'
+                  "
                 />
               </span>
             </div>
-            <article
-              class="board-card relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[3vmin] bg-white shadow-overlay ring-1 ring-black/10"
-            >
-              <div class="relative min-h-0 flex-1 bg-neutral-100">
-                <img
-                  v-if="slide.dish.photoUrl"
-                  :src="slide.dish.photoUrl"
-                  alt=""
-                  class="board-photo absolute inset-0 size-full object-contain"
-                />
-                <span
-                  v-else
-                  class="absolute inset-0 flex items-center justify-center text-[20vmin] font-extrabold text-brand"
-                  aria-hidden="true"
-                  >{{ initial(slide.dish.name) }}</span
-                >
-                <span
-                  class="absolute top-[2vmin] left-[2vmin] flex size-[6vmin] items-center justify-center rounded-full bg-brand text-[3vmin] font-extrabold text-white shadow-overlay"
-                  aria-hidden="true"
-                  >{{ slide.index + 1 }}</span
-                >
-              </div>
-              <div class="flex shrink-0 flex-col gap-[0.6vmin] px-[3vmin] py-[2.2vmin]">
-                <span class="text-[5vmin] leading-[1.1] font-extrabold text-balance">{{
-                  slide.dish.name
-                }}</span>
-                <span
-                  v-if="slide.dish.description"
-                  class="line-clamp-2 text-[2.4vmin] leading-snug text-ink-3"
-                  >{{ slide.dish.description }}</span
-                >
-              </div>
-            </article>
+            <div class="grid min-h-0 flex-1 grid-cols-2 gap-[1.6vmin]">
+              <article
+                v-for="(dish, index) in slide.dishes"
+                :key="dish.mealId"
+                class="board-card relative flex min-h-0 flex-col overflow-hidden rounded-[3vmin] bg-white shadow-overlay ring-1 ring-black/10"
+                :style="{ '--i': index }"
+              >
+                <div class="relative min-h-0 flex-1 bg-neutral-100">
+                  <img
+                    v-if="dish.photoUrl"
+                    :src="dish.photoUrl"
+                    alt=""
+                    class="board-photo absolute inset-0 size-full object-contain"
+                    :style="{ animationDelay: `${index * 1.3}s` }"
+                  />
+                  <span
+                    v-else
+                    class="absolute inset-0 flex items-center justify-center text-[16vmin] font-extrabold text-brand"
+                    aria-hidden="true"
+                    >{{ initial(dish.name) }}</span
+                  >
+                  <span
+                    class="absolute top-[1.6vmin] left-[1.6vmin] flex size-[5vmin] items-center justify-center rounded-full bg-brand text-[2.6vmin] font-extrabold text-white shadow-overlay"
+                    aria-hidden="true"
+                    >{{ slide.offset + index + 1 }}</span
+                  >
+                </div>
+                <div class="flex shrink-0 flex-col gap-[0.5vmin] px-[2.2vmin] py-[1.8vmin]">
+                  <span class="text-[3.6vmin] leading-[1.1] font-extrabold text-balance">{{
+                    dish.name
+                  }}</span>
+                  <span
+                    v-if="dish.description"
+                    class="line-clamp-2 text-[2vmin] leading-snug text-ink-3"
+                    >{{ dish.description }}</span
+                  >
+                </div>
+              </article>
+            </div>
           </section>
 
           <!-- Supplements of the day: a compact grid -->
