@@ -474,6 +474,37 @@ export class SubscriptionSchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class TicketPrintJobSchema extends BaseModel {
+  static $columns = ['className', 'createdAt', 'date', 'error', 'id', 'locale', 'printedAt', 'requestedBy', 'schoolId', 'status', 'ticketsCount', 'updatedAt', 'withAmounts'] as const
+  $columns = TicketPrintJobSchema.$columns
+  @column()
+  declare className: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare date: string
+  @column()
+  declare error: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare locale: string
+  @column.dateTime()
+  declare printedAt: DateTime | null
+  @column()
+  declare requestedBy: number | null
+  @column()
+  declare schoolId: number
+  @column()
+  declare status: string
+  @column()
+  declare ticketsCount: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare withAmounts: boolean
+}
+
 export class UserTokenSchema extends BaseModel {
   static $columns = ['createdAt', 'createdBy', 'expiresAt', 'id', 'requestIp', 'revokedAt', 'tokenHash', 'type', 'usedAt', 'userId'] as const
   $columns = UserTokenSchema.$columns

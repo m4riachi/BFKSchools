@@ -202,5 +202,38 @@
     "duration_days": "{days} d {hours} h",
     "duration_hours": "{hours} h {minutes} min",
     "duration_minutes": "{minutes} min"
+  },
+  "tickets": {
+    "title": "Order tickets",
+    "description": "One ticket per active order of the day, to hand out with the tray: child, parent, dish, supplements and amounts. An A4 sheet to cut, or one receipt per ticket on an 80 mm thermal printer.",
+    "per_row": "Tickets per row",
+    "per_row_count": "{count} per row",
+    "download": "Download the tickets (PDF)",
+    "amounts_note": "The supplements’ amounts and their total appear on each ticket.",
+    "no_amounts_note": "The tickets contain no prices.",
+    "none": "No active order on {date}: no ticket to print.",
+    "too_many": "Too many tickets for one PDF (maximum {max}): pick a class.",
+    "pdf_title": "Tickets for {date}",
+    "pdf_parent": "Parent: {name}",
+    "pdf_total": "Supplements: {amount}",
+    "format": "Printing",
+    "formats": {
+      "a4": "A4 sheet (3 or 4 per row)",
+      "roll": "80 mm receipt printer"
+    },
+    "roll_note": "One receipt per order. Open the PDF and print it on the receipt printer (80 mm paper, “actual size”, no scaling): it cuts between tickets.",
+    "print_button": "Print on the receipt printer",
+    "printed": "{count, plural, one {# ticket printed} other {# tickets printed}}.",
+    "queued": "{count, plural, one {# ticket queued} other {# tickets queued}}: the print agent will print them.",
+    "printer_off": "No receipt printer set up (Settings › Receipt printer).",
+    "printer_unreachable": "Printer unreachable ({host}): check it is on and on the network.",
+    "jobs": "Latest prints",
+    "job_count": "{count, plural, one {# ticket} other {# tickets}}",
+    "statuses": {
+      "queued": "Queued",
+      "printing": "Printing…",
+      "done": "Printed",
+      "failed": "Failed"
+    }
   }
 }

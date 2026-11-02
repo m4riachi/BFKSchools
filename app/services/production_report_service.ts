@@ -126,6 +126,29 @@ export type LabelRow = {
   hasConflict: boolean
 }
 
+/** D49: one order ticket (child, parent, dish, supplements, amounts). */
+export type TicketRow = {
+  orderId: number
+  date: IsoDate
+  firstName: string
+  lastName: string
+  grade: string | null
+  className: string | null
+  parentName: string
+  lines: TicketLine[]
+  /** Sum of the supplements' snapshot amounts (subscription meals are included, D31). */
+  supplementsCents: number
+}
+
+export type TicketLine = {
+  mealId: number
+  nameFr: string
+  nameEn: string
+  mealType: MealType
+  quantity: number
+  lineTotalCents: number
+}
+
 export type ExportFilters = {
   from: IsoDate
   to: IsoDate
@@ -643,6 +666,75 @@ export default class ProductionReportService {
       if (line.conflicts.length) label.hasConflict = true
     }
     return [...labels.values()]
+  }
+
+  /**
+   * D49: order tickets of a day (one per active order, sorted by class then
+   * name), with the parent's name and the supplements' snapshot amounts.
+   * Same selection and cap as the labels (`countLabels`). One query.
+   */
+  async tickets(
+    schoolId: number,
+    date: IsoDate,
+    options: { className?: string | null; limit: number }
+  ): Promise<TicketRow[]> {
+    assertDate(date)
+    const bindings: (string | number)[] = [schoolId, date]
+    let filter = ''
+    if (options.className) {
+      filter = ' AND c.class_name = ?'
+      bindings.push(options.className)
+    }
+    bindings.push(options.limit)
+    const result = await db.rawQuery(
+      `WITH picked AS (
+         SELECT mo.id FROM meal_orders mo JOIN children c ON c.id = mo.child_id
+          WHERE mo.school_id = ? AND mo.date = ? AND mo.status = 'active'${filter}
+          ORDER BY c.class_name NULLS LAST, c.last_name, c.first_name, mo.id
+          LIMIT ?)
+       SELECT mo.id AS order_id, mo.date, c.first_name, c.last_name, c.grade, c.class_name,
+              u.full_name AS parent_name,
+              moi.meal_id, moi.meal_type, moi.quantity, moi.line_total_cents, m.name_fr, m.name_en
+         FROM picked p
+         JOIN meal_orders mo ON mo.id = p.id
+         JOIN children c ON c.id = mo.child_id
+         JOIN users u ON u.id = c.parent_id
+         JOIN meal_order_items moi ON moi.meal_order_id = mo.id
+         JOIN meals m ON m.id = moi.meal_id
+        ORDER BY c.class_name NULLS LAST, c.last_name, c.first_name, mo.id,
+                 moi.meal_type ASC, moi.id`,
+      bindings
+    )
+    const tickets = new Map<number, TicketRow>()
+    for (const raw of result.rows) {
+      const orderId = Number(raw.order_id)
+      let ticket = tickets.get(orderId)
+      if (!ticket) {
+        ticket = {
+          orderId,
+          date: String(raw.date),
+          firstName: raw.first_name,
+          lastName: raw.last_name,
+          grade: raw.grade,
+          className: raw.class_name,
+          parentName: raw.parent_name ?? '',
+          lines: [],
+          supplementsCents: 0,
+        }
+        tickets.set(orderId, ticket)
+      }
+      const lineTotalCents = raw.meal_type === 'supplement' ? toInt(raw.line_total_cents) : 0
+      ticket.lines.push({
+        mealId: Number(raw.meal_id),
+        nameFr: raw.name_fr,
+        nameEn: raw.name_en,
+        mealType: raw.meal_type,
+        quantity: Number(raw.quantity),
+        lineTotalCents,
+      })
+      ticket.supplementsCents += lineTotalCents
+    }
+    return [...tickets.values()]
   }
 
   /** Distinct class names of the school's children (filters). One query. */

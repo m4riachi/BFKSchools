@@ -29,6 +29,10 @@ export interface ApiDefinition {
     revenue: {
       daily: typeof routes['api.revenue.daily']
     }
+    printJobs: {
+      next: typeof routes['api.print_jobs.next']
+      ack: typeof routes['api.print_jobs.ack']
+    }
   }
   media: {
     mealPhoto: typeof routes['media.meal_photo']
@@ -208,6 +212,9 @@ export interface ApiDefinition {
     }
     exports: typeof routes['kitchen.exports'] & {
       download: typeof routes['kitchen.exports.download']
+      tickets: typeof routes['kitchen.exports.tickets'] & {
+        print: typeof routes['kitchen.exports.tickets.print']
+      }
     }
     meals: {
       index: typeof routes['kitchen.meals.index']

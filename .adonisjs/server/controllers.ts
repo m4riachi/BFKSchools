@@ -23,6 +23,7 @@ export const controllers = {
     WeeklyMenus: () => import('#controllers/admin/weekly_menus_controller'),
   },
   api: {
+    PrintJobs: () => import('#controllers/api/print_jobs_controller'),
     Revenue: () => import('#controllers/api/revenue_controller'),
   },
   auth: {

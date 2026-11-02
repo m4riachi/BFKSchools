@@ -80,6 +80,18 @@ router
   .get('api/v1/revenue/daily', [controllers.api.Revenue, 'daily'])
   .as('api.revenue.daily')
   .use(middleware.apiKey())
+// D50: the print agent next to the kitchen's receipt printer.
+router
+  .group(() => {
+    router.get('print-jobs/next', [controllers.api.PrintJobs, 'next']).as('next')
+    router
+      .post('print-jobs/:id/ack', [controllers.api.PrintJobs, 'ack'])
+      .where('id', dbIdMatcher)
+      .as('ack')
+  })
+  .prefix('api/v1')
+  .as('api.print_jobs')
+  .use(middleware.apiKey())
 
 /**
  * Meal photos for any logged-in user (no storage key in the URL; see
@@ -504,6 +516,11 @@ router
     router.get('labels/pdf', [controllers.kitchen.Reports, 'labelsPdf']).as('labels.pdf')
     router.get('exports', [controllers.kitchen.Reports, 'exports']).as('exports')
     router.get('exports/download', [controllers.kitchen.Reports, 'download']).as('exports.download')
+    router.get('exports/tickets', [controllers.kitchen.Reports, 'tickets']).as('exports.tickets')
+    // D50: the one write of the kitchen area — it prints, it changes no data.
+    router
+      .post('exports/tickets/print', [controllers.kitchen.Reports, 'printTickets'])
+      .as('exports.tickets.print')
     router.get('meals', [controllers.kitchen.Meals, 'index']).as('meals.index')
     router.get('meals/:id', [controllers.kitchen.Meals, 'show']).where('id', id).as('meals.show')
   })

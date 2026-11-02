@@ -5,13 +5,21 @@ import Clock from '#services/clock'
 import ProductionReportService, { type LabelRow } from '#services/production_report_service'
 import SchoolSettingsService from '#services/school_settings_service'
 import LabelPdfService, { MAX_LABELS_PER_PDF } from '#services/label_pdf_service'
+import TicketPdfService, { type TicketColumns } from '#services/ticket_pdf_service'
+import TicketPrintService from '#services/ticket_print_service'
+import type { TicketPrintJobStatus } from '#models/ticket_print_job'
 import ReportExportService, {
   MAX_EXPORT_DAYS,
   MAX_EXPORT_ROWS,
   type ExportOptions,
 } from '#services/report_export_service'
 import { MEAL_TYPES } from '#enums/meals'
-import { exportQueryValidator, labelsQueryValidator, reportDayValidator } from '#validators/reports'
+import {
+  exportQueryValidator,
+  labelsQueryValidator,
+  reportDayValidator,
+  ticketsQueryValidator,
+} from '#validators/reports'
 import { reportDate, resolvePeriod } from '#support/report_period'
 import {
   attachmentHeader,
@@ -22,6 +30,7 @@ import {
 import { presentAllergyRows, presentLabels } from '#support/report_presenters'
 import { fileNamePart } from '#support/spreadsheet_safety'
 import { addDays } from '#support/dates'
+import { instantLabel } from '#support/menu_display'
 
 /** Labels shown as an on-screen preview (the PDF has them all). */
 const LABEL_PREVIEW = 12
@@ -71,6 +80,8 @@ export default class ReportsController {
     protected reports: ProductionReportService,
     protected settings: SchoolSettingsService,
     protected pdf: LabelPdfService,
+    protected ticketPdf: TicketPdfService,
+    protected printing: TicketPrintService,
     protected exportsService: ReportExportService
   ) {}
 
@@ -186,11 +197,104 @@ export default class ReportsController {
     return response.send(pdf)
   }
 
+  /**
+   * GET /kitchen/exports/tickets?date=&className=&cols=&format= — D49: one
+   * ticket per active order of the day, to hand out with the trays: an A4
+   * sheet (3 or 4 per row) or one receipt per ticket (80 mm roll printer).
+   * Amounts only for staff allowed to see prices (ReportPolicy.viewAmounts).
+   */
+  async tickets(ctx: HttpContext) {
+    const { request, response, session, i18n, bouncer } = ctx
+    const school = await requireReportSchool(ctx)
+    const query = await ticketsQueryValidator.validate(request.qs())
+    const date = reportDate(query.date, this.clock.today())
+    const className = query.className || null
+    const back = '/kitchen/exports'
+
+    const count = await this.reports.countLabels(school.id, date, className)
+    if (count === 0) {
+      session.flash('error', i18n.t('reports.tickets.none', { date }))
+      return response.redirect().withQs(false).toPath(back)
+    }
+    if (count > MAX_LABELS_PER_PDF) {
+      session.flash('error', i18n.t('reports.tickets.too_many', { max: MAX_LABELS_PER_PDF }))
+      return response.redirect().withQs(false).toPath(back)
+    }
+    const rows = await this.reports.tickets(school.id, date, {
+      className,
+      limit: MAX_LABELS_PER_PDF,
+    })
+    const withAmounts = await bouncer.with('ReportPolicy').allows('viewAmounts')
+    const pdf = await renderPdfForUser(ctx, () =>
+      this.ticketPdf.render(rows, {
+        format: query.format ?? 'a4',
+        cols: (query.cols ?? 3) as TicketColumns,
+        locale: i18n.locale,
+        title: i18n.t('reports.tickets.pdf_title', { date }),
+        withAmounts,
+      })
+    )
+    if (pdf === null) return
+    const name = [
+      'bfk-tickets',
+      date,
+      className ? fileNamePart(className) : null,
+      query.format === 'roll' ? '80mm' : null,
+    ]
+      .filter(Boolean)
+      .join('-')
+    response.header('Content-Type', 'application/pdf')
+    response.header('Content-Disposition', attachmentHeader(`${name}.pdf`))
+    response.header('Cache-Control', 'no-store')
+    response.header('X-Content-Type-Options', 'nosniff')
+    return response.send(pdf)
+  }
+
+  /**
+   * POST /kitchen/exports/tickets/print — D50: the day's tickets on the
+   * kitchen's receipt printer (the one write of the kitchen area: it prints,
+   * it changes no order). Direct mode prints now; agent mode queues.
+   */
+  async printTickets(ctx: HttpContext) {
+    const { request, response, session, i18n, bouncer, auth } = ctx
+    const school = await requireReportSchool(ctx)
+    const query = await ticketsQueryValidator.validate(request.all())
+    const date = reportDate(query.date, this.clock.today())
+    const job = await this.printing.print(school, {
+      date,
+      className: query.className || null,
+      locale: i18n.locale,
+      withAmounts: await bouncer.with('ReportPolicy').allows('viewAmounts'),
+      actor: auth.getUserOrFail(),
+    })
+    session.flash(
+      'success',
+      i18n.t(job.status === 'done' ? 'reports.tickets.printed' : 'reports.tickets.queued', {
+        count: job.ticketsCount,
+      })
+    )
+    return response.redirect().withQs(false).toPath('/kitchen/exports')
+  }
+
   /** GET /kitchen/exports — the export form. */
   async exports(ctx: HttpContext) {
-    const { inertia, bouncer } = ctx
+    const { inertia, bouncer, i18n } = ctx
     const school = await reportSchool(ctx)
+    const printerMode = school ? this.settings.get(school).printer_mode : 'off'
+    const jobs = school && printerMode !== 'off' ? await this.printing.recent(school) : []
     return inertia.render('kitchen/exports', {
+      printer: {
+        mode: printerMode,
+        jobs: jobs.map((job) => ({
+          id: job.id,
+          date: job.date,
+          className: job.className,
+          status: job.status as TicketPrintJobStatus,
+          ticketsCount: job.ticketsCount,
+          error: job.error,
+          at: instantLabel(job.printedAt ?? job.updatedAt, i18n.locale),
+        })),
+      },
       today: this.clock.today(),
       classes: school ? await this.reports.classNames(school.id) : [],
       mealTypes: [...MEAL_TYPES],

@@ -16,6 +16,8 @@ export type ScannedRoutes = {
     'session.destroy': { paramsTuple?: []; params?: {} }
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
+    'api.print_jobs.next': { paramsTuple?: []; params?: {} }
+    'api.print_jobs.ack': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.manifest': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
@@ -135,6 +137,8 @@ export type ScannedRoutes = {
     'kitchen.labels.pdf': { paramsTuple?: []; params?: {} }
     'kitchen.exports': { paramsTuple?: []; params?: {} }
     'kitchen.exports.download': { paramsTuple?: []; params?: {} }
+    'kitchen.exports.tickets': { paramsTuple?: []; params?: {} }
+    'kitchen.exports.tickets.print': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
@@ -145,6 +149,7 @@ export type ScannedRoutes = {
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
+    'api.print_jobs.next': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.manifest': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
@@ -192,6 +197,7 @@ export type ScannedRoutes = {
     'kitchen.labels.pdf': { paramsTuple?: []; params?: {} }
     'kitchen.exports': { paramsTuple?: []; params?: {} }
     'kitchen.exports.download': { paramsTuple?: []; params?: {} }
+    'kitchen.exports.tickets': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
@@ -202,6 +208,7 @@ export type ScannedRoutes = {
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
+    'api.print_jobs.next': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.manifest': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
@@ -249,6 +256,7 @@ export type ScannedRoutes = {
     'kitchen.labels.pdf': { paramsTuple?: []; params?: {} }
     'kitchen.exports': { paramsTuple?: []; params?: {} }
     'kitchen.exports.download': { paramsTuple?: []; params?: {} }
+    'kitchen.exports.tickets': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
@@ -259,6 +267,7 @@ export type ScannedRoutes = {
     'password.reset.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
+    'api.print_jobs.ack': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'parent.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.absent': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.apply_all': { paramsTuple: [ParamValue]; params: {'date': ParamValue} }
@@ -304,6 +313,7 @@ export type ScannedRoutes = {
     'admin.settings.board.enable': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'kitchen.exports.tickets.print': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'parent.account.password': { paramsTuple?: []; params?: {} }

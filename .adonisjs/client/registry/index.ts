@@ -80,6 +80,18 @@ const routes = {
     tokens: [[0,"api"],[0,"v1"],[0,"revenue"],[0,"daily"]],
     types: placeholder as Registry['api.revenue.daily']['types'],
   },
+  'api.print_jobs.next': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/print-jobs/next',
+    tokens: [[0,"api"],[0,"v1"],[0,"print-jobs"],[0,"next"]],
+    types: placeholder as Registry['api.print_jobs.next']['types'],
+  },
+  'api.print_jobs.ack': {
+    methods: ["POST"],
+    pattern: '/api/v1/print-jobs/:id/ack',
+    tokens: [[0,"api"],[0,"v1"],[0,"print-jobs"],[1,"id"],[0,"ack"]],
+    types: placeholder as Registry['api.print_jobs.ack']['types'],
+  },
   'media.meal_photo': {
     methods: ["GET","HEAD"],
     pattern: '/media/meal-photos/:id/:variant',
@@ -793,6 +805,18 @@ const routes = {
     pattern: '/kitchen/exports/download',
     tokens: [[0,"kitchen"],[0,"exports"],[0,"download"]],
     types: placeholder as Registry['kitchen.exports.download']['types'],
+  },
+  'kitchen.exports.tickets': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/exports/tickets',
+    tokens: [[0,"kitchen"],[0,"exports"],[0,"tickets"]],
+    types: placeholder as Registry['kitchen.exports.tickets']['types'],
+  },
+  'kitchen.exports.tickets.print': {
+    methods: ["POST"],
+    pattern: '/kitchen/exports/tickets/print',
+    tokens: [[0,"kitchen"],[0,"exports"],[0,"tickets"],[0,"print"]],
+    types: placeholder as Registry['kitchen.exports.tickets.print']['types'],
   },
   'kitchen.meals.index': {
     methods: ["GET","HEAD"],

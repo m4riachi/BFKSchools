@@ -164,6 +164,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/api/revenue_controller').default['daily']>>>
     }
   }
+  'api.print_jobs.next': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/print-jobs/next'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api/print_jobs_controller').default['next']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api/print_jobs_controller').default['next']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/api/print_jobs_controller').default['next']>>>
+    }
+  }
+  'api.print_jobs.ack': {
+    methods: ["POST"]
+    pattern: '/api/v1/print-jobs/:id/ack'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/api/print_jobs_controller').default['ack']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/api/print_jobs_controller').default['ack']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/api/print_jobs_controller').default['ack']>>>
+    }
+  }
   'media.meal_photo': {
     methods: ["GET","HEAD"]
     pattern: '/media/meal-photos/:id/:variant'
@@ -1709,6 +1735,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['download']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['download']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['download']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'kitchen.exports.tickets': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/exports/tickets'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reports').ticketsQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['tickets']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['tickets']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['tickets']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'kitchen.exports.tickets.print': {
+    methods: ["POST"]
+    pattern: '/kitchen/exports/tickets/print'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/reports').ticketsQueryValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/reports').ticketsQueryValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['printTickets']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['printTickets']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/reports_controller').default['printTickets']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'kitchen.meals.index': {

@@ -23,6 +23,14 @@ export const adminReportQueryValidator = vine.create({
 })
 
 /** Labels page and PDF. */
+/** D49: order tickets of a day, 3 or 4 per row. */
+export const ticketsQueryValidator = vine.create({
+  date: isoDateRule().optional(),
+  className: className().optional(),
+  cols: vine.number().withoutDecimals().range([3, 4]).optional(),
+  format: vine.enum(['a4', 'roll'] as const).optional(),
+})
+
 export const labelsQueryValidator = vine.create({
   date: isoDateRule().optional(),
   className: className().optional(),

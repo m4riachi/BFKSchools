@@ -16,7 +16,8 @@
     "kitchen_hint": "Format des planches d’étiquettes A4 (par défaut 3 × 8, soit 70 × 37 mm).",
     "support": "Contact et liens",
     "modules": "Modules optionnels",
-    "modules_hint": "Un module désactivé disparaît de l’application et ses règles ne s’appliquent plus. Ses données sont conservées et reviennent si vous le réactivez."
+    "modules_hint": "Un module désactivé disparaît de l’application et ses règles ne s’appliquent plus. Ses données sont conservées et reviennent si vous le réactivez.",
+    "printer": "Imprimante tickets"
   },
   "fields": {
     "school_days": "Jours d'école",
@@ -65,7 +66,19 @@
     "grade_enabled": "Niveau",
     "grade_enabled_hint": "Niveau des enfants : fiches, listes, répartition de la production, étiquettes, exports et relevés.",
     "class_enabled": "Classe",
-    "class_enabled_hint": "Classe des enfants : fiches, filtres, répartition de la production, étiquettes, exports et relevés."
+    "class_enabled_hint": "Classe des enfants : fiches, filtres, répartition de la production, étiquettes, exports et relevés.",
+    "printer_hint": "Imprimante thermique 80 mm (ESC/POS, ex. Rongta RP332A) pour imprimer les tickets du jour depuis Cuisine › Exports.",
+    "printer_mode": "Impression",
+    "printer_modes": {
+      "off": "Désactivée",
+      "off_hint": "Pas de bouton d’impression ; les tickets restent disponibles en PDF.",
+      "direct": "Directe (le serveur joint l’imprimante)",
+      "direct_hint": "Le serveur envoie les tickets à l’adresse réseau de l’imprimante (port 9100). Il faut que le serveur soit sur le même réseau que l’imprimante, ou relié par VPN.",
+      "agent": "Agent d’impression (PC de la cuisine)",
+      "agent_hint": "Le bouton met les tickets en file ; le programme scripts/print-agent.mjs, lancé sur un PC du réseau de la cuisine avec les clés API, les envoie à l’imprimante. Voir le README."
+    },
+    "printer_host": "Adresse de l’imprimante (IP)",
+    "printer_port": "Port"
   },
   "weekdays": {
     "1": "Lundi",

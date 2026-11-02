@@ -14,6 +14,9 @@ export type EmailNotificationSettings = {
   menu_change: boolean
 }
 
+/** D50: how the day's tickets reach the kitchen's receipt printer. */
+export type PrinterMode = 'off' | 'direct' | 'agent'
+
 export type SchoolSettings = {
   publish_weekday: number
   publish_time: string
@@ -46,6 +49,10 @@ export type SchoolSettings = {
    * Null = no board. Set only by SchoolBoardService, never by the form.
    */
   board_slug: string | null
+  /** D50: off, direct (server → printer:port) or agent (scripts/print-agent.mjs). */
+  printer_mode: PrinterMode
+  printer_host: string | null
+  printer_port: number
   email_notifications: EmailNotificationSettings
   subscription_required_for_main_meal: boolean
   /** D35: amount of one subscription meal, for revenue only (never billed, D31). */

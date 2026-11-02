@@ -176,6 +176,22 @@ Parameters: `date=YYYY-MM-DD`, or `from` + `to` (366 days at most); none means t
   60 requests per minute from one IP (see `Retry-After`).
 - Changing `APP_KEY` makes stored secrets unreadable: generate new keys afterwards.
 
+## Receipt printer (kitchen tickets)
+
+Kitchen › Exports prints the day's order tickets (one receipt per order: child, parent, dish, supplements, amounts) on an 80 mm ESC/POS thermal printer such as the Rongta RP332A. Choose the mode in Settings › Receipt printer:
+
+- **Direct** — the server sends the tickets to the printer's network address (default port 9100). Only when the server runs on the printer's network (or reaches it through a VPN).
+- **Print agent** — for a hosted app: the button queues the print, and a small program running on a computer of the kitchen's network sends it to the printer. Node 18+, no dependency:
+
+  ```bash
+  APP_URL=https://your-domain API_KEY=bfk_pk_… API_SECRET=bfk_sk_… \
+  PRINTER_HOST=192.168.100.242 PRINTER_PORT=9100 node scripts/print-agent.mjs
+  ```
+
+  The API keys are the ones of Settings › Revenue API; the printer's IP is on its self-test page (hold FEED while powering on). The agent polls `GET /api/v1/print-jobs/next` every 5 s (`POLL_SECONDS`) and reports with `POST /api/v1/print-jobs/:id/ack`. Keep it running (Windows: a scheduled task "at logon"; Linux: a systemd service).
+
+Either way the tickets are also available as PDF (A4 sheet or 80 mm roll) from the same page.
+
 ## Tests
 
 ```bash

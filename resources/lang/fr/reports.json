@@ -202,5 +202,38 @@
     "duration_days": "{days} j {hours} h",
     "duration_hours": "{hours} h {minutes} min",
     "duration_minutes": "{minutes} min"
+  },
+  "tickets": {
+    "title": "Tickets de commande",
+    "description": "Un ticket par commande active du jour, à remettre à l’enfant avec son plateau : enfant, parent, plat, suppléments et montants. Feuille A4 à découper, ou un ticket par reçu sur une imprimante thermique 80 mm.",
+    "per_row": "Tickets par ligne",
+    "per_row_count": "{count} par ligne",
+    "download": "Télécharger les tickets (PDF)",
+    "amounts_note": "Les montants des suppléments et leur total figurent sur chaque ticket.",
+    "no_amounts_note": "Les tickets ne contiennent pas de prix.",
+    "none": "Aucune commande active le {date} : pas de ticket à imprimer.",
+    "too_many": "Trop de tickets pour un seul PDF (maximum {max}) : choisissez une classe.",
+    "pdf_title": "Tickets du {date}",
+    "pdf_parent": "Parent : {name}",
+    "pdf_total": "Suppléments : {amount}",
+    "format": "Impression",
+    "formats": {
+      "a4": "Feuille A4 (3 ou 4 par ligne)",
+      "roll": "Imprimante tickets 80 mm"
+    },
+    "roll_note": "Un reçu par commande. Ouvrez le PDF et imprimez-le sur l’imprimante tickets (papier 80 mm, « taille réelle », sans mise à l’échelle) : elle coupe entre les tickets.",
+    "print_button": "Imprimer sur l’imprimante tickets",
+    "printed": "{count, plural, one {# ticket imprimé} other {# tickets imprimés}}.",
+    "queued": "{count, plural, one {# ticket en file} other {# tickets en file}} : l’agent d’impression va les imprimer.",
+    "printer_off": "Aucune imprimante tickets configurée (Paramètres › Imprimante tickets).",
+    "printer_unreachable": "Imprimante injoignable ({host}) : vérifiez qu’elle est allumée et sur le réseau.",
+    "jobs": "Dernières impressions",
+    "job_count": "{count, plural, one {# ticket} other {# tickets}}",
+    "statuses": {
+      "queued": "En file",
+      "printing": "Impression…",
+      "done": "Imprimé",
+      "failed": "Échec"
+    }
   }
 }

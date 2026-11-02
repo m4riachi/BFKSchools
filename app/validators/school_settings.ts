@@ -16,6 +16,16 @@ const httpsUrl = () =>
  * Validates a (partial) update of `schools.settings`. Every key is optional;
  * the service merges the result over the stored settings.
  */
+/** D50: the kitchen's receipt printer. A host name or IPv4 address, no scheme or path. */
+const printerMode = () => vine.enum(['off', 'direct', 'agent'] as const)
+const printerHost = () =>
+  vine
+    .string()
+    .trim()
+    .maxLength(253)
+    .regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i)
+const printerPort = () => vine.number().withoutDecimals().range([1, 65535])
+
 export const schoolSettingsValidator = vine.create({
   publish_weekday: weekday().optional(),
   publish_time: time().optional(),
@@ -41,6 +51,9 @@ export const schoolSettingsValidator = vine.create({
   support_whatsapp: whatsappRule().nullable().optional(),
   delivery_order_url: httpsUrl().nullable().optional(),
   glovo_url: httpsUrl().nullable().optional(),
+  printer_mode: printerMode().optional(),
+  printer_host: printerHost().nullable().optional(),
+  printer_port: printerPort().optional(),
   email_notifications: vine
     .object({
       enabled: vine.boolean().optional(),
@@ -105,6 +118,9 @@ export const schoolSettingsFormValidator = vine.create({
     support_whatsapp: whatsappRule().nullable().optional(),
     delivery_order_url: httpsUrl().nullable().optional(),
     glovo_url: httpsUrl().nullable().optional(),
+    printer_mode: printerMode().optional(),
+    printer_host: printerHost().nullable().optional(),
+    printer_port: printerPort().optional(),
     email_notifications: vine.object({
       enabled: vine.boolean(),
       menu_published: vine.boolean(),

@@ -77,9 +77,11 @@ test.group('Reports | kitchen area', (group) => {
     const { school } = await seed()
     const kitchenRoutes = routes((pattern) => pattern.startsWith('/kitchen'))
     assert.isAbove(kitchenRoutes.length, 5)
+    // D50: the one write of the area prints the day's tickets; it changes no data.
+    const PRINT = '/kitchen/exports/tickets/print'
     assert.isTrue(
-      kitchenRoutes.every((route) => route.method === 'GET'),
-      'no write route in the kitchen area'
+      kitchenRoutes.every((route) => route.method === 'GET' || route.url === PRINT),
+      'no write route in the kitchen area besides the ticket print'
     )
     const kitchen = await UserFactory.apply('kitchen').merge({ schoolId: school.id }).create()
     for (const path of ['/kitchen', '/kitchen/allergies', '/kitchen/labels', '/kitchen/exports']) {
@@ -126,10 +128,19 @@ test.group('Reports | kitchen area', (group) => {
     const pages = routes((pattern) => pattern.startsWith('/kitchen'))
     for (const route of pages) {
       const url = route.url.replace('/meals/1', '/meals/1')
-      const asParent = await client.get(`${url}?date=${TUE}`).loginAs(evil.parent).redirects(0)
-      assert.equal(asParent.status(), 403, url)
+      const asParent = await client
+        .request(`${url}?date=${TUE}`, route.method)
+        .loginAs(evil.parent)
+        .withCsrfToken()
+        .redirects(0)
+      // A refused form post is sent back with an error (302), pages answer 403.
+      if (route.method === 'GET') assert.equal(asParent.status(), 403, url)
+      else assert.include([302, 403], asParent.status(), url)
       assert.notInclude(asParent.text(), '%PDF')
-      const asGuest = await client.get(`${url}?date=${TUE}`).redirects(0)
+      const asGuest = await client
+        .request(`${url}?date=${TUE}`, route.method)
+        .withCsrfToken()
+        .redirects(0)
       assert.match(String(asGuest.header('location')), /^\/login\b/, url)
     }
   })

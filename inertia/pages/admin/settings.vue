@@ -35,6 +35,9 @@ type Settings = {
   support_whatsapp: string | null
   delivery_order_url: string | null
   glovo_url: string | null
+  printer_mode: 'off' | 'direct' | 'agent'
+  printer_host: string | null
+  printer_port: number
   email_notifications: {
     enabled: boolean
     menu_published: boolean
@@ -403,6 +406,44 @@ function submit() {
           :hint="t('settings.fields.glovo_url_hint')"
           :error="err('settings.glovo_url')"
         />
+      </section>
+
+      <!-- D50: the kitchen's receipt printer -->
+      <section class="card flex flex-col gap-4 p-5">
+        <div class="flex flex-col gap-1">
+          <h2 class="text-lg font-bold">{{ t('settings.sections.printer') }}</h2>
+          <p class="text-[13px] text-ink-4">{{ t('settings.fields.printer_hint') }}</p>
+        </div>
+        <SelectInput
+          id="printer_mode"
+          v-model="form.settings.printer_mode"
+          :label="t('settings.fields.printer_mode')"
+          :options="[
+            { value: 'off', label: t('settings.fields.printer_modes.off') },
+            { value: 'direct', label: t('settings.fields.printer_modes.direct') },
+            { value: 'agent', label: t('settings.fields.printer_modes.agent') },
+          ]"
+          :error="err('settings.printer_mode')"
+        />
+        <p class="-mt-2 text-[13px] text-ink-4">
+          {{ t(`settings.fields.printer_modes.${form.settings.printer_mode}_hint`) }}
+        </p>
+        <div v-if="form.settings.printer_mode === 'direct'" class="grid gap-4 sm:grid-cols-2">
+          <TextInput
+            id="printer_host"
+            v-model="form.settings.printer_host"
+            placeholder="192.168.100.242"
+            :label="t('settings.fields.printer_host')"
+            :error="err('settings.printer_host')"
+          />
+          <TextInput
+            id="printer_port"
+            v-model="form.settings.printer_port"
+            type="number"
+            :label="t('settings.fields.printer_port')"
+            :error="err('settings.printer_port')"
+          />
+        </div>
       </section>
 
       <section class="card flex flex-col gap-3 p-5">
