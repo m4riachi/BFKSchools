@@ -75,6 +75,7 @@
     "system": "Automatic"
   },
   "week": {
+    "demo_badge": "Demo version",
     "hello": "Hello, {name}",
     "this_week": "This week",
     "next_week": "Next week",

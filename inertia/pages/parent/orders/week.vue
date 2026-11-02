@@ -162,6 +162,12 @@ function apply() {
     <Head :title="t('pages.parent_home.title')" />
     <div class="flex items-end justify-between gap-3">
       <div class="flex flex-col gap-0.5">
+        <span
+          class="mb-2 flex w-fit items-center gap-2 rounded-full border-[1.5px] border-pink-300 bg-pink-100 px-4 py-1.5 text-[15px] font-extrabold text-pink-700"
+        >
+          <span class="size-2 rounded-full bg-pink-500" aria-hidden="true" />
+          {{ t('orders.week.demo_badge') }}
+        </span>
         <span class="text-sm text-ink-3">{{ t('orders.week.hello', { name: firstName }) }}</span>
         <h1 class="text-[26px] font-extrabold tracking-[-0.02em]">
           {{ t('pages.parent_home.title') }}
