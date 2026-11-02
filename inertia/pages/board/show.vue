@@ -1,10 +1,11 @@
 <script setup lang="ts">
 /**
- * School display board (D46): opened on a portrait screen at the school
- * (490 × 1020 mm) through a secret link, no login. Shows the published menu
- * one day at a time: the main dishes in big format with their photos, then
- * the supplements. Slides change on their own; the menu reloads every
- * minute (SchoolBoardService).
+ * School display board (D46): one layout, made for the portrait screen at
+ * the school (490 × 1800 mm), opened on its public address, no login. Shows
+ * the published menu one day at a time: each main dish is a card filled by
+ * its photo, then the supplements. Slides change on their own; the menu
+ * reloads every minute (SchoolBoardService). Sizes follow the narrow side of
+ * the screen (vmin).
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Head, usePoll } from '@inertiajs/vue3'
@@ -36,6 +37,7 @@ const { t, formatDate, locale } = useI18n()
 // these files are served by the app from `public/`, outside Vite's root.
 // The SVG animates on its own (intro, then the chef, lid and steam loop).
 const logoUrl = '/bfk-logo-animated.svg'
+const schoolLogoUrl = '/logo-academy.png'
 const watermarkUrl = '/logo-bfk.png'
 
 /** Seconds each day stays on screen. */
@@ -72,15 +74,6 @@ watch(
   }
 )
 
-const range = computed(() => {
-  if (!days.value.length) return ''
-  const options = { day: 'numeric', month: 'long' } as const
-  return t('board.week_of', {
-    from: formatDate(days.value[0].date, options),
-    to: formatDate(days.value[days.value.length - 1].date, options),
-  })
-})
-
 const clock = ref('')
 let clockTimer: ReturnType<typeof setInterval> | undefined
 function tick() {
@@ -115,6 +108,11 @@ onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', syncFullscreen)
 })
 
+/** "Monday 2": weekday and day number, no month. */
+function dayLabel(date: string) {
+  return `${formatDate(date, { weekday: 'long' })} ${formatDate(date, { day: 'numeric' })}`
+}
+
 function initial(name: string) {
   return name.trim().charAt(0).toUpperCase()
 }
@@ -123,49 +121,58 @@ function initial(name: string) {
 <template>
   <Head :title="t('board.title')" />
   <div
-    class="board relative isolate flex h-dvh flex-col gap-[2vmin] overflow-hidden bg-brand-deep px-[3vw] py-[2vmin] text-white"
+    class="board relative isolate flex h-dvh flex-col gap-[2vmin] overflow-hidden bg-neutral-950 px-[3vmin] py-[2vmin] text-white"
   >
-    <!-- Watermark: the logo tiled faintly over the background, drifting slowly -->
+    <!-- Watermark: the logo tiled faintly over the black background, drifting slowly -->
     <div
       class="board-watermark pointer-events-none absolute -inset-[20%] -z-10"
       :style="{ backgroundImage: `url(${watermarkUrl})` }"
       aria-hidden="true"
     />
-    <!-- Header: the restaurant's logo, centred -->
-    <header
-      class="relative flex flex-col items-center gap-[1vmin] text-center landscape:flex-row landscape:justify-center landscape:gap-[2vw] landscape:text-left"
-    >
-      <button
-        v-if="!isFullscreen"
-        type="button"
-        class="absolute top-0 left-0 rounded-xl border border-white/30 px-3 py-2 text-[1.5vmin] font-bold text-white hover:bg-white/10"
-        @click="fullscreen"
-      >
-        {{ t('board.fullscreen') }}
-      </button>
-      <span
-        class="tabular absolute top-0 right-0 rounded-2xl bg-white/10 px-[1.5vw] py-[0.6vmin] text-[2.8vmin] font-extrabold"
-      >
-        {{ clock }}
-      </span>
+
+    <!-- Header: BFK on the left, the school on the right, the title between -->
+    <header class="flex items-center justify-between gap-[2vmin]">
       <div
-        class="board-logo rounded-[3vmin] bg-white/80 px-[3vw] py-[0.8vmin] backdrop-blur landscape:px-[1.5vw]"
+        class="board-logo shrink-0 rounded-[2vmin] bg-white/85 px-[1.5vmin] py-[0.8vmin] backdrop-blur"
       >
         <img
           :src="logoUrl"
           alt="Beldi Fusion Kitchen"
           width="437"
           height="285"
-          class="h-[13vmin] w-auto object-contain"
+          class="h-[8vmin] w-auto object-contain"
         />
       </div>
-      <div class="flex min-w-0 flex-col items-center landscape:items-start">
-        <h1 class="mt-[0.6vmin] text-[3.4vmin] leading-tight font-extrabold tracking-[-0.02em]">
-          {{ t('board.title') }}
-        </h1>
-        <span class="max-w-full truncate text-[1.8vmin] font-semibold text-white/70">
-          {{ schoolName }} · {{ range }}
+      <!-- The day on screen: weekday and day number only -->
+      <div class="flex min-w-0 flex-1 flex-col items-center text-center">
+        <div class="flex items-center justify-center gap-[1.5vmin]">
+          <h1
+            class="text-[4.4vmin] leading-tight font-extrabold tracking-[-0.02em] first-letter:uppercase"
+          >
+            {{ day ? dayLabel(day.date) : t('board.title') }}
+          </h1>
+          <span
+            v-if="day && day.date === board.today"
+            class="rounded-full bg-pink-500 px-[1.5vmin] py-[0.5vmin] text-[1.7vmin] font-bold text-white"
+            >{{ t('board.today') }}</span
+          >
+        </div>
+        <span
+          class="tabular mt-[0.8vmin] rounded-full bg-white/10 px-[2vmin] py-[0.4vmin] text-[2.6vmin] font-extrabold"
+        >
+          {{ clock }}
         </span>
+      </div>
+      <div
+        class="board-logo shrink-0 rounded-[2vmin] bg-white/85 px-[1.5vmin] py-[0.8vmin] backdrop-blur"
+      >
+        <img
+          :src="schoolLogoUrl"
+          :alt="schoolName"
+          width="631"
+          height="160"
+          class="h-[8vmin] w-auto object-contain"
+        />
       </div>
     </header>
 
@@ -181,25 +188,13 @@ function initial(name: string) {
       </main>
 
       <main v-else :key="day.date" class="flex min-h-0 flex-1 flex-col gap-[2vmin]">
-        <!-- Day title with the slide timer under it -->
-        <div class="flex flex-col gap-[1vmin]">
-          <div class="flex items-center justify-center gap-[1.5vw]">
-            <h2 class="text-[4.4vmin] leading-tight font-extrabold first-letter:uppercase">
-              {{ formatDate(day.date, { weekday: 'long', day: 'numeric', month: 'long' }) }}
-            </h2>
-            <span
-              v-if="day.date === board.today"
-              class="rounded-full bg-pink-500 px-[1.2vw] py-[0.5vmin] text-[1.7vmin] font-bold text-white"
-              >{{ t('board.today') }}</span
-            >
-          </div>
-          <div class="h-[1vmin] w-full overflow-hidden rounded-full bg-white/15" aria-hidden="true">
-            <span
-              :key="cycle"
-              class="board-progress block h-full rounded-full bg-pink-500"
-              :style="{ animationDuration: `${SLIDE_SECONDS}s` }"
-            />
-          </div>
+        <!-- Slide timer -->
+        <div class="h-[1vmin] w-full overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+          <span
+            :key="cycle"
+            class="board-progress block h-full rounded-full bg-pink-500"
+            :style="{ animationDuration: `${SLIDE_SECONDS}s` }"
+          />
         </div>
 
         <div
@@ -219,7 +214,7 @@ function initial(name: string) {
         </div>
 
         <template v-else>
-          <!-- Main dishes: big photo cards sharing the height -->
+          <!-- Main dishes: stacked cards sharing the height, each filled by its photo -->
           <section class="flex min-h-0 flex-1 flex-col gap-[1.6vmin]">
             <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-white/70 uppercase">
               {{ t('board.dishes') }}
@@ -231,46 +226,38 @@ function initial(name: string) {
               <article
                 v-for="(meal, index) in day.dishes"
                 :key="`d-${meal.mealId}`"
-                class="board-card relative flex min-h-0 overflow-hidden rounded-[2.5vmin] bg-white text-ink shadow-overlay portrait:flex-col"
+                class="board-card relative min-h-0 overflow-hidden rounded-[2.5vmin] bg-brand-wash shadow-overlay"
                 :style="{ '--i': index }"
               >
-                <!--
-                  The whole photo, never cropped: the box keeps the photo's 4:3 shape.
-                  Landscape: photo left, as tall as the row. Portrait board: photo on
-                  top, as wide as the board (shrinks only if the rows run out of height).
-                -->
-                <div
-                  class="relative aspect-[4/3] h-full max-w-[60%] shrink-0 overflow-hidden bg-brand-wash portrait:h-auto portrait:min-h-0 portrait:w-full portrait:max-w-none portrait:flex-1"
+                <img
+                  v-if="meal.photoUrl"
+                  :src="meal.photoUrl"
+                  alt=""
+                  class="board-photo absolute inset-0 size-full object-cover"
+                  :style="{ animationDelay: `${index * 1.3}s` }"
+                />
+                <span
+                  v-else
+                  class="absolute inset-0 flex items-center justify-center text-[14vmin] font-extrabold text-brand"
+                  aria-hidden="true"
+                  >{{ initial(meal.name) }}</span
                 >
-                  <img
-                    v-if="meal.photoUrl"
-                    :src="meal.photoUrl"
-                    alt=""
-                    class="board-photo size-full object-contain"
-                    :style="{ animationDelay: `${index * 1.3}s` }"
-                  />
-                  <span
-                    v-else
-                    class="flex size-full items-center justify-center text-[10vmin] font-extrabold text-brand"
-                    aria-hidden="true"
-                    >{{ initial(meal.name) }}</span
-                  >
-                  <span
-                    class="absolute top-[1.4vmin] left-[1.4vmin] flex size-[4.4vmin] items-center justify-center rounded-full bg-brand text-[2.2vmin] font-extrabold text-white shadow-overlay"
-                    aria-hidden="true"
-                    >{{ index + 1 }}</span
-                  >
-                </div>
+                <span
+                  class="absolute top-[1.6vmin] left-[1.6vmin] flex size-[5vmin] items-center justify-center rounded-full bg-brand text-[2.6vmin] font-extrabold text-white shadow-overlay"
+                  aria-hidden="true"
+                  >{{ index + 1 }}</span
+                >
+                <!-- Name over the bottom of the photo -->
                 <div
-                  class="flex min-w-0 flex-1 flex-col justify-center gap-[1vmin] p-[2.2vmin] landscape:px-[2.5vw] portrait:flex-none portrait:gap-[0.5vmin] portrait:px-[3vmin] portrait:py-[1.8vmin]"
+                  class="absolute inset-x-0 bottom-0 flex flex-col gap-[0.4vmin] bg-gradient-to-t from-black/80 via-black/50 to-transparent px-[3vmin] pt-[6vmin] pb-[2.2vmin] text-white"
                 >
                   <span
-                    class="text-[3.1vmin] leading-[1.15] font-extrabold text-balance landscape:text-[4.2vmin] portrait:text-[4.6vmin]"
+                    class="text-[4.4vmin] leading-[1.1] font-extrabold text-balance drop-shadow"
                     >{{ meal.name }}</span
                   >
                   <span
                     v-if="meal.description"
-                    class="line-clamp-4 text-[1.8vmin] leading-snug text-ink-3 landscape:line-clamp-2 landscape:text-[2.2vmin] portrait:line-clamp-2 portrait:text-[2.4vmin]"
+                    class="line-clamp-1 text-[2.1vmin] leading-snug text-white/85"
                     >{{ meal.description }}</span
                   >
                 </div>
@@ -278,12 +265,12 @@ function initial(name: string) {
             </div>
           </section>
 
-          <!-- Supplements: a compact row -->
+          <!-- Supplements: a compact grid -->
           <section v-if="day.supplements.length" class="flex shrink-0 flex-col gap-[1.2vmin]">
             <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-white/70 uppercase">
               {{ t('board.supplements') }}
             </h3>
-            <div class="grid grid-cols-2 gap-[1.2vmin] landscape:grid-cols-4 landscape:gap-[1vw]">
+            <div class="grid grid-cols-2 gap-[1.2vmin]">
               <article
                 v-for="(meal, index) in day.supplements"
                 :key="`x-${meal.mealId}`"
@@ -294,15 +281,15 @@ function initial(name: string) {
                   v-if="meal.photoUrl"
                   :src="meal.photoUrl"
                   alt=""
-                  class="size-[6.5vmin] shrink-0 rounded-[1.4vmin] object-cover"
+                  class="size-[7vmin] shrink-0 rounded-[1.4vmin] object-cover"
                 />
                 <span
                   v-else
-                  class="flex size-[6.5vmin] shrink-0 items-center justify-center rounded-[1.4vmin] bg-pink-100 text-[2.6vmin] font-extrabold text-pink-700"
+                  class="flex size-[7vmin] shrink-0 items-center justify-center rounded-[1.4vmin] bg-pink-100 text-[2.6vmin] font-extrabold text-pink-700"
                   aria-hidden="true"
                   >{{ initial(meal.name) }}</span
                 >
-                <span class="min-w-0 flex-1 text-[2vmin] leading-tight font-bold text-balance">{{
+                <span class="min-w-0 flex-1 text-[2.2vmin] leading-tight font-bold text-balance">{{
                   meal.name
                 }}</span>
               </article>
@@ -311,6 +298,15 @@ function initial(name: string) {
         </template>
       </main>
     </Transition>
+
+    <button
+      v-if="!isFullscreen"
+      type="button"
+      class="absolute right-[1vmin] bottom-[1vmin] rounded-lg border border-white/20 px-[1.2vmin] py-[0.5vmin] text-[1.3vmin] font-bold text-white/60 hover:bg-white/10 hover:text-white"
+      @click="fullscreen"
+    >
+      {{ t('board.fullscreen') }}
+    </button>
   </div>
 </template>
 
@@ -329,12 +325,12 @@ function initial(name: string) {
   }
 }
 
-/* Logo tiled over the green, white on a low opacity, rotated and drifting. */
+/* Logo tiled over the black, white on a low opacity, rotated and drifting. */
 .board-watermark {
   background-repeat: repeat;
   background-size: 18vw auto;
   background-position: 0 0;
-  opacity: 0.07;
+  opacity: 0.09;
   filter: invert(1);
   transform: rotate(-12deg);
   animation: board-watermark-drift 90s linear infinite;
@@ -366,7 +362,7 @@ function initial(name: string) {
   }
 }
 
-/* Dishes: one per row, the rows sharing the height. */
+/* Dishes: one per row, the rows sharing the height equally. */
 .board-dishes {
   grid-template-rows: repeat(var(--n), minmax(0, 1fr));
 }
@@ -386,16 +382,16 @@ function initial(name: string) {
   }
 }
 
-/* A very slow breath on the photos so the screen never looks frozen (never cropped). */
+/* A very slow zoom on the photos so the screen never looks frozen. */
 .board-photo {
   animation: board-photo-drift 14s ease-in-out infinite alternate;
 }
 @keyframes board-photo-drift {
   from {
-    transform: scale(0.97);
+    transform: scale(1);
   }
   to {
-    transform: scale(1);
+    transform: scale(1.06);
   }
 }
 
