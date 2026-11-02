@@ -9,18 +9,22 @@ import { ref } from 'vue'
  * printer with a bulk OUT endpoint works.
  */
 type UsbEndpoint = { direction: 'in' | 'out'; type: string; endpointNumber: number }
-type UsbAlternate = { endpoints: UsbEndpoint[] }
+type UsbAlternate = { alternateSetting: number; endpoints: UsbEndpoint[] }
 type UsbInterface = { interfaceNumber: number; alternates: UsbAlternate[] }
+type UsbConfiguration = { configurationValue: number; interfaces: UsbInterface[] }
 type UsbDevice = {
   productName?: string
   opened: boolean
-  configuration: { interfaces: UsbInterface[] } | null
+  configuration: UsbConfiguration | null
+  configurations?: UsbConfiguration[]
   open: () => Promise<void>
   close: () => Promise<void>
+  reset?: () => Promise<void>
   selectConfiguration: (value: number) => Promise<void>
+  selectAlternateInterface: (interfaceNumber: number, alternateSetting: number) => Promise<void>
   claimInterface: (number: number) => Promise<void>
   releaseInterface: (number: number) => Promise<void>
-  transferOut: (endpoint: number, data: Uint8Array) => Promise<unknown>
+  transferOut: (endpoint: number, data: Uint8Array) => Promise<{ status?: string }>
 }
 type Usb = {
   getDevices: () => Promise<UsbDevice[]>
@@ -65,30 +69,83 @@ export function useUsbPrinter() {
     return device.value
   }
 
-  /** Sends raw ESC/POS bytes to the paired printer's bulk OUT endpoint. */
+  /**
+   * Sends raw ESC/POS bytes to the paired printer's bulk OUT endpoint. Every
+   * configuration and interface is tried; a claim refused once (another app
+   * holding the device, a kernel driver) is retried after a reset. Errors
+   * say which step failed, so the message on screen is useful.
+   */
   async function print(bytes: Uint8Array) {
     const current = device.value ?? (await restore())
-    if (!current) throw new Error('no printer')
-    if (!current.opened) await current.open()
-    if (!current.configuration) await current.selectConfiguration(1)
-    const interfaces = current.configuration?.interfaces ?? []
-    for (const iface of interfaces) {
-      for (const alternate of iface.alternates) {
-        const out = alternate.endpoints.find((e) => e.direction === 'out' && e.type === 'bulk')
-        if (!out) continue
-        await current.claimInterface(iface.interfaceNumber)
-        try {
-          // Small chunks: some printers choke on one large transfer.
-          for (let offset = 0; offset < bytes.length; offset += 4096) {
-            await current.transferOut(out.endpointNumber, bytes.subarray(offset, offset + 4096))
-          }
-        } finally {
-          await current.releaseInterface(iface.interfaceNumber).catch(() => {})
+    if (!current) throw new Error('no printer paired')
+    try {
+      if (!current.opened) await current.open()
+    } catch (error) {
+      throw new Error(`open: ${(error as Error).message}`)
+    }
+    const configurations = current.configurations?.length
+      ? current.configurations
+      : current.configuration
+        ? [current.configuration]
+        : []
+    if (!configurations.length) throw new Error('no USB configuration')
+    let lastError = 'no bulk OUT endpoint'
+    for (const configuration of configurations) {
+      try {
+        if (current.configuration?.configurationValue !== configuration.configurationValue) {
+          await current.selectConfiguration(configuration.configurationValue)
         }
-        return
+      } catch (error) {
+        lastError = `configuration: ${(error as Error).message}`
+        continue
+      }
+      for (const iface of configuration.interfaces) {
+        for (const alternate of iface.alternates) {
+          const out = alternate.endpoints.find((e) => e.direction === 'out' && e.type === 'bulk')
+          if (!out) continue
+          try {
+            await claim(current, iface.interfaceNumber)
+          } catch (error) {
+            lastError = `claim interface ${iface.interfaceNumber}: ${(error as Error).message}`
+            continue
+          }
+          try {
+            if (alternate.alternateSetting) {
+              await current.selectAlternateInterface(
+                iface.interfaceNumber,
+                alternate.alternateSetting
+              )
+            }
+            // Small chunks: some printers choke on one large transfer.
+            for (let offset = 0; offset < bytes.length; offset += 4096) {
+              const result = await current.transferOut(
+                out.endpointNumber,
+                bytes.subarray(offset, offset + 4096)
+              )
+              if (result.status && result.status !== 'ok')
+                throw new Error(`transfer ${result.status}`)
+            }
+            return
+          } catch (error) {
+            lastError = `write: ${(error as Error).message}`
+          } finally {
+            await current.releaseInterface(iface.interfaceNumber).catch(() => {})
+          }
+        }
       }
     }
-    throw new Error('no bulk endpoint')
+    throw new Error(lastError)
+  }
+
+  /** Claims the interface, once more after a reset if something else holds it. */
+  async function claim(current: UsbDevice, interfaceNumber: number) {
+    try {
+      await current.claimInterface(interfaceNumber)
+    } catch (error) {
+      if (!current.reset) throw error
+      await current.reset()
+      await current.claimInterface(interfaceNumber)
+    }
   }
 
   return { supported, device, restore, pair, print }

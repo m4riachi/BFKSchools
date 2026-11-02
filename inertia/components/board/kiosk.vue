@@ -35,6 +35,7 @@ const printer = useUsbPrinter()
 /** The child's ticket (ESC/POS, base64) returned with the order. */
 const ticket = ref<string | null>(null)
 const printState = ref<'idle' | 'printing' | 'printed' | 'failed'>('idle')
+const printError = ref('')
 const printFallback = computed(() => (ticket.value ? rawbtUrl(ticket.value) : null))
 
 /**
@@ -50,7 +51,9 @@ async function printTicket() {
     try {
       await printer.print(base64ToBytes(ticket.value))
       printState.value = 'printed'
-    } catch {
+    } catch (error) {
+      printError.value = `${paired.productName ?? 'USB'} — ${(error as Error).message}`
+      console.error('kiosk print', error)
       printState.value = 'failed'
     }
     return
@@ -60,6 +63,7 @@ async function printTicket() {
     printState.value = 'printed'
     return
   }
+  printError.value = 'no printer paired'
   printState.value = 'failed'
 }
 
@@ -73,8 +77,11 @@ const busy = ref(false)
 const session = ref<Session | null>(null)
 const dish = ref<Option | null>(null)
 const specials = ref<Set<number>>(new Set())
-/** One supplement at most from the kiosk. */
-const extra = ref<Option | null>(null)
+/** The other supplements picked (any number, one portion each). */
+const extras = ref<Set<number>>(new Set())
+const chosenExtras = computed(() =>
+  (session.value?.extras ?? []).filter((option) => extras.value.has(option.mealId))
+)
 
 /** "Tuesday 3": weekday then day number (English puts the number first otherwise). */
 const dateLabel = computed(() =>
@@ -149,7 +156,7 @@ async function submitPin() {
     const current = data.dishes.find((o) => o.mealId === data.current.subscriptionMealId)
     dish.value = current ?? null
     specials.value = new Set(current ? [] : data.current.specialMealIds.slice(0, 1))
-    extra.value = data.extras.find((o) => data.current.extraMealIds.includes(o.mealId)) ?? null
+    extras.value = new Set(data.current.extraMealIds)
     step.value = 'dish'
     if (!data.dishes.length && !data.specials.length) {
       error.value = t('board.kiosk.no_dish')
@@ -166,7 +173,10 @@ async function submitPin() {
 
 function toggleExtra(option: Option) {
   touch()
-  extra.value = extra.value?.mealId === option.mealId ? null : option
+  const next = new Set(extras.value)
+  if (next.has(option.mealId)) next.delete(option.mealId)
+  else next.add(option.mealId)
+  extras.value = next
 }
 /** After the dish screen: the other supplements if the day has some, else the summary. */
 function afterDish() {
@@ -195,7 +205,7 @@ function reset() {
   session.value = null
   dish.value = null
   specials.value = new Set()
-  extra.value = null
+  extras.value = new Set()
   error.value = ''
 }
 
@@ -209,7 +219,7 @@ async function confirm() {
       token: session.value.token,
       subscriptionMealId: dish.value?.mealId ?? null,
       specialMealIds: [...specials.value],
-      extraMealIds: extra.value ? [extra.value.mealId] : [],
+      extraMealIds: [...extras.value],
     })
     step.value = 'done'
     ticket.value = result.ticket
@@ -371,7 +381,7 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             :key="option.mealId"
             type="button"
             class="flex items-center gap-[2vmin] overflow-hidden rounded-[3vmin] border-4 bg-white p-[1.5vmin] text-left shadow-overlay"
-            :class="extra?.mealId === option.mealId ? 'border-brand' : 'border-transparent'"
+            :class="extras.has(option.mealId) ? 'border-brand' : 'border-transparent'"
             @click="toggleExtra(option)"
           >
             <span
@@ -389,13 +399,9 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
               <span v-if="option.price" class="text-[2.2vmin] text-ink-3">{{ option.price }}</span>
               <span
                 class="mt-[0.5vmin] w-fit rounded-full px-[2vmin] py-[0.6vmin] text-[2vmin] font-extrabold"
-                :class="
-                  extra?.mealId === option.mealId ? 'bg-brand text-white' : 'bg-subtle text-ink'
-                "
+                :class="extras.has(option.mealId) ? 'bg-brand text-white' : 'bg-subtle text-ink'"
               >
-                {{
-                  extra?.mealId === option.mealId ? t('board.kiosk.added') : t('board.kiosk.add')
-                }}
+                {{ extras.has(option.mealId) ? t('board.kiosk.added') : t('board.kiosk.add') }}
               </span>
             </span>
           </button>
@@ -406,7 +412,7 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             class="rounded-full bg-subtle px-[5vmin] py-[2vmin] text-[2.8vmin] font-extrabold"
             @click="
               () => {
-                extra = null
+                extras = new Set()
                 toConfirm()
               }
             "
@@ -457,24 +463,25 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             <span v-if="option.price" class="text-ink-3">{{ option.price }}</span>
           </li>
           <li
-            v-if="extra"
+            v-for="option in chosenExtras"
+            :key="`e-${option.mealId}`"
             class="flex items-center gap-[2vmin] rounded-[2.5vmin] bg-subtle p-[2vmin] text-[2.6vmin] font-bold"
           >
             <img
-              v-if="extra.photoUrl"
-              :src="extra.photoUrl"
+              v-if="option.photoUrl"
+              :src="option.photoUrl"
               alt=""
               class="size-[9vmin] rounded-[2vmin] object-cover"
             />
-            <span class="flex-1">+ {{ extra.name }}</span>
-            <span v-if="extra.price" class="text-ink-3">{{ extra.price }}</span>
+            <span class="flex-1">+ {{ option.name }}</span>
+            <span v-if="option.price" class="text-ink-3">{{ option.price }}</span>
           </li>
         </ul>
         <p v-if="error" class="text-[2.4vmin] font-bold text-danger" role="alert">{{ error }}</p>
         <button
           type="button"
           class="mt-auto rounded-full bg-brand px-[8vmin] py-[2.5vmin] text-[3.2vmin] font-extrabold text-white disabled:opacity-60"
-          :disabled="busy || (!dish && !chosenSpecials.length && !extra)"
+          :disabled="busy || (!dish && !chosenSpecials.length && !chosenExtras.length)"
           @click="confirm"
         >
           ✓ {{ t('board.kiosk.confirm') }}
@@ -497,7 +504,10 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             🖨 {{ t('board.kiosk.take_ticket') }}
           </p>
           <template v-else-if="ticket">
-            <p class="text-[2.2vmin] font-bold text-danger">{{ t('board.kiosk.print_failed') }}</p>
+            <p class="text-[2.2vmin] font-bold text-danger">
+              {{ t('board.kiosk.print_failed') }}
+              <span class="block text-[1.8vmin] font-semibold text-ink-3">{{ printError }}</span>
+            </p>
             <a
               :href="printFallback ?? '#'"
               class="rounded-full bg-subtle px-[5vmin] py-[2vmin] text-[2.6vmin] font-extrabold text-ink no-underline"
