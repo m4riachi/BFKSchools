@@ -15,6 +15,7 @@ import MenuChangeService, { type RemovalResolution } from '#services/menu_change
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { addDays, diffInDays, isoWeekday, type IsoDate } from '#support/dates'
 import type { WeeklyMenuStatus } from '#enums/menus'
+import type { MealType } from '#enums/meals'
 
 const PG_UNIQUE_VIOLATION = '23505'
 /** Old menus offered for copying (about six months). */
@@ -287,6 +288,37 @@ export default class MenuBuilderService {
       await item.useTransaction(trx).save()
       if (published) await this.changes.notifyDefaultChange(trx, school, locked, item)
       return item
+    })
+  }
+
+  /**
+   * D48: reorders one day's dishes or supplements (drag and drop in the
+   * builder). `ids` must be exactly the current items of that day and type;
+   * positions follow the given order. Display order only, so it is allowed
+   * until the menu is closed.
+   */
+  async reorderItems(
+    school: School,
+    menu: WeeklyMenu,
+    input: { date: IsoDate; type: MealType; ids: number[] },
+    actor: User
+  ) {
+    return this.withMenu(school, menu.weekStart, actor, async (trx, locked) => {
+      this.assertEditable(locked)
+      const items = await MenuItem.query({ client: trx })
+        .withScopes((scopes) => scopes.current())
+        .where('weekly_menu_id', locked.id)
+        .where('date', input.date)
+        .where('meal_type', input.type)
+        .forUpdate()
+      const current = new Set(items.map((item) => item.id))
+      const sameSet = input.ids.length === current.size && input.ids.every((id) => current.has(id))
+      if (!sameSet) throw new BusinessRuleException('menus.errors.reorder_mismatch')
+      const now = this.clock.now().toISO()!
+      for (const [position, id] of input.ids.entries()) {
+        await trx.from('menu_items').where('id', id).update({ position, updated_at: now })
+      }
+      return items
     })
   }
 

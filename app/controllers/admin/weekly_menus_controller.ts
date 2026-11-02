@@ -16,9 +16,10 @@ import SchoolSettingsService from '#services/school_settings_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { staffSchoolId } from '#policies/parent_policy'
 import {
+  menuCopyFromValidator,
   menuItemCreateValidator,
   menuItemUpdateValidator,
-  menuCopyFromValidator,
+  menuItemsReorderValidator,
   menuTemplateApplyValidator,
   menuTemplateSaveValidator,
   menuTimesValidator,
@@ -344,6 +345,17 @@ export default class WeeklyMenusController {
     const menu = await this.menu(ctx, school)
     await this.builder.setDefault(school, menu, Number(params.id), auth.getUserOrFail())
     session.flash('success', i18n.t('menus.flash.default_set'))
+    return this.backToWeek(ctx, menu.weekStart)
+  }
+
+  /** D48: new order of one day's dishes or supplements (drag and drop). */
+  async reorderItems(ctx: HttpContext) {
+    const { request, auth, session, i18n } = ctx
+    const school = await this.school(ctx)
+    const menu = await this.menu(ctx, school)
+    const input = await request.validateUsing(menuItemsReorderValidator)
+    await this.builder.reorderItems(school, menu, input, auth.getUserOrFail())
+    session.flash('success', i18n.t('menus.flash.reordered'))
     return this.backToWeek(ctx, menu.weekStart)
   }
 

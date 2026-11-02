@@ -131,7 +131,10 @@
     "ordered": "{count, plural, =0 {No orders} one {# ordered} other {# ordered}}",
     "special": "Special of the day",
     "set_special": "Mark as special of the day",
-    "unset_special": "Remove special"
+    "unset_special": "Remove special",
+    "drag_handle": "Drag to change the order",
+    "move_up": "Move {name} up",
+    "move_down": "Move {name} down"
   },
   "issues": {
     "missing_times": "Set the publication date and the order deadline.",
@@ -172,7 +175,8 @@
     "switch_target": "Choose another meal of the same day and type.",
     "switch_sold_out": "The chosen meal doesn't have enough portions left ({remaining} left).",
     "past_day": "This day is over: its meals can no longer be removed.",
-    "special_subscription": "Only a supplement can be the special of the day."
+    "special_subscription": "Only a supplement can be the special of the day.",
+    "reorder_mismatch": "The list changed in the meantime: reload the page and try again."
   },
   "flash": {
     "item_added": "{name} added.",
@@ -189,7 +193,8 @@
     "published": "{recipients, plural, =0 {Menu published.} one {Menu published: # family notified.} other {Menu published: # families notified.}}",
     "item_removed_with_orders": "Meal removed: {orders} orders handled ({switched} switched, {cancelled} cancelled). Parents are notified.",
     "special_set": "Supplement marked as special of the day.",
-    "special_unset": "Special of the day removed."
+    "special_unset": "Special of the day removed.",
+    "reordered": "Order updated."
   },
   "remove": {
     "title": "Remove a meal from a published menu",

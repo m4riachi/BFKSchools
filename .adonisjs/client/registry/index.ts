@@ -482,6 +482,12 @@ const routes = {
     tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"items"]],
     types: placeholder as Registry['admin.menus.items.store']['types'],
   },
+  'admin.menus.items.order': {
+    methods: ["PUT"],
+    pattern: '/admin/menus/:week/items/order',
+    tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"items"],[0,"order"]],
+    types: placeholder as Registry['admin.menus.items.order']['types'],
+  },
   'admin.menus.items.update': {
     methods: ["PUT"],
     pattern: '/admin/menus/:week/items/:id',

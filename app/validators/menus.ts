@@ -29,6 +29,13 @@ export const menuItemUpdateValidator = vine.create({
   maxQuantity: maxQuantityRule(),
 })
 
+/** D48: the new order of one day's dishes or supplements (every current item, once). */
+export const menuItemsReorderValidator = vine.create({
+  date: isoDateRule(),
+  type: vine.enum(['subscription', 'supplement'] as const),
+  ids: vine.array(idRule()).minLength(1).maxLength(100).distinct(),
+})
+
 export const menuTimesValidator = vine.create({
   publishAt: localDateTimeRule(),
   orderDeadlineAt: localDateTimeRule(),

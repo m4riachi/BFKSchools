@@ -83,6 +83,7 @@ export type ScannedRoutes = {
     'admin.menus.index': { paramsTuple?: []; params?: {} }
     'admin.menus.show': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.items.store': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
+    'admin.menus.items.order': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.items.update': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.default': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.special': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
@@ -315,6 +316,7 @@ export type ScannedRoutes = {
     'admin.holidays.settings': { paramsTuple?: []; params?: {} }
     'admin.holidays.groups.update': { paramsTuple: [ParamValue]; params: {'groupId': ParamValue} }
     'admin.holidays.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.menus.items.order': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.items.update': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.times': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

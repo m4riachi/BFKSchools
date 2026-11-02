@@ -342,6 +342,7 @@ router
       .group(() => {
         router.get('/', [controllers.admin.WeeklyMenus, 'show']).as('show')
         router.post('items', [controllers.admin.WeeklyMenus, 'storeItem']).as('items.store')
+        router.put('items/order', [controllers.admin.WeeklyMenus, 'reorderItems']).as('items.order')
         router
           .put('items/:id', [controllers.admin.WeeklyMenus, 'updateItem'])
           .where('id', id)

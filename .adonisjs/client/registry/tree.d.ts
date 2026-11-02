@@ -129,6 +129,7 @@ export interface ApiDefinition {
       show: typeof routes['admin.menus.show']
       items: {
         store: typeof routes['admin.menus.items.store']
+        order: typeof routes['admin.menus.items.order']
         update: typeof routes['admin.menus.items.update']
         default: typeof routes['admin.menus.items.default']
         special: typeof routes['admin.menus.items.special']

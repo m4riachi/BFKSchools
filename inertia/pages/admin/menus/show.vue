@@ -221,6 +221,11 @@ function setSpecial(item: MenuItemView) {
   router.post(`${base.value}/items/${item.id}/special`, {}, visitOptions)
 }
 
+/** D48: new order of a day's dishes or supplements (drag and drop or ▲▼). */
+function reorder(date: string, type: 'subscription' | 'supplement', ids: number[]) {
+  router.put(`${base.value}/items/order`, { date, type, ids }, visitOptions)
+}
+
 const maxTarget = ref<MenuItemView | null>(null)
 const maxOpen = ref(false)
 const maxForm = useForm<{ maxQuantity: string }>({ maxQuantity: '' })
@@ -608,6 +613,7 @@ const segmentClass = (active: boolean) =>
           @remove="askRemove"
           @set-default="setDefault"
           @set-special="setSpecial"
+          @reorder="reorder"
           @edit-max="editMax"
         />
       </div>

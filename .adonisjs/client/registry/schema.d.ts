@@ -1035,6 +1035,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['storeItem']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'admin.menus.items.order': {
+    methods: ["PUT"]
+    pattern: '/admin/menus/:week/items/order'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/menus').menuItemsReorderValidator)>>
+      paramsTuple: [ParamValue]
+      params: { week: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/menus').menuItemsReorderValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['reorderItems']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['reorderItems']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['reorderItems']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'admin.menus.items.update': {
     methods: ["PUT"]
     pattern: '/admin/menus/:week/items/:id'

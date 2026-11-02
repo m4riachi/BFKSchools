@@ -109,6 +109,43 @@ test.group('Menus | default meal rule', (group) => {
     )
   })
 
+  test("D48: a day's supplements are reordered; a wrong list is refused", async ({ assert }) => {
+    const { school, manager } = await setupMenuSchool()
+    const service = await builder()
+    const main = await addItem(school, manager, MON, await subscriptionMeal())
+    const a = await addItem(school, manager, MON, await supplementMeal())
+    const b = await addItem(school, manager, MON, await supplementMeal())
+    const c = await addItem(school, manager, MON, await supplementMeal())
+    const menu = await menuOf(school)
+
+    await service.reorderItems(
+      school,
+      menu,
+      { date: MON, type: 'supplement', ids: [c.id, a.id, b.id] },
+      manager
+    )
+    const items = await itemsOf(menu.id)
+    const supplements = items
+      .filter((item) => item.mealType === 'supplement')
+      .sort((x, y) => x.position - y.position)
+    assert.deepEqual(
+      supplements.map((item) => item.id),
+      [c.id, a.id, b.id]
+    )
+    // A list that is not exactly the day's items is refused (and nothing moves).
+    for (const ids of [
+      [a.id, b.id],
+      [a.id, b.id, c.id, main.id],
+      [a.id, b.id, 999999],
+    ]) {
+      await rejectsWith(
+        assert,
+        service.reorderItems(school, menu, { date: MON, type: 'supplement', ids }, manager),
+        'menus.errors.reorder_mismatch'
+      )
+    }
+  })
+
   test('removing the default promotes the next subscription meal of that day', async ({
     assert,
   }) => {

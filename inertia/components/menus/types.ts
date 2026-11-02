@@ -72,3 +72,5 @@ export const STATUS_TONES: Record<MenuStatus, 'neutral' | 'info' | 'brand' | 'wa
 
 /** Drag-and-drop payload type for catalog meals. */
 export const MEAL_DRAG_TYPE = 'application/x-bfk-meal'
+/** D48: drag-and-drop payload type for reordering a day's items (JSON {id, date, type}). */
+export const ITEM_DRAG_TYPE = 'application/x-bfk-menu-item'

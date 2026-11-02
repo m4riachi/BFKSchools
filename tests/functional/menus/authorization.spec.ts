@@ -116,6 +116,9 @@ test.group('Menus | authorization', (group) => {
       client.put(`/admin/menus/${WEEK}/items/${item.id}`).json({ maxQuantity: 1 }),
       client.post(`/admin/menus/${WEEK}/items/${item.id}/default`),
       client.post(`/admin/menus/${WEEK}/items/${item.id}/special`),
+      client
+        .put(`/admin/menus/${WEEK}/items/order`)
+        .json({ date: MON, type: 'supplement', ids: [item.id] }),
       client.delete(`/admin/menus/${WEEK}/items/${item.id}`),
       client.post(`/admin/menus/${WEEK}/schedule`),
       client.post(`/admin/menus/${WEEK}/publish`),

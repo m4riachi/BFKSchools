@@ -12,7 +12,13 @@ import MealThumb from '~/components/meals/meal_thumb.vue'
 import MealBadges from '~/components/meals/meal_badges.vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import { useI18n } from '~/composables/use_i18n'
-import { MEAL_DRAG_TYPE, type MenuCan, type MenuDayView, type MenuItemView } from './types'
+import {
+  ITEM_DRAG_TYPE,
+  MEAL_DRAG_TYPE,
+  type MenuCan,
+  type MenuDayView,
+  type MenuItemView,
+} from './types'
 
 const props = defineProps<{ day: MenuDayView; can: MenuCan }>()
 const emit = defineEmits<{
@@ -22,6 +28,8 @@ const emit = defineEmits<{
   setDefault: [item: MenuItemView]
   setSpecial: [item: MenuItemView]
   editMax: [item: MenuItemView]
+  /** D48: the new order of the day's items of one type (every id, once). */
+  reorder: [date: string, type: 'subscription' | 'supplement', ids: number[]]
 }>()
 
 const { t, formatDate } = useI18n()
@@ -69,6 +77,53 @@ function onDrop(event: DragEvent) {
     event.preventDefault()
     emit('drop', props.day.date, id)
   }
+}
+
+/* D48: reordering within a list (desktop drag and drop, or the ▲▼ buttons) */
+const dragging = ref<MenuItemView | null>(null)
+const dropTarget = ref<number | null>(null)
+function listOf(item: MenuItemView) {
+  return item.type === 'subscription' ? mains.value : supplements.value
+}
+function onItemDragStart(event: DragEvent, item: MenuItemView) {
+  if (!props.can.editItems || !event.dataTransfer) return
+  dragging.value = item
+  event.dataTransfer.effectAllowed = 'move'
+  event.dataTransfer.setData(ITEM_DRAG_TYPE, JSON.stringify({ id: item.id }))
+}
+function onItemDragOver(event: DragEvent, item: MenuItemView) {
+  if (!dragging.value || dragging.value.type !== item.type) return
+  event.preventDefault()
+  event.stopPropagation()
+  dropTarget.value = item.id
+}
+function onItemDrop(event: DragEvent, target: MenuItemView) {
+  const moved = dragging.value
+  dragging.value = null
+  dropTarget.value = null
+  if (!moved || moved.type !== target.type) return
+  event.preventDefault()
+  event.stopPropagation()
+  const ids = listOf(target).map((item) => item.id)
+  const from = ids.indexOf(moved.id)
+  const to = ids.indexOf(target.id)
+  if (from < 0 || to < 0 || from === to) return
+  ids.splice(from, 1)
+  ids.splice(to, 0, moved.id)
+  emit('reorder', props.day.date, target.type as 'subscription' | 'supplement', ids)
+}
+function onItemDragEnd() {
+  dragging.value = null
+  dropTarget.value = null
+}
+function move(item: MenuItemView, delta: -1 | 1) {
+  const ids = listOf(item).map((entry) => entry.id)
+  const from = ids.indexOf(item.id)
+  const to = from + delta
+  if (from < 0 || to < 0 || to >= ids.length) return
+  ids.splice(from, 1)
+  ids.splice(to, 0, item.id)
+  emit('reorder', props.day.date, item.type as 'subscription' | 'supplement', ids)
 }
 
 function maxLabel(item: MenuItemView) {
@@ -178,12 +233,46 @@ function maxLabel(item: MenuItemView) {
           {{ t('menus.builder.main_meals') }}
         </h3>
         <article
-          v-for="item in mains"
+          v-for="(item, index) in mains"
           :key="item.id"
           class="flex flex-col gap-2.5 rounded-xl border bg-surface p-3"
-          :class="item.isDefault ? 'border-[#9ccbb2]' : 'border-line'"
+          :class="[
+            item.isDefault ? 'border-[#9ccbb2]' : 'border-line',
+            dropTarget === item.id ? 'ring-2 ring-brand' : '',
+            dragging?.id === item.id ? 'opacity-50' : '',
+          ]"
+          :draggable="can.editItems ? 'true' : undefined"
+          @dragstart="onItemDragStart($event, item)"
+          @dragover="onItemDragOver($event, item)"
+          @drop="onItemDrop($event, item)"
+          @dragend="onItemDragEnd"
         >
           <div class="flex items-start gap-2.5">
+            <span
+              v-if="can.editItems && mains.length > 1"
+              class="flex shrink-0 cursor-grab flex-col items-center text-ink-4"
+              :title="t('menus.builder.drag_handle')"
+            >
+              <button
+                type="button"
+                class="flex size-5 items-center justify-center rounded hover:bg-subtle disabled:opacity-30"
+                :disabled="index === 0"
+                :aria-label="t('menus.builder.move_up', { name: item.meal.name })"
+                @click="move(item, -1)"
+              >
+                ▲
+              </button>
+              <span aria-hidden="true" class="text-xs leading-none">⋮⋮</span>
+              <button
+                type="button"
+                class="flex size-5 items-center justify-center rounded hover:bg-subtle disabled:opacity-30"
+                :disabled="index === mains.length - 1"
+                :aria-label="t('menus.builder.move_down', { name: item.meal.name })"
+                @click="move(item, 1)"
+              >
+                ▼
+              </button>
+            </span>
             <MealThumb
               :src="item.meal.cover?.thumbUrl"
               :seed="item.meal.id"
@@ -269,12 +358,46 @@ function maxLabel(item: MenuItemView) {
           {{ t('menus.builder.supplements') }}
         </h3>
         <div
-          v-for="item in supplements"
+          v-for="(item, index) in supplements"
           :key="item.id"
           class="flex flex-col gap-1.5 rounded-[10px] border bg-surface py-2 pr-1.5 pl-2"
-          :class="item.isSpecial ? 'border-pink-300' : 'border-line'"
+          :class="[
+            item.isSpecial ? 'border-pink-300' : 'border-line',
+            dropTarget === item.id ? 'ring-2 ring-brand' : '',
+            dragging?.id === item.id ? 'opacity-50' : '',
+          ]"
+          :draggable="can.editItems ? 'true' : undefined"
+          @dragstart="onItemDragStart($event, item)"
+          @dragover="onItemDragOver($event, item)"
+          @drop="onItemDrop($event, item)"
+          @dragend="onItemDragEnd"
         >
           <div class="flex items-center gap-2">
+            <span
+              v-if="can.editItems && supplements.length > 1"
+              class="flex shrink-0 cursor-grab flex-col items-center text-ink-4"
+              :title="t('menus.builder.drag_handle')"
+            >
+              <button
+                type="button"
+                class="flex size-4 items-center justify-center rounded text-[10px] hover:bg-subtle disabled:opacity-30"
+                :disabled="index === 0"
+                :aria-label="t('menus.builder.move_up', { name: item.meal.name })"
+                @click="move(item, -1)"
+              >
+                ▲
+              </button>
+              <span aria-hidden="true" class="text-[10px] leading-none">⋮⋮</span>
+              <button
+                type="button"
+                class="flex size-4 items-center justify-center rounded text-[10px] hover:bg-subtle disabled:opacity-30"
+                :disabled="index === supplements.length - 1"
+                :aria-label="t('menus.builder.move_down', { name: item.meal.name })"
+                @click="move(item, 1)"
+              >
+                ▼
+              </button>
+            </span>
             <MealThumb
               :src="item.meal.cover?.thumbUrl"
               :seed="item.meal.id"
