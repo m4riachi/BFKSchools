@@ -40,6 +40,10 @@ export interface ApiDefinition {
   board: {
     show: typeof routes['board.show']
     manifest: typeof routes['board.manifest']
+    kiosk: {
+      start: typeof routes['board.kiosk.start']
+      order: typeof routes['board.kiosk.order']
+    }
     photo: typeof routes['board.photo']
   }
   parent: {

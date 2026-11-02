@@ -114,6 +114,15 @@ router
   .get('board/:slug/manifest.webmanifest', [controllers.Board, 'manifest'])
   .where('slug', boardSlug)
   .as('board.manifest')
+// D51: the ordering kiosk of the board (child code → dish → special → confirm)
+router
+  .post('board/:slug/kiosk/session', [controllers.Board, 'kioskStart'])
+  .where('slug', boardSlug)
+  .as('board.kiosk.start')
+router
+  .post('board/:slug/kiosk/order', [controllers.Board, 'kioskOrder'])
+  .where('slug', boardSlug)
+  .as('board.kiosk.order')
 router
   .get('board/:slug/photos/:id/:variant', [controllers.Board, 'photo'])
   .where('slug', boardSlug)

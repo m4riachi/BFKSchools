@@ -229,6 +229,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/board_controller').default['manifest']>>>
     }
   }
+  'board.kiosk.start': {
+    methods: ["POST"]
+    pattern: '/board/:slug/kiosk/session'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { slug: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/board_controller').default['kioskStart']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/board_controller').default['kioskStart']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/board_controller').default['kioskStart']>>>
+    }
+  }
+  'board.kiosk.order': {
+    methods: ["POST"]
+    pattern: '/board/:slug/kiosk/order'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { slug: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/board_controller').default['kioskOrder']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/board_controller').default['kioskOrder']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/board_controller').default['kioskOrder']>>>
+    }
+  }
   'board.photo': {
     methods: ["GET","HEAD"]
     pattern: '/board/:slug/photos/:id/:variant'

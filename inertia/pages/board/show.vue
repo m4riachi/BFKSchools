@@ -11,6 +11,8 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Head, usePoll } from '@inertiajs/vue3'
 import InstallButton from '~/components/ui/install_button.vue'
+import Kiosk from '~/components/board/kiosk.vue'
+import { useUsbPrinter } from '~/composables/use_usb_printer'
 import { useI18n } from '~/composables/use_i18n'
 
 type BoardMeal = {
@@ -29,6 +31,7 @@ type BoardDay = {
 }
 
 const props = defineProps<{
+  slug: string
   schoolName: string
   board: {
     weekStart: string
@@ -41,6 +44,15 @@ const props = defineProps<{
 
 // Always English: BoardController overrides the shared locale.
 const { t, formatDate, locale } = useI18n()
+
+/** D51: the ordering kiosk, opened from the big button. */
+const kioskOpen = ref(false)
+/** The USB receipt printer plugged into the board (paired once with the 🖨 button). */
+const printer = useUsbPrinter()
+const printerName = computed(() => printer.device.value?.productName || t('board.printer_paired'))
+async function pairPrinter() {
+  await printer.pair()
+}
 
 // Bound on purpose: Vite would resolve a literal `src` as a module import, and
 // these files are served by the app from `public/`, outside Vite's root.
@@ -134,6 +146,7 @@ async function fullscreen() {
 onMounted(() => {
   restart()
   tick()
+  void printer.restore()
   clockTimer = setInterval(tick, 10_000)
   document.addEventListener('fullscreenchange', syncFullscreen)
 })
@@ -357,6 +370,31 @@ function initial(name: string) {
       </main>
     </Transition>
 
+    <!-- D51: the children's ordering kiosk -->
+    <button
+      type="button"
+      class="board-order mx-auto flex shrink-0 items-center justify-center gap-[1.5vmin] rounded-full bg-pink-500 px-[5vmin] py-[1.6vmin] text-[2.8vmin] font-extrabold text-white shadow-overlay hover:bg-pink-600"
+      @click="kioskOpen = true"
+    >
+      <span aria-hidden="true">🍽</span>{{ t('board.kiosk.button') }}
+    </button>
+    <Kiosk v-if="kioskOpen" :slug="slug" @close="kioskOpen = false" />
+
+    <button
+      v-if="printer.supported"
+      type="button"
+      class="absolute bottom-[1vmin] left-[1vmin] rounded-lg border px-[1.2vmin] py-[0.5vmin] text-[1.3vmin] font-bold"
+      :class="
+        printer.device.value
+          ? 'border-brand/30 text-brand-strong'
+          : 'border-black/15 text-ink-3 hover:bg-black/5'
+      "
+      :title="printer.device.value ? printerName : t('board.printer_pair')"
+      @click="pairPrinter"
+    >
+      🖨 {{ printer.device.value ? printerName : t('board.printer_pair') }}
+    </button>
+
     <button
       v-if="!isFullscreen"
       type="button"
@@ -380,6 +418,20 @@ function initial(name: string) {
   }
   to {
     width: 100%;
+  }
+}
+
+/* The order button breathes gently so children notice it. */
+.board-order {
+  animation: board-order-pulse 2.4s ease-in-out infinite;
+}
+@keyframes board-order-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
   }
 }
 

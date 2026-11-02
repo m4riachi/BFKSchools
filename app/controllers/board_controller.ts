@@ -4,9 +4,14 @@ import { errors as limiterErrors } from '@adonisjs/limiter'
 import MealPhoto from '#models/meal_photo'
 import MealPhotoService from '#services/meal_photo_service'
 import SchoolBoardService from '#services/school_board_service'
+import KioskService from '#services/kiosk_service'
+import BusinessRuleException from '#exceptions/business_rule_exception'
+import vine, { errors as vineErrors } from '@vinejs/vine'
+import { kioskPinLimiter, kioskKeys } from '#start/limiter'
 import type { MealPhotoVariant } from '#enums/meals'
 import { sendMealPhoto } from '#support/meal_photo_response'
 import { clientTranslations } from '#support/client_translations'
+import i18nManager from '@adonisjs/i18n/services/main'
 import { boardIpLimiter, boardKeys } from '#start/limiter'
 
 /**
@@ -16,6 +21,27 @@ import { boardIpLimiter, boardKeys } from '#start/limiter'
  */
 const BOARD_LOCALE = 'en'
 
+const kioskPinValidator = vine.create({
+  pin: vine
+    .string()
+    .trim()
+    .regex(/^\d{4}$/),
+})
+const kioskOrderValidator = vine.create({
+  token: vine.string().trim().minLength(10).maxLength(2000),
+  subscriptionMealId: vine.number().withoutDecimals().range([1, 2147483647]).nullable().optional(),
+  specialMealIds: vine
+    .array(vine.number().withoutDecimals().range([1, 2147483647]))
+    .maxLength(10)
+    .distinct()
+    .optional(),
+  extraMealIds: vine
+    .array(vine.number().withoutDecimals().range([1, 2147483647]))
+    .maxLength(10)
+    .distinct()
+    .optional(),
+})
+
 function boardAppName(school: { name: string }) {
   return `Menu board · ${school.name}`
 }
@@ -23,7 +49,8 @@ function boardAppName(school: { name: string }) {
 export default class BoardController {
   constructor(
     protected board: SchoolBoardService,
-    protected photos: MealPhotoService
+    protected photos: MealPhotoService,
+    protected kiosk: KioskService
   ) {}
 
   /** Rate limit, then the school of the link (null = 404 / 429 already sent). */
@@ -57,6 +84,7 @@ export default class BoardController {
       appTitle: boardAppName(school),
     })
     return ctx.inertia.render('board/show', {
+      slug,
       schoolName: school.name,
       board: await this.board.week(school, slug, BOARD_LOCALE),
     })
@@ -94,6 +122,64 @@ export default class BoardController {
           purpose: 'maskable',
         },
       ],
+    }
+  }
+
+  /**
+   * D51: the ordering kiosk. JSON answers for the board page's own fetches:
+   * 422 with a translated message when a rule refuses (unknown code, closed
+   * day, expired session), 429 after too many codes from one address.
+   */
+  async kioskStart(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    if (!school) return
+    try {
+      await kioskPinLimiter().consume(kioskKeys.ip(ctx.request.ip()))
+    } catch (error) {
+      if (!(error instanceof limiterErrors.E_TOO_MANY_REQUESTS)) throw error
+      ctx.response.header('Retry-After', String(error.response.availableIn))
+      return ctx.response.tooManyRequests({
+        error: i18nManager.locale(BOARD_LOCALE).t('board.kiosk.too_many'),
+      })
+    }
+    return this.kioskAnswer(ctx, async () => {
+      const { pin } = await ctx.request.validateUsing(kioskPinValidator)
+      return this.kiosk.start(school, pin, String(ctx.params.slug), BOARD_LOCALE)
+    })
+  }
+
+  async kioskOrder(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    if (!school) return
+    return this.kioskAnswer(ctx, async () => {
+      const input = await ctx.request.validateUsing(kioskOrderValidator)
+      return this.kiosk.order(
+        school,
+        input.token,
+        {
+          subscriptionMealId: input.subscriptionMealId ?? null,
+          specialMealIds: input.specialMealIds ?? [],
+          extraMealIds: input.extraMealIds ?? [],
+        },
+        BOARD_LOCALE
+      )
+    })
+  }
+
+  protected async kioskAnswer<T>(ctx: HttpContext, work: () => Promise<T>) {
+    ctx.response.header('Cache-Control', 'no-store')
+    try {
+      return await work()
+    } catch (error) {
+      // The board (and its kiosk) is always in English, whatever the browser asks.
+      const i18n = i18nManager.locale(BOARD_LOCALE)
+      if (error instanceof vineErrors.E_VALIDATION_ERROR) {
+        return ctx.response.unprocessableEntity({ error: i18n.t('board.kiosk.error') })
+      }
+      if (!(error instanceof BusinessRuleException)) throw error
+      return ctx.response.unprocessableEntity({
+        error: i18n.t(error.messageKey, error.options.values ?? {}),
+      })
     }
   }
 

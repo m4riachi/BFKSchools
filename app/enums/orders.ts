@@ -15,7 +15,7 @@ export const CANCEL_REASONS = [
 ] as const
 export type CancelReason = (typeof CANCEL_REASONS)[number]
 
-export const ORDER_ORIGINS = ['parent', 'staff', 'system'] as const
+export const ORDER_ORIGINS = ['parent', 'staff', 'system', 'kiosk'] as const
 export type OrderOrigin = (typeof ORDER_ORIGINS)[number]
 
 export const AUDIT_ACTOR_ROLES = ['parent', 'admin', 'manager', 'system'] as const

@@ -110,6 +110,18 @@ const routes = {
     tokens: [[0,"board"],[1,"slug"],[0,"manifest.webmanifest"]],
     types: placeholder as Registry['board.manifest']['types'],
   },
+  'board.kiosk.start': {
+    methods: ["POST"],
+    pattern: '/board/:slug/kiosk/session',
+    tokens: [[0,"board"],[1,"slug"],[0,"kiosk"],[0,"session"]],
+    types: placeholder as Registry['board.kiosk.start']['types'],
+  },
+  'board.kiosk.order': {
+    methods: ["POST"],
+    pattern: '/board/:slug/kiosk/order',
+    tokens: [[0,"board"],[1,"slug"],[0,"kiosk"],[0,"order"]],
+    types: placeholder as Registry['board.kiosk.order']['types'],
+  },
   'board.photo': {
     methods: ["GET","HEAD"],
     pattern: '/board/:slug/photos/:id/:variant',

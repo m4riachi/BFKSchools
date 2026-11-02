@@ -39,8 +39,11 @@ export function makeShieldConfig(options: { inProduction: boolean; storage: Stor
      */
     csrf: {
       enabled: true,
-      // The external API (D36, D50) is authenticated by keys, not by a session cookie.
-      exceptRoutes: (ctx) => ctx.request.url().startsWith('/api/v1/'),
+      // The external API (D36, D50) is authenticated by keys, not by a session
+      // cookie; the board's kiosk (D51) has no session either (code + signed token).
+      exceptRoutes: (ctx) =>
+        ctx.request.url().startsWith('/api/v1/') ||
+        /^\/board\/[^/]+\/kiosk\//.test(ctx.request.url()),
       enableXsrfCookie: true,
       methods: ['POST', 'PUT', 'PATCH', 'DELETE'],
     },

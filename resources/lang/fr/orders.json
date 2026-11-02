@@ -72,7 +72,8 @@
   "origins": {
     "parent": "Parent",
     "staff": "Passée par l’admin",
-    "system": "Automatique"
+    "system": "Automatique",
+    "kiosk": "Commandé à la borne"
   },
   "week": {
     "demo_badge": "Version de démonstration",
@@ -131,7 +132,8 @@
     "auto_assigned": "Plat par défaut attribué",
     "today": "Aujourd'hui",
     "next_school_day": "Prochain jour",
-    "special": "Spécial du jour"
+    "special": "Spécial du jour",
+    "child_pin": "Code borne {pin}"
   },
   "history": {
     "title": "Historique des commandes",

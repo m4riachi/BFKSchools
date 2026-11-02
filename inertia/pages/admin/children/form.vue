@@ -187,6 +187,19 @@ const day = (iso: string) => formatDate(iso, { dateStyle: 'medium' })
         :error="allergyError"
       />
 
+      <!-- D51: the child's code on the board's kiosk -->
+      <div
+        v-if="child?.pin"
+        class="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-subtle px-4 py-3"
+      >
+        <span class="text-[13px] font-bold">{{ t('families.child_form.pin') }}</span>
+        <span
+          class="tabular rounded-lg bg-surface px-3 py-1 text-lg font-extrabold tracking-[0.3em]"
+          >{{ child.pin }}</span
+        >
+        <span class="text-[13px] text-ink-4">{{ t('families.child_form.pin_hint') }}</span>
+      </div>
+
       <TextArea
         id="dietaryNotes"
         v-model="form.dietaryNotes"

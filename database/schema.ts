@@ -18,7 +18,7 @@ import type { UserTokenType } from '#enums/user_tokens'
 import type { Role } from '#enums/roles'
 
 export class ChildSchema extends BaseModel {
-  static $columns = ['allergies', 'className', 'createdAt', 'dietaryNotes', 'firstName', 'grade', 'id', 'isActive', 'lastName', 'parentId', 'schoolId', 'updatedAt'] as const
+  static $columns = ['allergies', 'className', 'createdAt', 'dietaryNotes', 'firstName', 'grade', 'id', 'isActive', 'lastName', 'parentId', 'pin', 'schoolId', 'updatedAt'] as const
   $columns = ChildSchema.$columns
   @column()
   declare allergies: AllergenCode[]
@@ -40,6 +40,8 @@ export class ChildSchema extends BaseModel {
   declare lastName: string
   @column()
   declare parentId: number
+  @column()
+  declare pin: string
   @column()
   declare schoolId: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })

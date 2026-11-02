@@ -72,7 +72,8 @@
   "origins": {
     "parent": "Parent",
     "staff": "Placed by admin",
-    "system": "Automatic"
+    "system": "Automatic",
+    "kiosk": "Ordered at the kiosk"
   },
   "week": {
     "demo_badge": "Demo version",
@@ -131,7 +132,8 @@
     "auto_assigned": "Default meal assigned",
     "today": "Today",
     "next_school_day": "Next day",
-    "special": "Special of the day"
+    "special": "Special of the day",
+    "child_pin": "Kiosk code {pin}"
   },
   "history": {
     "title": "Order history",

@@ -22,6 +22,8 @@ type ChildItem = {
   lastName: string
   grade: string | null
   className: string | null
+  /** D51: the child's code on the school board's kiosk. */
+  pin: string
   totalCents: number
   total: string
 }
@@ -214,7 +216,11 @@ function apply() {
           </span>
           <span class="flex min-w-0 flex-col gap-px">
             <span class="truncate text-[15px] font-bold text-ink">{{ c.firstName }}</span>
-            <span class="truncate text-xs text-ink-3">{{ placement(c.grade, c.className) }}</span>
+            <span class="truncate text-xs text-ink-3">
+              <template v-if="placement(c.grade, c.className)"
+                >{{ placement(c.grade, c.className) }} · </template
+              >{{ t('orders.week.child_pin', { pin: c.pin }) }}
+            </span>
           </span>
         </button>
       </div>

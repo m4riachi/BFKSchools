@@ -676,7 +676,7 @@ export default class ProductionReportService {
   async tickets(
     schoolId: number,
     date: IsoDate,
-    options: { className?: string | null; limit: number }
+    options: { className?: string | null; orderId?: number; limit: number }
   ): Promise<TicketRow[]> {
     assertDate(date)
     const bindings: (string | number)[] = [schoolId, date]
@@ -684,6 +684,10 @@ export default class ProductionReportService {
     if (options.className) {
       filter = ' AND c.class_name = ?'
       bindings.push(options.className)
+    }
+    if (options.orderId) {
+      filter += ' AND mo.id = ?'
+      bindings.push(options.orderId)
     }
     bindings.push(options.limit)
     const result = await db.rawQuery(

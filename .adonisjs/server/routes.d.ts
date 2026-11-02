@@ -21,6 +21,8 @@ export type ScannedRoutes = {
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.manifest': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.kiosk.start': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.kiosk.order': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.photo': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'slug': ParamValue,'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
@@ -274,6 +276,8 @@ export type ScannedRoutes = {
     'locale.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'api.print_jobs.ack': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'board.kiosk.start': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.kiosk.order': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'parent.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.absent': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
     'parent.orders.apply_all': { paramsTuple: [ParamValue]; params: {'date': ParamValue} }

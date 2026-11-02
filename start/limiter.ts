@@ -164,6 +164,17 @@ export const boardKeys = {
   ip: (ip: string) => `board:ip:${rateLimitIpKey(ip)}`,
 }
 
+/** D51: kiosk codes are 4 digits — a slow cap stops guessing from one address. */
+export const KIOSK_LIMITS = { ip: { requests: 12, duration: '5 mins' } } as const
+
+export function kioskPinLimiter() {
+  return limiter.use({ ...KIOSK_LIMITS.ip })
+}
+
+export const kioskKeys = {
+  ip: (ip: string) => `kiosk:ip:${rateLimitIpKey(ip)}`,
+}
+
 export const uploadKeys = {
   mealPhotos: (userId: number) => `uploads:meal_photos:${userId}`,
   holidayImport: (userId: number) => `uploads:holiday_import:${userId}`,

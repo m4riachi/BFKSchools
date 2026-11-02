@@ -37,6 +37,8 @@ export type OrderActor = { user: User; ip?: string | null }
 export type SaveDayOptions = {
   /** Mandatory for staff (admin/manager): written to the audit log. */
   reason?: string | null
+  /** D51: the child chose on the board's kiosk (on behalf of the parent). */
+  origin?: 'kiosk'
 }
 
 export type DayOutcome = {
@@ -379,7 +381,7 @@ export default class OrderService {
             cancelReason: null,
             cancelNote: null,
             cancelledAt: null,
-            origin: context.staff ? 'staff' : 'parent',
+            origin: context.staff ? 'staff' : (options.origin ?? 'parent'),
             createdBy: actorId,
             updatedBy: actorId,
           },
@@ -398,7 +400,7 @@ export default class OrderService {
         saved.merge({
           status: 'active',
           // D39: the tag says who chose last.
-          origin: context.staff ? 'staff' : 'parent',
+          origin: context.staff ? 'staff' : (options.origin ?? 'parent'),
           cancelReason: null,
           cancelNote: null,
           cancelledAt: null,

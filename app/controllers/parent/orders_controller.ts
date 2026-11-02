@@ -137,6 +137,7 @@ export default class OrdersController {
         lastName: candidate.lastName,
         grade: candidate.grade,
         className: candidate.className,
+        pin: candidate.pin,
         totalCents: totals.get(candidate.id) ?? 0,
         total: formatMad(totals.get(candidate.id) ?? 0, locale),
       })),

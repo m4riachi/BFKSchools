@@ -54,6 +54,8 @@ export function presentChild(child: Child) {
     className: child.className,
     allergies: [...child.allergies],
     dietaryNotes: child.dietaryNotes,
+    /** D51: the child's code on the board's kiosk. */
+    pin: child.pin,
     isActive: child.isActive,
     subscriptions: (child.subscriptions ?? []).map(presentSubscription),
   }

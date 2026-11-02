@@ -28,6 +28,8 @@ export type SubscriptionRow = {
 }
 
 export type ChildRow = {
+  /** D51: the child's code on the board's kiosk. */
+  pin?: string
   id: number
   parentId: number
   firstName: string

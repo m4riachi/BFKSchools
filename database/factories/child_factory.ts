@@ -20,6 +20,8 @@ export const ChildFactory = factory
       className: '3B',
       allergies: [],
       dietaryNotes: null,
+      // D51: unique within a test run (sequence-based).
+      pin: String(sequence % 10000).padStart(4, '0'),
       isActive: true,
     }
   })

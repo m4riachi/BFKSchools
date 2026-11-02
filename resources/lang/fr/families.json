@@ -127,7 +127,9 @@
     "delete": "Supprimer l'enfant",
     "delete_title": "Supprimer cet enfant ?",
     "delete_body": "{name} et ses périodes d'abonnement seront supprimés définitivement. Pour garder l'historique, désactivez plutôt l'enfant.",
-    "danger_zone": "Suppression"
+    "danger_zone": "Suppression",
+    "pin": "Code borne",
+    "pin_hint": "Le code que l’enfant tape sur l’écran de l’école pour commander (visible aussi par le parent)."
   },
   "subscriptions": {
     "title": "Périodes d'abonnement",
@@ -246,7 +248,8 @@
     "subscription_overlap": "Cette période chevauche une période existante ({start} → {end}).",
     "subscription_overlap_generic": "Cette période chevauche une période existante.",
     "child_duplicate": "Ce parent a déjà un enfant avec ce prénom et ce nom.",
-    "child_has_orders": "Cet enfant a des commandes : désactivez-le au lieu de le supprimer."
+    "child_has_orders": "Cet enfant a des commandes : désactivez-le au lieu de le supprimer.",
+    "no_free_pin": "Impossible d’attribuer un code borne : réessayez."
   },
   "flash": {
     "parent_created": "Parent créé.",

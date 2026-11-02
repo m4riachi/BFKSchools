@@ -32,6 +32,7 @@ export default class ChildService {
     if (parent.role !== 'parent' || typeof schoolId !== 'number') {
       throw new BusinessRuleException('families.errors.not_a_parent')
     }
+    // D51: the kiosk code (`pin`) is assigned by the database (trigger), unique in the school.
     return this.guardUnique(() =>
       Child.create({
         parentId: parent.id,

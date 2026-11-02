@@ -127,7 +127,9 @@
     "delete": "Delete child",
     "delete_title": "Delete this child?",
     "delete_body": "{name} and their subscription periods will be permanently deleted. To keep the history, deactivate the child instead.",
-    "danger_zone": "Deletion"
+    "danger_zone": "Deletion",
+    "pin": "Kiosk code",
+    "pin_hint": "The code the child types on the school screen to order (the parent sees it too)."
   },
   "subscriptions": {
     "title": "Subscription periods",
@@ -246,7 +248,8 @@
     "subscription_overlap": "This period overlaps an existing period ({start} → {end}).",
     "subscription_overlap_generic": "This period overlaps an existing period.",
     "child_duplicate": "This parent already has a child with this first and last name.",
-    "child_has_orders": "This child has orders: deactivate them instead of deleting."
+    "child_has_orders": "This child has orders: deactivate them instead of deleting.",
+    "no_free_pin": "Could not assign a kiosk code: try again."
   },
   "flash": {
     "parent_created": "Parent created.",
