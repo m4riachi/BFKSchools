@@ -7,7 +7,7 @@ import MealPhoto from '#models/meal_photo'
 import School from '#models/school'
 import SchoolSettingsService from '#services/school_settings_service'
 import { freezeClock, restoreClock } from '#tests/helpers/clock'
-import { addHoliday, setupMenuSchool, supplementMeal, WED } from '#tests/helpers/menus'
+import { addHoliday, setupMenuSchool, supplementMeal } from '#tests/helpers/menus'
 import { family, orderSchool, orders, TUE } from '#tests/helpers/orders'
 
 const SLUG = 'bfk-british-academy-school-marrakech'
@@ -67,7 +67,7 @@ test.group('School display board (D46)', (group) => {
       { user: home.parent }
     )
 
-    // Monday of the menu week: the board shows that week.
+    // Monday of the menu week: the board shows Monday and Tuesday.
     freezeClock('2026-11-23T09:00')
     const response = await client.get(`/board/${token}`).withInertia()
     response.assertStatus(200)
@@ -76,7 +76,12 @@ test.group('School display board (D46)', (group) => {
     const board = response.body().props.board
     assert.equal(board.weekStart, '2026-11-23')
     assert.isTrue(board.published)
-    assert.lengthOf(board.days, 5)
+    assert.deepEqual(
+      board.days.map((day: { date: string }) => day.date),
+      ['2026-11-23', TUE]
+    )
+    assert.equal(board.today, '2026-11-23')
+    assert.equal(board.tomorrow, TUE)
 
     const tuesday = board.days.find((day: { date: string }) => day.date === TUE)
     assert.sameMembers(
@@ -98,21 +103,40 @@ test.group('School display board (D46)', (group) => {
     assert.notInclude(body, '"count"')
   })
 
-  test('Saturday shows the next week; holidays are named; unpublished weeks are empty', async ({
+  test('a weekend shows Monday and Tuesday; holidays are named; unpublished weeks are empty', async ({
     client,
     assert,
   }) => {
     const { school, admin } = await setupMenuSchool()
-    await addHoliday(school, WED, 'Thanksgiving')
+    await addHoliday(school, TUE, 'Thanksgiving')
     const token = await enableBoard(client, admin)
 
     freezeClock('2026-11-21T10:00')
     const board = (await client.get(`/board/${token}`).withInertia()).body().props.board
     assert.equal(board.weekStart, '2026-11-23')
     assert.isFalse(board.published)
-    const wednesday = board.days.find((day: { date: string }) => day.date === WED)
-    assert.equal(wednesday.holiday, 'Thanksgiving')
-    assert.deepEqual(wednesday.dishes, [])
+    assert.deepEqual(
+      board.days.map((day: { date: string }) => day.date),
+      ['2026-11-23', TUE]
+    )
+    const tuesday = board.days.find((day: { date: string }) => day.date === TUE)
+    assert.equal(tuesday.holiday, 'Thanksgiving')
+    assert.deepEqual(tuesday.dishes, [])
+  })
+
+  test('Friday shows Friday and the next Monday, across two menus', async ({ client, assert }) => {
+    const ctx = await orderSchool()
+    const token = await enableBoard(client, ctx.admin)
+    freezeClock('2026-11-27T09:00')
+    const board = (await client.get(`/board/${token}`).withInertia()).body().props.board
+    assert.deepEqual(
+      board.days.map((day: { date: string }) => day.date),
+      ['2026-11-27', '2026-11-30']
+    )
+    assert.isTrue(board.published)
+    assert.lengthOf(board.days[0].dishes, 2)
+    // Next week has no published menu yet: an empty day, not a hidden one.
+    assert.deepEqual(board.days[1].dishes, [])
   })
 
   test('the board installs as its own app: a manifest that starts on the board', async ({

@@ -2,9 +2,9 @@
 /**
  * School display board (D46): one layout, made for the portrait screen at
  * the school (490 × 1800 mm), opened on its public address, no login. Shows
- * the published menu one day at a time: the day's dishes (up to four, two per
- * row) — the whole photo, never cropped — with the supplements under them;
- * then the next day.
+ * the published menu of today, then of the next school day: the dishes (up to
+ * four, two per row), each card filled by its photo, with the supplements
+ * under them.
  * Slides change on their own; the menu reloads every minute
  * (SchoolBoardService). Sizes follow the narrow side of the screen (vmin).
  */
@@ -29,7 +29,13 @@ type BoardDay = {
 
 const props = defineProps<{
   schoolName: string
-  board: { weekStart: string; today: string; published: boolean; days: BoardDay[] }
+  board: {
+    weekStart: string
+    today: string
+    tomorrow: string
+    published: boolean
+    days: BoardDay[]
+  }
 }>()
 
 // Always English: BoardController overrides the shared locale.
@@ -184,6 +190,11 @@ function initial(name: string) {
             class="rounded-full bg-pink-500 px-[1.5vmin] py-[0.5vmin] text-[1.7vmin] font-bold text-white"
             >{{ t('board.today') }}</span
           >
+          <span
+            v-else-if="day && day.date === board.tomorrow"
+            class="rounded-full bg-brand px-[1.5vmin] py-[0.5vmin] text-[1.7vmin] font-bold text-white"
+            >{{ t('board.tomorrow') }}</span
+          >
         </div>
         <span
           class="tabular mt-[0.8vmin] rounded-full bg-black/5 px-[2vmin] py-[0.4vmin] text-[2.6vmin] font-extrabold"
@@ -191,7 +202,9 @@ function initial(name: string) {
           {{ clock }}
         </span>
         <!-- Shown only where the browser can install the app (phone, tablet, laptop). -->
-        <InstallButton variant="pill" :auto-open="false" class="mt-[1vmin]" />
+        <div class="mt-[1vmin] empty:hidden">
+          <InstallButton variant="pill" :auto-open="false" />
+        </div>
       </div>
       <div
         class="board-logo flex h-[10vmin] w-[18vmin] shrink-0 items-center justify-center rounded-[2vmin] bg-white p-[1vmin]"
@@ -244,7 +257,7 @@ function initial(name: string) {
         </div>
 
         <template v-else>
-          <!-- The day's dishes, two per row: the whole photo, never cropped, then the name -->
+          <!-- The day's dishes, two per row: the photo filling the card, then the name -->
           <section class="flex min-h-0 flex-1 flex-col gap-[1.2vmin]">
             <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
               {{ t('board.dishes') }}
@@ -260,12 +273,12 @@ function initial(name: string) {
                 class="board-card relative flex min-h-0 flex-col overflow-hidden rounded-[3vmin] bg-white shadow-overlay ring-1 ring-black/10"
                 :style="{ '--i': index }"
               >
-                <div class="relative min-h-0 flex-1 bg-neutral-100">
+                <div class="relative min-h-0 flex-1 overflow-hidden bg-neutral-100">
                   <img
                     v-if="dish.photoUrl"
                     :src="dish.photoUrl"
                     alt=""
-                    class="board-photo absolute inset-0 size-full object-contain"
+                    class="board-photo absolute inset-0 size-full object-cover"
                     :style="{ animationDelay: `${index * 1.3}s` }"
                   />
                   <span
@@ -280,13 +293,13 @@ function initial(name: string) {
                     >{{ slide.offset + index + 1 }}</span
                   >
                 </div>
-                <div class="flex shrink-0 flex-col gap-[0.5vmin] px-[2.2vmin] py-[1.8vmin]">
-                  <span class="text-[3.6vmin] leading-[1.1] font-extrabold text-balance">{{
+                <div class="flex shrink-0 flex-col gap-[0.3vmin] px-[2vmin] py-[1.2vmin]">
+                  <span class="text-[2.6vmin] leading-[1.15] font-extrabold text-balance">{{
                     dish.name
                   }}</span>
                   <span
                     v-if="dish.description"
-                    class="line-clamp-2 text-[2vmin] leading-snug text-ink-3"
+                    class="line-clamp-1 text-[1.6vmin] leading-snug text-ink-3"
                     >{{ dish.description }}</span
                   >
                 </div>
@@ -294,16 +307,16 @@ function initial(name: string) {
             </div>
           </section>
 
-          <!-- Supplements of the day: a compact grid -->
+          <!-- Supplements of the day: four per row -->
           <section v-if="slide.day.supplements.length" class="flex shrink-0 flex-col gap-[1.2vmin]">
             <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
               {{ t('board.supplements') }}
             </h3>
-            <div class="grid grid-cols-2 gap-[1.2vmin]">
+            <div class="grid grid-cols-4 gap-[1.2vmin]">
               <article
                 v-for="(meal, index) in slide.day.supplements"
                 :key="`x-${meal.mealId}`"
-                class="board-card flex items-center gap-[1.4vmin] rounded-[2vmin] bg-white p-[0.9vmin] pr-[2vmin] shadow-overlay ring-1 ring-black/10"
+                class="board-card flex min-w-0 items-center gap-[1.2vmin] rounded-[2vmin] bg-white p-[0.9vmin] pr-[1.4vmin] shadow-overlay ring-1 ring-black/10"
                 :style="{ '--i': index }"
               >
                 <img
@@ -318,7 +331,7 @@ function initial(name: string) {
                   aria-hidden="true"
                   >{{ initial(meal.name) }}</span
                 >
-                <span class="min-w-0 flex-1 text-[2.2vmin] leading-tight font-bold text-balance">{{
+                <span class="min-w-0 flex-1 text-[1.9vmin] leading-tight font-bold text-balance">{{
                   meal.name
                 }}</span>
               </article>
@@ -403,16 +416,16 @@ function initial(name: string) {
   }
 }
 
-/* A very slow breath on the photo so the screen never looks frozen (never cropped). */
+/* A very slow zoom on the photos so the screen never looks frozen. */
 .board-photo {
-  animation: board-photo-drift 8s ease-in-out infinite alternate;
+  animation: board-photo-drift 12s ease-in-out infinite alternate;
 }
 @keyframes board-photo-drift {
   from {
-    transform: scale(0.97);
+    transform: scale(1);
   }
   to {
-    transform: scale(1);
+    transform: scale(1.05);
   }
 }
 

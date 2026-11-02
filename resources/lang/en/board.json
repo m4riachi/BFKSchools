@@ -7,5 +7,6 @@
   "no_menu": "No menu this day.",
   "not_published": "The menu of the week is coming soon.",
   "fullscreen": "Full screen",
-  "week_of": "Week of {from} to {to}"
+  "week_of": "Week of {from} to {to}",
+  "tomorrow": "Tomorrow"
 }

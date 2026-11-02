@@ -11,14 +11,7 @@ import SchoolSettingsService from '#services/school_settings_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import type { MealType } from '#enums/meals'
 import type { StoredSchoolSettings } from '#types/school_settings'
-import {
-  addDays,
-  datesBetween,
-  focusDay,
-  isoWeekday,
-  weekStart,
-  type IsoDate,
-} from '#support/dates'
+import { addDays, focusDay, weekStart, type IsoDate } from '#support/dates'
 import {
   coverPhoto,
   MEAL_PHOTO_PATH,
@@ -63,17 +56,21 @@ export type BoardDay = {
 }
 
 export type BoardWeek = {
+  /** Week of the first day on the board (the page resets its slides when it changes). */
   weekStart: IsoDate
   today: IsoDate
-  /** False when the week's menu is not published yet (days are then empty). */
+  /** The calendar day after today (for the "Tomorrow" label; the second day may be later). */
+  tomorrow: IsoDate
+  /** False when no day on the board has a published menu (days are then empty). */
   published: boolean
+  /** Today (or the next school day) and the school day after it. */
   days: BoardDay[]
 }
 
 /**
  * School display board (D46): a screen at the school opens `/board/<slug>`
- * without logging in and sees the published menu of the week, one day at a
- * time: the main dishes and the supplements, with photos. The address is
+ * without logging in and sees the published menu of today and the next
+ * school day: the main dishes and the supplements, with photos. The address is
  * public (the admin chooses it, e.g. `bfk-british-academy-school-marrakech`)
  * because the page shows nothing parents do not already see: the menu only,
  * never orders or children. The admin can move it or turn it off.
@@ -124,35 +121,39 @@ export default class SchoolBoardService {
   }
 
   /**
-   * The week on the board: the current one, or the next one from the last
-   * school day of the week (Saturday and Sunday on a Mon–Fri school).
+   * The days on the board: today — or the next school day, on a weekend —
+   * and the school day after it (Friday shows Friday and Monday).
    */
-  displayedWeek(school: School): { from: IsoDate; to: IsoDate; dates: IsoDate[] } {
-    const from = weekStart(focusDay(this.clock.today(), school.schoolDays))
-    const to = addDays(from, 6)
-    const dates = datesBetween(from, to).filter((date) =>
-      school.schoolDays.includes(isoWeekday(date))
-    )
-    return { from, to, dates }
+  displayedDays(school: School): IsoDate[] {
+    const first = focusDay(this.clock.today(), school.schoolDays)
+    return [first, focusDay(addDays(first, 1), school.schoolDays)]
   }
 
-  /** The published (or closed) menu of the displayed week, or null. */
-  protected async visibleMenu(school: School, from: IsoDate): Promise<WeeklyMenu | null> {
-    const menu = await WeeklyMenu.query()
+  /** The published (or closed) menus covering `dates`, by week start. */
+  protected async visibleMenus(
+    school: School,
+    dates: IsoDate[]
+  ): Promise<Map<IsoDate, WeeklyMenu>> {
+    const weeks = [...new Set(dates.map((date) => weekStart(date)))]
+    const menus = await WeeklyMenu.query()
       .where('school_id', school.id)
-      .where('week_start', from)
-      .first()
-    return menu && ['published', 'closed'].includes(menu.status) ? menu : null
+      .whereIn('week_start', weeks)
+      .whereIn('status', ['published', 'closed'])
+    return new Map(menus.map((menu) => [menu.weekStart, menu]))
   }
 
-  /** The menu of the displayed week, day by day. */
+  /** The menu of the displayed days, day by day. */
   async week(school: School, slug: string, locale: string): Promise<BoardWeek> {
-    const { from, to, dates } = this.displayedWeek(school)
-    const menu = await this.visibleMenu(school, from)
-    const items = menu
+    const dates = this.displayedDays(school)
+    const menus = await this.visibleMenus(school, dates)
+    const items = menus.size
       ? await MenuItem.query()
           .withScopes((scopes) => scopes.current())
-          .where('weekly_menu_id', menu.id)
+          .whereIn(
+            'weekly_menu_id',
+            [...menus.values()].map((menu) => menu.id)
+          )
+          .whereIn('date', dates)
           .preload('meal', (meal) => meal.preload('photos'))
           .orderBy('date')
           .orderBy('position')
@@ -160,7 +161,7 @@ export default class SchoolBoardService {
       : []
 
     const holidayNames = new Map<IsoDate, string[]>()
-    for (const holiday of await this.holidays.holidaysBetween(school.id, from, to)) {
+    for (const holiday of await this.holidays.holidaysBetween(school.id, dates[0], dates[1])) {
       holidayNames.set(holiday.date, [...(holidayNames.get(holiday.date) ?? []), holiday.name])
     }
 
@@ -177,10 +178,12 @@ export default class SchoolBoardService {
       }
     }
 
+    const today = this.clock.today()
     return {
-      weekStart: from,
-      today: this.clock.today(),
-      published: menu !== null,
+      weekStart: weekStart(dates[0]),
+      today,
+      tomorrow: addDays(today, 1),
+      published: menus.size > 0,
       days: dates.map((date) => {
         const ofDay = items.filter((item) => item.date === date)
         return {
@@ -193,14 +196,18 @@ export default class SchoolBoardService {
     }
   }
 
-  /** A board may show the photo of a meal on the displayed week's menu only. */
+  /** A board may show the photo of a meal on the displayed days' menu only. */
   async canShowPhoto(school: School, photo: MealPhoto): Promise<boolean> {
-    const { from } = this.displayedWeek(school)
-    const menu = await this.visibleMenu(school, from)
-    if (!menu) return false
+    const dates = this.displayedDays(school)
+    const menus = await this.visibleMenus(school, dates)
+    if (!menus.size) return false
     const item = await MenuItem.query()
       .withScopes((scopes) => scopes.current())
-      .where('weekly_menu_id', menu.id)
+      .whereIn(
+        'weekly_menu_id',
+        [...menus.values()].map((menu) => menu.id)
+      )
+      .whereIn('date', dates)
       .where('meal_id', photo.mealId)
       .select('id')
       .first()
