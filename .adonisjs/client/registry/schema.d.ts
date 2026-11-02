@@ -177,6 +177,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/media_controller').default['mealPhoto']>>>
     }
   }
+  'board.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/board/:slug'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { slug: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/board_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/board_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/board_controller').default['show']>>>
+    }
+  }
+  'board.photo': {
+    methods: ["GET","HEAD"]
+    pattern: '/board/:slug/photos/:id/:variant'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue, ParamValue]
+      params: { slug: ParamValue; id: ParamValue; variant: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/board_controller').default['photo']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/board_controller').default['photo']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/board_controller').default['photo']>>>
+    }
+  }
   'parent.home': {
     methods: ["GET","HEAD"]
     pattern: '/'
@@ -1475,6 +1501,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['apiSecret']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['apiSecret']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['apiSecret']>>>
+    }
+  }
+  'admin.settings.board.enable': {
+    methods: ["POST"]
+    pattern: '/admin/settings/board'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#services/school_board_service').boardSlugValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#services/school_board_service').boardSlugValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['enableBoard']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['enableBoard']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['enableBoard']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.settings.board.disable': {
+    methods: ["DELETE"]
+    pattern: '/admin/settings/board'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['disableBoard']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['disableBoard']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['disableBoard']>>>
     }
   }
   'admin.imports.create': {

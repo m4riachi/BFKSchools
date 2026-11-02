@@ -41,6 +41,11 @@ export type SchoolSettings = {
   delivery_order_url: string | null
   /** D37: Glovo button of the parent portal. Null = no button. */
   glovo_url: string | null
+  /**
+   * Address of the school display board (`/board/<slug>`, no login).
+   * Null = no board. Set only by SchoolBoardService, never by the form.
+   */
+  board_slug: string | null
   email_notifications: EmailNotificationSettings
   subscription_required_for_main_meal: boolean
   /** D35: amount of one subscription meal, for revenue only (never billed, D31). */

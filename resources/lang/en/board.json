@@ -1,0 +1,11 @@
+{
+  "title": "Menu of the week",
+  "today": "Today",
+  "dishes": "Dishes of the day",
+  "supplements": "Supplements",
+  "holiday": "Holiday",
+  "no_menu": "No menu this day.",
+  "not_published": "The menu of the week is coming soon.",
+  "fullscreen": "Full screen",
+  "week_of": "Week of {from} to {to}"
+}

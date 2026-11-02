@@ -97,7 +97,8 @@
       "description": "description",
       "schoolDays": "school days",
       "schoolYearStart": "school year start",
-      "schoolYearEnd": "school year end"
+      "schoolYearEnd": "school year end",
+      "board_slug": "screen address"
     }
   }
 }

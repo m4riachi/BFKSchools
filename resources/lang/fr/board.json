@@ -1,0 +1,11 @@
+{
+  "title": "Menu de la semaine",
+  "today": "Aujourd’hui",
+  "dishes": "Plats du jour",
+  "supplements": "Suppléments",
+  "holiday": "Jour férié",
+  "no_menu": "Pas de menu ce jour.",
+  "not_published": "Le menu de la semaine arrive bientôt.",
+  "fullscreen": "Plein écran",
+  "week_of": "Semaine du {from} au {to}"
+}

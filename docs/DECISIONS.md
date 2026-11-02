@@ -50,6 +50,7 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D43 | Invite parents on WhatsApp | answered | Click-to-chat, no WhatsApp Business account: "Inviter par WhatsApp" on the parent page issues the same 72-hour invitation (previous link stops working) and opens `wa.me/<number>` with the message ready; staff press Send. Numbers written 0… are read as Moroccan (212). No email goes out. The sending cannot be confirmed, so the status says invited as soon as the link is created. Staff handle the raw link, which is flashed once in the encrypted session |
 | D44 | School name | answered | The school is shown as "British Academy School Marrakech" everywhere (screens, emails, PDFs, exports); existing rows are renamed by a migration. The slug `britech-school` stays, it is internal. The academy logo in the parent header links to https://basm.uk/ |
 | D45 | Animated logo at launch | answered | Phones draw their first screen from the static icon, which cannot animate. `public/splash.js` then shows `bfk-logo-animated.svg` on white in the installed app only, once per launch, at least 1.8 s and at most 6 s |
+| D46 | School display board | answered | `/board/<slug>`: a public address (no login, chosen by the admin, e.g. `/board/bfk-british-academy-school-marrakech`) for a portrait screen (490 × 1020 mm) at the school, showing the published menu of the current week (Saturday and Sunday: next week) one day at a time, with the photos of the main dishes in big format and the supplements, animated, reloaded every minute. Admin turns it on, moves it or turns it off in `/admin/settings`; the page shows the menu only (what parents already see), never orders or children. Photos go through `/board/<slug>/photos/:id/:variant`, limited to meals on that week’s menu |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
@@ -76,3 +77,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-10-30 — D43: parent invitation on WhatsApp through click-to-chat
 2026-10-30 — D44: school renamed British Academy School Marrakech
 2026-10-30 — D45: animated logo when the installed app starts
+2026-11-02 — D46: school display board on a public address, the week’s menu day by day in big format

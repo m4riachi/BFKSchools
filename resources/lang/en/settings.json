@@ -79,11 +79,14 @@
   "errors": {
     "invalid_date": "Invalid date.",
     "school_year_range": "The end must be after the start (400 days at most).",
-    "deadline_before_publish": "The deadline must be after the publication (in the week before)."
+    "deadline_before_publish": "The deadline must be after the publication (in the week before).",
+    "board_slug_taken": "This address is already used by another school."
   },
   "flash": {
     "saved": "Settings saved.",
-    "api_keys_generated": "New API keys generated."
+    "api_keys_generated": "New API keys generated.",
+    "board_disabled": "School screen turned off.",
+    "board_enabled": "School screen turned on."
   },
   "api": {
     "title": "Revenue API",
@@ -104,5 +107,19 @@
     "regenerate": "Generate new keys",
     "confirm_title": "Generate new keys?",
     "confirm_body": "The current keys will stop working immediately. The other app will have to be updated."
+  },
+  "board": {
+    "title": "School screen",
+    "hint": "A page to open on a screen at the school (no login): the menu of the week, day by day, with the photos of the dishes and supplements, in big format and animated. It shows the published menu only (what parents already see), never orders or children.",
+    "slug": "Screen address",
+    "slug_hint": "Lowercase letters, digits and hyphens (3 to 80 characters).",
+    "link": "Link to open on the screen",
+    "open": "Open",
+    "empty": "Screen turned off.",
+    "enable": "Turn the screen on",
+    "save": "Save the address",
+    "disable": "Turn off",
+    "disable_title": "Turn the screen off?",
+    "disable_body": "The page stops working at once."
   }
 }

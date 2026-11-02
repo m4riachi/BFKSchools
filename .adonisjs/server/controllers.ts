@@ -29,6 +29,7 @@ export const controllers = {
     AccountLinks: () => import('#controllers/auth/account_links_controller'),
     PasswordReset: () => import('#controllers/auth/password_reset_controller'),
   },
+  Board: () => import('#controllers/board_controller'),
   kitchen: {
     Dashboard: () => import('#controllers/kitchen/dashboard_controller'),
     Meals: () => import('#controllers/kitchen/meals_controller'),

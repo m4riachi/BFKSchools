@@ -35,6 +35,7 @@ declare module '@adonisjs/inertia/types' {
     'auth/forgot_password': ExtractProps<(typeof import('../../inertia/pages/auth/forgot_password.vue'))['default']>
     'auth/login': ExtractProps<(typeof import('../../inertia/pages/auth/login.vue'))['default']>
     'auth/set_password': ExtractProps<(typeof import('../../inertia/pages/auth/set_password.vue'))['default']>
+    'board/show': ExtractProps<(typeof import('../../inertia/pages/board/show.vue'))['default']>
     'errors/forbidden': ExtractProps<(typeof import('../../inertia/pages/errors/forbidden.vue'))['default']>
     'errors/not_found': ExtractProps<(typeof import('../../inertia/pages/errors/not_found.vue'))['default']>
     'errors/server_error': ExtractProps<(typeof import('../../inertia/pages/errors/server_error.vue'))['default']>

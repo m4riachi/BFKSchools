@@ -33,6 +33,10 @@ export interface ApiDefinition {
   media: {
     mealPhoto: typeof routes['media.meal_photo']
   }
+  board: {
+    show: typeof routes['board.show']
+    photo: typeof routes['board.photo']
+  }
   parent: {
     home: typeof routes['parent.home']
     orders: {
@@ -179,6 +183,10 @@ export interface ApiDefinition {
       apiKeys: {
         generate: typeof routes['admin.settings.api_keys.generate']
         secret: typeof routes['admin.settings.api_keys.secret']
+      }
+      board: {
+        enable: typeof routes['admin.settings.board.enable']
+        disable: typeof routes['admin.settings.board.disable']
       }
     }
     imports: {

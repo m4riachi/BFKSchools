@@ -4,6 +4,10 @@ import env from '#start/env'
 import logger from '@adonisjs/core/services/logger'
 import School from '#models/school'
 import ApiKeyService from '#services/api_key_service'
+import SchoolBoardService, {
+  boardSlugValidator,
+  suggestBoardSlug,
+} from '#services/school_board_service'
 import SchoolSettingsService from '#services/school_settings_service'
 import { centsToInput, type Locale } from '#support/money'
 import { schoolSettingsFormValidator } from '#validators/school_settings'
@@ -22,7 +26,8 @@ import { schoolSettingsFormValidator } from '#validators/school_settings'
 export default class SettingsController {
   constructor(
     protected settings: SchoolSettingsService,
-    protected apiKeys: ApiKeyService
+    protected apiKeys: ApiKeyService,
+    protected board: SchoolBoardService
   ) {}
 
   protected async school(ctx: HttpContext) {
@@ -53,6 +58,15 @@ export default class SettingsController {
         endpoint: new URL('/api/v1/revenue/daily', env.get('APP_URL')).toString(),
         publicKey: apiKey?.publicKey ?? null,
         generatedAt: apiKey?.generatedAt.toISO() ?? null,
+      },
+      // D46: school display board (null = turned off) and a suggested address.
+      board: {
+        slug: values.board_slug,
+        url: values.board_slug
+          ? new URL(`/board/${values.board_slug}`, env.get('APP_URL')).toString()
+          : null,
+        suggestion: suggestBoardSlug(school.name),
+        origin: new URL('/board/', env.get('APP_URL')).toString(),
       },
       settings: {
         publish_weekday: values.publish_weekday,
@@ -110,5 +124,23 @@ export default class SettingsController {
     logger.info({ schoolId: school.id, userId: ctx.auth.user!.id }, 'API secret displayed')
     ctx.response.header('Cache-Control', 'no-store')
     return { secret }
+  }
+
+  /** Turns the display board on at `/board/<slug>` (D46), or moves it. */
+  async enableBoard(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    const { board_slug: slug } = await ctx.request.validateUsing(boardSlugValidator)
+    await this.board.enable(school, slug)
+    logger.info({ schoolId: school.id, userId: ctx.auth.user!.id, slug }, 'Board enabled')
+    ctx.session.flash('success', ctx.i18n.t('settings.flash.board_enabled'))
+    return ctx.response.redirect('/admin/settings')
+  }
+
+  async disableBoard(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    await this.board.disable(school)
+    logger.info({ schoolId: school.id, userId: ctx.auth.user!.id }, 'Board turned off')
+    ctx.session.flash('success', ctx.i18n.t('settings.flash.board_disabled'))
+    return ctx.response.redirect('/admin/settings')
   }
 }

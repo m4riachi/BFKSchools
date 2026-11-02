@@ -33,6 +33,7 @@ test.group('SchoolSettingsService', (group) => {
       'support_whatsapp',
       'delivery_order_url',
       'glovo_url',
+      'board_slug',
       'email_notifications',
       'subscription_required_for_main_meal',
       'subscription_meal_price_cents',

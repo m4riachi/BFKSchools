@@ -12,6 +12,7 @@ import TextInput from '~/components/ui/text_input.vue'
 import SelectInput from '~/components/ui/select_input.vue'
 import CheckboxField from '~/components/ui/checkbox_field.vue'
 import ApiKeysCard from '~/components/settings/api_keys_card.vue'
+import BoardCard from '~/components/settings/board_card.vue'
 import { useI18n } from '~/composables/use_i18n'
 
 type Settings = {
@@ -57,6 +58,7 @@ const props = defineProps<{
   }
   subscriptionMealPrice: string
   api: { endpoint: string; publicKey: string | null; generatedAt: string | null }
+  board: { slug: string | null; url: string | null; suggestion: string; origin: string }
   settings: Settings
 }>()
 
@@ -432,6 +434,7 @@ function submit() {
       </div>
     </form>
 
+    <BoardCard class="mt-5" :board="board" />
     <ApiKeysCard class="mt-5" :api="api" />
   </AdminLayout>
 </template>

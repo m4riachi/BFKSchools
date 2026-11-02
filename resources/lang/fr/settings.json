@@ -79,11 +79,14 @@
   "errors": {
     "invalid_date": "Date invalide.",
     "school_year_range": "La fin doit être après le début (400 jours au plus).",
-    "deadline_before_publish": "La clôture doit être après la publication (dans la semaine précédente)."
+    "deadline_before_publish": "La clôture doit être après la publication (dans la semaine précédente).",
+    "board_slug_taken": "Cette adresse est déjà utilisée par une autre école."
   },
   "flash": {
     "saved": "Paramètres enregistrés.",
-    "api_keys_generated": "Nouvelles clés API générées."
+    "api_keys_generated": "Nouvelles clés API générées.",
+    "board_disabled": "Écran de l’école désactivé.",
+    "board_enabled": "Écran de l’école activé."
   },
   "api": {
     "title": "API chiffre d’affaires",
@@ -104,5 +107,19 @@
     "regenerate": "Générer de nouvelles clés",
     "confirm_title": "Générer de nouvelles clés ?",
     "confirm_body": "Les clés actuelles cesseront de fonctionner immédiatement. Il faudra mettre à jour l’autre application."
+  },
+  "board": {
+    "title": "Écran de l’école",
+    "hint": "Une page à ouvrir sur un écran à l’école (sans connexion) : le menu de la semaine, jour par jour, avec les photos des plats et des suppléments, en grand format et animé. Elle montre uniquement le menu publié (déjà visible par les parents), jamais les commandes ni les enfants.",
+    "slug": "Adresse de l’écran",
+    "slug_hint": "Lettres minuscules, chiffres et tirets (3 à 80 caractères).",
+    "link": "Lien à ouvrir sur l’écran",
+    "open": "Ouvrir",
+    "empty": "Écran désactivé.",
+    "enable": "Activer l’écran",
+    "save": "Enregistrer l’adresse",
+    "disable": "Désactiver",
+    "disable_title": "Désactiver l’écran ?",
+    "disable_body": "La page cessera de fonctionner immédiatement."
   }
 }

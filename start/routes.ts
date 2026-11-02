@@ -93,6 +93,19 @@ router
   .use(middleware.auth())
 
 /**
+ * School display board (D46): no login, public address chosen by the admin
+ * (rate limit and 404 in BoardController). The published menu only.
+ */
+const boardSlug = { match: /^[a-z0-9-]{3,80}$/ }
+router.get('board/:slug', [controllers.Board, 'show']).where('slug', boardSlug).as('board.show')
+router
+  .get('board/:slug/photos/:id/:variant', [controllers.Board, 'photo'])
+  .where('slug', boardSlug)
+  .where('id', dbIdMatcher)
+  .where('variant', { match: /^(full|thumb)$/ })
+  .as('board.photo')
+
+/**
  * Parent portal (mobile-first). Staff visiting "/" are redirected to their home.
  */
 const isoDay = { match: /^\d{4}-\d{2}-\d{2}$/ }
@@ -438,6 +451,12 @@ router
     router
       .get('settings/api-keys/secret', [controllers.admin.Settings, 'apiSecret'])
       .as('settings.api_keys.secret')
+    router
+      .post('settings/board', [controllers.admin.Settings, 'enableBoard'])
+      .as('settings.board.enable')
+    router
+      .delete('settings/board', [controllers.admin.Settings, 'disableBoard'])
+      .as('settings.board.disable')
 
     // CSV import of families
     router.get('imports/families', [controllers.admin.FamilyImports, 'create']).as('imports.create')

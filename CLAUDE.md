@@ -41,6 +41,7 @@ AdonisJS 7 (TypeScript) · PostgreSQL · Lucid · Inertia + Vue 3 (`<script setu
 - Ordering desk (D39): `/admin/pos` (`PosController`, `PosService`), writes through `OrderService` with an automatic audit reason; `meal_orders.origin` says who chose last.
 - Users and roles (D42): `/admin/users`, `/admin/roles` (`StaffUserService`, `StaffRoleService`, `SchoolPolicy.manageUsers`); areas in `app/enums/permissions.ts`, enforced by `PermissionMiddleware`. **A new `/admin/<section>` route is admin-only until added to `areaOfRoute`.**
 - WhatsApp invitation (D43): `AccountLinkService.whatsappInvitation` returns a wa.me link; staff press Send. `whatsappNumber()` in `app/support/whatsapp.ts` reads 0… numbers as Moroccan.
+- School display board (D46): `/board/<slug>` (no login, public address = `board_slug` setting, turned on / moved / off in `/admin/settings`), `BoardController` + `SchoolBoardService` (published menu of the current week, next week from Saturday; menu only, never orders or children), photos through `/board/<slug>/photos/:id/:variant` (meals on that week’s menu only, `sendMealPhoto()`), 240 requests/min per IP.
 - Mail in dev: `MAIL_MAILER=smtp` sends to Mailpit (127.0.0.1:1025); `MAIL_MAILER=log` (no SMTP server; dev/test only, refused in production) logs subject + masked recipient; add `MAIL_LOG_BODY=true` to also log the body (invitation/reset links). `MAIL_LOG_BODY` is ignored in production. Tests always use `mail.fake()`.
 
 ## Golden rules (never break)

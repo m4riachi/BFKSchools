@@ -41,6 +41,7 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   support_whatsapp: null, // D34
   delivery_order_url: 'https://order.beldifusionkitchen.ma/marrakech/bfk-marrakech/store', // D37
   glovo_url: 'https://glovoapp.com/fr/ma/marrakech/stores/beldi-fusion-kitchen', // D37
+  board_slug: null, // D46
   email_notifications: {
     enabled: true,
     menu_published: true,

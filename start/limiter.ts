@@ -149,6 +149,21 @@ export const apiKeys = {
   ip: (ip: string) => `api:ip:${rateLimitIpKey(ip)}`,
 }
 
+/**
+ * School display board (secret link, no login): the page reloads every
+ * minute and loads one photo per meal, so the cap is generous; it only
+ * stops a client from hammering the database.
+ */
+export const BOARD_LIMITS = { ip: { requests: 240, duration: '1 min' } } as const
+
+export function boardIpLimiter() {
+  return limiter.use({ ...BOARD_LIMITS.ip })
+}
+
+export const boardKeys = {
+  ip: (ip: string) => `board:ip:${rateLimitIpKey(ip)}`,
+}
+
 export const uploadKeys = {
   mealPhotos: (userId: number) => `uploads:meal_photos:${userId}`,
   holidayImport: (userId: number) => `uploads:holiday_import:${userId}`,

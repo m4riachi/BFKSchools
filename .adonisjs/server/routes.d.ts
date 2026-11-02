@@ -17,6 +17,8 @@ export type ScannedRoutes = {
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
+    'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.photo': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'slug': ParamValue,'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
     'parent.orders.save': { paramsTuple: [ParamValue,ParamValue]; params: {'childId': ParamValue,'date': ParamValue} }
@@ -117,6 +119,8 @@ export type ScannedRoutes = {
     'admin.settings.update': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
+    'admin.settings.board.enable': { paramsTuple?: []; params?: {} }
+    'admin.settings.board.disable': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
@@ -139,6 +143,8 @@ export type ScannedRoutes = {
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
+    'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.photo': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'slug': ParamValue,'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
     'parent.statements': { paramsTuple?: []; params?: {} }
@@ -193,6 +199,8 @@ export type ScannedRoutes = {
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
+    'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.photo': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'slug': ParamValue,'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
     'parent.statements': { paramsTuple?: []; params?: {} }
@@ -287,6 +295,7 @@ export type ScannedRoutes = {
     'admin.users.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.roles.store': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
+    'admin.settings.board.enable': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
@@ -318,6 +327,7 @@ export type ScannedRoutes = {
     'admin.menus.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menu_templates.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.settings.board.disable': { paramsTuple?: []; params?: {} }
   }
 }
 declare module '@adonisjs/core/types/http' {

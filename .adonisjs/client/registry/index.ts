@@ -86,6 +86,18 @@ const routes = {
     tokens: [[0,"media"],[0,"meal-photos"],[1,"id"],[1,"variant"]],
     types: placeholder as Registry['media.meal_photo']['types'],
   },
+  'board.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/board/:slug',
+    tokens: [[0,"board"],[1,"slug"]],
+    types: placeholder as Registry['board.show']['types'],
+  },
+  'board.photo': {
+    methods: ["GET","HEAD"],
+    pattern: '/board/:slug/photos/:id/:variant',
+    tokens: [[0,"board"],[1,"slug"],[0,"photos"],[1,"id"],[1,"variant"]],
+    types: placeholder as Registry['board.photo']['types'],
+  },
   'parent.home': {
     methods: ["GET","HEAD"],
     pattern: '/',
@@ -685,6 +697,18 @@ const routes = {
     pattern: '/admin/settings/api-keys/secret',
     tokens: [[0,"admin"],[0,"settings"],[0,"api-keys"],[0,"secret"]],
     types: placeholder as Registry['admin.settings.api_keys.secret']['types'],
+  },
+  'admin.settings.board.enable': {
+    methods: ["POST"],
+    pattern: '/admin/settings/board',
+    tokens: [[0,"admin"],[0,"settings"],[0,"board"]],
+    types: placeholder as Registry['admin.settings.board.enable']['types'],
+  },
+  'admin.settings.board.disable': {
+    methods: ["DELETE"],
+    pattern: '/admin/settings/board',
+    tokens: [[0,"admin"],[0,"settings"],[0,"board"]],
+    types: placeholder as Registry['admin.settings.board.disable']['types'],
   },
   'admin.imports.create': {
     methods: ["GET","HEAD"],
