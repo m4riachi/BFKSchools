@@ -257,6 +257,39 @@ test.group('API keys in the settings', (group) => {
     assert.notInclude(JSON.stringify(page.body()), secret)
   })
 
+  test('D50: the admin downloads the print agent kit; the env file holds the keys', async ({
+    client,
+    assert,
+  }) => {
+    const { school, admin, manager } = await setupMenuSchool()
+    // No keys yet: back to the settings with a message.
+    const early = await client.get('/admin/settings/print-agent/env').loginAs(admin).redirects(0)
+    early.assertStatus(302)
+
+    await client.post('/admin/settings/api-keys').loginAs(admin).withCsrfToken().redirects(0)
+    const key = await SchoolApiKey.findByOrFail('schoolId', school.id)
+    const envFile = await client.get('/admin/settings/print-agent/env').loginAs(admin)
+    envFile.assertStatus(200)
+    assert.equal(envFile.header('cache-control'), 'no-store')
+    assert.include(String(envFile.header('content-disposition')), 'print-agent.env')
+    assert.include(envFile.text(), `API_KEY=${key.publicKey}`)
+    assert.match(envFile.text(), /API_SECRET=bfk_sk_[0-9a-f]{64}/)
+    assert.include(envFile.text(), 'PRINTER_PORT=9100')
+
+    const script = await client.get('/admin/settings/print-agent/script').loginAs(admin)
+    script.assertStatus(200)
+    assert.include(script.text(), 'print-jobs/next')
+    const install = await client
+      .get('/admin/settings/print-agent/script?file=install')
+      .loginAs(admin)
+    install.assertStatus(200)
+    assert.include(install.text(), 'systemctl')
+
+    // Managers are not admins of the settings.
+    ;(await client.get('/admin/settings/print-agent/env').loginAs(manager)).assertStatus(403)
+    ;(await client.get('/admin/settings/print-agent/script').loginAs(manager)).assertStatus(403)
+  })
+
   test('new keys replace the old ones at once', async ({ client, assert }) => {
     const { school, admin } = await setupMenuSchool()
     const old = await keysFor(school.id)

@@ -1568,6 +1568,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['apiSecret']>>>
     }
   }
+  'admin.settings.print_agent.script': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/settings/print-agent/script'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentScript']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentScript']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentScript']>>>
+    }
+  }
+  'admin.settings.print_agent.env': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/settings/print-agent/env'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentEnv']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentEnv']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentEnv']>>>
+    }
+  }
   'admin.settings.board.enable': {
     methods: ["POST"]
     pattern: '/admin/settings/board'

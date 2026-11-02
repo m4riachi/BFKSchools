@@ -472,6 +472,13 @@ router
     router
       .get('settings/api-keys/secret', [controllers.admin.Settings, 'apiSecret'])
       .as('settings.api_keys.secret')
+    // D50: the print agent kit (program + filled settings file)
+    router
+      .get('settings/print-agent/script', [controllers.admin.Settings, 'printAgentScript'])
+      .as('settings.print_agent.script')
+    router
+      .get('settings/print-agent/env', [controllers.admin.Settings, 'printAgentEnv'])
+      .as('settings.print_agent.env')
     router
       .post('settings/board', [controllers.admin.Settings, 'enableBoard'])
       .as('settings.board.enable')

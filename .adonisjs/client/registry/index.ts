@@ -728,6 +728,18 @@ const routes = {
     tokens: [[0,"admin"],[0,"settings"],[0,"api-keys"],[0,"secret"]],
     types: placeholder as Registry['admin.settings.api_keys.secret']['types'],
   },
+  'admin.settings.print_agent.script': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/settings/print-agent/script',
+    tokens: [[0,"admin"],[0,"settings"],[0,"print-agent"],[0,"script"]],
+    types: placeholder as Registry['admin.settings.print_agent.script']['types'],
+  },
+  'admin.settings.print_agent.env': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/settings/print-agent/env',
+    tokens: [[0,"admin"],[0,"settings"],[0,"print-agent"],[0,"env"]],
+    types: placeholder as Registry['admin.settings.print_agent.env']['types'],
+  },
   'admin.settings.board.enable': {
     methods: ["POST"],
     pattern: '/admin/settings/board',

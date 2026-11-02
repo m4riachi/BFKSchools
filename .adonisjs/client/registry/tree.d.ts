@@ -191,6 +191,10 @@ export interface ApiDefinition {
         generate: typeof routes['admin.settings.api_keys.generate']
         secret: typeof routes['admin.settings.api_keys.secret']
       }
+      printAgent: {
+        script: typeof routes['admin.settings.print_agent.script']
+        env: typeof routes['admin.settings.print_agent.env']
+      }
       board: {
         enable: typeof routes['admin.settings.board.enable']
         disable: typeof routes['admin.settings.board.disable']

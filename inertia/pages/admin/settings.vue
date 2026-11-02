@@ -428,12 +428,13 @@ function submit() {
         <p class="-mt-2 text-[13px] text-ink-4">
           {{ t(`settings.fields.printer_modes.${form.settings.printer_mode}_hint`) }}
         </p>
-        <div v-if="form.settings.printer_mode === 'direct'" class="grid gap-4 sm:grid-cols-2">
+        <div v-if="form.settings.printer_mode !== 'off'" class="grid gap-4 sm:grid-cols-2">
           <TextInput
             id="printer_host"
             v-model="form.settings.printer_host"
-            placeholder="192.168.100.242"
+            placeholder="192.168.1.242"
             :label="t('settings.fields.printer_host')"
+            :hint="t('settings.fields.printer_host_hint')"
             :error="err('settings.printer_host')"
           />
           <TextInput
@@ -443,6 +444,52 @@ function submit() {
             :label="t('settings.fields.printer_port')"
             :error="err('settings.printer_port')"
           />
+        </div>
+
+        <!-- D50: how to set up the agent on the kitchen PC -->
+        <div
+          v-if="form.settings.printer_mode === 'agent'"
+          class="flex flex-col gap-3 rounded-xl border border-line bg-subtle p-4"
+        >
+          <h3 class="text-sm font-bold">{{ t('settings.printer_agent.title') }}</h3>
+          <ol class="m-0 flex list-decimal flex-col gap-2 pl-5 text-[13px] leading-relaxed">
+            <li>{{ t('settings.printer_agent.step_save') }}</li>
+            <li>
+              {{ t('settings.printer_agent.step_download') }}
+              <div class="mt-1.5 flex flex-wrap gap-2">
+                <a
+                  href="/admin/settings/print-agent/script"
+                  class="rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-xs font-bold text-ink-2 no-underline hover:bg-white"
+                  >print-agent.mjs</a
+                >
+                <a
+                  href="/admin/settings/print-agent/env"
+                  class="rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-xs font-bold text-ink-2 no-underline hover:bg-white"
+                  >print-agent.env</a
+                >
+                <a
+                  href="/admin/settings/print-agent/script?file=install"
+                  class="rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-xs font-bold text-ink-2 no-underline hover:bg-white"
+                  >print-agent-install.sh</a
+                >
+              </div>
+              <span class="mt-1 block text-ink-4">{{
+                t('settings.printer_agent.env_warning')
+              }}</span>
+            </li>
+            <li>
+              {{ t('settings.printer_agent.step_node') }}
+              <a href="https://nodejs.org/" target="_blank" rel="noopener noreferrer">nodejs.org</a>
+            </li>
+            <li>
+              {{ t('settings.printer_agent.step_run') }}
+              <code class="mt-1 block rounded-lg bg-surface p-2 text-xs"
+                >node print-agent.mjs print-agent.env</code
+              >
+            </li>
+            <li>{{ t('settings.printer_agent.step_autostart') }}</li>
+            <li>{{ t('settings.printer_agent.step_test') }}</li>
+          </ol>
         </div>
       </section>
 

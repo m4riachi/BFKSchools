@@ -124,6 +124,8 @@ export type ScannedRoutes = {
     'admin.settings.update': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
+    'admin.settings.print_agent.script': { paramsTuple?: []; params?: {} }
+    'admin.settings.print_agent.env': { paramsTuple?: []; params?: {} }
     'admin.settings.board.enable': { paramsTuple?: []; params?: {} }
     'admin.settings.board.disable': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
@@ -188,6 +190,8 @@ export type ScannedRoutes = {
     'admin.roles.index': { paramsTuple?: []; params?: {} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
+    'admin.settings.print_agent.script': { paramsTuple?: []; params?: {} }
+    'admin.settings.print_agent.env': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -247,6 +251,8 @@ export type ScannedRoutes = {
     'admin.roles.index': { paramsTuple?: []; params?: {} }
     'admin.settings.show': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
+    'admin.settings.print_agent.script': { paramsTuple?: []; params?: {} }
+    'admin.settings.print_agent.env': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

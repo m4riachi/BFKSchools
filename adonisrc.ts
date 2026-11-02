@@ -135,6 +135,11 @@ export default defineConfig({
       reloadServer: false,
     },
     {
+      // D50: the print agent kit, downloaded from the settings page
+      pattern: 'scripts/print-agent{.mjs,-install.sh}',
+      reloadServer: false,
+    },
+    {
       // Reload: i18n reads these files once at boot, so a new key would show as raw text
       pattern: 'resources/lang/**/*.{json,yaml,yml}',
       reloadServer: true,

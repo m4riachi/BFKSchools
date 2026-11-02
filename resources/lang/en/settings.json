@@ -75,10 +75,11 @@
       "direct": "Direct (the server reaches the printer)",
       "direct_hint": "The server sends the tickets to the printer’s network address (port 9100). The server must be on the printer’s network, or linked by VPN.",
       "agent": "Print agent (kitchen PC)",
-      "agent_hint": "The button queues the tickets; the program scripts/print-agent.mjs, running on a PC of the kitchen’s network with the API keys, sends them to the printer. See the README."
+      "agent_hint": "The “Print” button queues the tickets; a small program (the agent) installed on a PC of the kitchen’s network sends them to the printer. Steps below."
     },
     "printer_host": "Printer address (IP)",
-    "printer_port": "Port"
+    "printer_port": "Port",
+    "printer_host_hint": "IP address of the printer on the kitchen’s network (printed on its self-test page: hold FEED while powering on)."
   },
   "weekdays": {
     "1": "Monday",
@@ -134,5 +135,16 @@
     "disable": "Turn off",
     "disable_title": "Turn the screen off?",
     "disable_body": "The page stops working at once."
+  },
+  "printer_agent": {
+    "title": "Install the agent on the kitchen PC (once)",
+    "step_save": "Fill in the printer address above and save the settings; generate the API keys (the “API” card below) if not done yet.",
+    "step_download": "Download the two files into a folder on the PC (e.g. C:\\bfk):",
+    "env_warning": "print-agent.env holds the secret key: do not share it or e-mail it. The third file is only for a Linux PC (automatic installation).",
+    "step_node": "Install Node.js (LTS version) on that PC, from",
+    "step_run": "Open a command prompt in the folder and run:",
+    "step_autostart": "To start it by itself: Windows → Task Scheduler, new task “at logon”, action “node C:\\bfk\\print-agent.mjs C:\\bfk\\print-agent.env”. Linux → “sudo bash print-agent-install.sh” installs a service that starts at boot.",
+    "step_test": "Test: Kitchen › Exports › “Print on the receipt printer”. The line goes from “Queued” to “Printed” within seconds. If you regenerate the API keys, download print-agent.env again.",
+    "no_keys": "Generate the API keys first (“Revenue API” card)."
   }
 }

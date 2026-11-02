@@ -11,6 +11,9 @@ import SchoolBoardService, {
 import SchoolSettingsService from '#services/school_settings_service'
 import { centsToInput, type Locale } from '#support/money'
 import { schoolSettingsFormValidator } from '#validators/school_settings'
+import { readFile } from 'node:fs/promises'
+import app from '@adonisjs/core/services/app'
+import { attachmentHeader } from '#support/report_access'
 
 /**
  * Admin settings screen (brief §6): school days, school year, default
@@ -116,6 +119,49 @@ export default class SettingsController {
     logger.info({ schoolId: school.id, userId: user.id }, 'API keys generated')
     ctx.session.flash('success', ctx.i18n.t('settings.flash.api_keys_generated'))
     return ctx.response.redirect('/admin/settings')
+  }
+
+  /**
+   * D50: the print agent kit. The program itself (`script`, also the Linux
+   * installer with `?file=install`) and a settings file filled with this
+   * school's app URL, API keys and printer address (`env`) — admins only,
+   * logged like the secret, never cached. Keys must exist first.
+   */
+  async printAgentScript(ctx: HttpContext) {
+    await this.school(ctx)
+    const install = ctx.request.input('file') === 'install'
+    const name = install ? 'print-agent-install.sh' : 'print-agent.mjs'
+    const body = await readFile(app.makePath('scripts', name), 'utf8')
+    ctx.response.header('Content-Type', install ? 'text/x-shellscript' : 'text/javascript')
+    ctx.response.header('Content-Disposition', attachmentHeader(name))
+    ctx.response.header('Cache-Control', 'no-store')
+    return ctx.response.send(body)
+  }
+
+  async printAgentEnv(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    const apiKey = await this.apiKeys.forSchool(school.id)
+    const secret = apiKey ? this.apiKeys.secretOf(apiKey) : null
+    if (!apiKey || !secret) {
+      ctx.session.flash('error', ctx.i18n.t('settings.printer_agent.no_keys'))
+      return ctx.response.redirect('/admin/settings')
+    }
+    const values = this.settings.get(school)
+    logger.info({ schoolId: school.id, userId: ctx.auth.user!.id }, 'Print agent env downloaded')
+    const body = [
+      `# BFK print agent — ${school.name}. Keep this file private (it holds the API secret).`,
+      `APP_URL=${env.get('APP_URL')}`,
+      `API_KEY=${apiKey.publicKey}`,
+      `API_SECRET=${secret}`,
+      `PRINTER_HOST=${values.printer_host ?? '192.168.1.242'}`,
+      `PRINTER_PORT=${values.printer_port}`,
+      'POLL_SECONDS=5',
+      '',
+    ].join('\n')
+    ctx.response.header('Content-Type', 'text/plain; charset=utf-8')
+    ctx.response.header('Content-Disposition', attachmentHeader('print-agent.env'))
+    ctx.response.header('Cache-Control', 'no-store')
+    return ctx.response.send(body)
   }
 
   /** The secret on demand, kept out of the page's props and of any cache. */

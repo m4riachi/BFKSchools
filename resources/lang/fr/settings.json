@@ -75,10 +75,11 @@
       "direct": "Directe (le serveur joint l’imprimante)",
       "direct_hint": "Le serveur envoie les tickets à l’adresse réseau de l’imprimante (port 9100). Il faut que le serveur soit sur le même réseau que l’imprimante, ou relié par VPN.",
       "agent": "Agent d’impression (PC de la cuisine)",
-      "agent_hint": "Le bouton met les tickets en file ; le programme scripts/print-agent.mjs, lancé sur un PC du réseau de la cuisine avec les clés API, les envoie à l’imprimante. Voir le README."
+      "agent_hint": "Le bouton « Imprimer » met les tickets en file ; un petit programme (l’agent) installé sur un PC du réseau de la cuisine les envoie à l’imprimante. Les étapes ci-dessous."
     },
     "printer_host": "Adresse de l’imprimante (IP)",
-    "printer_port": "Port"
+    "printer_port": "Port",
+    "printer_host_hint": "Adresse IP de l’imprimante sur le réseau de la cuisine (imprimée sur sa page d’auto-test : FEED enfoncé à l’allumage)."
   },
   "weekdays": {
     "1": "Lundi",
@@ -134,5 +135,16 @@
     "disable": "Désactiver",
     "disable_title": "Désactiver l’écran ?",
     "disable_body": "La page cessera de fonctionner immédiatement."
+  },
+  "printer_agent": {
+    "title": "Installer l’agent sur le PC de la cuisine (une seule fois)",
+    "step_save": "Renseignez l’adresse de l’imprimante ci-dessus et enregistrez les paramètres ; générez les clés API (carte « API » plus bas) si ce n’est pas fait.",
+    "step_download": "Téléchargez les deux fichiers et mettez-les dans un dossier du PC (ex. C:\\bfk) :",
+    "env_warning": "print-agent.env contient la clé secrète : ne le partagez pas, ne l’envoyez pas par e-mail. Le troisième fichier n’est utile que pour un PC Linux (installation automatique).",
+    "step_node": "Installez Node.js (version LTS) sur ce PC, depuis",
+    "step_run": "Ouvrez une invite de commandes dans le dossier et lancez :",
+    "step_autostart": "Pour qu’il démarre tout seul : Windows → Planificateur de tâches, nouvelle tâche « à l’ouverture de session », action « node C:\\bfk\\print-agent.mjs C:\\bfk\\print-agent.env ». Linux → « sudo bash print-agent-install.sh » installe un service qui démarre au boot.",
+    "step_test": "Test : Cuisine › Exports › « Imprimer sur l’imprimante tickets ». La ligne passe de « En file » à « Imprimé » en quelques secondes. Si vous régénérez les clés API, téléchargez à nouveau print-agent.env.",
+    "no_keys": "Générez d’abord les clés API (carte « API chiffre d’affaires »)."
   }
 }
