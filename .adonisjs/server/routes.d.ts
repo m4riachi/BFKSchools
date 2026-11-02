@@ -18,6 +18,7 @@ export type ScannedRoutes = {
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.manifest': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.photo': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'slug': ParamValue,'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
@@ -144,6 +145,7 @@ export type ScannedRoutes = {
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.manifest': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.photo': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'slug': ParamValue,'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }
@@ -200,6 +202,7 @@ export type ScannedRoutes = {
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'media.meal_photo': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'variant': ParamValue} }
     'board.show': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
+    'board.manifest': { paramsTuple: [ParamValue]; params: {'slug': ParamValue} }
     'board.photo': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'slug': ParamValue,'id': ParamValue,'variant': ParamValue} }
     'parent.home': { paramsTuple?: []; params?: {} }
     'parent.orders.history': { paramsTuple?: []; params?: {} }

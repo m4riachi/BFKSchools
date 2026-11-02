@@ -92,6 +92,12 @@ const routes = {
     tokens: [[0,"board"],[1,"slug"]],
     types: placeholder as Registry['board.show']['types'],
   },
+  'board.manifest': {
+    methods: ["GET","HEAD"],
+    pattern: '/board/:slug/manifest.webmanifest',
+    tokens: [[0,"board"],[1,"slug"],[0,"manifest.webmanifest"]],
+    types: placeholder as Registry['board.manifest']['types'],
+  },
   'board.photo': {
     methods: ["GET","HEAD"],
     pattern: '/board/:slug/photos/:id/:variant',

@@ -35,6 +35,7 @@ export interface ApiDefinition {
   }
   board: {
     show: typeof routes['board.show']
+    manifest: typeof routes['board.manifest']
     photo: typeof routes['board.photo']
   }
   parent: {

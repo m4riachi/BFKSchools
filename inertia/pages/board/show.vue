@@ -2,9 +2,9 @@
 /**
  * School display board (D46): one layout, made for the portrait screen at
  * the school (490 × 1800 mm), opened on its public address, no login. Shows
- * the published menu two dishes at a time, side by side — the whole photo,
- * never cropped — with the day's supplements under them; after the last
- * dishes, the next day.
+ * the published menu one day at a time: the day's dishes (up to four, two per
+ * row) — the whole photo, never cropped — with the supplements under them;
+ * then the next day.
  * Slides change on their own; the menu reloads every minute
  * (SchoolBoardService). Sizes follow the narrow side of the screen (vmin).
  */
@@ -42,10 +42,10 @@ const logoUrl = '/bfk-logo-animated.svg'
 const schoolLogoUrl = '/logo-academy.png'
 const watermarkUrl = '/logo-bfk.png'
 
-/** Seconds each pair of dishes stays on screen. */
-const SLIDE_SECONDS = 10
-/** Dishes shown side by side on one slide. */
-const PER_SLIDE = 2
+/** Seconds each day stays on screen. */
+const SLIDE_SECONDS = 15
+/** Dishes shown on one day's slide (two per row). A longer menu is split over slides. */
+const PER_SLIDE = 4
 
 usePoll(60_000, { only: ['board'] })
 
@@ -57,7 +57,7 @@ type Slide = {
   /** Position of the first dish in the day's menu. */
   offset: number
 }
-/** One slide per pair of dishes, in day order; the week is read in that order. */
+/** One slide per day (two when the menu has more than four dishes), in day order. */
 const slides = computed<Slide[]>(() =>
   props.board.days.flatMap((day): Slide[] => {
     if (day.holiday || !day.dishes.length) return [{ key: day.date, day, dishes: [], offset: 0 }]
@@ -158,15 +158,17 @@ function initial(name: string) {
       aria-hidden="true"
     />
 
-    <!-- Header: BFK on the left, the school on the right, the day between -->
+    <!-- Header: BFK on the left, the school on the right (panels of the same size), the day between -->
     <header class="flex items-center justify-between gap-[2vmin]">
-      <div class="board-logo shrink-0 rounded-[2vmin] bg-white px-[1.5vmin] py-[0.8vmin]">
+      <div
+        class="board-logo flex h-[10vmin] w-[18vmin] shrink-0 items-center justify-center rounded-[2vmin] bg-white p-[1vmin]"
+      >
         <img
           :src="logoUrl"
           alt="Beldi Fusion Kitchen"
           width="437"
           height="285"
-          class="h-[8vmin] w-auto object-contain"
+          class="size-full object-contain"
         />
       </div>
       <!-- The day on screen: weekday and day number only -->
@@ -191,13 +193,15 @@ function initial(name: string) {
         <!-- Shown only where the browser can install the app (phone, tablet, laptop). -->
         <InstallButton variant="pill" :auto-open="false" class="mt-[1vmin]" />
       </div>
-      <div class="board-logo shrink-0 rounded-[2vmin] bg-white px-[1.5vmin] py-[0.8vmin]">
+      <div
+        class="board-logo flex h-[10vmin] w-[18vmin] shrink-0 items-center justify-center rounded-[2vmin] bg-white p-[1vmin]"
+      >
         <img
           :src="schoolLogoUrl"
           :alt="schoolName"
           width="631"
           height="160"
-          class="h-[8vmin] w-auto object-contain"
+          class="size-full object-contain"
         />
       </div>
     </header>
@@ -240,26 +244,16 @@ function initial(name: string) {
         </div>
 
         <template v-else>
-          <!-- Two dishes side by side: the whole photo, never cropped, then the name -->
+          <!-- The day's dishes, two per row: the whole photo, never cropped, then the name -->
           <section class="flex min-h-0 flex-1 flex-col gap-[1.2vmin]">
-            <div class="flex items-center justify-between">
-              <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
-                {{ t('board.dishes') }}
-              </h3>
-              <span class="flex gap-[0.8vmin]" aria-hidden="true">
-                <span
-                  v-for="(dish, dot) in slide.day.dishes"
-                  :key="dish.mealId"
-                  class="h-[1.2vmin] rounded-full transition-all duration-300"
-                  :class="
-                    dot >= slide.offset && dot < slide.offset + slide.dishes.length
-                      ? 'w-[4vmin] bg-brand'
-                      : 'w-[1.2vmin] bg-black/15'
-                  "
-                />
-              </span>
-            </div>
-            <div class="grid min-h-0 flex-1 grid-cols-2 gap-[1.6vmin]">
+            <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
+              {{ t('board.dishes') }}
+            </h3>
+            <!-- Two per row; the rows share the height -->
+            <div
+              class="grid min-h-0 flex-1 grid-cols-2 gap-[1.6vmin]"
+              :class="slide.dishes.length > 2 ? 'grid-rows-2' : 'grid-rows-1'"
+            >
               <article
                 v-for="(dish, index) in slide.dishes"
                 :key="dish.mealId"

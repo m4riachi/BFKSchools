@@ -99,6 +99,10 @@ router
 const boardSlug = { match: /^[a-z0-9-]{3,80}$/ }
 router.get('board/:slug', [controllers.Board, 'show']).where('slug', boardSlug).as('board.show')
 router
+  .get('board/:slug/manifest.webmanifest', [controllers.Board, 'manifest'])
+  .where('slug', boardSlug)
+  .as('board.manifest')
+router
   .get('board/:slug/photos/:id/:variant', [controllers.Board, 'photo'])
   .where('slug', boardSlug)
   .where('id', dbIdMatcher)

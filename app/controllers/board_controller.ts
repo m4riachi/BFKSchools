@@ -15,6 +15,10 @@ import { boardIpLimiter, boardKeys } from '#start/limiter'
  * Always in English (the school's language), whatever the browser says.
  */
 const BOARD_LOCALE = 'en'
+
+function boardAppName(school: { name: string }) {
+  return `Menu board · ${school.name}`
+}
 @inject()
 export default class BoardController {
   constructor(
@@ -43,12 +47,54 @@ export default class BoardController {
     const school = await this.school(ctx)
     if (!school) return
     ctx.response.header('Cache-Control', 'no-store')
-    // Overrides the locale InertiaMiddleware shared, for this page only.
-    ctx.inertia.share({ locale: BOARD_LOCALE, messages: clientTranslations(BOARD_LOCALE) })
+    const slug = String(ctx.params.slug)
+    // Overrides the locale InertiaMiddleware shared, for this page only, and
+    // installs as its own app (inertia_layout.edge reads manifestUrl / appTitle).
+    ctx.inertia.share({
+      locale: BOARD_LOCALE,
+      messages: clientTranslations(BOARD_LOCALE),
+      manifestUrl: `/board/${slug}/manifest.webmanifest`,
+      appTitle: boardAppName(school),
+    })
     return ctx.inertia.render('board/show', {
       schoolName: school.name,
-      board: await this.board.week(school, String(ctx.params.slug), BOARD_LOCALE),
+      board: await this.board.week(school, slug, BOARD_LOCALE),
     })
+  }
+
+  /**
+   * Web app manifest of the board: installed from the board page, the app
+   * opens on the board itself (not on the login page like the main app).
+   */
+  async manifest(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    if (!school) return
+    const path = `/board/${String(ctx.params.slug)}`
+    ctx.response.header('Cache-Control', 'no-store')
+    ctx.response.type('application/manifest+json')
+    return {
+      name: boardAppName(school),
+      short_name: 'Menu board',
+      description: `The menu of the week at ${school.name}`,
+      lang: BOARD_LOCALE,
+      id: path,
+      start_url: path,
+      scope: `${path}/`,
+      display: 'fullscreen',
+      orientation: 'portrait',
+      theme_color: '#ffffff',
+      background_color: '#ffffff',
+      icons: [
+        { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        {
+          src: '/icons/icon-maskable-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    }
   }
 
   async photo(ctx: HttpContext) {

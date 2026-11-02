@@ -190,6 +190,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/board_controller').default['show']>>>
     }
   }
+  'board.manifest': {
+    methods: ["GET","HEAD"]
+    pattern: '/board/:slug/manifest.webmanifest'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { slug: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/board_controller').default['manifest']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/board_controller').default['manifest']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/board_controller').default['manifest']>>>
+    }
+  }
   'board.photo': {
     methods: ["GET","HEAD"]
     pattern: '/board/:slug/photos/:id/:variant'

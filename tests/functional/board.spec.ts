@@ -115,6 +115,31 @@ test.group('School display board (D46)', (group) => {
     assert.deepEqual(wednesday.dishes, [])
   })
 
+  test('the board installs as its own app: a manifest that starts on the board', async ({
+    client,
+    assert,
+  }) => {
+    const { admin } = await setupMenuSchool()
+    const slug = await enableBoard(client, admin)
+    const page = await client.get(`/board/${slug}`)
+    page.assertStatus(200)
+    assert.include(page.text(), `href="/board/${slug}/manifest.webmanifest"`)
+    assert.notInclude(page.text(), 'href="/manifest.webmanifest"')
+
+    const manifest = await client.get(`/board/${slug}/manifest.webmanifest`)
+    manifest.assertStatus(200)
+    assert.include(manifest.header('content-type'), 'application/manifest+json')
+    assert.equal(manifest.body().start_url, `/board/${slug}`)
+    assert.equal(manifest.body().id, `/board/${slug}`)
+    assert.equal(manifest.body().scope, `/board/${slug}/`)
+    ;(await client.get('/board/unknown-school/manifest.webmanifest')).assertStatus(404)
+
+    // The rest of the app (parents, staff, login) keeps installing the main app.
+    const login = await client.get('/login')
+    assert.include(login.text(), 'href="/manifest.webmanifest"')
+    assert.notInclude(login.text(), '/board/')
+  })
+
   test('unknown, moved and turned-off addresses answer 404; slugs are unique', async ({
     client,
     assert,
