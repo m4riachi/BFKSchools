@@ -9,9 +9,11 @@
  * mode = 'parent': emits `change` on every edit (the page autosaves).
  * mode = 'staff': edits stay local until "Save day" (audited override).
  */
+import { usePage } from '@inertiajs/vue3'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 import MealThumb from '~/components/meals/meal_thumb.vue'
 import ConfirmDialog from '~/components/ui/confirm_dialog.vue'
+import NavIcon from '~/components/ui/nav_icon.vue'
 import { useI18n } from '~/composables/use_i18n'
 import {
   isEmptySelection,
@@ -93,6 +95,10 @@ watch(
 const title = computed(() =>
   formatDate(props.day.date, { weekday: 'short', day: 'numeric', month: 'short' })
 )
+/** D37 links, shared for parents only (null for staff). */
+const page = usePage()
+const deliveryUrl = computed(() => page.props.deliveryOrderUrl)
+const glovoUrl = computed(() => page.props.glovoUrl)
 const absent = computed(() => props.day.order?.status === 'cancelled')
 /** Saved on the server, so the mark only appears once the choice is really kept. */
 const chosen = computed(
@@ -239,7 +245,7 @@ function mainNote(option: OptionView) {
   <section
     ref="root"
     :aria-label="title"
-    class="stagger-item flex scroll-mt-3 flex-col rounded-[18px] border"
+    class="stagger-item relative mt-3 flex scroll-mt-6 flex-col rounded-[18px] border"
     :style="{ '--stagger-i': index }"
     :class="[
       day.state === 'holiday' ? 'bg-[#f5f7fd]' : 'bg-surface',
@@ -253,14 +259,25 @@ function mainNote(option: OptionView) {
     <h2 class="contents">
       <button
         type="button"
-        class="flex w-full cursor-pointer items-start justify-between gap-2.5 rounded-[18px] p-4 text-left"
+        class="flex w-full cursor-pointer items-start justify-between gap-2.5 rounded-[18px] p-4 pt-6 text-left"
         :aria-expanded="open"
         :aria-controls="panelId"
         @click="emit('toggle')"
       >
+        <span
+          class="absolute -top-3.5 left-1/2 max-w-[calc(100%-2rem)] -translate-x-1/2 truncate rounded-full border-[1.5px] px-4 py-1 text-[15px] font-extrabold whitespace-nowrap shadow-sm first-letter:uppercase"
+          :class="
+            day.isCurrent
+              ? 'border-brand bg-brand text-white'
+              : day.state === 'holiday'
+                ? 'border-info-line bg-info-soft text-info'
+                : 'border-brand-line bg-brand-wash text-brand-strong'
+          "
+        >
+          {{ title }}
+        </span>
         <span class="flex min-w-0 flex-col gap-[3px]">
           <span class="flex flex-wrap items-center gap-2">
-            <span class="text-[17px] font-extrabold first-letter:uppercase">{{ title }}</span>
             <span v-if="chosenName" class="min-w-0 text-sm font-bold break-words text-success">
               {{ chosenName }}
             </span>
@@ -403,6 +420,39 @@ function mainNote(option: OptionView) {
                 <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
               </svg>
               {{ t('orders.week.locked_note') }}
+            </span>
+            <span
+              v-if="day.state === 'locked' && mode === 'parent' && (deliveryUrl || glovoUrl)"
+              class="flex flex-wrap gap-2"
+            >
+              <a
+                v-if="deliveryUrl"
+                href="/out/delivery"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex min-h-10 items-center gap-1.5 rounded-xl bg-brand px-3 text-[13px] font-bold text-white no-underline hover:bg-brand-deep hover:text-white"
+              >
+                <NavIcon name="delivery" :size="18" />
+                {{ t('app.order_delivery') }}
+              </a>
+              <a
+                v-if="glovoUrl"
+                href="/out/glovo"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex min-h-10 items-center gap-1.5 rounded-xl bg-[#FFC244] px-3 text-[13px] font-bold text-[#1d1d1b] no-underline hover:bg-[#FFB81F] hover:text-[#1d1d1b]"
+                :title="t('app.order_glovo_title')"
+              >
+                <!-- Glovo colours, not the official logo file. -->
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="#00A082"
+                    fill-rule="evenodd"
+                    d="M12 2a7.5 7.5 0 0 0-7.5 7.5c0 5.2 6 11.7 6.9 12.2.4.2.8.2 1.2 0 .9-.5 6.9-7 6.9-12.2A7.5 7.5 0 0 0 12 2Zm0 4.2a3.3 3.3 0 1 1 0 6.6 3.3 3.3 0 0 1 0-6.6Z"
+                  />
+                </svg>
+                {{ t('app.order_glovo_title') }}
+              </a>
             </span>
           </div>
 
