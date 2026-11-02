@@ -188,7 +188,15 @@ Kitchen › Exports prints the day's order tickets (one receipt per order: child
   node scripts/print-agent.mjs
   ```
 
-  The API keys are the ones of Settings › Revenue API; the printer's IP is on its self-test page (hold FEED while powering on). The agent polls `GET /api/v1/print-jobs/next` every 5 s (`POLL_SECONDS`) and reports with `POST /api/v1/print-jobs/:id/ack`. Keep it running (Windows: a scheduled task "at logon"; Linux: a systemd service). Only `scripts/print-agent.mjs` and the `.env` file are needed on the kitchen PC (Node 18+).
+  The API keys are the ones of Settings › Revenue API; the printer's IP is on its self-test page (hold FEED while powering on). The agent polls `GET /api/v1/print-jobs/next` every 5 s (`POLL_SECONDS`) and reports with `POST /api/v1/print-jobs/:id/ack`. Only `scripts/print-agent.mjs` and the `.env` file are needed on the kitchen device (Node 18+).
+
+  **Recommended: a dedicated box in the kitchen** (Raspberry Pi or any small Linux PC on the printer's network), so no staff computer is involved. Copy `print-agent.mjs`, `print-agent-install.sh` and the filled `print-agent.env` to it, then run once:
+
+  ```bash
+  sudo bash print-agent-install.sh
+  ```
+
+  This installs Node if needed and a `bfk-print-agent` system service that starts at every boot and restarts on failure (logs: `journalctl -u bfk-print-agent -f`). On a Windows mini PC, create a Task Scheduler task "at startup" running `node C:\bfk\print-agent.mjs C:\bfk\print-agent.env`.
 
 Either way the tickets are also available as PDF (A4 sheet or 80 mm roll) from the same page.
 
