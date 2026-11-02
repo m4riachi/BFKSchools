@@ -2,13 +2,14 @@
 /**
  * School display board (D46): one layout, made for the portrait screen at
  * the school (490 × 1800 mm), opened on its public address, no login. Shows
- * the published menu one day at a time: each main dish is a card filled by
- * its photo, then the supplements. Slides change on their own; the menu
- * reloads every minute (SchoolBoardService). Sizes follow the narrow side of
- * the screen (vmin).
+ * the published menu one dish at a time — the whole photo, never cropped —
+ * with the day's supplements under it; after the last dish, the next day.
+ * Slides change on their own; the menu reloads every minute
+ * (SchoolBoardService). Sizes follow the narrow side of the screen (vmin).
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Head, usePoll } from '@inertiajs/vue3'
+import InstallButton from '~/components/ui/install_button.vue'
 import { useI18n } from '~/composables/use_i18n'
 
 type BoardMeal = {
@@ -40,18 +41,38 @@ const logoUrl = '/bfk-logo-animated.svg'
 const schoolLogoUrl = '/logo-academy.png'
 const watermarkUrl = '/logo-bfk.png'
 
-/** Seconds each day stays on screen. */
-const SLIDE_SECONDS = 15
+/** Seconds each dish stays on screen. */
+const SLIDE_SECONDS = 8
 
 usePoll(60_000, { only: ['board'] })
 
-const days = computed(() => props.board.days)
+type Slide = {
+  key: string
+  day: BoardDay
+  /** Null on a holiday or a day without dishes: the day gets one slide. */
+  dish: BoardMeal | null
+  index: number
+}
+/** One slide per dish, in day order; the week is read in that order. */
+const slides = computed<Slide[]>(() =>
+  props.board.days.flatMap((day): Slide[] =>
+    day.holiday || !day.dishes.length
+      ? [{ key: day.date, day, dish: null, index: 0 }]
+      : day.dishes.map((dish, index) => ({
+          key: `${day.date}-${dish.mealId}`,
+          day,
+          dish,
+          index,
+        }))
+  )
+)
 const startIndex = () => {
-  const today = days.value.findIndex((day) => day.date === props.board.today)
+  const today = slides.value.findIndex((slide) => slide.day.date === props.board.today)
   return today >= 0 ? today : 0
 }
 const current = ref(startIndex())
-const day = computed(() => days.value[Math.min(current.value, days.value.length - 1)])
+const slide = computed(() => slides.value[Math.min(current.value, slides.value.length - 1)])
+const day = computed(() => slide.value?.day)
 
 // `cycle` restarts the progress bar animation on every slide change.
 const cycle = ref(0)
@@ -62,8 +83,8 @@ function restart() {
   timer = setInterval(next, SLIDE_SECONDS * 1000)
 }
 function next() {
-  if (!days.value.length) return
-  current.value = (current.value + 1) % days.value.length
+  if (!slides.value.length) return
+  current.value = (current.value + 1) % slides.value.length
   cycle.value += 1
 }
 watch(
@@ -121,20 +142,18 @@ function initial(name: string) {
 <template>
   <Head :title="t('board.title')" />
   <div
-    class="board relative isolate flex h-dvh flex-col gap-[2vmin] overflow-hidden bg-neutral-950 px-[3vmin] py-[2vmin] text-white"
+    class="board relative isolate flex h-dvh flex-col gap-[2vmin] overflow-hidden bg-white px-[3vmin] py-[2vmin] text-ink"
   >
-    <!-- Watermark: the logo tiled faintly over the black background, drifting slowly -->
+    <!-- Watermark: the logo tiled faintly over the white background, drifting slowly -->
     <div
       class="board-watermark pointer-events-none absolute -inset-[20%] -z-10"
       :style="{ backgroundImage: `url(${watermarkUrl})` }"
       aria-hidden="true"
     />
 
-    <!-- Header: BFK on the left, the school on the right, the title between -->
+    <!-- Header: BFK on the left, the school on the right, the day between -->
     <header class="flex items-center justify-between gap-[2vmin]">
-      <div
-        class="board-logo shrink-0 rounded-[2vmin] bg-white/85 px-[1.5vmin] py-[0.8vmin] backdrop-blur"
-      >
+      <div class="board-logo shrink-0 rounded-[2vmin] bg-white px-[1.5vmin] py-[0.8vmin]">
         <img
           :src="logoUrl"
           alt="Beldi Fusion Kitchen"
@@ -158,14 +177,14 @@ function initial(name: string) {
           >
         </div>
         <span
-          class="tabular mt-[0.8vmin] rounded-full bg-white/10 px-[2vmin] py-[0.4vmin] text-[2.6vmin] font-extrabold"
+          class="tabular mt-[0.8vmin] rounded-full bg-black/5 px-[2vmin] py-[0.4vmin] text-[2.6vmin] font-extrabold"
         >
           {{ clock }}
         </span>
+        <!-- Shown only where the browser can install the app (phone, tablet, laptop). -->
+        <InstallButton variant="pill" :auto-open="false" class="mt-[1vmin]" />
       </div>
-      <div
-        class="board-logo shrink-0 rounded-[2vmin] bg-white/85 px-[1.5vmin] py-[0.8vmin] backdrop-blur"
-      >
+      <div class="board-logo shrink-0 rounded-[2vmin] bg-white px-[1.5vmin] py-[0.8vmin]">
         <img
           :src="schoolLogoUrl"
           :alt="schoolName"
@@ -176,20 +195,20 @@ function initial(name: string) {
       </div>
     </header>
 
-    <!-- Slide -->
+    <!-- Slide: one dish of one day -->
     <Transition name="board-slide" mode="out-in">
       <main
-        v-if="!board.published || !day"
+        v-if="!board.published || !slide"
         key="not-published"
-        class="flex flex-1 flex-col items-center justify-center gap-4 rounded-3xl bg-white/10 p-10 text-center"
+        class="flex flex-1 flex-col items-center justify-center gap-4 rounded-3xl bg-black/5 p-10 text-center"
       >
         <span class="text-[8vmin]" aria-hidden="true">🍽️</span>
         <span class="text-[3.4vmin] font-extrabold">{{ t('board.not_published') }}</span>
       </main>
 
-      <main v-else :key="day.date" class="flex min-h-0 flex-1 flex-col gap-[2vmin]">
+      <main v-else :key="slide.key" class="flex min-h-0 flex-1 flex-col gap-[2vmin]">
         <!-- Slide timer -->
-        <div class="h-[1vmin] w-full overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+        <div class="h-[1vmin] w-full overflow-hidden rounded-full bg-black/10" aria-hidden="true">
           <span
             :key="cycle"
             class="board-progress block h-full rounded-full bg-pink-500"
@@ -198,84 +217,83 @@ function initial(name: string) {
         </div>
 
         <div
-          v-if="day.holiday"
-          class="flex flex-1 flex-col items-center justify-center gap-3 rounded-3xl bg-white/10 p-10 text-center"
+          v-if="slide.day.holiday"
+          class="flex flex-1 flex-col items-center justify-center gap-3 rounded-3xl bg-black/5 p-10 text-center"
         >
           <span class="text-[10vmin]" aria-hidden="true">🎉</span>
           <span class="text-[4.5vmin] font-extrabold">{{ t('board.holiday') }}</span>
-          <span class="text-[2.6vmin] text-white/80">{{ day.holiday }}</span>
+          <span class="text-[2.6vmin] text-ink-3">{{ slide.day.holiday }}</span>
         </div>
 
         <div
-          v-else-if="!day.dishes.length && !day.supplements.length"
-          class="flex flex-1 items-center justify-center rounded-3xl bg-white/10 p-10 text-[3vmin] font-bold text-white/80"
+          v-else-if="!slide.dish"
+          class="flex flex-1 items-center justify-center rounded-3xl bg-black/5 p-10 text-[3vmin] font-bold text-ink-3"
         >
           {{ t('board.no_menu') }}
         </div>
 
         <template v-else>
-          <!-- Main dishes: stacked cards sharing the height, each filled by its photo -->
-          <section class="flex min-h-0 flex-1 flex-col gap-[1.6vmin]">
-            <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-white/70 uppercase">
-              {{ t('board.dishes') }}
-            </h3>
-            <div
-              class="board-dishes grid min-h-0 flex-1 gap-[1.6vmin]"
-              :style="{ '--n': day.dishes.length }"
+          <!-- The dish: the whole photo, never cropped, then its name -->
+          <section class="flex min-h-0 flex-1 flex-col gap-[1.2vmin]">
+            <div class="flex items-center justify-between">
+              <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
+                {{ t('board.dishes') }}
+              </h3>
+              <span class="flex gap-[0.8vmin]" aria-hidden="true">
+                <span
+                  v-for="(dish, dot) in slide.day.dishes"
+                  :key="dish.mealId"
+                  class="h-[1.2vmin] rounded-full transition-all duration-300"
+                  :class="dot === slide.index ? 'w-[4vmin] bg-brand' : 'w-[1.2vmin] bg-black/15'"
+                />
+              </span>
+            </div>
+            <article
+              class="board-card relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[3vmin] bg-white shadow-overlay ring-1 ring-black/10"
             >
-              <article
-                v-for="(meal, index) in day.dishes"
-                :key="`d-${meal.mealId}`"
-                class="board-card relative min-h-0 overflow-hidden rounded-[2.5vmin] bg-brand-wash shadow-overlay"
-                :style="{ '--i': index }"
-              >
+              <div class="relative min-h-0 flex-1 bg-neutral-100">
                 <img
-                  v-if="meal.photoUrl"
-                  :src="meal.photoUrl"
+                  v-if="slide.dish.photoUrl"
+                  :src="slide.dish.photoUrl"
                   alt=""
-                  class="board-photo absolute inset-0 size-full object-cover"
-                  :style="{ animationDelay: `${index * 1.3}s` }"
+                  class="board-photo absolute inset-0 size-full object-contain"
                 />
                 <span
                   v-else
-                  class="absolute inset-0 flex items-center justify-center text-[14vmin] font-extrabold text-brand"
+                  class="absolute inset-0 flex items-center justify-center text-[20vmin] font-extrabold text-brand"
                   aria-hidden="true"
-                  >{{ initial(meal.name) }}</span
+                  >{{ initial(slide.dish.name) }}</span
                 >
                 <span
-                  class="absolute top-[1.6vmin] left-[1.6vmin] flex size-[5vmin] items-center justify-center rounded-full bg-brand text-[2.6vmin] font-extrabold text-white shadow-overlay"
+                  class="absolute top-[2vmin] left-[2vmin] flex size-[6vmin] items-center justify-center rounded-full bg-brand text-[3vmin] font-extrabold text-white shadow-overlay"
                   aria-hidden="true"
-                  >{{ index + 1 }}</span
+                  >{{ slide.index + 1 }}</span
                 >
-                <!-- Name over the bottom of the photo -->
-                <div
-                  class="absolute inset-x-0 bottom-0 flex flex-col gap-[0.4vmin] bg-gradient-to-t from-black/80 via-black/50 to-transparent px-[3vmin] pt-[6vmin] pb-[2.2vmin] text-white"
+              </div>
+              <div class="flex shrink-0 flex-col gap-[0.6vmin] px-[3vmin] py-[2.2vmin]">
+                <span class="text-[5vmin] leading-[1.1] font-extrabold text-balance">{{
+                  slide.dish.name
+                }}</span>
+                <span
+                  v-if="slide.dish.description"
+                  class="line-clamp-2 text-[2.4vmin] leading-snug text-ink-3"
+                  >{{ slide.dish.description }}</span
                 >
-                  <span
-                    class="text-[4.4vmin] leading-[1.1] font-extrabold text-balance drop-shadow"
-                    >{{ meal.name }}</span
-                  >
-                  <span
-                    v-if="meal.description"
-                    class="line-clamp-1 text-[2.1vmin] leading-snug text-white/85"
-                    >{{ meal.description }}</span
-                  >
-                </div>
-              </article>
-            </div>
+              </div>
+            </article>
           </section>
 
-          <!-- Supplements: a compact grid -->
-          <section v-if="day.supplements.length" class="flex shrink-0 flex-col gap-[1.2vmin]">
-            <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-white/70 uppercase">
+          <!-- Supplements of the day: a compact grid -->
+          <section v-if="slide.day.supplements.length" class="flex shrink-0 flex-col gap-[1.2vmin]">
+            <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
               {{ t('board.supplements') }}
             </h3>
             <div class="grid grid-cols-2 gap-[1.2vmin]">
               <article
-                v-for="(meal, index) in day.supplements"
+                v-for="(meal, index) in slide.day.supplements"
                 :key="`x-${meal.mealId}`"
-                class="board-card flex items-center gap-[1.4vmin] rounded-[2vmin] bg-white/10 p-[0.9vmin] pr-[2vmin] backdrop-blur"
-                :style="{ '--i': index + day.dishes.length }"
+                class="board-card flex items-center gap-[1.4vmin] rounded-[2vmin] bg-white p-[0.9vmin] pr-[2vmin] shadow-overlay ring-1 ring-black/10"
+                :style="{ '--i': index }"
               >
                 <img
                   v-if="meal.photoUrl"
@@ -302,7 +320,7 @@ function initial(name: string) {
     <button
       v-if="!isFullscreen"
       type="button"
-      class="absolute right-[1vmin] bottom-[1vmin] rounded-lg border border-white/20 px-[1.2vmin] py-[0.5vmin] text-[1.3vmin] font-bold text-white/60 hover:bg-white/10 hover:text-white"
+      class="absolute right-[1vmin] bottom-[1vmin] rounded-lg border border-black/15 px-[1.2vmin] py-[0.5vmin] text-[1.3vmin] font-bold text-ink-3 hover:bg-black/5"
       @click="fullscreen"
     >
       {{ t('board.fullscreen') }}
@@ -325,13 +343,12 @@ function initial(name: string) {
   }
 }
 
-/* Logo tiled over the black, white on a low opacity, rotated and drifting. */
+/* Logo tiled over the white, on a low opacity, rotated and drifting. */
 .board-watermark {
   background-repeat: repeat;
   background-size: 18vw auto;
   background-position: 0 0;
-  opacity: 0.09;
-  filter: invert(1);
+  opacity: 0.05;
   transform: rotate(-12deg);
   animation: board-watermark-drift 90s linear infinite;
 }
@@ -344,27 +361,20 @@ function initial(name: string) {
   }
 }
 
-/* The restaurant's logo on a translucent panel, lifted by a shadow, with a slow glow. */
+/* The logos on white panels, lifted by a soft shadow, with a slow breath. */
 .board-logo {
-  box-shadow: 0 2.5vmin 6vmin rgba(0, 0, 0, 0.45);
+  box-shadow: 0 1.5vmin 4vmin rgba(0, 0, 0, 0.18);
   animation: board-logo-glow 4s ease-in-out infinite alternate;
 }
 @keyframes board-logo-glow {
   from {
     transform: scale(1);
-    box-shadow: 0 2.5vmin 6vmin rgba(0, 0, 0, 0.45);
+    box-shadow: 0 1.5vmin 4vmin rgba(0, 0, 0, 0.18);
   }
   to {
     transform: scale(1.03);
-    box-shadow:
-      0 3vmin 8vmin rgba(0, 0, 0, 0.55),
-      0 0 6vmin 0.6vmin rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2vmin 5vmin rgba(0, 0, 0, 0.26);
   }
-}
-
-/* Dishes: one per row, the rows sharing the height equally. */
-.board-dishes {
-  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
 }
 
 .board-card {
@@ -382,16 +392,16 @@ function initial(name: string) {
   }
 }
 
-/* A very slow zoom on the photos so the screen never looks frozen. */
+/* A very slow breath on the photo so the screen never looks frozen (never cropped). */
 .board-photo {
-  animation: board-photo-drift 14s ease-in-out infinite alternate;
+  animation: board-photo-drift 8s ease-in-out infinite alternate;
 }
 @keyframes board-photo-drift {
   from {
-    transform: scale(1);
+    transform: scale(0.97);
   }
   to {
-    transform: scale(1.06);
+    transform: scale(1);
   }
 }
 

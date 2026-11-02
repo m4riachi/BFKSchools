@@ -5,7 +5,8 @@
  * steps are explained instead). Hidden once running as the installed app.
  *
  * `pill`: sticky button of the parent portal, which also opens the modal by
- * itself (not again for a while after "later"). `icon`: small button.
+ * itself (not again for a while after "later") unless `autoOpen` is false.
+ * `icon`: small button.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import AppButton from '~/components/ui/app_button.vue'
@@ -14,7 +15,10 @@ import NavIcon from '~/components/ui/nav_icon.vue'
 import { useI18n } from '~/composables/use_i18n'
 import { useInstallApp } from '~/composables/use_install_app'
 
-const props = withDefaults(defineProps<{ variant?: 'icon' | 'pill' }>(), { variant: 'icon' })
+const props = withDefaults(defineProps<{ variant?: 'icon' | 'pill'; autoOpen?: boolean }>(), {
+  variant: 'icon',
+  autoOpen: true,
+})
 
 const { t } = useI18n()
 const {
@@ -46,7 +50,7 @@ const iconUrl = '/icons/icon-192.png'
 watch(
   visible,
   (canInstall) => {
-    if (canInstall && props.variant === 'pill' && !dismissedRecently()) {
+    if (canInstall && props.variant === 'pill' && props.autoOpen && !dismissedRecently()) {
       setTimeout(() => (modalOpen.value = true), 800)
     }
   },
