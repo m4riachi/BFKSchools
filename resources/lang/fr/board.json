@@ -43,7 +43,8 @@
     "printing": "Impression de ton ticket…",
     "printed": "Ton ticket est imprimé !",
     "print_failed": "L’imprimante n’a pas répondu.",
-    "print_button": "Imprimer mon ticket"
+    "print_button": "Réimprimer mon ticket",
+    "take_ticket": "Attends ton ticket et prends-le !"
   },
   "printer_pair": "Connecter l’imprimante",
   "printer_paired": "Imprimante connectée"

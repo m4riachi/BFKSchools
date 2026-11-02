@@ -43,7 +43,8 @@
     "printing": "Printing your ticket…",
     "printed": "Your ticket is printed!",
     "print_failed": "The printer did not answer.",
-    "print_button": "Print my ticket"
+    "print_button": "Print my ticket again",
+    "take_ticket": "Wait for your ticket and take it!"
   },
   "printer_pair": "Connect the printer",
   "printer_paired": "Printer connected"

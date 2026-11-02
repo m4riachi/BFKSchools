@@ -37,16 +37,30 @@ const ticket = ref<string | null>(null)
 const printState = ref<'idle' | 'printing' | 'printed' | 'failed'>('idle')
 const printFallback = computed(() => (ticket.value ? rawbtUrl(ticket.value) : null))
 
-/** Prints the ticket on the printer plugged into the board, if one is paired. */
+/**
+ * Prints the ticket right after the confirmation: on the USB printer paired
+ * with the board when there is one, otherwise (Android) through the RawBT
+ * app, opened by URL while the confirm tap still counts as a user gesture.
+ */
 async function printTicket() {
   if (!ticket.value) return
   printState.value = 'printing'
-  try {
-    await printer.print(base64ToBytes(ticket.value))
-    printState.value = 'printed'
-  } catch {
-    printState.value = 'failed'
+  const paired = printer.device.value ?? (await printer.restore())
+  if (paired) {
+    try {
+      await printer.print(base64ToBytes(ticket.value))
+      printState.value = 'printed'
+    } catch {
+      printState.value = 'failed'
+    }
+    return
   }
+  if (/android/i.test(navigator.userAgent) && printFallback.value) {
+    window.location.href = printFallback.value
+    printState.value = 'printed'
+    return
+  }
+  printState.value = 'failed'
 }
 
 const IDLE_MS = 60_000
@@ -200,7 +214,7 @@ async function confirm() {
     step.value = 'done'
     ticket.value = result.ticket
     printState.value = 'idle'
-    if (ticket.value && (printer.device.value || (await printer.restore()))) void printTicket()
+    if (ticket.value) void printTicket()
     doneTimer = setTimeout(() => emit('close'), ticket.value ? DONE_MS * 2 : DONE_MS)
   } catch (caught) {
     error.value = (caught as Error).message
@@ -475,17 +489,15 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             {{ t('board.kiosk.done_title', { name: session.childName }) }}
           </h2>
           <p class="text-[3vmin] text-ink-3">{{ t('board.kiosk.done_body') }}</p>
-          <!-- The ticket: printed on the board's printer, or handed to the Android print app -->
-          <p v-if="printState === 'printing'" class="text-[2.4vmin] font-bold text-ink-3">
-            🖨 {{ t('board.kiosk.printing') }}
-          </p>
-          <p v-else-if="printState === 'printed'" class="text-[2.4vmin] font-bold text-brand">
-            🖨 {{ t('board.kiosk.printed') }}
+          <!-- The ticket prints by itself (board's USB printer, or the Android print app) -->
+          <p
+            v-if="ticket && printState !== 'failed'"
+            class="rounded-full bg-pink-50 px-[4vmin] py-[1.5vmin] text-[3vmin] font-extrabold text-pink-700"
+          >
+            🖨 {{ t('board.kiosk.take_ticket') }}
           </p>
           <template v-else-if="ticket">
-            <p v-if="printState === 'failed'" class="text-[2.2vmin] font-bold text-danger">
-              {{ t('board.kiosk.print_failed') }}
-            </p>
+            <p class="text-[2.2vmin] font-bold text-danger">{{ t('board.kiosk.print_failed') }}</p>
             <a
               :href="printFallback ?? '#'"
               class="rounded-full bg-subtle px-[5vmin] py-[2vmin] text-[2.6vmin] font-extrabold text-ink no-underline"
