@@ -20,6 +20,7 @@ const emit = defineEmits<{
   drop: [date: string, mealId: number]
   remove: [item: MenuItemView]
   setDefault: [item: MenuItemView]
+  setSpecial: [item: MenuItemView]
   editMax: [item: MenuItemView]
 }>()
 
@@ -270,7 +271,8 @@ function maxLabel(item: MenuItemView) {
         <div
           v-for="item in supplements"
           :key="item.id"
-          class="flex flex-col gap-1.5 rounded-[10px] border border-line bg-surface py-2 pr-1.5 pl-2"
+          class="flex flex-col gap-1.5 rounded-[10px] border bg-surface py-2 pr-1.5 pl-2"
+          :class="item.isSpecial ? 'border-pink-300' : 'border-line'"
         >
           <div class="flex items-center gap-2">
             <MealThumb
@@ -309,6 +311,12 @@ function maxLabel(item: MenuItemView) {
             <StatusBadge v-if="!item.meal.isActive" tone="warning">
               {{ t('menus.builder.unavailable') }}
             </StatusBadge>
+            <span
+              v-if="item.isSpecial"
+              class="flex items-center gap-1 rounded-full bg-pink-100 px-2 py-0.5 text-[11px] font-bold text-pink-700"
+            >
+              <span aria-hidden="true">★</span>{{ t('menus.builder.special') }}
+            </span>
             <button
               type="button"
               class="text-xs font-semibold text-ink-4 underline-offset-2 hover:underline disabled:no-underline"
@@ -317,6 +325,16 @@ function maxLabel(item: MenuItemView) {
               @click="emit('editMax', item)"
             >
               {{ maxLabel(item) }}
+            </button>
+            <button
+              v-if="can.setSpecial"
+              type="button"
+              class="text-xs font-semibold text-pink-700 underline-offset-2 hover:underline"
+              @click="emit('setSpecial', item)"
+            >
+              {{
+                item.isSpecial ? t('menus.builder.unset_special') : t('menus.builder.set_special')
+              }}
             </button>
           </div>
         </div>

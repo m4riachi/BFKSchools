@@ -130,7 +130,8 @@
     "saving": "Saving…",
     "auto_assigned": "Default meal assigned",
     "today": "Today",
-    "next_school_day": "Next day"
+    "next_school_day": "Next day",
+    "special": "Special of the day"
   },
   "history": {
     "title": "Order history",

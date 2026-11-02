@@ -494,6 +494,12 @@ const routes = {
     tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"items"],[1,"id"],[0,"default"]],
     types: placeholder as Registry['admin.menus.items.default']['types'],
   },
+  'admin.menus.items.special': {
+    methods: ["POST"],
+    pattern: '/admin/menus/:week/items/:id/special',
+    tokens: [[0,"admin"],[0,"menus"],[1,"week"],[0,"items"],[1,"id"],[0,"special"]],
+    types: placeholder as Registry['admin.menus.items.special']['types'],
+  },
   'admin.menus.items.destroy': {
     methods: ["DELETE"],
     pattern: '/admin/menus/:week/items/:id',

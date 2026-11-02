@@ -170,6 +170,8 @@ export default class OrderWeekService {
           mealId: item.mealId,
           type: item.mealType,
           isDefault: item.isDefault,
+          // D47: a special supplement is shown with the main dishes (display only).
+          isSpecial: item.isSpecial,
           name: mealName(item.meal, locale),
           description: mealDescription(item.meal, locale),
           // D31: subscription meals have no price (null → "included").

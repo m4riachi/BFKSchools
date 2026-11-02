@@ -116,7 +116,20 @@ const editable = computed(() =>
   props.mode === 'staff' ? props.day.staffEditable : props.day.editable
 )
 const mains = computed(() => props.day.options.filter((o) => o.type === 'subscription'))
-const extras = computed(() => props.day.options.filter((o) => o.type === 'supplement'))
+/** D47: special supplements are shown in the main-meal section, the rest as extras. */
+const specials = computed(() =>
+  props.day.options.filter((o) => o.type === 'supplement' && o.isSpecial)
+)
+const extras = computed(() =>
+  props.day.options.filter((o) => o.type === 'supplement' && !o.isSpecial)
+)
+/** The supplement grids: the specials (with the main meal) then the extras. */
+const extraGroups = computed(() =>
+  [
+    { key: 'special', special: true, title: t('orders.week.special'), options: specials.value },
+    { key: 'extras', special: false, title: t('orders.week.extras'), options: extras.value },
+  ].filter((group) => group.options.length)
+)
 
 const pill = computed(() => {
   if (props.day.state === 'holiday')
@@ -571,16 +584,22 @@ function mainNote(option: OptionView) {
               </label>
             </fieldset>
 
+            <!-- D47: the special of the day sits with the main meal, the extras below -->
             <div
-              v-if="extras.length"
-              class="flex flex-col gap-2.5 rounded-[14px] border border-line bg-subtle p-2.5"
+              v-for="group in extraGroups"
+              :key="group.key"
+              class="flex flex-col gap-2.5 rounded-[14px] border p-2.5"
+              :class="group.special ? 'border-pink-200 bg-pink-50' : 'border-line bg-subtle'"
             >
-              <h3 class="text-[11px] font-extrabold tracking-[0.07em] text-brand-strong uppercase">
-                {{ t('orders.week.extras') }}
+              <h3
+                class="flex items-center gap-1 text-[11px] font-extrabold tracking-[0.07em] uppercase"
+                :class="group.special ? 'text-pink-700' : 'text-brand-strong'"
+              >
+                <span v-if="group.special" aria-hidden="true">★</span>{{ group.title }}
               </h3>
               <div class="grid grid-cols-3 gap-2">
                 <div
-                  v-for="(option, extraIndex) in extras"
+                  v-for="(option, extraIndex) in group.options"
                   :key="option.menuItemId"
                   class="flex min-w-0 flex-col overflow-hidden rounded-xl border"
                   :style="{ '--stagger-i': Math.min(mains.length + extraIndex, 10) }"
@@ -588,7 +607,9 @@ function mainNote(option: OptionView) {
                     open ? 'stagger-item' : '',
                     qtyOf(option) > 0
                       ? 'border-brand-line bg-brand-faint'
-                      : 'border-line bg-surface',
+                      : group.special
+                        ? 'border-pink-200 bg-surface'
+                        : 'border-line bg-surface',
                   ]"
                 >
                   <MealThumb

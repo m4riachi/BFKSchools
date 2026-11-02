@@ -216,6 +216,11 @@ function setDefault(item: MenuItemView) {
   router.post(`${base.value}/items/${item.id}/default`, {}, visitOptions)
 }
 
+/** D47: toggles the "special of the day" tag of a supplement. */
+function setSpecial(item: MenuItemView) {
+  router.post(`${base.value}/items/${item.id}/special`, {}, visitOptions)
+}
+
 const maxTarget = ref<MenuItemView | null>(null)
 const maxOpen = ref(false)
 const maxForm = useForm<{ maxQuantity: string }>({ maxQuantity: '' })
@@ -602,6 +607,7 @@ const segmentClass = (active: boolean) =>
           @drop="addMeal"
           @remove="askRemove"
           @set-default="setDefault"
+          @set-special="setSpecial"
           @edit-max="editMax"
         />
       </div>

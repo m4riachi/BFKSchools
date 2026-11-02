@@ -43,6 +43,8 @@ export type BoardMeal = {
   name: string
   description: string | null
   mealType: MealType
+  /** D47: supplement tagged "special of the day", shown with the main dishes. */
+  isSpecial: boolean
   /** Full-size cover photo through the board's own photo route, or null. */
   photoUrl: string | null
 }
@@ -50,7 +52,7 @@ export type BoardMeal = {
 export type BoardDay = {
   date: IsoDate
   holiday: string | null
-  /** The day's main dishes, in menu order. */
+  /** The day's main dishes, then its special supplements (D47), in menu order. */
   dishes: BoardMeal[]
   supplements: BoardMeal[]
 }
@@ -172,6 +174,7 @@ export default class SchoolBoardService {
         name: mealName(item.meal, locale),
         description: mealDescription(item.meal, locale),
         mealType: item.mealType,
+        isSpecial: item.isSpecial,
         photoUrl: cover
           ? mealPhotoUrl(cover, 'full').replace(MEAL_PHOTO_PATH, `/board/${slug}/photos`)
           : null,
@@ -189,8 +192,14 @@ export default class SchoolBoardService {
         return {
           date,
           holiday: holidayNames.get(date)?.join(' · ') ?? null,
-          dishes: ofDay.filter((item) => item.mealType === 'subscription').map(present),
-          supplements: ofDay.filter((item) => item.mealType === 'supplement').map(present),
+          // The main dishes first, then the specials of the day (D47).
+          dishes: [
+            ...ofDay.filter((item) => item.mealType === 'subscription'),
+            ...ofDay.filter((item) => item.mealType === 'supplement' && item.isSpecial),
+          ].map(present),
+          supplements: ofDay
+            .filter((item) => item.mealType === 'supplement' && !item.isSpecial)
+            .map(present),
         }
       }),
     }

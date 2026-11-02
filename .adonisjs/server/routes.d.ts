@@ -85,6 +85,7 @@ export type ScannedRoutes = {
     'admin.menus.items.store': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.items.update': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.default': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
+    'admin.menus.items.special': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.items.remove': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.copy': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
@@ -283,6 +284,7 @@ export type ScannedRoutes = {
     'admin.holidays.import.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.menus.items.store': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.items.default': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
+    'admin.menus.items.special': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menus.copy': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.copy_from': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }
     'admin.menus.templates.apply': { paramsTuple: [ParamValue]; params: {'week': ParamValue} }

@@ -131,6 +131,7 @@ export interface ApiDefinition {
         store: typeof routes['admin.menus.items.store']
         update: typeof routes['admin.menus.items.update']
         default: typeof routes['admin.menus.items.default']
+        special: typeof routes['admin.menus.items.special']
         destroy: typeof routes['admin.menus.items.destroy']
         remove: typeof routes['admin.menus.items.remove']
       }

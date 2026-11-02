@@ -202,6 +202,7 @@ export default class WeeklyMenusController {
       date: item.date,
       type: item.mealType,
       isDefault: item.isDefault,
+      isSpecial: item.isSpecial,
       maxQuantity: item.maxQuantity,
       ordered: ordered.get(item.id) ?? 0,
       meal: {
@@ -299,6 +300,8 @@ export default class WeeklyMenusController {
               menu?.orderDeadlineAt !== undefined &&
               menu.orderDeadlineAt > this.clock.now())),
         editItems: status !== 'closed',
+        // D47: the "special" tag is display only, so it can change until the menu closes.
+        setSpecial: status !== 'closed',
         editTimes: status === 'draft' || status === 'scheduled',
         replaceItems: status === 'draft',
         schedule: canTransition(status, 'scheduled'),
@@ -341,6 +344,24 @@ export default class WeeklyMenusController {
     const menu = await this.menu(ctx, school)
     await this.builder.setDefault(school, menu, Number(params.id), auth.getUserOrFail())
     session.flash('success', i18n.t('menus.flash.default_set'))
+    return this.backToWeek(ctx, menu.weekStart)
+  }
+
+  /** D47: toggles the "special of the day" tag of a supplement. */
+  async setSpecial(ctx: HttpContext) {
+    const { auth, params, session, i18n } = ctx
+    const school = await this.school(ctx)
+    const menu = await this.menu(ctx, school)
+    const item = await this.builder.setSpecial(
+      school,
+      menu,
+      Number(params.id),
+      auth.getUserOrFail()
+    )
+    session.flash(
+      'success',
+      i18n.t(item.isSpecial ? 'menus.flash.special_set' : 'menus.flash.special_unset')
+    )
     return this.backToWeek(ctx, menu.weekStart)
   }
 

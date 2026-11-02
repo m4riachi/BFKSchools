@@ -128,7 +128,10 @@
     "report_skipped_meal": "{name} skipped: inactive or deleted meal.",
     "report_new_default": "{day}: the original default dish was skipped, the first remaining dish became the default.",
     "dismiss": "Dismiss",
-    "ordered": "{count, plural, =0 {No orders} one {# ordered} other {# ordered}}"
+    "ordered": "{count, plural, =0 {No orders} one {# ordered} other {# ordered}}",
+    "special": "Special of the day",
+    "set_special": "Mark as special of the day",
+    "unset_special": "Remove special"
   },
   "issues": {
     "missing_times": "Set the publication date and the order deadline.",
@@ -168,7 +171,8 @@
     "remove_has_orders": "{count, plural, one {# order contains this meal: choose how to handle it first.} other {# orders contain this meal: choose how to handle them first.}}",
     "switch_target": "Choose another meal of the same day and type.",
     "switch_sold_out": "The chosen meal doesn't have enough portions left ({remaining} left).",
-    "past_day": "This day is over: its meals can no longer be removed."
+    "past_day": "This day is over: its meals can no longer be removed.",
+    "special_subscription": "Only a supplement can be the special of the day."
   },
   "flash": {
     "item_added": "{name} added.",
@@ -183,7 +187,9 @@
     "scheduled": "Publication scheduled.",
     "unscheduled": "Menu moved back to draft.",
     "published": "{recipients, plural, =0 {Menu published.} one {Menu published: # family notified.} other {Menu published: # families notified.}}",
-    "item_removed_with_orders": "Meal removed: {orders} orders handled ({switched} switched, {cancelled} cancelled). Parents are notified."
+    "item_removed_with_orders": "Meal removed: {orders} orders handled ({switched} switched, {cancelled} cancelled). Parents are notified.",
+    "special_set": "Supplement marked as special of the day.",
+    "special_unset": "Special of the day removed."
   },
   "remove": {
     "title": "Remove a meal from a published menu",

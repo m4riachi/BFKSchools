@@ -12,6 +12,8 @@ export type MenuItemView = {
   date: string
   type: 'subscription' | 'supplement' | string
   isDefault: boolean
+  /** D47: supplement tagged "special of the day" (shown with the main dishes). */
+  isSpecial: boolean
   maxQuantity: number | null
   /** Portions in active orders (published menus). */
   ordered: number
@@ -36,6 +38,8 @@ export type MenuCan = {
   removeItems: boolean
   /** D18: a published day's default can change until the order deadline. */
   setDefault: boolean
+  /** D47: the "special" tag can change until the menu closes. */
+  setSpecial: boolean
   editItems: boolean
   editTimes: boolean
   replaceItems: boolean

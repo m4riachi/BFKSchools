@@ -8,5 +8,6 @@
   "not_published": "The menu of the week is coming soon.",
   "fullscreen": "Full screen",
   "week_of": "Week of {from} to {to}",
-  "tomorrow": "Tomorrow"
+  "tomorrow": "Tomorrow",
+  "special": "Special"
 }

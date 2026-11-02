@@ -130,7 +130,8 @@
     "saving": "Enregistrement…",
     "auto_assigned": "Plat par défaut attribué",
     "today": "Aujourd'hui",
-    "next_school_day": "Prochain jour"
+    "next_school_day": "Prochain jour",
+    "special": "Spécial du jour"
   },
   "history": {
     "title": "Historique des commandes",

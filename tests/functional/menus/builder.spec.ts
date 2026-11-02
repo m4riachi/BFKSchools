@@ -85,6 +85,30 @@ test.group('Menus | default meal rule', (group) => {
     )
   })
 
+  test('D47: a supplement toggles "special of the day"; a subscription dish cannot', async ({
+    assert,
+  }) => {
+    const { school, manager } = await setupMenuSchool()
+    const service = await builder()
+    const main = await addItem(school, manager, MON, await subscriptionMeal())
+    const extra = await addItem(school, manager, MON, await supplementMeal())
+    const menu = await menuOf(school)
+
+    assert.isTrue((await service.setSpecial(school, menu, extra.id, manager)).isSpecial)
+    assert.isTrue((await MenuItem.findOrFail(extra.id)).isSpecial)
+    assert.isFalse((await service.setSpecial(school, menu, extra.id, manager)).isSpecial)
+    await rejectsWith(
+      assert,
+      service.setSpecial(school, menu, main.id, manager),
+      'menus.errors.special_subscription'
+    )
+    // The database refuses the tag on a subscription dish too.
+    await assert.rejects(
+      () => db.from('menu_items').where('id', main.id).update({ is_special: true }),
+      /special_supplement_check/
+    )
+  })
+
   test('removing the default promotes the next subscription meal of that day', async ({
     assert,
   }) => {

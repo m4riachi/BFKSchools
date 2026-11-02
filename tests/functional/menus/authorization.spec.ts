@@ -115,6 +115,7 @@ test.group('Menus | authorization', (group) => {
     const attempts = [
       client.put(`/admin/menus/${WEEK}/items/${item.id}`).json({ maxQuantity: 1 }),
       client.post(`/admin/menus/${WEEK}/items/${item.id}/default`),
+      client.post(`/admin/menus/${WEEK}/items/${item.id}/special`),
       client.delete(`/admin/menus/${WEEK}/items/${item.id}`),
       client.post(`/admin/menus/${WEEK}/schedule`),
       client.post(`/admin/menus/${WEEK}/publish`),
@@ -167,6 +168,7 @@ test.group('Menus | authorization', (group) => {
       ['PUT', `/admin/menus/${WEEK}/items/${big}`],
       ['DELETE', `/admin/menus/${WEEK}/items/${big}`],
       ['POST', `/admin/menus/${WEEK}/items/${big}/default`],
+      ['POST', `/admin/menus/${WEEK}/items/${big}/special`],
       ['DELETE', `/admin/menu-templates/${big}`],
     ]) {
       const response = await client

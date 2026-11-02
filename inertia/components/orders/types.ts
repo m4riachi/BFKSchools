@@ -10,6 +10,8 @@ export type OptionView = {
   mealId: number
   type: 'subscription' | 'supplement' | string
   isDefault: boolean
+  /** D47: supplement tagged "special of the day", shown with the main dishes. */
+  isSpecial: boolean
   name: string
   description: string | null
   priceCents: number

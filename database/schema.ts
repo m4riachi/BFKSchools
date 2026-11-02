@@ -215,7 +215,7 @@ export class MealSchema extends BaseModel {
 }
 
 export class MenuItemSchema extends BaseModel {
-  static $columns = ['createdAt', 'date', 'id', 'isDefault', 'maxQuantity', 'mealId', 'mealType', 'position', 'removedAt', 'updatedAt', 'weeklyMenuId'] as const
+  static $columns = ['createdAt', 'date', 'id', 'isDefault', 'isSpecial', 'maxQuantity', 'mealId', 'mealType', 'position', 'removedAt', 'updatedAt', 'weeklyMenuId'] as const
   $columns = MenuItemSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -225,6 +225,8 @@ export class MenuItemSchema extends BaseModel {
   declare id: number
   @column()
   declare isDefault: boolean
+  @column()
+  declare isSpecial: boolean
   @column()
   declare maxQuantity: number | null
   @column()
@@ -242,12 +244,14 @@ export class MenuItemSchema extends BaseModel {
 }
 
 export class MenuTemplateItemSchema extends BaseModel {
-  static $columns = ['id', 'isDefault', 'maxQuantity', 'mealId', 'mealType', 'menuTemplateId', 'position', 'weekday'] as const
+  static $columns = ['id', 'isDefault', 'isSpecial', 'maxQuantity', 'mealId', 'mealType', 'menuTemplateId', 'position', 'weekday'] as const
   $columns = MenuTemplateItemSchema.$columns
   @column({ isPrimary: true })
   declare id: number
   @column()
   declare isDefault: boolean
+  @column()
+  declare isSpecial: boolean
   @column()
   declare maxQuantity: number | null
   @column()

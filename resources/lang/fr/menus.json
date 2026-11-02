@@ -128,7 +128,10 @@
     "report_skipped_meal": "{name} ignoré : repas inactif ou supprimé.",
     "report_new_default": "{day} : le plat par défaut d'origine a été ignoré, le premier plat restant devient le plat par défaut.",
     "dismiss": "Masquer",
-    "ordered": "{count, plural, =0 {Aucune commande} one {# commandé} other {# commandés}}"
+    "ordered": "{count, plural, =0 {Aucune commande} one {# commandé} other {# commandés}}",
+    "special": "Spécial du jour",
+    "set_special": "Marquer spécial du jour",
+    "unset_special": "Retirer le spécial"
   },
   "issues": {
     "missing_times": "Renseignez la date de publication et la clôture des commandes.",
@@ -168,7 +171,8 @@
     "remove_has_orders": "{count, plural, one {# commande contient ce plat : choisissez d'abord comment la traiter.} other {# commandes contiennent ce plat : choisissez d'abord comment les traiter.}}",
     "switch_target": "Choisissez un autre plat du même jour et du même type.",
     "switch_sold_out": "Le plat choisi n'a plus assez de portions ({remaining} restantes).",
-    "past_day": "Ce jour est passé : ses plats ne peuvent plus être retirés."
+    "past_day": "Ce jour est passé : ses plats ne peuvent plus être retirés.",
+    "special_subscription": "Seul un supplément peut être marqué spécial du jour."
   },
   "flash": {
     "item_added": "{name} ajouté.",
@@ -183,7 +187,9 @@
     "scheduled": "Publication programmée.",
     "unscheduled": "Menu repassé en brouillon.",
     "published": "{recipients, plural, =0 {Menu publié.} one {Menu publié : # famille prévenue.} other {Menu publié : # familles prévenues.}}",
-    "item_removed_with_orders": "Plat retiré : {orders} commandes traitées ({switched} remplacées, {cancelled} annulées). Les parents sont prévenus."
+    "item_removed_with_orders": "Plat retiré : {orders} commandes traitées ({switched} remplacées, {cancelled} annulées). Les parents sont prévenus.",
+    "special_set": "Supplément marqué spécial du jour.",
+    "special_unset": "Spécial du jour retiré."
   },
   "remove": {
     "title": "Retirer un plat d'un menu publié",

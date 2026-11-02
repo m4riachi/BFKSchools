@@ -31,6 +31,8 @@ type PlannedItem = {
   date: IsoDate
   mealId: number
   isDefault: boolean
+  /** D47: supplement tagged "special of the day" (display only). */
+  isSpecial: boolean
   maxQuantity: number | null
   position: number
 }
@@ -288,6 +290,25 @@ export default class MenuBuilderService {
     })
   }
 
+  /**
+   * D47: tags a supplement "special of the day" (or untags it). Display only:
+   * the parent portal and the school board show it with the main dishes;
+   * ordering, prices and billing are unchanged — so it is allowed on a
+   * published menu at any time, until the menu is closed.
+   */
+  async setSpecial(school: School, menu: WeeklyMenu, itemId: number, actor: User) {
+    return this.withMenu(school, menu.weekStart, actor, async (trx, locked) => {
+      this.assertEditable(locked)
+      const item = await this.lockedItem(trx, locked, itemId)
+      if (item.mealType !== 'supplement') {
+        throw new BusinessRuleException('menus.errors.special_subscription')
+      }
+      item.isSpecial = !item.isSpecial
+      await item.useTransaction(trx).save()
+      return item
+    })
+  }
+
   /** Changes an item's cap; never below the portions already ordered (D18). */
   async updateItem(
     school: School,
@@ -391,6 +412,7 @@ export default class MenuBuilderService {
           date: addDays(item.date, shift),
           mealId: item.mealId,
           isDefault: item.isDefault,
+          isSpecial: item.isSpecial,
           maxQuantity: item.maxQuantity,
           position: item.position,
         }))
@@ -416,6 +438,7 @@ export default class MenuBuilderService {
           date: addDays(weekStart, item.weekday - 1),
           mealId: item.mealId,
           isDefault: item.isDefault,
+          isSpecial: item.isSpecial,
           maxQuantity: item.maxQuantity,
           position: item.position,
         }))
@@ -494,6 +517,7 @@ export default class MenuBuilderService {
           mealType: meal.type,
           position,
           isDefault,
+          isSpecial: meal.type === 'supplement' && item.isSpecial,
           maxQuantity: item.maxQuantity,
           removedAt: null,
         },
@@ -578,6 +602,7 @@ export default class MenuBuilderService {
             mealType: item.mealType,
             position: item.position,
             isDefault: item.isDefault,
+            isSpecial: item.isSpecial,
             maxQuantity: item.maxQuantity,
           },
           { client: trx }

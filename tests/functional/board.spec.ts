@@ -7,8 +7,8 @@ import MealPhoto from '#models/meal_photo'
 import School from '#models/school'
 import SchoolSettingsService from '#services/school_settings_service'
 import { freezeClock, restoreClock } from '#tests/helpers/clock'
-import { addHoliday, setupMenuSchool, supplementMeal } from '#tests/helpers/menus'
-import { family, orderSchool, orders, TUE } from '#tests/helpers/orders'
+import { addHoliday, builder, menuOf, setupMenuSchool, supplementMeal } from '#tests/helpers/menus'
+import { family, itemFor, orderSchool, orders, TUE } from '#tests/helpers/orders'
 
 const SLUG = 'bfk-british-academy-school-marrakech'
 
@@ -220,7 +220,27 @@ test.group('School display board (D46)', (group) => {
     assert.equal(await boardSlug(school.id), slug)
   })
 
-  test('photos: only meals on the displayed week menu', async ({ client }) => {
+  test('D47: a special supplement is shown with the dishes, not with the supplements', async ({
+    client,
+    assert,
+  }) => {
+    const ctx = await orderSchool()
+    const slug = await enableBoard(client, ctx.admin)
+    const menu = await menuOf(ctx.school)
+    const juice = await itemFor(menu.id, TUE, ctx.juice)
+    await (await builder()).setSpecial(ctx.school, menu, juice.id, ctx.manager)
+
+    freezeClock('2026-11-23T09:00')
+    const board = (await client.get(`/board/${slug}`).withInertia()).body().props.board
+    const tuesday = board.days.find((day: { date: string }) => day.date === TUE)
+    const special = tuesday.dishes.find((meal: { mealId: number }) => meal.mealId === ctx.juice.id)
+    assert.isTrue(special.isSpecial)
+    assert.equal(special.mealType, 'supplement')
+    assert.deepEqual(tuesday.supplements, [])
+    assert.isFalse(tuesday.dishes[0].isSpecial)
+  })
+
+  test('photos: only meals on the displayed days menu', async ({ client }) => {
     const ctx = await orderSchool()
     const token = await enableBoard(client, ctx.admin)
     freezeClock('2026-11-23T09:00')

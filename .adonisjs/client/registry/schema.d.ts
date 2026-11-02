@@ -1061,6 +1061,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['setDefault']>>>
     }
   }
+  'admin.menus.items.special': {
+    methods: ["POST"]
+    pattern: '/admin/menus/:week/items/:id/special'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { week: ParamValue; id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['setSpecial']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['setSpecial']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/weekly_menus_controller').default['setSpecial']>>>
+    }
+  }
   'admin.menus.items.destroy': {
     methods: ["DELETE"]
     pattern: '/admin/menus/:week/items/:id'

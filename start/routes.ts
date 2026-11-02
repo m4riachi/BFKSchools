@@ -351,6 +351,10 @@ router
           .where('id', id)
           .as('items.default')
         router
+          .post('items/:id/special', [controllers.admin.WeeklyMenus, 'setSpecial'])
+          .where('id', id)
+          .as('items.special')
+        router
           .delete('items/:id', [controllers.admin.WeeklyMenus, 'destroyItem'])
           .where('id', id)
           .as('items.destroy')

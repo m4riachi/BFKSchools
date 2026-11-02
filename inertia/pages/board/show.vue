@@ -18,6 +18,7 @@ type BoardMeal = {
   name: string
   description: string | null
   mealType: 'subscription' | 'supplement'
+  isSpecial: boolean
   photoUrl: string | null
 }
 type BoardDay = {
@@ -257,7 +258,7 @@ function initial(name: string) {
         </div>
 
         <template v-else>
-          <!-- The day's dishes, two per row: the photo filling the card, then the name -->
+          <!-- The day's dishes, two per row: the whole photo, then the name -->
           <section class="flex min-h-0 flex-1 flex-col gap-[1.2vmin]">
             <h3 class="text-[1.9vmin] font-bold tracking-[0.12em] text-ink-3 uppercase">
               {{ t('board.dishes') }}
@@ -273,12 +274,20 @@ function initial(name: string) {
                 class="board-card relative flex min-h-0 flex-col overflow-hidden rounded-[3vmin] bg-white shadow-overlay ring-1 ring-black/10"
                 :style="{ '--i': index }"
               >
-                <div class="relative min-h-0 flex-1 overflow-hidden bg-neutral-100">
+                <!-- The whole photo, never cropped; a blurred copy fills the rest of the card -->
+                <div class="relative min-h-0 flex-1 overflow-hidden bg-neutral-200">
                   <img
                     v-if="dish.photoUrl"
                     :src="dish.photoUrl"
                     alt=""
-                    class="board-photo absolute inset-0 size-full object-cover"
+                    class="absolute inset-0 size-full scale-110 object-cover opacity-70 blur-xl"
+                    aria-hidden="true"
+                  />
+                  <img
+                    v-if="dish.photoUrl"
+                    :src="dish.photoUrl"
+                    alt=""
+                    class="board-photo absolute inset-0 size-full object-contain"
                     :style="{ animationDelay: `${index * 1.3}s` }"
                   />
                   <span
@@ -292,6 +301,13 @@ function initial(name: string) {
                     aria-hidden="true"
                     >{{ slide.offset + index + 1 }}</span
                   >
+                  <!-- D47: a supplement tagged special of the day -->
+                  <span
+                    v-if="dish.isSpecial"
+                    class="absolute top-[1.6vmin] right-[1.6vmin] flex items-center gap-[0.6vmin] rounded-full bg-pink-500 px-[1.6vmin] py-[0.6vmin] text-[2vmin] font-extrabold text-white shadow-overlay"
+                  >
+                    <span aria-hidden="true">★</span>{{ t('board.special') }}
+                  </span>
                 </div>
                 <div class="flex shrink-0 flex-col gap-[0.3vmin] px-[2vmin] py-[1.2vmin]">
                   <span class="text-[2.6vmin] leading-[1.15] font-extrabold text-balance">{{
@@ -416,16 +432,16 @@ function initial(name: string) {
   }
 }
 
-/* A very slow zoom on the photos so the screen never looks frozen. */
+/* A very slow breath on the photos so the screen never looks frozen (the photo stays whole). */
 .board-photo {
   animation: board-photo-drift 12s ease-in-out infinite alternate;
 }
 @keyframes board-photo-drift {
   from {
-    transform: scale(1);
+    transform: scale(0.96);
   }
   to {
-    transform: scale(1.05);
+    transform: scale(1);
   }
 }
 

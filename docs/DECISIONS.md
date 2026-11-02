@@ -51,6 +51,7 @@ While a decision is **pending**, agents build with the default and keep the alte
 | D44 | School name | answered | The school is shown as "British Academy School Marrakech" everywhere (screens, emails, PDFs, exports); existing rows are renamed by a migration. The slug `britech-school` stays, it is internal. The academy logo in the parent header links to https://basm.uk/ |
 | D45 | Animated logo at launch | answered | Phones draw their first screen from the static icon, which cannot animate. `public/splash.js` then shows `bfk-logo-animated.svg` on white in the installed app only, once per launch, at least 1.8 s and at most 6 s |
 | D46 | School display board | answered | `/board/<slug>`: a public address (no login, chosen by the admin, e.g. `/board/bfk-british-academy-school-marrakech`) for the portrait screen (490 × 1800 mm) at the school — one layout, sized by the narrow side of the screen — showing the published menu of today (on a weekend: the next school day) then of the next school day, each main dish as a card filled by its photo, the supplements below, both logos in the header, animated, reloaded every minute. Admin turns it on, moves it or turns it off in `/admin/settings`; the page shows the menu only (what parents already see), never orders or children. Photos go through `/board/<slug>/photos/:id/:variant`, limited to meals on that week’s menu |
+| D47 | Special of the day | answered | In the menu builder a supplement can be tagged “special of the day” (`menu_items.is_special`, supplements only, kept by templates and copies, changeable until the menu closes). Display only: the parent portal shows it in the main-meal section (pink “Spécial du jour” group, ordered like any supplement) and the board shows it with the dishes with a “Special” badge. Ordering rules, prices and billing are unchanged |
 
 ## Change log
 <!-- main session: one line per answer, e.g. "2026-11-02 — D1 answered: fixed monthly fee of 650 MAD" -->
@@ -78,3 +79,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-10-30 — D44: school renamed British Academy School Marrakech
 2026-10-30 — D45: animated logo when the installed app starts
 2026-11-02 — D46: school display board on a public address, the week’s menu day by day in big format
+2026-11-02 — D47: a supplement can be tagged “special of the day”, shown with the main dishes in the parent portal and on the board
