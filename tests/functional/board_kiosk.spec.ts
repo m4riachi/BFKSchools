@@ -44,8 +44,8 @@ test.group('Board kiosk (D51)', (group) => {
       await builder()
     ).setSpecial(ctx.school, menu, (await itemFor(menu.id, TUE, ctx.juice)).id, ctx.manager)
 
-    // Monday 09:00: Monday itself is past its cutoff, Tuesday is open.
-    freezeClock('2026-11-23T09:00')
+    // Tuesday 08:00: the parents' window is closed (cutoff Monday 18:00), the board's is open until 09:00.
+    freezeClock('2026-11-24T08:00')
     const start = await client.post(`/board/${SLUG}/kiosk/session`).json({ pin: child.pin })
     start.assertStatus(200)
     const session = start.body()
@@ -109,6 +109,7 @@ test.group('Board kiosk (D51)', (group) => {
 
     // A day the parent ordered in the app is locked too, with its own message.
     const other = await family(ctx.school)
+    freezeClock('2026-11-20T12:00')
     await (
       await orders()
     ).saveDay(
@@ -117,6 +118,7 @@ test.group('Board kiosk (D51)', (group) => {
       { subscriptionMealId: ctx.alt.id, supplements: [] },
       { user: other.parent }
     )
+    freezeClock('2026-11-24T08:00')
     const byApp = (
       await client
         .post(`/board/${SLUG}/kiosk/session`)
@@ -134,7 +136,7 @@ test.group('Board kiosk (D51)', (group) => {
     await enableBoard(client, ctx.admin)
     const home = await family(ctx.school)
     const child = await Child.findOrFail(home.child.id)
-    freezeClock('2026-11-23T09:00')
+    freezeClock('2026-11-24T08:00')
 
     const wrong = await client
       .post(`/board/${SLUG}/kiosk/session`)
@@ -151,14 +153,14 @@ test.group('Board kiosk (D51)', (group) => {
       .json({ token: 'not-a-real-token-at-all', subscriptionMealId: ctx.main.id })
     tampered.assertStatus(422)
 
-    // Friday evening: Friday is locked and Monday's menu is not published → closed.
-    freezeClock('2026-11-27T19:00')
+    // After the board's cutoff (09:00) the day is closed, even though tomorrow would be open for parents.
+    freezeClock('2026-11-24T09:30')
     const closed = await client.post(`/board/${SLUG}/kiosk/session`).json({ pin: child.pin })
     closed.assertStatus(422)
-    assert.include(closed.body().error.toLowerCase(), 'closed')
+    assert.include(closed.body().error, 'closed for today (until 09:00)')
 
     // The limiter: 12 codes per 5 minutes from one address.
-    freezeClock('2026-11-23T09:00')
+    freezeClock('2026-11-24T08:00')
     let last = 0
     for (let i = 0; i < 14; i += 1) {
       last = (await client.post(`/board/${SLUG}/kiosk/session`).json({ pin: '9999' })).status()

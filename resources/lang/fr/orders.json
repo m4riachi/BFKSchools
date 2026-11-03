@@ -11,7 +11,8 @@
     "SAME_DAY_ONLY": "Après la clôture, seul le repas du jour peut être modifié, avant l'heure limite",
     "NO_SUBSCRIPTION": "Pas d'abonnement actif à cette date",
     "NOT_SCHOOL_DAY": "Pas un jour d’école",
-    "CANCELLED_BY_STAFF": "Annulé par BFK : contactez BFK pour le rouvrir"
+    "CANCELLED_BY_STAFF": "Annulé par BFK : contactez BFK pour le rouvrir",
+    "KIOSK_CLOSED": "Les commandes sur l’écran de l’école sont fermées pour aujourd’hui"
   },
   "errors": {
     "EMPTY_SELECTION": "Choisissez un plat ou un supplément, ou indiquez « pas de repas ce jour ».",

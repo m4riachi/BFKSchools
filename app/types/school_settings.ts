@@ -51,6 +51,9 @@ export type SchoolSettings = {
   board_slug: string | null
   /** D51: the 🖨 "connect the printer" button on the board (hide it once paired). */
   board_printer_button: boolean
+  /** D52: ordering on the board's kiosk — the same day only, until this time. */
+  kiosk_enabled: boolean
+  kiosk_cutoff_time: string
   /** D50: off, direct (server → printer:port) or agent (scripts/print-agent.mjs). */
   printer_mode: PrinterMode
   printer_host: string | null

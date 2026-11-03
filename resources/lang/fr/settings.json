@@ -79,7 +79,12 @@
     },
     "printer_host": "Adresse de l’imprimante (IP)",
     "printer_port": "Port",
-    "printer_host_hint": "Adresse IP de l’imprimante sur le réseau de la cuisine (imprimée sur sa page d’auto-test : FEED enfoncé à l’allumage)."
+    "printer_host_hint": "Adresse IP de l’imprimante sur le réseau de la cuisine (imprimée sur sa page d’auto-test : FEED enfoncé à l’allumage).",
+    "kiosk_title": "Commandes sur l’écran de l’école (borne)",
+    "kiosk_hint": "L’enfant commande le jour même seulement, avec son code, jusqu’à l’heure limite ci-dessous — même si les modifications des parents sont déjà fermées. Un repas déjà configuré par le parent n’est jamais modifié sur l’écran.",
+    "kiosk_enabled": "Autoriser les commandes sur l’écran",
+    "kiosk_cutoff_time": "Heure limite de l’écran (le jour même)",
+    "kiosk_cutoff_time_hint": "Par exemple 09:00 : après cette heure, l’écran n’accepte plus de commande pour aujourd’hui."
   },
   "weekdays": {
     "1": "Lundi",

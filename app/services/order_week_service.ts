@@ -63,7 +63,12 @@ export default class OrderWeekService {
     protected settings: SchoolSettingsService
   ) {}
 
-  async week(child: Child, weekStart: IsoDate, locale: string) {
+  async week(
+    child: Child,
+    weekStart: IsoDate,
+    locale: string,
+    view: { channel?: 'parent' | 'kiosk' } = {}
+  ) {
     const school = await School.findOrFail(child.schoolId)
     const settings = this.settings.get(school)
     const zone = schoolZone(school)
@@ -144,6 +149,7 @@ export default class OrderWeekService {
         settings,
         child: { isActive: child.isActive },
         parent: { isActive: parent.isActive },
+        channel: view.channel,
       })
       const subscribed = hasSubscription(day.date)
       const options = dayItems.map((item) => {

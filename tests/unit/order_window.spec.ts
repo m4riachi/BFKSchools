@@ -31,6 +31,8 @@ const D5: WindowSettings = {
   edit_mode: 'until_cutoff',
   edit_cutoff_days_before: 1,
   edit_cutoff_time: '18:00',
+  kiosk_enabled: true,
+  kiosk_cutoff_time: '09:00',
 }
 
 function input(

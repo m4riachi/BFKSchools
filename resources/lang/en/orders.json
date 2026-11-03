@@ -11,7 +11,8 @@
     "SAME_DAY_ONLY": "After the deadline, only today's meal can be changed, before the cutoff time",
     "NO_SUBSCRIPTION": "No active subscription on this date",
     "NOT_SCHOOL_DAY": "Not a school day",
-    "CANCELLED_BY_STAFF": "Cancelled by BFK: contact BFK to reopen it"
+    "CANCELLED_BY_STAFF": "Cancelled by BFK: contact BFK to reopen it",
+    "KIOSK_CLOSED": "Ordering at the school screen is closed for today"
   },
   "errors": {
     "EMPTY_SELECTION": "Choose a meal or an extra, or select \"no meal this day\".",

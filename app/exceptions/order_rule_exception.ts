@@ -15,6 +15,7 @@ const WINDOW_RULES = new Set<string>([
   'AFTER_CUTOFF',
   'EDITS_DISABLED',
   'SAME_DAY_ONLY',
+  'KIOSK_CLOSED',
 ])
 
 /**

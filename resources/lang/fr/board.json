@@ -30,7 +30,7 @@
     "done_title": "C’est fait, {name} !",
     "done_body": "Ton repas est commandé. À tout à l’heure !",
     "unknown_pin": "Code inconnu : vérifie avec tes parents.",
-    "closed": "Les commandes sont fermées pour aujourd’hui et demain.",
+    "closed": "Les commandes sur l’écran sont fermées pour aujourd’hui (jusqu’à {time}).",
     "expired": "Le temps est écoulé, recommence.",
     "unknown_dish": "Ce plat n’est plus proposé, recommence.",
     "too_many": "Trop d’essais : attends quelques minutes.",

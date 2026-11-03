@@ -143,7 +143,8 @@ export default class OrderService {
     trx: TransactionClientContract,
     childId: number,
     date: IsoDate,
-    actor: OrderActor
+    actor: OrderActor,
+    channel: 'parent' | 'kiosk' = 'parent'
   ): Promise<DayContext> {
     if (!isIsoDate(date)) throw new lucidErrors.E_ROW_NOT_FOUND()
     const visible = await Child.query({ client: trx })
@@ -201,6 +202,7 @@ export default class OrderService {
       settings: this.settings.get(school),
       child: { isActive: child.isActive },
       parent: { isActive: parent.isActive },
+      channel,
     })
     return {
       trx,
@@ -291,7 +293,13 @@ export default class OrderService {
   ): Promise<DayOutcome> {
     this.assertReason(actor, options.reason)
     return db.transaction(async (trx) => {
-      const context = await this.context(trx, childId, date, actor)
+      const context = await this.context(
+        trx,
+        childId,
+        date,
+        actor,
+        options.origin === 'kiosk' ? 'kiosk' : 'parent'
+      )
       const overriding = this.assertWindow(context, 'save')
       const { order, items, child, school } = context
 

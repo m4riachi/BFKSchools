@@ -43,6 +43,8 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   glovo_url: 'https://glovoapp.com/fr/ma/marrakech/stores/beldi-fusion-kitchen', // D37
   board_slug: null, // D46
   board_printer_button: true, // D51
+  kiosk_enabled: true, // D52
+  kiosk_cutoff_time: '09:00',
   printer_mode: 'off', // D50
   printer_host: null,
   printer_port: 9100,

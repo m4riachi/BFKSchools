@@ -1,6 +1,8 @@
 import { inject } from '@adonisjs/core'
 import encryption from '@adonisjs/core/services/encryption'
 import Child from '#models/child'
+import Clock from '#services/clock'
+import SchoolSettingsService from '#services/school_settings_service'
 import type School from '#models/school'
 import EscPosTicketService from '#services/escpos_ticket_service'
 import OrderService from '#services/order_service'
@@ -55,9 +57,8 @@ export type KioskSelection = {
 
 /**
  * D51: ordering kiosk on the school board. A child types their 4-digit code,
- * picks a dish for the first open day of the board (today, or the next
- * school day) and the day's special on the same screen, may take one of the
- * other supplements, and confirms. The order is saved
+ * picks today's dish or special on one screen, may take other supplements,
+ * and confirms — today only, until the board's own cutoff (D52). The order is saved
  * through OrderService on behalf of the parent (same rules, prices and
  * audit as the parent portal; origin `kiosk`). The session is a signed,
  * short-lived token: the code is typed once.
@@ -65,6 +66,8 @@ export type KioskSelection = {
 @inject()
 export default class KioskService {
   constructor(
+    protected clock: Clock,
+    protected settings: SchoolSettingsService,
     protected weeks: OrderWeekService,
     protected orders: OrderService,
     protected board: SchoolBoardService,
@@ -147,19 +150,21 @@ export default class KioskService {
     return { childName: child.firstName, date, action: outcome.action, ticket }
   }
 
-  /** The first day of the board (today, then the next school day) still open for this child. */
+  /**
+   * D52: the board orders for today only, while its own window is open
+   * (`kiosk_cutoff_time`, whatever the parents' rule says — OrderWindowService
+   * decides with the `kiosk` channel, and OrderService checks it again).
+   */
   protected async openDay(school: School, child: Child, locale: string) {
-    const dates = this.board.displayedDays(school)
-    const days = new Map<IsoDate, DayView>()
-    for (const start of [...new Set(dates.map((date) => weekStart(date)))]) {
-      const view = await this.weeks.week(child, start, locale)
-      for (const day of view.days) days.set(day.date, day)
+    const date = this.clock.today()
+    const view = await this.weeks.week(child, weekStart(date), locale, { channel: 'kiosk' })
+    const day = view.days.find((candidate) => candidate.date === date)
+    if (!day || day.state !== 'open' || !day.editable) {
+      throw new BusinessRuleException('board.kiosk.closed', {
+        values: { time: this.settings.get(school).kiosk_cutoff_time },
+      })
     }
-    for (const date of dates) {
-      const day = days.get(date)
-      if (day && day.state === 'open' && day.editable) return { date, day }
-    }
-    throw new BusinessRuleException('board.kiosk.closed')
+    return { date, day }
   }
 
   protected present(day: DayView, slug: string) {

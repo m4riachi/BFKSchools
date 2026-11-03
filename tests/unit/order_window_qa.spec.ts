@@ -16,6 +16,8 @@ const D5: S = {
   edit_mode: 'until_cutoff',
   edit_cutoff_days_before: 1,
   edit_cutoff_time: '18:00',
+  kiosk_enabled: true,
+  kiosk_cutoff_time: '09:00',
 }
 function run(o: Partial<Omit<WindowInput, 'settings'>> & { settings?: Partial<S> }) {
   return evaluate({

@@ -66,6 +66,7 @@ export const WINDOW_REASONS = [
   'EDITS_DISABLED',
   'SAME_DAY_ONLY',
   'NO_SUBSCRIPTION',
+  'KIOSK_CLOSED',
 ] as const
 export type WindowReason = (typeof WINDOW_REASONS)[number]
 

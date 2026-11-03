@@ -30,7 +30,7 @@
     "done_title": "All done, {name}!",
     "done_body": "Your meal is ordered. See you at lunch!",
     "unknown_pin": "Unknown code: check with your parents.",
-    "closed": "Ordering is closed for today and tomorrow.",
+    "closed": "Ordering at the screen is closed for today (until {time}).",
     "expired": "Time is up, start again.",
     "unknown_dish": "That dish is no longer offered, start again.",
     "too_many": "Too many tries: wait a few minutes.",

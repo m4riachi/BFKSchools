@@ -19,7 +19,12 @@ import { addDays, atLocalTime, type IsoDate } from '#support/dates'
 
 export type WindowSettings = Pick<
   SchoolSettings,
-  'allow_parent_edits' | 'edit_mode' | 'edit_cutoff_days_before' | 'edit_cutoff_time'
+  | 'allow_parent_edits'
+  | 'edit_mode'
+  | 'edit_cutoff_days_before'
+  | 'edit_cutoff_time'
+  | 'kiosk_enabled'
+  | 'kiosk_cutoff_time'
 >
 
 export type WindowInput = {
@@ -43,6 +48,12 @@ export type WindowInput = {
   settings: WindowSettings
   child: { isActive: boolean }
   parent: { isActive: boolean }
+  /**
+   * D52: who is ordering. `kiosk` (the child on the school board) has its
+   * own window: the same day only, until `kiosk_cutoff_time`, whatever the
+   * parents' rule says.
+   */
+  channel?: 'parent' | 'kiosk'
 }
 
 export type WindowDecision = {
@@ -111,6 +122,15 @@ export function evaluate(input: WindowInput): WindowDecision {
   if (!input.hasMeals) return refuse('NO_MEALS')
   if (!input.child.isActive || !input.parent.isActive) return refuse('INACTIVE')
   if (input.staffCancelled) return refuse('CANCELLED_BY_STAFF')
+
+  // D52: the school board orders for today only, until its own cutoff.
+  if (input.channel === 'kiosk') {
+    const kioskCutoff = atLocalTime(today, settings.kiosk_cutoff_time, zone)
+    if (!settings.kiosk_enabled || date !== today || now >= kioskCutoff) {
+      return refuse('KIOSK_CLOSED')
+    }
+    return { allowed: true, reason: null, cutoffAt, deadlinePassed, editableUntil: kioskCutoff }
+  }
 
   // 2. Before the deadline: free. Announced end of the window: the later of
   // the deadline and the cutoff when changes stay open until the cutoff,
