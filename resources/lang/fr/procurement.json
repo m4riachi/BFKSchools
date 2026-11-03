@@ -1,0 +1,32 @@
+{
+  "title": "Commande économat",
+  "nav": "Économat",
+  "provisional_hint": "Quantités calculées à partir des commandes du jour. Ajustez, retirez ou ajoutez des articles, puis confirmez pour générer le bon de commande.",
+  "saved_hint": "Bon de commande confirmé. Vous pouvez le modifier et confirmer à nouveau, ou télécharger le PDF.",
+  "confirm": "Confirmer",
+  "download": "Bon de commande (PDF)",
+  "empty": "Aucun article à commander pour ce jour.",
+  "remove": "Retirer {name}",
+  "add_existing": "Ajouter un article du catalogue",
+  "search_placeholder": "Rechercher un article…",
+  "add_new": "Nouvel article",
+  "add_new_hint": "Article introuvable au catalogue ? Ajoutez-le avec son unité.",
+  "new_label": "Libellé",
+  "new_unit": "Unité",
+  "add": "Ajouter",
+  "note": "Note",
+  "note_placeholder": "Note pour l’économat (facultatif)",
+  "flash": {
+    "confirmed": "Bon de commande enregistré.",
+    "confirm_first": "Confirmez d’abord le bon de commande."
+  },
+  "pdf": {
+    "title": "Bon de commande",
+    "for_date": "Pour le {date}",
+    "article": "Article",
+    "quantity": "Quantité",
+    "unit": "Unité",
+    "note": "Note",
+    "empty": "Aucun article."
+  }
+}

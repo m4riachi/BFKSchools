@@ -18,8 +18,8 @@ export type OptionView = {
   /** Null for subscription meals (D31: included in the subscription). */
   price: string | null
   allergens: Labelled[]
-  /** D55: customer-visible ingredients of the meal the parent may remove. */
-  ingredients: { id: number; label: string }[]
+  /** D55: customer-visible ingredients of the meal the parent may remove (D57: with an icon). */
+  ingredients: { id: number; label: string; icon: string }[]
   tags: string[]
   cover: { url: string; thumbUrl: string } | null
   allergyConflicts: Labelled[]

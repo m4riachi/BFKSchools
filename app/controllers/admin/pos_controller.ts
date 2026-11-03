@@ -100,6 +100,7 @@ export default class PosController {
         subscriptionMealId: input.subscriptionMealId ?? null,
         supplements: input.supplements ?? [],
         confirmAllergy: input.confirmAllergy ?? false,
+        exclusions: input.exclusions ?? [],
       },
       { user: auth.getUserOrFail(), ip: request.ip() },
       { reason: i18n.t('orders.pos.reason') }

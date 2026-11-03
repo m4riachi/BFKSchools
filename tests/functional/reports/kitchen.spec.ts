@@ -77,11 +77,16 @@ test.group('Reports | kitchen area', (group) => {
     const { school } = await seed()
     const kitchenRoutes = routes((pattern) => pattern.startsWith('/kitchen'))
     assert.isAbove(kitchenRoutes.length, 5)
-    // D50: the one write of the area prints the day's tickets; it changes no data.
-    const PRINT = '/kitchen/exports/tickets/print'
+    // D50: the ticket print changes no data. D56: the économat writes its own
+    // bon de commande and may add an article — these are the kitchen's own job.
+    const WRITES = new Set([
+      '/kitchen/exports/tickets/print',
+      '/kitchen/procurement/confirm',
+      '/kitchen/procurement/ingredients',
+    ])
     assert.isTrue(
-      kitchenRoutes.every((route) => route.method === 'GET' || route.url === PRINT),
-      'no write route in the kitchen area besides the ticket print'
+      kitchenRoutes.every((route) => route.method === 'GET' || WRITES.has(route.url)),
+      'no unexpected write route in the kitchen area'
     )
     const kitchen = await UserFactory.apply('kitchen').merge({ schoolId: school.id }).create()
     for (const path of ['/kitchen', '/kitchen/allergies', '/kitchen/labels', '/kitchen/exports']) {

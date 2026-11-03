@@ -1,0 +1,32 @@
+{
+  "title": "Économat order",
+  "nav": "Économat",
+  "provisional_hint": "Quantities computed from the day’s orders. Adjust, remove or add articles, then confirm to generate the purchase order.",
+  "saved_hint": "Purchase order confirmed. You can edit and confirm again, or download the PDF.",
+  "confirm": "Confirm",
+  "download": "Purchase order (PDF)",
+  "empty": "No article to order for this day.",
+  "remove": "Remove {name}",
+  "add_existing": "Add an article from the catalog",
+  "search_placeholder": "Search an article…",
+  "add_new": "New article",
+  "add_new_hint": "Article not in the catalog? Add it with its unit.",
+  "new_label": "Label",
+  "new_unit": "Unit",
+  "add": "Add",
+  "note": "Note",
+  "note_placeholder": "Note for the économat (optional)",
+  "flash": {
+    "confirmed": "Purchase order saved.",
+    "confirm_first": "Confirm the purchase order first."
+  },
+  "pdf": {
+    "title": "Purchase order",
+    "for_date": "For {date}",
+    "article": "Article",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "note": "Note",
+    "empty": "No article."
+  }
+}

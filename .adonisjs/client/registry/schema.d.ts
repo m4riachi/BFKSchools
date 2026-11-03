@@ -814,6 +814,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['search']>>>
     }
   }
+  'admin.ingredients.create': {
+    methods: ["POST"]
+    pattern: '/admin/ingredients'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['createIngredient']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['createIngredient']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['createIngredient']>>>
+    }
+  }
   'admin.meals.ingredients.show': {
     methods: ["GET","HEAD"]
     pattern: '/admin/meals/:id/ingredients'
@@ -1891,6 +1904,71 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/meals_controller').default['show']>>>
+    }
+  }
+  'kitchen.procurement.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/procurement'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reports').reportDayValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'kitchen.procurement.download': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/procurement/download'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/reports').reportDayValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['download']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['download']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['download']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'kitchen.procurement.ingredients.search': {
+    methods: ["GET","HEAD"]
+    pattern: '/kitchen/procurement/ingredients'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['search']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['search']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['search']>>>
+    }
+  }
+  'kitchen.procurement.confirm': {
+    methods: ["POST"]
+    pattern: '/kitchen/procurement/confirm'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['confirm']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['confirm']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['confirm']>>>
+    }
+  }
+  'kitchen.procurement.ingredients.create': {
+    methods: ["POST"]
+    pattern: '/kitchen/procurement/ingredients'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['createIngredient']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['createIngredient']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/kitchen/procurement_controller').default['createIngredient']>>>
     }
   }
 }

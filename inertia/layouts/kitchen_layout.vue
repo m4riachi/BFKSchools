@@ -24,6 +24,7 @@ const nav = computed<NavItem[]>(() => [
   ...(features.value.allergens ? [{ labelKey: 'nav.allergies', href: '/kitchen/allergies' }] : []),
   ...(features.value.labels ? [{ labelKey: 'nav.labels', href: '/kitchen/labels' }] : []),
   { labelKey: 'nav.exports', href: '/kitchen/exports' },
+  { labelKey: 'nav.procurement', href: '/kitchen/procurement' },
   { labelKey: 'nav.meal_catalog', href: '/kitchen/meals' },
 ])
 

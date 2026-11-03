@@ -66,6 +66,7 @@ export type ScannedRoutes = {
     'admin.meals.duplicate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.ingredients.search': { paramsTuple?: []; params?: {} }
+    'admin.ingredients.create': { paramsTuple?: []; params?: {} }
     'admin.meals.ingredients.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.ingredients.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.photos.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -149,6 +150,11 @@ export type ScannedRoutes = {
     'kitchen.exports.tickets.print': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'kitchen.procurement.show': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.download': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.ingredients.search': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.confirm': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.ingredients.create': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'session.create': { paramsTuple?: []; params?: {} }
@@ -212,6 +218,9 @@ export type ScannedRoutes = {
     'kitchen.exports.tickets': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'kitchen.procurement.show': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.download': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.ingredients.search': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
     'session.create': { paramsTuple?: []; params?: {} }
@@ -275,6 +284,9 @@ export type ScannedRoutes = {
     'kitchen.exports.tickets': { paramsTuple?: []; params?: {} }
     'kitchen.meals.index': { paramsTuple?: []; params?: {} }
     'kitchen.meals.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'kitchen.procurement.show': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.download': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.ingredients.search': { paramsTuple?: []; params?: {} }
   }
   POST: {
     'session.store': { paramsTuple?: []; params?: {} }
@@ -301,6 +313,7 @@ export type ScannedRoutes = {
     'admin.children.subscriptions.store': { paramsTuple: [ParamValue,ParamValue]; params: {'parentId': ParamValue,'childId': ParamValue} }
     'admin.meals.store': { paramsTuple?: []; params?: {} }
     'admin.meals.duplicate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.ingredients.create': { paramsTuple?: []; params?: {} }
     'admin.meals.photos.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.photos.cover': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'photoId': ParamValue} }
     'admin.holidays.store': { paramsTuple?: []; params?: {} }
@@ -332,6 +345,8 @@ export type ScannedRoutes = {
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'kitchen.exports.tickets.print': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.confirm': { paramsTuple?: []; params?: {} }
+    'kitchen.procurement.ingredients.create': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'parent.account.password': { paramsTuple?: []; params?: {} }

@@ -118,7 +118,7 @@ export class LinkClickSchema extends BaseModel {
 }
 
 export class MealIngredientSchema extends BaseModel {
-  static $columns = ['createdAt', 'customerVisible', 'id', 'ingredientId', 'mealId', 'position', 'updatedAt'] as const
+  static $columns = ['createdAt', 'customerVisible', 'id', 'ingredientId', 'mealId', 'position', 'quantityPerMeal', 'updatedAt'] as const
   $columns = MealIngredientSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -132,6 +132,8 @@ export class MealIngredientSchema extends BaseModel {
   declare mealId: number
   @column()
   declare position: number
+  @column()
+  declare quantityPerMeal: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
@@ -412,6 +414,52 @@ export class OutboundEmailSchema extends BaseModel {
   declare updatedAt: DateTime
   @column()
   declare userId: number | null
+}
+
+export class PurchaseOrderLineSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'ingredientId', 'label', 'position', 'purchaseOrderId', 'quantity', 'unit', 'updatedAt'] as const
+  $columns = PurchaseOrderLineSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare ingredientId: number | null
+  @column()
+  declare label: string
+  @column()
+  declare position: number
+  @column()
+  declare purchaseOrderId: number
+  @column()
+  declare quantity: string
+  @column()
+  declare unit: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class PurchaseOrderSchema extends BaseModel {
+  static $columns = ['confirmedAt', 'confirmedBy', 'createdAt', 'date', 'id', 'note', 'reference', 'schoolId', 'updatedAt'] as const
+  $columns = PurchaseOrderSchema.$columns
+  @column.dateTime()
+  declare confirmedAt: DateTime | null
+  @column()
+  declare confirmedBy: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare date: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare note: string | null
+  @column()
+  declare reference: string
+  @column()
+  declare schoolId: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 }
 
 export class RateLimitSchema extends BaseModel {

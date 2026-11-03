@@ -17,8 +17,11 @@ type FicheLine = {
   ingredientId: number
   code: string
   label: string
+  icon: string
   famille: string | null
+  unit: string | null
   customerVisible: boolean
+  quantityPerMeal: number
 }
 
 const props = defineProps<{ meal: { id: number; name: string }; fiche: FicheLine[] }>()
@@ -56,9 +59,45 @@ async function runSearch() {
   }
 }
 function add(item: FicheLine) {
-  lines.value.push({ ...item, customerVisible: true })
+  lines.value.push({ ...item, customerVisible: true, quantityPerMeal: 0 })
   results.value = results.value.filter((r) => r.ingredientId !== item.ingredientId)
   touched()
+}
+
+/* D56: add a brand-new article when it is not in the catalog */
+function xsrfToken(): string {
+  const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/)
+  return match ? decodeURIComponent(match[1]) : ''
+}
+const newUnit = ref('')
+const addingNew = ref(false)
+async function addNew() {
+  const label = query.value.trim()
+  if (!label) return
+  addingNew.value = true
+  try {
+    const response = await fetch('/admin/ingredients', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-XSRF-TOKEN': xsrfToken(),
+      },
+      body: JSON.stringify({ label, unit: newUnit.value || null }),
+    })
+    const data = (await response.json()) as { ingredient: FicheLine }
+    if (!lines.value.some((l) => l.ingredientId === data.ingredient.ingredientId)) {
+      lines.value.push({ ...data.ingredient, customerVisible: true, quantityPerMeal: 0 })
+      touched()
+    }
+    query.value = ''
+    newUnit.value = ''
+    results.value = []
+  } catch {
+    // ignored: the user can retry
+  } finally {
+    addingNew.value = false
+  }
 }
 function remove(index: number) {
   lines.value.splice(index, 1)
@@ -84,6 +123,7 @@ function save() {
       ingredients: lines.value.map((l) => ({
         ingredientId: l.ingredientId,
         customerVisible: l.customerVisible,
+        quantityPerMeal: Number(l.quantityPerMeal) || 0,
       })),
     },
     {
@@ -139,7 +179,9 @@ void useForm
             @click="add(item)"
           >
             <span class="min-w-0">
-              <span class="font-semibold">{{ item.label }}</span>
+              <span class="font-semibold"
+                ><span aria-hidden="true">{{ item.icon }}</span> {{ item.label }}</span
+              >
               <span v-if="item.famille" class="ml-2 text-xs text-ink-4">{{ item.famille }}</span>
             </span>
             <span class="shrink-0 text-xs font-bold text-brand-strong"
@@ -148,16 +190,40 @@ void useForm
           </button>
         </li>
       </ul>
-      <p v-else-if="query && !searching" class="text-[13px] text-ink-4">
-        {{ t('meals.fiche.no_result') }}
-      </p>
+      <!-- D56: not in the catalog? add it as a new article with its unit -->
+      <div
+        v-if="query.trim() && !searching && !results.length"
+        class="flex flex-col gap-2 rounded-xl border border-dashed border-line bg-subtle p-3"
+      >
+        <p class="text-[13px] text-ink-3">
+          {{ t('meals.fiche.no_result') }}
+          <span class="font-semibold">{{
+            t('meals.fiche.add_new_prompt', { name: query.trim() })
+          }}</span>
+        </p>
+        <div class="flex flex-wrap items-end gap-2">
+          <label class="flex flex-col gap-1 text-xs font-semibold text-ink-3">
+            {{ t('meals.fiche.new_unit') }}
+            <input
+              v-model="newUnit"
+              type="text"
+              class="h-9 w-32 rounded-lg border border-line px-2 text-sm"
+              :placeholder="t('meals.fiche.new_unit_placeholder')"
+              @keyup.enter="addNew"
+            />
+          </label>
+          <AppButton variant="secondary" :loading="addingNew" @click="addNew">
+            {{ t('meals.fiche.add_new') }}
+          </AppButton>
+        </div>
+      </div>
     </section>
 
     <!-- The fiche technique -->
     <section class="card flex flex-col gap-3 p-5">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-bold">{{ t('meals.fiche.list_title') }}</h2>
-        <span class="text-xs text-ink-4">{{ t('meals.fiche.visible_legend') }}</span>
+        <span class="text-xs text-ink-4">{{ t('meals.fiche.qty_legend') }}</span>
       </div>
       <p v-if="!lines.length" class="text-[13px] text-ink-4">{{ t('meals.fiche.empty') }}</p>
       <ul v-else class="m-0 flex list-none flex-col gap-2 p-0">
@@ -187,11 +253,26 @@ void useForm
             </button>
           </span>
           <span class="flex min-w-0 flex-1 flex-col">
-            <span class="text-sm font-semibold">{{ line.label }}</span>
+            <span class="text-sm font-semibold"
+              ><span aria-hidden="true">{{ line.icon }}</span> {{ line.label }}</span
+            >
             <span class="text-xs text-ink-4"
               >{{ line.code }}<template v-if="line.famille"> · {{ line.famille }}</template></span
             >
           </span>
+          <!-- D56: how much one portion needs, in the article's unit (économat) -->
+          <label class="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-ink-3">
+            <input
+              v-model.number="line.quantityPerMeal"
+              type="number"
+              min="0"
+              step="0.001"
+              class="h-9 w-20 rounded-lg border border-line px-2 text-right tabular"
+              :aria-label="t('meals.fiche.qty_per_meal')"
+              @input="touched"
+            />
+            <span class="min-w-10 text-xs">{{ line.unit || t('meals.fiche.unit_na') }}</span>
+          </label>
           <label class="flex shrink-0 items-center gap-2 text-[13px] font-semibold">
             <input
               type="checkbox"

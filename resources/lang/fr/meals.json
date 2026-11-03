@@ -184,6 +184,13 @@
     "remove": "Retirer {name}",
     "move_up": "Monter",
     "move_down": "Descendre",
-    "saved": "Fiche technique enregistrée."
+    "saved": "Fiche technique enregistrée.",
+    "qty_per_meal": "Quantité par repas",
+    "unit_na": "—",
+    "qty_legend": "Quantité par repas (dans l’unité de l’article) pour la commande à l’économat, et visibilité parents.",
+    "add_new_prompt": "Ajouter « {name} » comme nouvel article :",
+    "add_new": "Ajouter l’article",
+    "new_unit": "Unité",
+    "new_unit_placeholder": "Kilogram, PIECE…"
   }
 }

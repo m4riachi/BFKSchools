@@ -10,6 +10,7 @@ import { evaluate } from '#services/order_window_service'
 import { reportDayValidator } from '#validators/reports'
 import { reportDate } from '#support/report_period'
 import { reportSchool } from '#support/report_access'
+import { ingredientIcon } from '#support/ingredient_icon'
 import { presentProduction } from '#support/report_presenters'
 import { addDays, isSchoolDay, weekStart, type IsoDate } from '#support/dates'
 import { schoolZone } from '#support/menu_display'
@@ -88,7 +89,7 @@ export default class DashboardController {
       name: `${row.firstName} ${row.lastName}`.trim(),
       meta: [row.className, row.grade].filter(Boolean).join(' · '),
       meal: i18n.locale === 'en' ? row.nameEn : row.nameFr,
-      removed: row.removed,
+      removed: row.removed.map((label) => `${ingredientIcon(label)} ${label}`),
     }))
     return inertia.render('kitchen/dashboard', {
       ...nav,

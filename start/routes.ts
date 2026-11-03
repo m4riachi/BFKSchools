@@ -287,6 +287,9 @@ router
       .get('ingredients', [controllers.admin.MealIngredients, 'search'])
       .as('ingredients.search')
     router
+      .post('ingredients', [controllers.admin.MealIngredients, 'createIngredient'])
+      .as('ingredients.create')
+    router
       .get('meals/:id/ingredients', [controllers.admin.MealIngredients, 'show'])
       .where('id', id)
       .as('meals.ingredients.show')
@@ -554,6 +557,20 @@ router
       .as('exports.tickets.print')
     router.get('meals', [controllers.kitchen.Meals, 'index']).as('meals.index')
     router.get('meals/:id', [controllers.kitchen.Meals, 'show']).where('id', id).as('meals.show')
+    // D56: économat / bon de commande (reads + its own writes: confirm, add article)
+    router.get('procurement', [controllers.kitchen.Procurement, 'show']).as('procurement.show')
+    router
+      .get('procurement/download', [controllers.kitchen.Procurement, 'download'])
+      .as('procurement.download')
+    router
+      .get('procurement/ingredients', [controllers.kitchen.Procurement, 'search'])
+      .as('procurement.ingredients.search')
+    router
+      .post('procurement/confirm', [controllers.kitchen.Procurement, 'confirm'])
+      .as('procurement.confirm')
+    router
+      .post('procurement/ingredients', [controllers.kitchen.Procurement, 'createIngredient'])
+      .as('procurement.ingredients.create')
   })
   .prefix('kitchen')
   .as('kitchen')

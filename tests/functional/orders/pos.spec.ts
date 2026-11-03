@@ -4,6 +4,9 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import { SchoolFactory } from '#database/factories/school_factory'
 import { UserFactory } from '#database/factories/user_factory'
 import MealOrder from '#models/meal_order'
+import Ingredient from '#models/ingredient'
+import app from '@adonisjs/core/services/app'
+import MealIngredientService from '#services/meal_ingredient_service'
 import OrderAuditLog from '#models/order_audit_log'
 import { freezeClock, restoreClock } from '#tests/helpers/clock'
 import { family, orderSchool, orders, TUE } from '#tests/helpers/orders'
@@ -80,6 +83,56 @@ test.group('Ordering desk', (group) => {
     const audit = await OrderAuditLog.query().where('meal_order_id', order.id).firstOrFail()
     assert.equal(audit.action, 'staff_override')
     assert.isAbove((audit.reason ?? '').length, 3)
+  })
+
+  test('D55/D56: the desk saves removed ingredients on the order line', async ({
+    client,
+    assert,
+  }) => {
+    const { school, admin, main } = await orderSchool()
+    const { child } = await family(school)
+    const tomate = await Ingredient.create({
+      code: 'SAUCE',
+      label: 'Sauce tomate',
+      category: 'NOURRITURE',
+      unit: 'Litre',
+    })
+    const oignon = await Ingredient.create({
+      code: 'OIG',
+      label: 'Oignon',
+      category: 'NOURRITURE',
+      unit: 'Kilogram',
+    })
+    await (
+      await app.container.make(MealIngredientService)
+    ).save(main, [
+      { ingredientId: tomate.id, customerVisible: true, quantityPerMeal: 0.1 },
+      { ingredientId: oignon.id, customerVisible: true, quantityPerMeal: 0.05 },
+    ])
+    freezeClock('2026-11-20T12:00')
+
+    const response = await client
+      .post(`/admin/pos/children/${child.id}/days/${TUE}`)
+      .loginAs(admin)
+      .withCsrfToken()
+      .json({
+        subscriptionMealId: main.id,
+        supplements: [],
+        exclusions: [{ mealId: main.id, ingredientIds: [tomate.id, oignon.id] }],
+      })
+      .redirects(0)
+    response.assertStatus(302)
+
+    const order = await MealOrder.query()
+      .where('child_id', child.id)
+      .where('date', TUE)
+      .preload('items')
+      .firstOrFail()
+    const line = order.items.find((l) => l.mealId === main.id)!
+    assert.deepEqual(line.excludedIngredients.map((i) => i.label).sort(), [
+      'Oignon',
+      'Sauce tomate',
+    ])
   })
 
   test('the tag follows who chose last', async ({ client, assert }) => {

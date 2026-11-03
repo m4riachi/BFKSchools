@@ -23,7 +23,7 @@ const CSV = [
   'T5,Sel inactif,0,0,0,NOURRITURE,Epicerie,Sel,T00,0,Kilogram,x,false',
 ].join('\r\n')
 
-test.group('Fiche technique (D55)', (group) => {
+test.group('Fiche technique (D55/D56)', (group) => {
   group.each.setup(() => testUtils.db().truncate())
   group.each.teardown(() => restoreClock())
 
@@ -44,7 +44,10 @@ test.group('Fiche technique (D55)', (group) => {
     assert.equal((await Ingredient.findByOrFail('code', 'T1')).label, 'Tomate fraîche')
   })
 
-  test('the admin builds a fiche; a manager may, a parent may not', async ({ client, assert }) => {
+  test('the admin builds a fiche (quantities persist); a manager may, a parent may not', async ({
+    client,
+    assert,
+  }) => {
     const ctx = await orderSchool()
     await (await app.container.make(IngredientImportService)).importFromContent(CSV)
     const tomate = await Ingredient.findByOrFail('code', 'T1')
@@ -56,15 +59,15 @@ test.group('Fiche technique (D55)', (group) => {
     search.assertStatus(200)
     assert.isTrue(search.body().results.some((r: { label: string }) => r.label === 'Oignon'))
 
-    // Save the fiche: tomato shown, onion hidden.
+    // Save the fiche through HTTP: tomato shown, onion hidden, quantities kept.
     const save = await client
       .put(`/admin/meals/${ctx.main.id}/ingredients`)
       .loginAs(ctx.manager)
       .withCsrfToken()
       .json({
         ingredients: [
-          { ingredientId: tomate.id, customerVisible: true },
-          { ingredientId: oignon.id, customerVisible: false },
+          { ingredientId: tomate.id, customerVisible: true, quantityPerMeal: 0.25 },
+          { ingredientId: oignon.id, customerVisible: false, quantityPerMeal: 0.1 },
         ],
       })
       .redirects(0)
@@ -72,10 +75,10 @@ test.group('Fiche technique (D55)', (group) => {
 
     const fiche = await (await app.container.make(MealIngredientService)).fiche(ctx.main.id)
     assert.deepEqual(
-      fiche.map((l) => [l.label, l.customerVisible]),
+      fiche.map((l) => [l.label, l.customerVisible, l.quantityPerMeal]),
       [
-        ['Tomate', true],
-        ['Oignon', false],
+        ['Tomate', true, 0.25],
+        ['Oignon', false, 0.1],
       ]
     )
     const visible = await (
@@ -97,6 +100,32 @@ test.group('Fiche technique (D55)', (group) => {
     assert.include([302, 403], refused.status())
   })
 
+  test('an article not in the catalog can be added from the fiche page', async ({
+    client,
+    assert,
+  }) => {
+    const ctx = await orderSchool()
+    const response = await client
+      .post('/admin/ingredients')
+      .loginAs(ctx.manager)
+      .withCsrfToken()
+      .json({ label: 'Curcuma maison', unit: 'Gramme' })
+    response.assertStatus(200)
+    assert.equal(response.body().ingredient.label, 'Curcuma maison')
+    assert.equal(response.body().ingredient.unit, 'Gramme')
+    assert.equal((await Ingredient.findByOrFail('label', 'Curcuma maison')).unit, 'Gramme')
+
+    // A parent cannot create ingredients.
+    const parent = await UserFactory.apply('parent').merge({ schoolId: ctx.school.id }).create()
+    const refused = await client
+      .post('/admin/ingredients')
+      .loginAs(parent)
+      .withCsrfToken()
+      .json({ label: 'Hack', unit: null })
+      .redirects(0)
+    assert.include([302, 403], refused.status())
+  })
+
   test('a parent removes a shown ingredient: saved on the order, remembered, shown to the kitchen', async ({
     assert,
   }) => {
@@ -107,8 +136,8 @@ test.group('Fiche technique (D55)', (group) => {
     await (
       await app.container.make(MealIngredientService)
     ).save(ctx.main, [
-      { ingredientId: tomate.id, customerVisible: true },
-      { ingredientId: oignon.id, customerVisible: false },
+      { ingredientId: tomate.id, customerVisible: true, quantityPerMeal: 0.2 },
+      { ingredientId: oignon.id, customerVisible: false, quantityPerMeal: 0.05 },
     ])
     const home = await family(ctx.school)
     freezeClock(OPEN)

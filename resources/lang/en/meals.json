@@ -184,6 +184,13 @@
     "remove": "Remove {name}",
     "move_up": "Move up",
     "move_down": "Move down",
-    "saved": "Recipe sheet saved."
+    "saved": "Recipe sheet saved.",
+    "qty_per_meal": "Quantity per meal",
+    "unit_na": "—",
+    "qty_legend": "Quantity per meal (in the article’s unit) for the économat order, and parent visibility.",
+    "add_new_prompt": "Add “{name}” as a new article:",
+    "add_new": "Add the article",
+    "new_unit": "Unit",
+    "new_unit_placeholder": "Kilogram, PIECE…"
   }
 }

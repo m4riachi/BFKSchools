@@ -117,6 +117,7 @@ export interface ApiDefinition {
     }
     ingredients: {
       search: typeof routes['admin.ingredients.search']
+      create: typeof routes['admin.ingredients.create']
     }
     holidays: {
       index: typeof routes['admin.holidays.index']
@@ -235,6 +236,15 @@ export interface ApiDefinition {
     meals: {
       index: typeof routes['kitchen.meals.index']
       show: typeof routes['kitchen.meals.show']
+    }
+    procurement: {
+      show: typeof routes['kitchen.procurement.show']
+      download: typeof routes['kitchen.procurement.download']
+      ingredients: {
+        search: typeof routes['kitchen.procurement.ingredients.search']
+        create: typeof routes['kitchen.procurement.ingredients.create']
+      }
+      confirm: typeof routes['kitchen.procurement.confirm']
     }
   }
 }

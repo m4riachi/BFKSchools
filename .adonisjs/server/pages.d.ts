@@ -46,6 +46,7 @@ declare module '@adonisjs/inertia/types' {
     'kitchen/labels': ExtractProps<(typeof import('../../inertia/pages/kitchen/labels.vue'))['default']>
     'kitchen/meals/index': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/index.vue'))['default']>
     'kitchen/meals/show': ExtractProps<(typeof import('../../inertia/pages/kitchen/meals/show.vue'))['default']>
+    'kitchen/procurement': ExtractProps<(typeof import('../../inertia/pages/kitchen/procurement.vue'))['default']>
     'parent/account/index': ExtractProps<(typeof import('../../inertia/pages/parent/account/index.vue'))['default']>
     'parent/notifications/index': ExtractProps<(typeof import('../../inertia/pages/parent/notifications/index.vue'))['default']>
     'parent/orders/history': ExtractProps<(typeof import('../../inertia/pages/parent/orders/history.vue'))['default']>

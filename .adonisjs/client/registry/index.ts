@@ -380,6 +380,12 @@ const routes = {
     tokens: [[0,"admin"],[0,"ingredients"]],
     types: placeholder as Registry['admin.ingredients.search']['types'],
   },
+  'admin.ingredients.create': {
+    methods: ["POST"],
+    pattern: '/admin/ingredients',
+    tokens: [[0,"admin"],[0,"ingredients"]],
+    types: placeholder as Registry['admin.ingredients.create']['types'],
+  },
   'admin.meals.ingredients.show': {
     methods: ["GET","HEAD"],
     pattern: '/admin/meals/:id/ingredients',
@@ -877,6 +883,36 @@ const routes = {
     pattern: '/kitchen/meals/:id',
     tokens: [[0,"kitchen"],[0,"meals"],[1,"id"]],
     types: placeholder as Registry['kitchen.meals.show']['types'],
+  },
+  'kitchen.procurement.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/procurement',
+    tokens: [[0,"kitchen"],[0,"procurement"]],
+    types: placeholder as Registry['kitchen.procurement.show']['types'],
+  },
+  'kitchen.procurement.download': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/procurement/download',
+    tokens: [[0,"kitchen"],[0,"procurement"],[0,"download"]],
+    types: placeholder as Registry['kitchen.procurement.download']['types'],
+  },
+  'kitchen.procurement.ingredients.search': {
+    methods: ["GET","HEAD"],
+    pattern: '/kitchen/procurement/ingredients',
+    tokens: [[0,"kitchen"],[0,"procurement"],[0,"ingredients"]],
+    types: placeholder as Registry['kitchen.procurement.ingredients.search']['types'],
+  },
+  'kitchen.procurement.confirm': {
+    methods: ["POST"],
+    pattern: '/kitchen/procurement/confirm',
+    tokens: [[0,"kitchen"],[0,"procurement"],[0,"confirm"]],
+    types: placeholder as Registry['kitchen.procurement.confirm']['types'],
+  },
+  'kitchen.procurement.ingredients.create': {
+    methods: ["POST"],
+    pattern: '/kitchen/procurement/ingredients',
+    tokens: [[0,"kitchen"],[0,"procurement"],[0,"ingredients"]],
+    types: placeholder as Registry['kitchen.procurement.ingredients.create']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 

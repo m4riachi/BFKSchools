@@ -615,7 +615,7 @@ function mainNote(option: OptionView) {
                     <div
                       v-if="qtyOf(option) === 1 && option.ingredients.length"
                       class="mt-1 flex flex-col gap-1.5 rounded-xl bg-[#f6f7f6] p-2.5"
-                      @click.prevent.stop
+                      @click.stop
                     >
                       <span
                         class="text-[11px] font-extrabold tracking-[0.06em] text-ink-3 uppercase"
@@ -639,7 +639,7 @@ function mainNote(option: OptionView) {
                           :disabled="saving"
                           @change="toggleExclude(option, ing.id)"
                         />
-                        {{ ing.label }}
+                        <span aria-hidden="true">{{ ing.icon }}</span> {{ ing.label }}
                       </label>
                     </div>
                   </div>
