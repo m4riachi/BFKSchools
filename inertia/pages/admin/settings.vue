@@ -27,6 +27,7 @@ type Settings = {
   edit_cutoff_time: string
   kiosk_enabled: boolean
   kiosk_cutoff_time: string
+  kiosk_extras_cutoff_time: string
   auto_assign_default_meal: boolean
   allergens_enabled: boolean
   labels_enabled: boolean
@@ -299,6 +300,17 @@ function submit() {
               :label="t('settings.fields.kiosk_cutoff_time')"
               :hint="t('settings.fields.kiosk_cutoff_time_hint')"
               :error="err('settings.kiosk_cutoff_time')"
+              :disabled="!form.settings.kiosk_enabled"
+              required
+            />
+            <!-- D58: supplements stay orderable on the board until this later time -->
+            <TextInput
+              id="kiosk_extras_cutoff_time"
+              v-model="form.settings.kiosk_extras_cutoff_time"
+              type="time"
+              :label="t('settings.fields.kiosk_extras_cutoff_time')"
+              :hint="t('settings.fields.kiosk_extras_cutoff_time_hint')"
+              :error="err('settings.kiosk_extras_cutoff_time')"
               :disabled="!form.settings.kiosk_enabled"
               required
             />

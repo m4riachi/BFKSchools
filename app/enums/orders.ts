@@ -86,5 +86,6 @@ export const SELECTION_ERRORS = [
   'NO_SUBSCRIPTION',
   'ALLERGY_BLOCKED',
   'ALLERGY_CONFIRM_REQUIRED',
+  'KIOSK_DISH_LOCKED',
 ] as const
 export type SelectionError = (typeof SELECTION_ERRORS)[number]

@@ -49,7 +49,8 @@
     "locked_app_hint": "Nothing to do here. Enjoy your lunch!",
     "locked_kiosk": "You already ordered for {date}:",
     "locked_kiosk_hint": "To change it, ask the kitchen.",
-    "already_ordered": "This day is already ordered: ask the kitchen to change it."
+    "already_ordered": "This day is already ordered: ask the kitchen to change it.",
+    "extras_only_hint": "Your order is in. You can still add a supplement."
   },
   "printer_pair": "Connect the printer",
   "printer_paired": "Printer connected"

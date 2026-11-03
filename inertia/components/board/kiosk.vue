@@ -21,7 +21,10 @@ type Session = {
   token: string
   childName: string
   date: string
-  locked: { by: 'app' | 'kiosk'; lines: { name: string; quantity: number }[] } | null
+  /** D58: the dish cutoff has passed — the dish is fixed, only supplements can be added. */
+  extrasOnly: boolean
+  fixedDishName: string | null
+  ordered: { name: string; quantity: number }[]
   dishes: Option[]
   specials: Option[]
   extras: Option[]
@@ -71,7 +74,7 @@ async function printTicket() {
 const IDLE_MS = 60_000
 const DONE_MS = 5_000
 
-const step = ref<'pin' | 'locked' | 'dish' | 'extras' | 'confirm' | 'done'>('pin')
+const step = ref<'pin' | 'dish' | 'extras' | 'confirm' | 'done'>('pin')
 const pin = ref('')
 const error = ref('')
 const busy = ref(false)
@@ -94,6 +97,26 @@ const chosenSpecials = computed(() =>
   (session.value?.specials ?? []).filter((option) => specials.value.has(option.mealId))
 )
 const canContinue = computed(() => dish.value !== null || chosenSpecials.value.length > 0)
+/** The supplements a child can add on the extras screen (extrasOnly adds specials). */
+const addable = computed<{ option: Option; special: boolean }[]>(() =>
+  session.value?.extrasOnly
+    ? [
+        ...(session.value?.specials ?? []).map((option) => ({ option, special: true })),
+        ...(session.value?.extras ?? []).map((option) => ({ option, special: false })),
+      ]
+    : (session.value?.extras ?? []).map((option) => ({ option, special: false }))
+)
+function isAdded(option: Option, special: boolean) {
+  return special ? specials.value.has(option.mealId) : extras.value.has(option.mealId)
+}
+function toggleAdd(option: Option, special: boolean) {
+  touch()
+  const set = new Set(special ? specials.value : extras.value)
+  if (set.has(option.mealId)) set.delete(option.mealId)
+  else set.add(option.mealId)
+  if (special) specials.value = set
+  else extras.value = set
+}
 /** Dishes and specials side by side, same cards: the child picks exactly one. */
 const choices = computed(() => [
   ...(session.value?.dishes ?? []).map((option) => ({ option, special: false })),
@@ -153,17 +176,18 @@ async function submitPin() {
   try {
     const data = await post<Session>('session', { pin: pin.value })
     session.value = data
-    if (data.locked) {
-      // The day is already ordered: only the message, then back to the board.
-      step.value = 'locked'
-      doneTimer = setTimeout(() => emit('close'), DONE_MS * 2)
+    extras.value = new Set(data.current.extraMealIds)
+    if (data.extrasOnly) {
+      // D58: the dish is fixed — the child only adds supplements.
+      dish.value = null
+      specials.value = new Set(data.current.specialMealIds)
+      step.value = 'extras'
       return
     }
     // One pick: the current dish, else the current special.
     const current = data.dishes.find((o) => o.mealId === data.current.subscriptionMealId)
     dish.value = current ?? null
     specials.value = new Set(current ? [] : data.current.specialMealIds.slice(0, 1))
-    extras.value = new Set(data.current.extraMealIds)
     step.value = 'dish'
     if (!data.dishes.length && !data.specials.length) {
       error.value = t('board.kiosk.no_dish')
@@ -178,13 +202,6 @@ async function submitPin() {
   }
 }
 
-function toggleExtra(option: Option) {
-  touch()
-  const next = new Set(extras.value)
-  if (next.has(option.mealId)) next.delete(option.mealId)
-  else next.add(option.mealId)
-  extras.value = next
-}
 /** After the dish screen: the other supplements if the day has some, else the summary. */
 function afterDish() {
   touch()
@@ -193,7 +210,7 @@ function afterDish() {
     return
   }
   error.value = ''
-  step.value = session.value?.extras.length ? 'extras' : 'confirm'
+  step.value = addable.value.length ? 'extras' : 'confirm'
 }
 function toConfirm() {
   touch()
@@ -202,8 +219,9 @@ function toConfirm() {
 function back() {
   touch()
   error.value = ''
-  if (step.value === 'confirm') step.value = session.value?.extras.length ? 'extras' : 'dish'
-  else if (step.value === 'extras') step.value = 'dish'
+  if (step.value === 'confirm')
+    step.value = addable.value.length ? 'extras' : session.value?.extrasOnly ? 'extras' : 'dish'
+  else if (step.value === 'extras') reset()
   else if (step.value === 'dish') reset()
 }
 function reset() {
@@ -270,7 +288,9 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
       </button>
     </header>
 
-    <main class="flex min-h-0 flex-1 flex-col items-center gap-[2.5vmin] px-[4vmin] pb-[3vmin]">
+    <main
+      class="flex min-h-0 flex-1 flex-col items-center justify-end gap-[2.5vmin] px-[4vmin] pb-[3vmin]"
+    >
       <!-- Step: code -->
       <template v-if="step === 'pin'">
         <h2 class="mt-[2vmin] text-[4.5vmin] font-extrabold">{{ t('board.kiosk.enter_pin') }}</h2>
@@ -313,38 +333,6 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             0
           </button>
           <span />
-        </div>
-      </template>
-
-      <!-- Step: the day is already ordered -->
-      <template v-else-if="step === 'locked' && session && session.locked">
-        <div class="flex flex-1 flex-col items-center justify-center gap-[2.5vmin] text-center">
-          <span class="text-[12vmin]" aria-hidden="true">{{
-            session.locked.by === 'app' ? '📱' : '✅'
-          }}</span>
-          <h2 class="text-[4.5vmin] font-extrabold">
-            {{ t('board.kiosk.hello', { name: session.childName }) }}
-          </h2>
-          <p class="max-w-[80%] text-[3vmin] leading-snug text-ink-3 first-letter:uppercase">
-            {{
-              t(
-                session.locked.by === 'app' ? 'board.kiosk.locked_app' : 'board.kiosk.locked_kiosk',
-                { date: dateLabel }
-              )
-            }}
-          </p>
-          <ul class="m-0 flex list-none flex-col gap-[1vmin] p-0 text-[2.8vmin] font-extrabold">
-            <li v-for="(line, index) in session.locked.lines" :key="index">
-              {{ line.name }}<template v-if="line.quantity > 1"> × {{ line.quantity }}</template>
-            </li>
-          </ul>
-          <p class="text-[2.6vmin] font-bold text-pink-700">
-            {{
-              session.locked.by === 'app'
-                ? t('board.kiosk.locked_app_hint')
-                : t('board.kiosk.locked_kiosk_hint')
-            }}
-          </p>
         </div>
       </template>
 
@@ -410,18 +398,41 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
         </button>
       </template>
 
-      <!-- Step: one of the other supplements -->
+      <!-- Step: supplements (D58: after the dish cutoff, the dish is fixed) -->
       <template v-else-if="step === 'extras' && session">
-        <h2 class="mt-[1vmin] text-[4vmin] font-extrabold">{{ t('board.kiosk.extras_title') }}</h2>
-        <p class="text-[2.2vmin] text-ink-3">{{ t('board.kiosk.extras_hint') }}</p>
+        <h2 class="mt-[1vmin] text-[4vmin] font-extrabold">
+          {{
+            session.extrasOnly
+              ? t('board.kiosk.hello', { name: session.childName })
+              : t('board.kiosk.extras_title')
+          }}
+        </h2>
+        <!-- The dish is already chosen and can't be changed; the child adds extras -->
+        <p
+          v-if="session.extrasOnly && session.fixedDishName"
+          class="rounded-full bg-brand-wash px-[3vmin] py-[1vmin] text-[2.4vmin] font-extrabold text-brand-strong"
+        >
+          ✓ {{ session.fixedDishName }}
+        </p>
+        <p class="text-[2.2vmin] text-ink-3">
+          {{
+            session.extrasOnly ? t('board.kiosk.extras_only_hint') : t('board.kiosk.extras_hint')
+          }}
+        </p>
         <div class="grid min-h-0 w-full flex-1 grid-cols-2 content-start gap-[2vmin] overflow-auto">
           <button
-            v-for="option in session.extras"
-            :key="option.mealId"
+            v-for="{ option, special } in addable"
+            :key="`${special ? 's' : 'e'}-${option.mealId}`"
             type="button"
             class="flex items-center gap-[2vmin] overflow-hidden rounded-[3vmin] border-4 bg-white p-[1.5vmin] text-left shadow-overlay"
-            :class="extras.has(option.mealId) ? 'border-brand' : 'border-transparent'"
-            @click="toggleExtra(option)"
+            :class="
+              isAdded(option, special)
+                ? special
+                  ? 'border-pink-500'
+                  : 'border-brand'
+                : 'border-transparent'
+            "
+            @click="toggleAdd(option, special)"
           >
             <span
               class="relative block size-[14vmin] shrink-0 overflow-hidden rounded-[2vmin] bg-neutral-100"
@@ -438,9 +449,10 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
               <span v-if="option.price" class="text-[2.2vmin] text-ink-3">{{ option.price }}</span>
               <span
                 class="mt-[0.5vmin] w-fit rounded-full px-[2vmin] py-[0.6vmin] text-[2vmin] font-extrabold"
-                :class="extras.has(option.mealId) ? 'bg-brand text-white' : 'bg-subtle text-ink'"
+                :class="isAdded(option, special) ? 'bg-brand text-white' : 'bg-subtle text-ink'"
               >
-                {{ extras.has(option.mealId) ? t('board.kiosk.added') : t('board.kiosk.add') }}
+                <template v-if="special">★ </template
+                >{{ isAdded(option, special) ? t('board.kiosk.added') : t('board.kiosk.add') }}
               </span>
             </span>
           </button>
@@ -475,6 +487,12 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
           {{ session.childName }} · {{ dateLabel }}
         </p>
         <ul class="m-0 flex w-full list-none flex-col gap-[1.5vmin] p-0">
+          <li
+            v-if="session.extrasOnly && session.fixedDishName"
+            class="flex items-center gap-[2vmin] rounded-[2.5vmin] bg-brand-wash p-[2vmin] text-[3vmin] font-extrabold text-brand-strong"
+          >
+            ✓ {{ session.fixedDishName }}
+          </li>
           <li
             v-if="dish"
             class="flex items-center gap-[2vmin] rounded-[2.5vmin] bg-subtle p-[2vmin] text-[3vmin] font-extrabold"
@@ -520,7 +538,9 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
         <button
           type="button"
           class="mt-auto rounded-full bg-brand px-[8vmin] py-[2.5vmin] text-[3.2vmin] font-extrabold text-white disabled:opacity-60"
-          :disabled="busy || (!dish && !chosenSpecials.length && !chosenExtras.length)"
+          :disabled="
+            busy || (!dish && !chosenSpecials.length && !chosenExtras.length && !session.extrasOnly)
+          "
           @click="confirm"
         >
           ✓ {{ t('board.kiosk.confirm') }}

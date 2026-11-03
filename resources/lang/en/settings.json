@@ -87,7 +87,9 @@
     "kiosk_cutoff_time_hint": "For example 09:00: after that time the screen takes no more orders for today.",
     "delivery_button_enabled": "Show the “Home delivery” button",
     "glovo_button_enabled": "Show the “Glovo” button",
-    "button_enabled_hint": "Unticked, the button disappears everywhere in the app (header and locked days of the parent space); the link is kept."
+    "button_enabled_hint": "Unticked, the button disappears everywhere in the app (header and locked days of the parent space); the link is kept.",
+    "kiosk_extras_cutoff_time": "Supplements on the board until",
+    "kiosk_extras_cutoff_time_hint": "After the dish cutoff, children can still add supplements on the board until this (later) time. The dish itself stays fixed."
   },
   "weekdays": {
     "1": "Monday",

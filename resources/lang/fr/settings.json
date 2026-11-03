@@ -87,7 +87,9 @@
     "kiosk_cutoff_time_hint": "Par exemple 09:00 : après cette heure, l’écran n’accepte plus de commande pour aujourd’hui.",
     "delivery_button_enabled": "Afficher le bouton « Commande à domicile »",
     "glovo_button_enabled": "Afficher le bouton « Glovo »",
-    "button_enabled_hint": "Décoché, le bouton disparaît partout dans l’application (en-tête et jours verrouillés de l’espace parents) ; le lien est conservé."
+    "button_enabled_hint": "Décoché, le bouton disparaît partout dans l’application (en-tête et jours verrouillés de l’espace parents) ; le lien est conservé.",
+    "kiosk_extras_cutoff_time": "Suppléments sur l’écran jusqu’à",
+    "kiosk_extras_cutoff_time_hint": "Après l’heure de commande du plat, les enfants peuvent encore ajouter des suppléments sur l’écran jusqu’à cette heure (plus tardive). Le plat, lui, reste figé."
   },
   "weekdays": {
     "1": "Lundi",

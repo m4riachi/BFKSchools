@@ -29,7 +29,8 @@
     "NOT_FOUND": "Enfant introuvable.",
     "REASON_REQUIRED": "Indiquez la raison de la modification.",
     "STAFF_PERIOD_CLOSED": "Seuls les jours du mois en cours (ou à venir) peuvent être modifiés, même par l’équipe BFK.",
-    "APPLY_ALL_NO_CONFIRM": "« Même choix pour tous » ne confirme pas les allergies : choisissez ce plat enfant par enfant."
+    "APPLY_ALL_NO_CONFIRM": "« Même choix pour tous » ne confirme pas les allergies : choisissez ce plat enfant par enfant.",
+    "KIOSK_DISH_LOCKED": "Le plat est déjà choisi : seuls les suppléments peuvent être ajoutés."
   },
   "flash": {
     "saved": "Choix enregistré.",

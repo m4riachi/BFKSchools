@@ -29,7 +29,8 @@
     "NOT_FOUND": "Child not found.",
     "REASON_REQUIRED": "Give the reason for the change.",
     "STAFF_PERIOD_CLOSED": "Only days of the current month (or later) can be changed, even by BFK staff.",
-    "APPLY_ALL_NO_CONFIRM": "\"Same choice for all\" never confirms allergies: choose this meal child by child."
+    "APPLY_ALL_NO_CONFIRM": "\"Same choice for all\" never confirms allergies: choose this meal child by child.",
+    "KIOSK_DISH_LOCKED": "The dish is already chosen: only supplements can be added."
   },
   "flash": {
     "saved": "Choice saved.",

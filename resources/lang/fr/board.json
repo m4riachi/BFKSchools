@@ -49,7 +49,8 @@
     "locked_app_hint": "Rien à faire ici. Bon appétit !",
     "locked_kiosk": "Tu as déjà commandé pour {date} :",
     "locked_kiosk_hint": "Pour changer, demande à la cuisine.",
-    "already_ordered": "Cette journée est déjà commandée : demande à la cuisine pour changer."
+    "already_ordered": "Cette journée est déjà commandée : demande à la cuisine pour changer.",
+    "extras_only_hint": "La commande est passée. Tu peux encore ajouter un supplément."
   },
   "printer_pair": "Connecter l’imprimante",
   "printer_paired": "Imprimante connectée"

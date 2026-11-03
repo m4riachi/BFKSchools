@@ -25,6 +25,7 @@ export type WindowSettings = Pick<
   | 'edit_cutoff_time'
   | 'kiosk_enabled'
   | 'kiosk_cutoff_time'
+  | 'kiosk_extras_cutoff_time'
 >
 
 export type WindowInput = {
@@ -65,6 +66,8 @@ export type WindowDecision = {
   deadlinePassed: boolean
   /** Last instant a parent can still change the day (when allowed). */
   editableUntil: DateTime | null
+  /** D58 (kiosk only): the dish cutoff has passed — only supplements may be added. */
+  kioskExtrasOnly?: boolean
 }
 
 /**
@@ -123,13 +126,26 @@ export function evaluate(input: WindowInput): WindowDecision {
   if (!input.child.isActive || !input.parent.isActive) return refuse('INACTIVE')
   if (input.staffCancelled) return refuse('CANCELLED_BY_STAFF')
 
-  // D52: the school board orders for today only, until its own cutoff.
+  // D52/D58: the school board orders for today only. The dish can be chosen
+  // until `kiosk_cutoff_time`; supplements stay orderable until the later
+  // `kiosk_extras_cutoff_time` (after the dish cutoff it is extras-only).
   if (input.channel === 'kiosk') {
-    const kioskCutoff = atLocalTime(today, settings.kiosk_cutoff_time, zone)
-    if (!settings.kiosk_enabled || date !== today || now >= kioskCutoff) {
+    const dishCutoff = atLocalTime(today, settings.kiosk_cutoff_time, zone)
+    const extrasCutoff = latest(
+      dishCutoff,
+      atLocalTime(today, settings.kiosk_extras_cutoff_time, zone)
+    )
+    if (!settings.kiosk_enabled || date !== today || now >= extrasCutoff) {
       return refuse('KIOSK_CLOSED')
     }
-    return { allowed: true, reason: null, cutoffAt, deadlinePassed, editableUntil: kioskCutoff }
+    return {
+      allowed: true,
+      reason: null,
+      cutoffAt,
+      deadlinePassed,
+      editableUntil: extrasCutoff,
+      kioskExtrasOnly: now >= dishCutoff,
+    }
   }
 
   // 2. Before the deadline: free. Announced end of the window: the later of
@@ -223,6 +239,10 @@ export type SelectionInput = {
   childAllergies: readonly string[]
   hasSubscription: boolean
   rules: SelectionRules
+  /** D58: the kiosk after its dish cutoff — the dish must stay what it is. */
+  kioskExtrasOnly?: boolean
+  /** The subscription meal of the current active order (for kioskExtrasOnly). */
+  existingSubscriptionMealId?: number | null
 }
 
 export type SelectedLine = { option: DayOption; qty: number }
@@ -261,6 +281,18 @@ export function remainingFor(option: DayOption, existingQty = 0): number | null 
  */
 export function checkSelection(input: SelectionInput): SelectionResult {
   const { request, options, rules } = input
+  // D58: once the board's dish cutoff has passed, the dish is fixed — the
+  // child may only add supplements, never pick or change the main dish.
+  if (input.kioskExtrasOnly) {
+    const existingDish = input.existingSubscriptionMealId ?? null
+    if ((request.subscriptionMealId ?? null) !== existingDish) {
+      return {
+        ok: false,
+        error: 'KIOSK_DISH_LOCKED',
+        mealId: request.subscriptionMealId ?? undefined,
+      }
+    }
+  }
   const lines: SelectedLine[] = []
   const existingQty = new Map(input.existing.map((line) => [line.menuItemId, line.qty]))
   const byMeal = new Map(options.map((option) => [option.mealId, option]))

@@ -39,6 +39,7 @@ test.group('SchoolSettingsService', (group) => {
       'board_printer_button',
       'kiosk_enabled',
       'kiosk_cutoff_time',
+      'kiosk_extras_cutoff_time',
       'printer_mode',
       'printer_host',
       'printer_port',

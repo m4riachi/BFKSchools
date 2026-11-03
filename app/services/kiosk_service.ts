@@ -10,8 +10,9 @@ import ProductionReportService from '#services/production_report_service'
 import OrderWeekService from '#services/order_week_service'
 import SchoolBoardService from '#services/school_board_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
-import { weekStart, type IsoDate } from '#support/dates'
+import { atLocalTime, weekStart, type IsoDate } from '#support/dates'
 import { MEAL_PHOTO_PATH } from '#support/meal_display'
+import { schoolZone } from '#support/menu_display'
 
 /** How long a child has to finish an order after typing the code. */
 const SESSION_TTL = '10 mins'
@@ -28,19 +29,16 @@ export type KioskOption = {
   photoUrl: string | null
 }
 
-/** An order already placed for the day: the kiosk only shows it (D51). */
-export type KioskLock = {
-  /** `app`: placed by the parent (or staff) in the app; `kiosk`: by the child here. */
-  by: 'app' | 'kiosk'
-  lines: { name: string; quantity: number }[]
-}
-
 export type KioskSession = {
-  /** Empty when the day is locked: nothing can be ordered. */
   token: string
   childName: string
   date: IsoDate
-  locked: KioskLock | null
+  /** D58: the dish cutoff has passed — the dish is fixed, only supplements can be added. */
+  extrasOnly: boolean
+  /** The already-chosen dish shown locked when extrasOnly (null if none / full). */
+  fixedDishName: string | null
+  /** What is already ordered for the day (shown so the child knows). */
+  ordered: { name: string; quantity: number }[]
   dishes: KioskOption[]
   /** The day's specials (supplements tagged D47), one portion each. */
   specials: KioskOption[]
@@ -85,24 +83,20 @@ export default class KioskService {
     if (!child || !child.parent.isActive) {
       throw new BusinessRuleException('board.kiosk.unknown_pin')
     }
-    const { date, day } = await this.openDay(school, child, locale)
-    const locked = this.lockOf(day)
-    const token = locked
-      ? ''
-      : encryption.encrypt({ childId: child.id, date }, SESSION_TTL, TOKEN_PURPOSE)
-    return { token, childName: child.firstName, date, locked, ...this.present(day, slug) }
-  }
-
-  /**
-   * The kiosk never changes an order that exists: the parent's choice (or
-   * the staff's) stands, and a child who already ordered here asks the
-   * kitchen for any change.
-   */
-  protected lockOf(day: DayView): KioskLock | null {
-    if (day.order?.status !== 'active') return null
+    const { date, day, extrasOnly } = await this.openDay(school, child, locale)
+    const token = encryption.encrypt({ childId: child.id, date }, SESSION_TTL, TOKEN_PURPOSE)
+    const lines = day.order?.status === 'active' ? day.order.lines : []
+    const fixedDishName = extrasOnly
+      ? (lines.find((line) => line.type === 'subscription')?.name ?? null)
+      : null
     return {
-      by: day.order.origin === 'kiosk' ? 'kiosk' : 'app',
-      lines: day.order.lines.map((line) => ({ name: line.name, quantity: line.quantity })),
+      token,
+      childName: child.firstName,
+      date,
+      extrasOnly,
+      fixedDishName,
+      ordered: lines.map((line) => ({ name: line.name, quantity: line.quantity })),
+      ...this.present(day, slug, extrasOnly),
     }
   }
 
@@ -115,12 +109,17 @@ export default class KioskService {
       .where('is_active', true)
       .preload('parent')
       .firstOrFail()
-    const { date, day } = await this.openDay(school, child, locale)
+    const { date, day, extrasOnly } = await this.openDay(school, child, locale)
     if (date !== payload.date) throw new BusinessRuleException('board.kiosk.expired')
-    if (this.lockOf(day)) throw new BusinessRuleException('board.kiosk.already_ordered')
-    const offer = this.present(day, slugOf(day))
-    const dish = offer.dishes.find((option) => option.mealId === selection.subscriptionMealId)
-    if (selection.subscriptionMealId !== null && !dish) {
+    const offer = this.present(day, slugOf(day), extrasOnly)
+    const existingDish =
+      (day.order?.status === 'active' ? day.order.lines : []).find(
+        (line) => line.type === 'subscription'
+      )?.mealId ?? null
+    // D58: after the dish cutoff the dish is fixed — keep what was ordered.
+    const subscriptionMealId = extrasOnly ? existingDish : selection.subscriptionMealId
+    const dish = offer.dishes.find((option) => option.mealId === subscriptionMealId)
+    if (!extrasOnly && selection.subscriptionMealId !== null && !dish) {
       throw new BusinessRuleException('board.kiosk.unknown_dish')
     }
     const chosen = [
@@ -135,7 +134,7 @@ export default class KioskService {
     const outcome = await this.orders.saveDay(
       child.id,
       date,
-      { subscriptionMealId: selection.subscriptionMealId, supplements: [...kept, ...chosen] },
+      { subscriptionMealId, supplements: [...kept, ...chosen] },
       { user: child.parent },
       { origin: 'kiosk' }
     )
@@ -161,13 +160,21 @@ export default class KioskService {
     const day = view.days.find((candidate) => candidate.date === date)
     if (!day || day.state !== 'open' || !day.editable) {
       throw new BusinessRuleException('board.kiosk.closed', {
-        values: { time: this.settings.get(school).kiosk_cutoff_time },
+        values: { time: this.settings.get(school).kiosk_extras_cutoff_time },
       })
     }
-    return { date, day }
+    // D58: the dish is fixed — only supplements can be added — after the dish
+    // cutoff, or once a dish is already chosen (by the parent or earlier here).
+    const settings = this.settings.get(school)
+    const dishCutoff = atLocalTime(date, settings.kiosk_cutoff_time, schoolZone(school))
+    const hasDish =
+      day.order?.status === 'active' &&
+      day.order.lines.some((line) => line.type === 'subscription')
+    const extrasOnly = this.clock.now() >= dishCutoff || hasDish
+    return { date, day, extrasOnly }
   }
 
-  protected present(day: DayView, slug: string) {
+  protected present(day: DayView, slug: string, extrasOnly = false) {
     const usable = (option: Option) =>
       !option.unavailable && !option.allergyBlocked && option.maxQty > 0
     const toOption = (option: Option): KioskOption => ({
@@ -184,9 +191,11 @@ export default class KioskService {
       day.options.filter((o) => o.type === 'supplement' && o.isSpecial).map((o) => o.mealId)
     )
     return {
-      dishes: day.options
-        .filter((o) => o.type === 'subscription' && usable(o) && !o.noSubscription)
-        .map(toOption),
+      dishes: extrasOnly
+        ? []
+        : day.options
+            .filter((o) => o.type === 'subscription' && usable(o) && !o.noSubscription)
+            .map(toOption),
       specials: day.options
         .filter((o) => o.type === 'supplement' && o.isSpecial && usable(o))
         .map(toOption),

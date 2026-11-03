@@ -47,6 +47,7 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   board_printer_button: true, // D51
   kiosk_enabled: true, // D52
   kiosk_cutoff_time: '09:00',
+  kiosk_extras_cutoff_time: '13:00', // D58
   printer_mode: 'off', // D50
   printer_host: null,
   printer_port: 9100,

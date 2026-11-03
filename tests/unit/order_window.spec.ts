@@ -33,6 +33,7 @@ const D5: WindowSettings = {
   edit_cutoff_time: '18:00',
   kiosk_enabled: true,
   kiosk_cutoff_time: '09:00',
+  kiosk_extras_cutoff_time: '13:00',
 }
 
 function input(

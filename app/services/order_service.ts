@@ -356,6 +356,14 @@ export default class OrderService {
         childAllergies: child.allergies,
         hasSubscription: await this.hasSubscription(trx, child.id, date),
         rules: this.selectionRules(school),
+        // D58: on the board, the dish is fixed after its cutoff OR once a dish
+        // is already ordered — then only supplements may be added.
+        kioskExtrasOnly:
+          options.origin === 'kiosk' &&
+          ((context.decision.kioskExtrasOnly ?? false) ||
+            activeLines.some((line) => line.mealType === 'subscription')),
+        existingSubscriptionMealId:
+          activeLines.find((line) => line.mealType === 'subscription')?.mealId ?? null,
       })
       if (!result.ok) {
         throw new OrderRuleException(result.error, result.values ?? {}, result.mealId ?? null)

@@ -57,6 +57,8 @@ export type SchoolSettings = {
   /** D52: ordering on the board's kiosk — the same day only, until this time. */
   kiosk_enabled: boolean
   kiosk_cutoff_time: string
+  /** D58: supplements orderable on the board until this (later) time. */
+  kiosk_extras_cutoff_time: string
   /** D50: off, direct (server → printer:port) or agent (scripts/print-agent.mjs). */
   printer_mode: PrinterMode
   printer_host: string | null

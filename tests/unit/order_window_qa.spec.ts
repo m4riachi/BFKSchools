@@ -18,6 +18,7 @@ const D5: S = {
   edit_cutoff_time: '18:00',
   kiosk_enabled: true,
   kiosk_cutoff_time: '09:00',
+  kiosk_extras_cutoff_time: '13:00',
 }
 function run(o: Partial<Omit<WindowInput, 'settings'>> & { settings?: Partial<S> }) {
   return evaluate({
