@@ -151,7 +151,7 @@ export default defineConfig({
     },
     {
       // BFK restaurant menu (data + photos) for the 09 seeder
-      pattern: 'database/catalog/**/*.{json,jpg}',
+      pattern: 'database/catalog/**/*.{json,jpg,csv}',
       reloadServer: false,
     },
     {

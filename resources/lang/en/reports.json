@@ -68,7 +68,9 @@
     "empty": "No active order for this day.",
     "labels_pdf": "Labels PDF",
     "export": "Excel export",
-    "allergy_sheet": "Allergy sheet"
+    "allergy_sheet": "Allergy sheet",
+    "removals_title": "Ingredient removals",
+    "removed": "without {list}"
   },
   "allergies": {
     "title": "Allergy sheet",
@@ -147,7 +149,8 @@
       "quantity": "Quantity",
       "unit_price": "Unit price (MAD)",
       "line_total": "Total (MAD)",
-      "amount": "Amount (MAD)"
+      "amount": "Amount (MAD)",
+      "removed": "Removed ingredients"
     },
     "pdf_limit": "PDF: at most {rows} rows (beyond that, choose Excel or CSV).",
     "pdf_period": "From {from} to {to}",

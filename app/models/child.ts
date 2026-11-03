@@ -14,6 +14,9 @@ import { STAFF_ROLES } from '#enums/roles'
  * future `child_guardians` pivot only changes those two places.
  */
 export default class Child extends ChildSchema {
+  /** D55: ingredient ids the child disliked on a past order (pre-applied next time). */
+  declare dislikedIngredients: number[]
+
   @belongsTo(() => User, { foreignKey: 'parentId' })
   declare parent: BelongsTo<typeof User>
 

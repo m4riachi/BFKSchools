@@ -18,6 +18,8 @@ export type OptionView = {
   /** Null for subscription meals (D31: included in the subscription). */
   price: string | null
   allergens: Labelled[]
+  /** D55: customer-visible ingredients of the meal the parent may remove. */
+  ingredients: { id: number; label: string }[]
   tags: string[]
   cover: { url: string; thumbUrl: string } | null
   allergyConflicts: Labelled[]
@@ -38,6 +40,8 @@ export type OrderLineView = {
   type: string
   name: string
   quantity: number
+  /** D55: ingredients removed on this line (id+label snapshot). */
+  excludedIngredients: { id: number; label: string }[]
   /** Null for subscription lines (D31: no amount). */
   unitPrice: string | null
   lineTotalCents: number
@@ -60,6 +64,8 @@ export type DayView = {
   cutoffAt: string
   holidayNames: string[]
   hasSubscription: boolean
+  /** D55: ingredient ids this child disliked before (pre-applied in the UI). */
+  dislikedIngredients: number[]
   options: OptionView[]
   order: {
     id: number
@@ -96,6 +102,8 @@ export type WeekView = {
 export type Selection = {
   subscriptionMealId: number | null
   supplements: { mealId: number; qty: number }[]
+  /** D55: customer-visible ingredients removed, per meal. */
+  exclusions: { mealId: number; ingredientIds: number[] }[]
 }
 
 /** The current selection of a day, read from the server's quantities. */
@@ -106,6 +114,12 @@ export function selectionOf(day: DayView): Selection {
     : undefined
   return {
     subscriptionMealId: main?.mealId ?? null,
+    exclusions: (active ? (day.order?.lines ?? []) : [])
+      .filter((line) => line.excludedIngredients.length)
+      .map((line) => ({
+        mealId: line.mealId,
+        ingredientIds: line.excludedIngredients.map((ing) => ing.id),
+      })),
     supplements: active
       ? day.options
           .filter((option) => option.type === 'supplement' && option.quantity > 0)

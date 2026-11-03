@@ -14,6 +14,7 @@ import HolidayCalendar from '#services/holiday_calendar'
 import SchoolSettingsService from '#services/school_settings_service'
 import OrderAuditService, { orderSnapshot } from '#services/order_audit_service'
 import OrderNotifier from '#services/order_notifier'
+import MealIngredientService from '#services/meal_ingredient_service'
 import {
   checkSelection,
   effectiveAllergyRule,
@@ -109,7 +110,8 @@ export default class OrderService {
     protected holidays: HolidayCalendar,
     protected settings: SchoolSettingsService,
     protected audit: OrderAuditService,
-    protected notifier: OrderNotifier
+    protected notifier: OrderNotifier,
+    protected fiches: MealIngredientService
   ) {}
 
   selectionRules(school: School): SelectionRules {
@@ -359,12 +361,35 @@ export default class OrderService {
         throw new OrderRuleException(result.error, result.values ?? {}, result.mealId ?? null)
       }
 
+      // D55: the customer-visible ingredients removed per meal (snapshot id+label).
+      const visibleByMeal = await this.fiches.visibleByMeal(
+        result.lines.map((l) => l.option.mealId)
+      )
+      const requestedExcl = new Map(
+        (request.exclusions ?? []).map((e) => [e.mealId, new Set(e.ingredientIds)])
+      )
+      const desiredExcl = new Map(
+        result.lines.map((line) => {
+          const req = requestedExcl.get(line.option.mealId) ?? new Set<number>()
+          const excluded = (visibleByMeal.get(line.option.mealId) ?? []).filter((ing) =>
+            req.has(ing.id)
+          )
+          return [line.option.menuItemId, excluded]
+        })
+      )
+
       // Nothing to do when the active order already has exactly these lines.
       const wanted = new Map(result.lines.map((line) => [line.option.menuItemId, line]))
+      const sameExcl = (a: { id: number }[], b: { id: number }[]) =>
+        a.length === b.length && a.every((x) => b.some((y) => y.id === x.id))
       const unchanged =
         order?.status === 'active' &&
         activeLines.length === wanted.size &&
-        activeLines.every((line) => wanted.get(line.menuItemId)?.qty === line.quantity)
+        activeLines.every(
+          (line) =>
+            wanted.get(line.menuItemId)?.qty === line.quantity &&
+            sameExcl(line.excludedIngredients ?? [], desiredExcl.get(line.menuItemId) ?? [])
+        )
       if (order && unchanged) return { order, action: null }
 
       const before = order
@@ -447,6 +472,29 @@ export default class OrderService {
       }
 
       await saved.load('items')
+      // D55: snapshot removed ingredients on each line; remember them on the child.
+      for (const line of saved.items) {
+        const excluded = desiredExcl.get(line.menuItemId) ?? []
+        await trx
+          .from('meal_order_items')
+          .where('id', line.id)
+          .update({ excluded_ingredients: JSON.stringify(excluded), updated_at: now.toISO()! })
+        line.excludedIngredients = excluded
+      }
+      const visibleAll = new Set([...visibleByMeal.values()].flat().map((ing) => ing.id))
+      const excludedAll = new Set([...desiredExcl.values()].flat().map((ing) => ing.id))
+      const nextDislikes = [
+        ...new Set([
+          ...(child.dislikedIngredients ?? []).filter((id: number) => !visibleAll.has(id)),
+          ...excludedAll,
+        ]),
+      ].sort((a, b) => a - b)
+      const prevDislikes = [...(child.dislikedIngredients ?? [])].sort((a, b) => a - b)
+      if (JSON.stringify(prevDislikes) !== JSON.stringify(nextDislikes)) {
+        child.useTransaction(trx)
+        child.dislikedIngredients = nextDislikes
+        await child.save()
+      }
       const after = orderSnapshot('active', null, saved.items)
       const auditAction: AuditAction = context.staff ? 'staff_override' : action
       const [auditId] = await this.audit.record(trx, actor, [

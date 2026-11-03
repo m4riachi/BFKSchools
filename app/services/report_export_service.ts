@@ -108,6 +108,12 @@ export default class ReportExportService {
       },
       { key: 'meal', width: 32, value: (row) => safeCell(mealName(row, locale)) },
       { key: 'quantity', width: 9, value: (row) => row.quantity },
+      {
+        key: 'removed',
+        width: 24,
+        value: (row: ExportDetailRow) =>
+          safeCell(row.excludedIngredients.map((ing) => ing.label).join(', ')),
+      },
     ]
     if (withAmounts) {
       columns.push(

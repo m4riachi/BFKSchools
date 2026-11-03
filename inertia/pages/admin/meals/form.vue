@@ -117,6 +117,13 @@ const typeClass = (selected: boolean) => [
       :title="meal ? t('meals.form.edit_title', { name: meal.name }) : t('meals.form.create_title')"
     >
       <template v-if="meal" #actions>
+        <Link
+          v-if="meal"
+          :href="`/admin/meals/${meal.id}/ingredients`"
+          class="inline-flex h-11 items-center justify-center rounded-xl border border-line px-[18px] text-sm font-bold text-ink-2 no-underline hover:bg-subtle"
+        >
+          {{ t('meals.fiche.nav') }}
+        </Link>
         <AppButton variant="secondary" @click="duplicateOpen = true">
           {{ t('meals.form.duplicate') }}
         </AppButton>

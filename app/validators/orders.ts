@@ -23,6 +23,16 @@ const selectionFields = {
     .maxLength(30)
     .optional(),
   confirmAllergy: vine.boolean().optional(),
+  // D55: customer-visible ingredients removed, per meal of the order.
+  exclusions: vine
+    .array(
+      vine.object({
+        mealId: idRule(),
+        ingredientIds: vine.array(idRule()).maxLength(50).distinct(),
+      })
+    )
+    .maxLength(30)
+    .optional(),
 }
 
 /** Staff reason (mandatory for every staff change; audited). */

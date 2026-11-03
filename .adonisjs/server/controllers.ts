@@ -10,6 +10,7 @@ export const controllers = {
     FamilyImports: () => import('#controllers/admin/family_imports_controller'),
     HolidayImports: () => import('#controllers/admin/holiday_imports_controller'),
     Holidays: () => import('#controllers/admin/holidays_controller'),
+    MealIngredients: () => import('#controllers/admin/meal_ingredients_controller'),
     MealPhotos: () => import('#controllers/admin/meal_photos_controller'),
     Meals: () => import('#controllers/admin/meals_controller'),
     Orders: () => import('#controllers/admin/orders_controller'),

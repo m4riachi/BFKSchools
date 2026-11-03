@@ -11,6 +11,7 @@ import OrderAuditLog from '#models/order_audit_log'
 import Clock from '#services/clock'
 import MenuCalendar from '#services/menu_calendar'
 import SchoolSettingsService from '#services/school_settings_service'
+import MealIngredientService from '#services/meal_ingredient_service'
 import {
   describeOption,
   effectiveAllergyRule,
@@ -60,7 +61,8 @@ export default class OrderWeekService {
   constructor(
     protected clock: Clock,
     protected calendar: MenuCalendar,
-    protected settings: SchoolSettingsService
+    protected settings: SchoolSettingsService,
+    protected fiches: MealIngredientService
   ) {}
 
   async week(
@@ -131,6 +133,15 @@ export default class OrderWeekService {
     const currentDay = focusDay(this.clock.today(), school.schoolDays)
     const openDay = days.some((day) => day.date === currentDay) ? currentDay : days[0]?.date
 
+    // D55: customer-visible ingredients of every meal shown this week, and
+    // the ingredients this child disliked before (pre-applied on ordering).
+    const allMealIds = [
+      ...items.map((item) => item.mealId),
+      ...orders.flatMap((order) => order.items.map((line) => line.mealId)),
+    ]
+    const visibleIngredients = await this.fiches.visibleByMeal(allMealIds)
+    const dislikedIngredients = [...(child.dislikedIngredients ?? [])]
+
     const dayViews = days.map((day) => {
       const dayItems = items.filter((item) => item.date === day.date)
       const order = orderByDate.get(day.date) ?? null
@@ -188,6 +199,8 @@ export default class OrderWeekService {
             : [],
           tags: [...item.meal.tags],
           cover: mealCoverUrls(item.meal),
+          // D55: the customer-visible ingredients the parent may remove.
+          ingredients: visibleIngredients.get(item.mealId) ?? [],
           ...flags,
           allergyConflicts: allergenLabels(flags.allergyConflicts as AllergenCode[], locale),
           quantity: existingQty,
@@ -201,6 +214,7 @@ export default class OrderWeekService {
           type: line.mealType,
           name: mealName(line.meal, locale),
           quantity: line.quantity,
+          excludedIngredients: [...(line.excludedIngredients ?? [])],
           unitPrice: billed ? money(line.unitPriceCents) : null,
           lineTotalCents: billed ? (line.lineTotalCents ?? line.quantity * line.unitPriceCents) : 0,
         }
@@ -229,6 +243,7 @@ export default class OrderWeekService {
         cutoffAt: decision.cutoffAt.toISO()!,
         holidayNames: day.holidayNames,
         hasSubscription: subscribed,
+        dislikedIngredients,
         options,
         order: order
           ? {

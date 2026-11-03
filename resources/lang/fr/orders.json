@@ -134,7 +134,8 @@
     "today": "Aujourd'hui",
     "next_school_day": "Prochain jour",
     "special": "Spécial du jour",
-    "child_pin": "Code borne {pin}"
+    "child_pin": "Code borne {pin}",
+    "ingredients": "Ingrédients — décochez ce que {name} ne veut pas"
   },
   "history": {
     "title": "Historique des commandes",

@@ -16,6 +16,7 @@ declare module '@adonisjs/inertia/types' {
     'admin/imports/families': ExtractProps<(typeof import('../../inertia/pages/admin/imports/families.vue'))['default']>
     'admin/meals/form': ExtractProps<(typeof import('../../inertia/pages/admin/meals/form.vue'))['default']>
     'admin/meals/index': ExtractProps<(typeof import('../../inertia/pages/admin/meals/index.vue'))['default']>
+    'admin/meals/ingredients': ExtractProps<(typeof import('../../inertia/pages/admin/meals/ingredients.vue'))['default']>
     'admin/menus/index': ExtractProps<(typeof import('../../inertia/pages/admin/menus/index.vue'))['default']>
     'admin/menus/remove_item': ExtractProps<(typeof import('../../inertia/pages/admin/menus/remove_item.vue'))['default']>
     'admin/menus/show': ExtractProps<(typeof import('../../inertia/pages/admin/menus/show.vue'))['default']>

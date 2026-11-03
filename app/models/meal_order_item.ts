@@ -12,6 +12,9 @@ import MealOrder from '#models/meal_order'
  * history and statements.
  */
 export default class MealOrderItem extends MealOrderItemSchema {
+  /** D55: customer-visible ingredients the parent removed (snapshot id+label). */
+  declare excludedIngredients: { id: number; label: string }[]
+
   @belongsTo(() => MealOrder)
   declare order: BelongsTo<typeof MealOrder>
 

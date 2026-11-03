@@ -801,6 +801,45 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meals_controller').default['destroy']>>>
     }
   }
+  'admin.ingredients.search': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/ingredients'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['search']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['search']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['search']>>>
+    }
+  }
+  'admin.meals.ingredients.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/meals/:id/ingredients'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['show']>>>
+    }
+  }
+  'admin.meals.ingredients.update': {
+    methods: ["PUT"]
+    pattern: '/admin/meals/:id/ingredients'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['update']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/meal_ingredients_controller').default['update']>>>
+    }
+  }
   'admin.meals.photos.store': {
     methods: ["POST"]
     pattern: '/admin/meals/:id/photos'

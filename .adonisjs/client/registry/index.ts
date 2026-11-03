@@ -374,6 +374,24 @@ const routes = {
     tokens: [[0,"admin"],[0,"meals"],[1,"id"]],
     types: placeholder as Registry['admin.meals.destroy']['types'],
   },
+  'admin.ingredients.search': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/ingredients',
+    tokens: [[0,"admin"],[0,"ingredients"]],
+    types: placeholder as Registry['admin.ingredients.search']['types'],
+  },
+  'admin.meals.ingredients.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/meals/:id/ingredients',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"ingredients"]],
+    types: placeholder as Registry['admin.meals.ingredients.show']['types'],
+  },
+  'admin.meals.ingredients.update': {
+    methods: ["PUT"],
+    pattern: '/admin/meals/:id/ingredients',
+    tokens: [[0,"admin"],[0,"meals"],[1,"id"],[0,"ingredients"]],
+    types: placeholder as Registry['admin.meals.ingredients.update']['types'],
+  },
   'admin.meals.photos.store': {
     methods: ["POST"],
     pattern: '/admin/meals/:id/photos',

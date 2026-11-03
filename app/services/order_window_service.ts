@@ -202,6 +202,8 @@ export type SelectionRequest = {
   subscriptionMealId: number | null
   supplements: { mealId: number; qty: number }[]
   confirmAllergy?: boolean
+  /** D55: customer-visible ingredients the parent removed, per meal of the order. */
+  exclusions?: { mealId: number; ingredientIds: number[] }[]
 }
 
 export type SelectionRules = {

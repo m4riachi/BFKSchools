@@ -104,12 +104,19 @@ export interface ApiDefinition {
       update: typeof routes['admin.meals.update']
       duplicate: typeof routes['admin.meals.duplicate']
       destroy: typeof routes['admin.meals.destroy']
+      ingredients: {
+        show: typeof routes['admin.meals.ingredients.show']
+        update: typeof routes['admin.meals.ingredients.update']
+      }
       photos: {
         store: typeof routes['admin.meals.photos.store']
         reorder: typeof routes['admin.meals.photos.reorder']
         cover: typeof routes['admin.meals.photos.cover']
         destroy: typeof routes['admin.meals.photos.destroy']
       }
+    }
+    ingredients: {
+      search: typeof routes['admin.ingredients.search']
     }
     holidays: {
       index: typeof routes['admin.holidays.index']

@@ -201,10 +201,42 @@ function onConfirm() {
   pendingApply = null
 }
 
+/* D55: ingredients the parent removed, per meal. */
+function exclusionsFor(mealId: number): number[] {
+  return selection.value.exclusions.find((e) => e.mealId === mealId)?.ingredientIds ?? []
+}
+function isExcluded(mealId: number, id: number) {
+  return exclusionsFor(mealId).includes(id)
+}
+function setExclusions(mealId: number, ids: number[]) {
+  const others = selection.value.exclusions.filter((e) => e.mealId !== mealId)
+  selection.value = {
+    ...selection.value,
+    exclusions: ids.length ? [...others, { mealId, ingredientIds: [...new Set(ids)] }] : others,
+  }
+}
+function toggleExclude(option: OptionView, id: number) {
+  const current = new Set(exclusionsFor(option.mealId))
+  if (current.has(id)) current.delete(id)
+  else current.add(id)
+  setExclusions(option.mealId, [...current])
+  emitChange()
+}
+
 function pickMain(option: OptionView) {
   if (!editable.value || qtyOf(option) === 1 || !canAdd(option)) return
   withConfirm(option, () => {
     selection.value = { ...selection.value, subscriptionMealId: option.mealId }
+    // D55: pre-apply the ingredients this child disliked before (unless already set).
+    if (
+      option.ingredients.length &&
+      !selection.value.exclusions.some((e) => e.mealId === option.mealId)
+    ) {
+      const disliked = option.ingredients
+        .filter((ing) => props.day.dislikedIngredients.includes(ing.id))
+        .map((ing) => ing.id)
+      if (disliked.length) setExclusions(option.mealId, disliked)
+    }
     emitChange()
   })
 }
@@ -229,7 +261,7 @@ function orderInstead() {
   const fallback =
     mains.value.find((o) => o.isDefault && o.maxQty > 0) ?? mains.value.find((o) => o.maxQty > 0)
   if (!fallback) return
-  selection.value = { subscriptionMealId: fallback.mealId, supplements: [] }
+  selection.value = { subscriptionMealId: fallback.mealId, supplements: [], exclusions: [] }
   withConfirm(fallback, emitChange)
 }
 
@@ -579,6 +611,37 @@ function mainNote(option: OptionView) {
                     >
                       {{ mainNote(option) }}
                     </span>
+                    <!-- D55: ingredients of the dish; untick what the child does not want -->
+                    <div
+                      v-if="qtyOf(option) === 1 && option.ingredients.length"
+                      class="mt-1 flex flex-col gap-1.5 rounded-xl bg-[#f6f7f6] p-2.5"
+                      @click.prevent.stop
+                    >
+                      <span
+                        class="text-[11px] font-extrabold tracking-[0.06em] text-ink-3 uppercase"
+                      >
+                        {{ t('orders.week.ingredients', { name: childName }) }}
+                      </span>
+                      <label
+                        v-for="ing in option.ingredients"
+                        :key="ing.id"
+                        class="flex cursor-pointer items-center gap-2 text-[13px] font-semibold"
+                        :class="
+                          isExcluded(option.mealId, ing.id)
+                            ? 'text-ink-4 line-through'
+                            : 'text-ink-2'
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          class="size-4"
+                          :checked="!isExcluded(option.mealId, ing.id)"
+                          :disabled="saving"
+                          @change="toggleExclude(option, ing.id)"
+                        />
+                        {{ ing.label }}
+                      </label>
+                    </div>
                   </div>
                 </div>
               </label>

@@ -83,9 +83,17 @@ export default class DashboardController {
     if (!school) return inertia.render('kitchen/dashboard', { ...nav, sheet: null, day: null })
 
     const sheet = await this.reports.production(school.id, date)
+    const removalRows = await this.reports.ingredientRemovals(school.id, date)
+    const removals = removalRows.map((row) => ({
+      name: `${row.firstName} ${row.lastName}`.trim(),
+      meta: [row.className, row.grade].filter(Boolean).join(' · '),
+      meal: i18n.locale === 'en' ? row.nameEn : row.nameFr,
+      removed: row.removed,
+    }))
     return inertia.render('kitchen/dashboard', {
       ...nav,
       sheet: presentProduction(sheet, i18n.locale),
+      removals,
       day: await this.dayInfo(school, date),
     })
   }

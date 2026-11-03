@@ -50,6 +50,7 @@ const ADMIN_AREAS: Record<string, Permission> = {
   'parents': 'families',
   'imports': 'families',
   'meals': 'meals',
+  'ingredients': 'meals', // D55: ingredient search for the fiche technique
   'menus': 'menus',
   'menu-templates': 'menus',
   'holidays': 'holidays',

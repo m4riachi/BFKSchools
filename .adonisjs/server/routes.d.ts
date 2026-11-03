@@ -65,6 +65,9 @@ export type ScannedRoutes = {
     'admin.meals.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.duplicate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.ingredients.search': { paramsTuple?: []; params?: {} }
+    'admin.meals.ingredients.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.meals.ingredients.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.photos.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.photos.reorder': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.photos.cover': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'photoId': ParamValue} }
@@ -176,6 +179,8 @@ export type ScannedRoutes = {
     'admin.meals.index': { paramsTuple?: []; params?: {} }
     'admin.meals.create': { paramsTuple?: []; params?: {} }
     'admin.meals.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.ingredients.search': { paramsTuple?: []; params?: {} }
+    'admin.meals.ingredients.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.holidays.index': { paramsTuple?: []; params?: {} }
     'admin.holidays.import.create': { paramsTuple?: []; params?: {} }
     'admin.holidays.import.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -237,6 +242,8 @@ export type ScannedRoutes = {
     'admin.meals.index': { paramsTuple?: []; params?: {} }
     'admin.meals.create': { paramsTuple?: []; params?: {} }
     'admin.meals.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.ingredients.search': { paramsTuple?: []; params?: {} }
+    'admin.meals.ingredients.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.holidays.index': { paramsTuple?: []; params?: {} }
     'admin.holidays.import.create': { paramsTuple?: []; params?: {} }
     'admin.holidays.import.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -333,6 +340,7 @@ export type ScannedRoutes = {
     'admin.children.update': { paramsTuple: [ParamValue,ParamValue]; params: {'parentId': ParamValue,'id': ParamValue} }
     'admin.children.subscriptions.update': { paramsTuple: [ParamValue,ParamValue,ParamValue]; params: {'parentId': ParamValue,'childId': ParamValue,'id': ParamValue} }
     'admin.meals.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.meals.ingredients.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.meals.photos.reorder': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.holidays.settings': { paramsTuple?: []; params?: {} }
     'admin.holidays.groups.update': { paramsTuple: [ParamValue]; params: {'groupId': ParamValue} }

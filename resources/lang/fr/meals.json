@@ -166,5 +166,24 @@
     "recipe_ref": "Référence recette",
     "photos": "Photos"
   },
-  "included": "Inclus dans l’abonnement"
+  "included": "Inclus dans l’abonnement",
+  "fiche": {
+    "nav": "Fiche technique",
+    "title": "Fiche technique — {name}",
+    "intro": "Les ingrédients de ce plat. Cochez ceux que les parents voient dans l’application : ils pourront en retirer (allergie, goût). Les autres restent internes à la cuisine.",
+    "back": "Retour au plat",
+    "save": "Enregistrer la fiche",
+    "add_title": "Ajouter un ingrédient",
+    "search_placeholder": "Rechercher un ingrédient (nom ou code)…",
+    "add": "Ajouter",
+    "no_result": "Aucun ingrédient trouvé.",
+    "list_title": "Ingrédients du plat",
+    "empty": "Aucun ingrédient pour l’instant.",
+    "visible": "Visible par les parents",
+    "visible_legend": "Cochez les ingrédients que les parents peuvent voir et retirer.",
+    "remove": "Retirer {name}",
+    "move_up": "Monter",
+    "move_down": "Descendre",
+    "saved": "Fiche technique enregistrée."
+  }
 }

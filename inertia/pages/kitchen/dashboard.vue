@@ -18,6 +18,7 @@ const props = defineProps<{
   previous: string
   next: string
   sheet: ProductionView | null
+  removals?: { name: string; meta: string; meal: string; removed: string[] }[]
   day: DayInfo | null
 }>()
 
@@ -156,6 +157,27 @@ const supplementTotal = computed(() => props.sheet?.totals.supplement.total ?? 0
           }}</span>
         </div>
       </div>
+
+      <!-- D55: ingredients the parents removed for the day -->
+      <section v-if="removals && removals.length" class="card overflow-hidden">
+        <div class="border-b border-line px-4 py-3">
+          <h2 class="text-base font-bold">{{ t('reports.production.removals_title') }}</h2>
+        </div>
+        <ul class="m-0 flex list-none flex-col divide-y divide-line p-0">
+          <li
+            v-for="(row, index) in removals"
+            :key="index"
+            class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2.5 text-sm"
+          >
+            <span class="font-bold">{{ row.name }}</span>
+            <span v-if="row.meta" class="text-xs text-ink-4">{{ row.meta }}</span>
+            <span class="text-ink-3">{{ row.meal }}</span>
+            <span class="font-semibold text-danger">
+              {{ t('reports.production.removed', { list: row.removed.join(', ') }) }}
+            </span>
+          </li>
+        </ul>
+      </section>
 
       <section class="card overflow-hidden">
         <div

@@ -68,7 +68,9 @@
     "empty": "Aucune commande active pour ce jour.",
     "labels_pdf": "Étiquettes PDF",
     "export": "Export Excel",
-    "allergy_sheet": "Fiche allergies"
+    "allergy_sheet": "Fiche allergies",
+    "removals_title": "Retraits d’ingrédients",
+    "removed": "sans {list}"
   },
   "allergies": {
     "title": "Fiche allergies",
@@ -147,7 +149,8 @@
       "quantity": "Quantité",
       "unit_price": "Prix unitaire (MAD)",
       "line_total": "Total (MAD)",
-      "amount": "Montant (MAD)"
+      "amount": "Montant (MAD)",
+      "removed": "Ingrédients retirés"
     },
     "pdf_limit": "PDF : {rows} lignes au maximum (au-delà, choisissez Excel ou CSV).",
     "pdf_period": "Du {from} au {to}",

@@ -181,6 +181,8 @@ export type ExportDetailRow = {
   quantity: number
   unitPriceCents: number
   lineTotalCents: number
+  /** D55: customer-visible ingredients the parent removed on this line. */
+  excludedIngredients: { id: number; label: string }[]
 }
 
 export type ExportSummaryRow = {
@@ -351,6 +353,51 @@ export default class ProductionReportService {
         withAllergies: toInt(count.with_allergies),
       },
     }
+  }
+
+  /**
+   * D55: per-order ingredient removals of a day (one row per line with a
+   * removal), for the kitchen production sheet. Active orders only, sorted
+   * like the allergy sheet. One query.
+   */
+  async ingredientRemovals(
+    schoolId: number,
+    date: IsoDate
+  ): Promise<
+    {
+      firstName: string
+      lastName: string
+      grade: string | null
+      className: string | null
+      nameFr: string
+      nameEn: string
+      removed: string[]
+    }[]
+  > {
+    assertDate(date)
+    const result = await db.rawQuery(
+      `SELECT c.first_name, c.last_name, c.grade, c.class_name,
+              m.name_fr, m.name_en, moi.excluded_ingredients
+         FROM meal_orders mo
+         JOIN children c ON c.id = mo.child_id
+         JOIN meal_order_items moi ON moi.meal_order_id = mo.id
+         JOIN meals m ON m.id = moi.meal_id
+        WHERE mo.school_id = ? AND mo.date = ? AND mo.status = 'active'
+          AND jsonb_array_length(moi.excluded_ingredients) > 0
+        ORDER BY c.class_name NULLS LAST, c.last_name, c.first_name, moi.id`,
+      [schoolId, date]
+    )
+    return result.rows.map((row: Record<string, any>) => ({
+      firstName: row.first_name as string,
+      lastName: row.last_name as string,
+      grade: (row.grade as string | null) ?? null,
+      className: (row.class_name as string | null) ?? null,
+      nameFr: row.name_fr as string,
+      nameEn: row.name_en as string,
+      removed: (Array.isArray(row.excluded_ingredients) ? row.excluded_ingredients : []).map(
+        (ing: { label: string }) => ing.label
+      ) as string[],
+    }))
   }
 
   /** Meals by id, deleted ones included (history). One query. */
@@ -830,7 +877,8 @@ export default class ProductionReportService {
           'm.name_en',
           'moi.quantity',
           'moi.unit_price_cents',
-          'moi.line_total_cents'
+          'moi.line_total_cents',
+          'moi.excluded_ingredients'
         )
       if (!rows.length) return
       yield rows.map((row) => ({
@@ -847,6 +895,9 @@ export default class ProductionReportService {
         quantity: toInt(row.quantity),
         unitPriceCents: toInt(row.unit_price_cents),
         lineTotalCents: toInt(row.line_total_cents),
+        excludedIngredients: Array.isArray(row.excluded_ingredients)
+          ? row.excluded_ingredients
+          : [],
       }))
       if (rows.length < pageSize) return
     }

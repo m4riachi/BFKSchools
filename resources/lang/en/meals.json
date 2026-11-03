@@ -166,5 +166,24 @@
     "recipe_ref": "Recipe reference",
     "photos": "Photos"
   },
-  "included": "Included in subscription"
+  "included": "Included in subscription",
+  "fiche": {
+    "nav": "Recipe sheet",
+    "title": "Recipe sheet — {name}",
+    "intro": "The ingredients of this dish. Tick the ones parents see in the app: they can remove them (allergy, taste). The others stay internal to the kitchen.",
+    "back": "Back to the dish",
+    "save": "Save the sheet",
+    "add_title": "Add an ingredient",
+    "search_placeholder": "Search an ingredient (name or code)…",
+    "add": "Add",
+    "no_result": "No ingredient found.",
+    "list_title": "Ingredients of the dish",
+    "empty": "No ingredient yet.",
+    "visible": "Shown to parents",
+    "visible_legend": "Tick the ingredients parents can see and remove.",
+    "remove": "Remove {name}",
+    "move_up": "Move up",
+    "move_down": "Move down",
+    "saved": "Recipe sheet saved."
+  }
 }

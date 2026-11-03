@@ -134,7 +134,8 @@
     "today": "Today",
     "next_school_day": "Next day",
     "special": "Special of the day",
-    "child_pin": "Kiosk code {pin}"
+    "child_pin": "Kiosk code {pin}",
+    "ingredients": "Ingredients — untick what {name} doesn’t want"
   },
   "history": {
     "title": "Order history",

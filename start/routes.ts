@@ -282,6 +282,18 @@ router
       .delete('meals/:id', [controllers.admin.Meals, 'destroy'])
       .where('id', id)
       .as('meals.destroy')
+    // D55: fiche technique (ingredients) of a meal
+    router
+      .get('ingredients', [controllers.admin.MealIngredients, 'search'])
+      .as('ingredients.search')
+    router
+      .get('meals/:id/ingredients', [controllers.admin.MealIngredients, 'show'])
+      .where('id', id)
+      .as('meals.ingredients.show')
+    router
+      .put('meals/:id/ingredients', [controllers.admin.MealIngredients, 'update'])
+      .where('id', id)
+      .as('meals.ingredients.update')
     // Photos. The upload route's multipart body is processed by the controller
     // (config/bodyparser.ts `processManually` lists this exact pattern).
     router

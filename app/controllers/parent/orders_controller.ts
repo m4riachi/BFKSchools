@@ -168,6 +168,7 @@ export default class OrdersController {
         subscriptionMealId: input.subscriptionMealId ?? null,
         supplements: input.supplements ?? [],
         confirmAllergy: input.confirmAllergy ?? false,
+        exclusions: input.exclusions ?? [],
       },
       { user: auth.getUserOrFail(), ip: request.ip() }
     )
@@ -213,6 +214,7 @@ export default class OrdersController {
             subscriptionMealId: input.subscriptionMealId ?? null,
             supplements: input.supplements ?? [],
             confirmAllergy: false,
+            exclusions: input.exclusions ?? [],
           },
       input.childIds
     )

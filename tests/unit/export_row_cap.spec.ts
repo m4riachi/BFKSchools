@@ -23,6 +23,7 @@ function row(i: number): ExportDetailRow {
     quantity: 1,
     unitPriceCents: 4500,
     lineTotalCents: 4500,
+    excludedIngredients: [],
   }
 }
 

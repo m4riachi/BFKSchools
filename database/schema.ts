@@ -18,7 +18,7 @@ import type { UserTokenType } from '#enums/user_tokens'
 import type { Role } from '#enums/roles'
 
 export class ChildSchema extends BaseModel {
-  static $columns = ['allergies', 'className', 'createdAt', 'dietaryNotes', 'firstName', 'grade', 'id', 'isActive', 'lastName', 'parentId', 'pin', 'schoolId', 'updatedAt'] as const
+  static $columns = ['allergies', 'className', 'createdAt', 'dietaryNotes', 'dislikedIngredients', 'firstName', 'grade', 'id', 'isActive', 'lastName', 'parentId', 'pin', 'schoolId', 'updatedAt'] as const
   $columns = ChildSchema.$columns
   @column()
   declare allergies: AllergenCode[]
@@ -28,6 +28,8 @@ export class ChildSchema extends BaseModel {
   declare createdAt: DateTime
   @column()
   declare dietaryNotes: string | null
+  @column()
+  declare dislikedIngredients: any
   @column()
   declare firstName: string
   @column()
@@ -77,6 +79,29 @@ export class HolidaySchema extends BaseModel {
   declare updatedAt: DateTime
 }
 
+export class IngredientSchema extends BaseModel {
+  static $columns = ['category', 'code', 'createdAt', 'famille', 'id', 'label', 'sousFamille', 'unit', 'updatedAt'] as const
+  $columns = IngredientSchema.$columns
+  @column()
+  declare category: string
+  @column()
+  declare code: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare famille: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare label: string
+  @column()
+  declare sousFamille: string | null
+  @column()
+  declare unit: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class LinkClickSchema extends BaseModel {
   static $columns = ['clickedAt', 'id', 'link', 'schoolId', 'userId'] as const
   $columns = LinkClickSchema.$columns
@@ -92,11 +117,32 @@ export class LinkClickSchema extends BaseModel {
   declare userId: number | null
 }
 
+export class MealIngredientSchema extends BaseModel {
+  static $columns = ['createdAt', 'customerVisible', 'id', 'ingredientId', 'mealId', 'position', 'updatedAt'] as const
+  $columns = MealIngredientSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare customerVisible: boolean
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare ingredientId: number
+  @column()
+  declare mealId: number
+  @column()
+  declare position: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class MealOrderItemSchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'lineTotalCents', 'mealId', 'mealOrderId', 'mealType', 'menuItemId', 'quantity', 'unitPriceCents', 'updatedAt'] as const
+  static $columns = ['createdAt', 'excludedIngredients', 'id', 'lineTotalCents', 'mealId', 'mealOrderId', 'mealType', 'menuItemId', 'quantity', 'unitPriceCents', 'updatedAt'] as const
   $columns = MealOrderItemSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare excludedIngredients: any
   @column({ isPrimary: true })
   declare id: number
   @column()
