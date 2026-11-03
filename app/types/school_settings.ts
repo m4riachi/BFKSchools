@@ -44,6 +44,9 @@ export type SchoolSettings = {
   delivery_order_url: string | null
   /** D37: Glovo button of the parent portal. Null = no button. */
   glovo_url: string | null
+  /** D53: the two buttons can be switched off without losing their links. */
+  delivery_button_enabled: boolean
+  glovo_button_enabled: boolean
   /**
    * Address of the school display board (`/board/<slug>`, no login).
    * Null = no board. Set only by SchoolBoardService, never by the form.

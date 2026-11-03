@@ -37,6 +37,8 @@ type Settings = {
   support_whatsapp: string | null
   delivery_order_url: string | null
   glovo_url: string | null
+  delivery_button_enabled: boolean
+  glovo_button_enabled: boolean
   printer_mode: 'off' | 'direct' | 'agent'
   printer_host: string | null
   printer_port: number
@@ -421,6 +423,13 @@ function submit() {
           :hint="t('settings.fields.support_whatsapp_hint')"
           :error="err('settings.support_whatsapp')"
         />
+        <!-- D53: each button can be switched off everywhere without losing its link -->
+        <CheckboxField
+          id="delivery_button_enabled"
+          v-model="form.settings.delivery_button_enabled"
+          :label="t('settings.fields.delivery_button_enabled')"
+          :hint="t('settings.fields.button_enabled_hint')"
+        />
         <TextInput
           id="delivery_order_url"
           v-model="form.settings.delivery_order_url"
@@ -428,6 +437,12 @@ function submit() {
           :label="t('settings.fields.delivery_order_url')"
           :hint="t('settings.fields.delivery_order_url_hint')"
           :error="err('settings.delivery_order_url')"
+        />
+        <CheckboxField
+          id="glovo_button_enabled"
+          v-model="form.settings.glovo_button_enabled"
+          :label="t('settings.fields.glovo_button_enabled')"
+          :hint="t('settings.fields.button_enabled_hint')"
         />
         <TextInput
           id="glovo_url"

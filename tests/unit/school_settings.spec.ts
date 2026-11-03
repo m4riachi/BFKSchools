@@ -33,6 +33,8 @@ test.group('SchoolSettingsService', (group) => {
       'support_whatsapp',
       'delivery_order_url',
       'glovo_url',
+      'delivery_button_enabled',
+      'glovo_button_enabled',
       'board_slug',
       'board_printer_button',
       'kiosk_enabled',

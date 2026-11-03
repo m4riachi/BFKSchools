@@ -350,4 +350,31 @@ test.group('Settings screen', (group) => {
       3
     )
   })
+
+  test('D53: a button switched off disappears everywhere and its link leads nowhere', async ({
+    client,
+    assert,
+  }) => {
+    const { school } = await setupMenuSchool()
+    const parent = await UserFactory.apply('parent').merge({ schoolId: school.id }).create()
+    const before = (await client.get('/').loginAs(parent).withInertia()).body().props
+    assert.isString(before.deliveryOrderUrl)
+    assert.isString(before.glovoUrl)
+
+    await new SchoolSettingsService().update(await School.findOrFail(school.id), {
+      delivery_button_enabled: false,
+      glovo_button_enabled: false,
+    })
+    const after = (await client.get('/').loginAs(parent).withInertia()).body().props
+    assert.isNull(after.deliveryOrderUrl)
+    assert.isNull(after.glovoUrl)
+    for (const link of ['glovo', 'delivery']) {
+      const out = await client.get(`/out/${link}`).loginAs(parent).redirects(0)
+      out.assertStatus(302)
+      out.assertHeader('location', '/')
+    }
+    // The links themselves are kept for when the buttons come back.
+    const kept = new SchoolSettingsService().get(await School.findOrFail(school.id))
+    assert.isString(kept.glovo_url)
+  })
 })

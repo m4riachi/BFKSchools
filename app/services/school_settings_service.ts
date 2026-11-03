@@ -41,6 +41,8 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   support_whatsapp: null, // D34
   delivery_order_url: 'https://order.beldifusionkitchen.ma/marrakech/bfk-marrakech/store', // D37
   glovo_url: 'https://glovoapp.com/fr/ma/marrakech/stores/beldi-fusion-kitchen', // D37
+  delivery_button_enabled: true, // D53
+  glovo_button_enabled: true,
   board_slug: null, // D46
   board_printer_button: true, // D51
   kiosk_enabled: true, // D52
@@ -98,6 +100,15 @@ export default class SchoolSettingsService {
     // An emptied field is stored as null: it means the default amount.
     settings.subscription_meal_price_cents ??= DEFAULT_SCHOOL_SETTINGS.subscription_meal_price_cents
     return settings
+  }
+
+  /** D37/D53: the parent portal's outbound links, null when the button is off or has no link. */
+  outboundLinks(school: Pick<School, 'settings'>) {
+    const settings = this.get(school)
+    return {
+      delivery: settings.delivery_button_enabled ? settings.delivery_order_url : null,
+      glovo: settings.glovo_button_enabled ? settings.glovo_url : null,
+    }
   }
 
   /** D33: optional modules of the school (server checks + shared Inertia prop). */

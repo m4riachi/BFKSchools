@@ -1,5 +1,7 @@
 import { PassThrough, Readable } from 'node:stream'
 import { inject } from '@adonisjs/core'
+import { cleanText, createPdf, drawLine, yieldToLoop } from '#support/pdf_text'
+import { formatMad, type Locale } from '#support/money'
 import logger from '@adonisjs/core/services/logger'
 import i18nManager from '@adonisjs/i18n/services/main'
 import { stringify } from 'csv-stringify/sync'
@@ -34,7 +36,10 @@ export const MAX_EXPORT_DAYS = 366
 export const MAX_EXPORT_ROWS = 50_000
 
 export type ExportKind = 'detail' | 'summary'
-export type ExportFormat = 'csv' | 'xlsx'
+export type ExportFormat = 'csv' | 'xlsx' | 'pdf'
+
+/** D54: a PDF is built in memory, page by page: a lower cap than the spreadsheets. */
+export const MAX_PDF_EXPORT_ROWS = 5_000
 
 export type ExportOptions = {
   kind: ExportKind
@@ -242,6 +247,114 @@ export default class ReportExportService {
   }
 
   /** Excel workbook written with the streaming writer into a PassThrough. */
+  /**
+   * D54: the same columns as the spreadsheet, as an A4 landscape PDF table —
+   * title and period, a bold header repeated on every page, money columns
+   * right-aligned with two decimals, page numbers. Rendered in memory
+   * (capped at MAX_PDF_EXPORT_ROWS by the controller), yielding to the event
+   * loop between pages.
+   */
+  async pdf(
+    schoolId: number,
+    options: ExportOptions,
+    labels: { title: string; period: string }
+  ): Promise<Buffer> {
+    const columns = this.columns(options)
+    const headers = this.headers(columns, options.locale)
+    const i18n = i18nManager.locale(options.locale)
+    const { doc, done } = await createPdf({
+      size: 'A4',
+      layout: 'landscape',
+      margin: 0,
+      autoFirstPage: false,
+      info: { Title: cleanText(labels.title), Creator: 'British Academy × Beldi Fusion' },
+    })
+    const page = { width: 841.89, height: 595.28, margin: 28 }
+    const inner = page.width - page.margin * 2
+    const totalWidth = columns.reduce((sum, column) => sum + column.width, 0)
+    const widths = columns.map((column) => (column.width / totalWidth) * inner)
+    const rowHeight = 15
+    const fontSize = 8
+    let pageNumber = 0
+    let y = 0
+
+    const money = (cents: number) => formatMad(cents, options.locale as Locale)
+    const cell = (column: Column<any>, value: Cell): { text: string; right: boolean } => {
+      if (column.money) {
+        return {
+          text: typeof value === 'number' ? money(Math.round(value * 100)) : '',
+          right: true,
+        }
+      }
+      return { text: String(value), right: typeof value === 'number' }
+    }
+    const drawRow = (cells: { text: string; right: boolean }[], bold: boolean) => {
+      let x = page.margin
+      for (const [index, entry] of cells.entries()) {
+        drawLine(doc, entry.text, x + 3, y + 3.5, widths[index] - 6, {
+          bold,
+          size: fontSize,
+          minSize: 6,
+          align: entry.right ? 'right' : 'left',
+        })
+        x += widths[index]
+      }
+      y += rowHeight
+    }
+    const newPage = () => {
+      pageNumber += 1
+      doc.addPage()
+      y = page.margin
+      drawLine(doc, labels.title, page.margin, y, inner * 0.7, { bold: true, size: 13 })
+      drawLine(doc, labels.period, page.margin, y, inner, { size: 9, align: 'right' })
+      y += 22
+      // Header band
+      doc.rect(page.margin, y, inner, rowHeight).fill('#EEF6F1')
+      drawRow(
+        headers.map((text) => ({ text, right: false })),
+        true
+      )
+      doc
+        .moveTo(page.margin, y)
+        .lineTo(page.margin + inner, y)
+        .lineWidth(0.6)
+        .strokeColor('#1F6F4A')
+        .stroke()
+      // Footer
+      drawLine(
+        doc,
+        i18n.t('reports.exports.pdf_page', { page: pageNumber }),
+        page.margin,
+        page.height - page.margin + 6,
+        inner,
+        { size: 7, color: '#56655E', align: 'right' }
+      )
+    }
+
+    newPage()
+    let count = 0
+    for await (const rows of this.pages(schoolId, options)) {
+      for (const row of rows) {
+        if (y + rowHeight > page.height - page.margin) newPage()
+        if (count % 2 === 1) doc.rect(page.margin, y, inner, rowHeight).fill('#F7F9F8')
+        drawRow(
+          row.map((value, index) => cell(columns[index], value)),
+          false
+        )
+        count += 1
+        if (count % 200 === 0) await yieldToLoop()
+      }
+    }
+    if (count === 0) {
+      drawLine(doc, i18n.t('reports.exports.pdf_empty'), page.margin, y + 6, inner, {
+        size: 9,
+        color: '#56655E',
+      })
+    }
+    doc.end()
+    return done
+  }
+
   xlsx(schoolId: number, options: ExportOptions, sheetName: string): Readable {
     const output = new PassThrough()
     const columns = this.columns(options)

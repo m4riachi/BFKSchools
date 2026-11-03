@@ -333,7 +333,7 @@ test.group('Reports | kitchen area', (group) => {
       'period=day&date=1900-01-01', // outside the supported window
       'period=day&date=2026-02-30',
       'period=day&mealType=dessert',
-      'period=day&format=pdf',
+      'period=day&format=docx',
     ]) {
       const response = await client
         .get(`/kitchen/exports/download?${query}`)

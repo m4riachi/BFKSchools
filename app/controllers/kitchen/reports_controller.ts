@@ -9,6 +9,7 @@ import TicketPdfService, { type TicketColumns } from '#services/ticket_pdf_servi
 import TicketPrintService from '#services/ticket_print_service'
 import type { TicketPrintJobStatus } from '#models/ticket_print_job'
 import ReportExportService, {
+  MAX_PDF_EXPORT_ROWS,
   MAX_EXPORT_DAYS,
   MAX_EXPORT_ROWS,
   type ExportOptions,
@@ -44,7 +45,7 @@ type ExportQuery = Partial<{
   className: string
   mealType: (typeof MEAL_TYPES)[number]
   kind: 'detail' | 'summary'
-  format: 'csv' | 'xlsx'
+  format: 'csv' | 'xlsx' | 'pdf'
 }>
 
 /** D33: labels without what the school's disabled modules hide. */
@@ -298,7 +299,7 @@ export default class ReportsController {
       today: this.clock.today(),
       classes: school ? await this.reports.classNames(school.id) : [],
       mealTypes: [...MEAL_TYPES],
-      limits: { days: MAX_EXPORT_DAYS, rows: MAX_EXPORT_ROWS },
+      limits: { days: MAX_EXPORT_DAYS, rows: MAX_EXPORT_ROWS, pdfRows: MAX_PDF_EXPORT_ROWS },
       withAmounts: school ? await bouncer.with('ReportPolicy').allows('viewAmounts') : false,
       enabled: school !== null,
     })
@@ -339,8 +340,10 @@ export default class ReportsController {
       withClass: features.className,
     }
     const rows = await this.reports.countExportRows(school.id, options.filters, options.kind)
-    if (rows > MAX_EXPORT_ROWS) {
-      session.flash('error', i18n.t('reports.errors.too_many_rows', { max: MAX_EXPORT_ROWS }))
+    // D54: a PDF is built in memory, so it takes fewer rows than a spreadsheet.
+    const maxRows = options.format === 'pdf' ? MAX_PDF_EXPORT_ROWS : MAX_EXPORT_ROWS
+    if (rows > maxRows) {
+      session.flash('error', i18n.t('reports.errors.too_many_rows', { max: maxRows }))
       return response.redirect().withQs(false).toPath('/kitchen/exports')
     }
 
@@ -359,6 +362,21 @@ export default class ReportsController {
     const onError = (error: NodeJS.ErrnoException): [string, number] => {
       logger.error({ error: error?.code ?? error?.name ?? 'Error' }, 'report export failed')
       return [i18n.t('reports.errors.export_failed'), 500]
+    }
+    if (options.format === 'pdf') {
+      const pdf = await renderPdfForUser(ctx, () =>
+        this.exportsService.pdf(school.id, options, {
+          title: i18n.t(`reports.exports.kinds.${options.kind}`),
+          period:
+            period.from === period.to
+              ? period.from
+              : i18n.t('reports.exports.pdf_period', { from: period.from, to: period.to }),
+        })
+      )
+      if (pdf === null) return
+      response.header('Content-Type', 'application/pdf')
+      response.header('Content-Disposition', attachmentHeader(`${name}.pdf`))
+      return response.send(pdf)
     }
     if (options.format === 'csv') {
       response.header('Content-Type', 'text/csv; charset=utf-8')

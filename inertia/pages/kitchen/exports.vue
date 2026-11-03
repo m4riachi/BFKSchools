@@ -33,7 +33,7 @@ const props = defineProps<{
   today: string
   classes: string[]
   mealTypes: string[]
-  limits: { days: number; rows: number }
+  limits: { days: number; rows: number; pdfRows: number }
   withAmounts: boolean
   enabled: boolean
 }>()
@@ -60,7 +60,7 @@ const form = reactive({
   className: '',
   mealType: '',
   kind: 'detail' as 'detail' | 'summary',
-  format: 'xlsx' as 'xlsx' | 'csv',
+  format: 'xlsx' as 'xlsx' | 'csv' | 'pdf',
 })
 
 const href = computed(() => {
@@ -181,6 +181,7 @@ const periods = computed(() =>
           :options="[
             { value: 'xlsx', label: t('reports.exports.formats.xlsx') },
             { value: 'csv', label: t('reports.exports.formats.csv') },
+            { value: 'pdf', label: t('reports.exports.formats.pdf') },
           ]"
         />
       </div>
@@ -193,6 +194,9 @@ const periods = computed(() =>
         </a>
         <div class="flex flex-col gap-0.5 text-xs text-ink-4">
           <span>{{ t('reports.exports.limits', limits) }}</span>
+          <span v-if="form.format === 'pdf'">{{
+            t('reports.exports.pdf_limit', { rows: limits.pdfRows })
+          }}</span>
           <span>{{
             withAmounts ? t('reports.exports.amounts_note') : t('reports.exports.no_amounts_note')
           }}</span>

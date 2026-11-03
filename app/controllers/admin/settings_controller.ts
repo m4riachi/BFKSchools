@@ -97,6 +97,8 @@ export default class SettingsController {
         support_whatsapp: values.support_whatsapp,
         delivery_order_url: values.delivery_order_url,
         glovo_url: values.glovo_url,
+        delivery_button_enabled: values.delivery_button_enabled,
+        glovo_button_enabled: values.glovo_button_enabled,
         printer_mode: values.printer_mode,
         printer_host: values.printer_host,
         printer_port: values.printer_port,

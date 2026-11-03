@@ -126,7 +126,8 @@
     "format": "Format",
     "formats": {
       "xlsx": "Excel (.xlsx)",
-      "csv": "CSV"
+      "csv": "CSV",
+      "pdf": "PDF"
     },
     "download": "Télécharger",
     "limits": "{days} jours au maximum, {rows} lignes au plus par fichier.",
@@ -147,7 +148,11 @@
       "unit_price": "Prix unitaire (MAD)",
       "line_total": "Total (MAD)",
       "amount": "Montant (MAD)"
-    }
+    },
+    "pdf_limit": "PDF : {rows} lignes au maximum (au-delà, choisissez Excel ou CSV).",
+    "pdf_period": "Du {from} au {to}",
+    "pdf_page": "Page {page}",
+    "pdf_empty": "Aucune ligne pour ces filtres."
   },
   "errors": {
     "export_failed": "L’export a échoué. Veuillez réessayer.",

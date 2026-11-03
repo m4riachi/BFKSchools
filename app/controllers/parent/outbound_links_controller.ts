@@ -19,9 +19,10 @@ export default class OutboundLinksController {
   async show({ params, auth, response }: HttpContext) {
     const user = auth.getUserOrFail()
     const school = typeof user.schoolId === 'number' ? await School.find(user.schoolId) : null
-    const values = school ? this.settings.get(school) : null
+    const links = school ? this.settings.outboundLinks(school) : null
     const link = params.link as TrackedLink
-    const target = link === 'glovo' ? values?.glovo_url : values?.delivery_order_url
+    // D53: a button switched off in the settings leads nowhere.
+    const target = link === 'glovo' ? links?.glovo : links?.delivery
     if (!target) return response.redirect('/')
 
     try {

@@ -55,5 +55,5 @@ export const exportQueryValidator = vine.create({
   className: className().optional(),
   mealType: vine.enum(MEAL_TYPES).optional(),
   kind: vine.enum(['detail', 'summary'] as const).optional(),
-  format: vine.enum(['csv', 'xlsx'] as const).optional(),
+  format: vine.enum(['csv', 'xlsx', 'pdf'] as const).optional(),
 })
