@@ -61,7 +61,13 @@ const props = defineProps<{
   }
   subscriptionMealPrice: string
   api: { endpoint: string; publicKey: string | null; generatedAt: string | null }
-  board: { slug: string | null; url: string | null; suggestion: string; origin: string }
+  board: {
+    slug: string | null
+    url: string | null
+    suggestion: string
+    origin: string
+    printerButton: boolean
+  }
   settings: Settings
 }>()
 

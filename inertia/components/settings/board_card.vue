@@ -11,7 +11,13 @@ import TextInput from '~/components/ui/text_input.vue'
 import { useI18n } from '~/composables/use_i18n'
 
 const props = defineProps<{
-  board: { slug: string | null; url: string | null; suggestion: string; origin: string }
+  board: {
+    slug: string | null
+    url: string | null
+    suggestion: string
+    origin: string
+    printerButton: boolean
+  }
 }>()
 
 const { t } = useI18n()
@@ -42,6 +48,11 @@ const options = {
 }
 function enable() {
   router.post('/admin/settings/board', { board_slug: slug.value }, options)
+}
+/** D51: the 🖨 button on the board — hide it once the printer is paired. */
+function setPrinterButton(event: Event) {
+  const enabled = (event.target as HTMLInputElement).checked
+  router.put('/admin/settings/board/printer-button', { enabled }, options)
 }
 function disable() {
   confirmDisable.value = false
@@ -108,6 +119,20 @@ function disable() {
       </div>
     </div>
     <p v-else class="text-sm text-ink-3">{{ t('settings.board.empty') }}</p>
+
+    <label v-if="board.url" class="flex items-start gap-3 text-sm">
+      <input
+        type="checkbox"
+        class="mt-1 size-4"
+        :checked="board.printerButton"
+        :disabled="busy"
+        @change="setPrinterButton"
+      />
+      <span class="flex flex-col gap-0.5">
+        <span class="font-bold">{{ t('settings.board.printer_button') }}</span>
+        <span class="text-[13px] text-ink-4">{{ t('settings.board.printer_button_hint') }}</span>
+      </span>
+    </label>
 
     <ConfirmDialog
       v-model:open="confirmDisable"

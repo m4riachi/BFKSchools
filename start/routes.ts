@@ -494,6 +494,9 @@ router
     router
       .delete('settings/board', [controllers.admin.Settings, 'disableBoard'])
       .as('settings.board.disable')
+    router
+      .put('settings/board/printer-button', [controllers.admin.Settings, 'setBoardPrinterButton'])
+      .as('settings.board.printer_button')
 
     // CSV import of families
     router.get('imports/families', [controllers.admin.FamilyImports, 'create']).as('imports.create')

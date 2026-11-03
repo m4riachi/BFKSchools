@@ -21,6 +21,7 @@ type Session = {
   token: string
   childName: string
   date: string
+  locked: { by: 'app' | 'kiosk'; lines: { name: string; quantity: number }[] } | null
   dishes: Option[]
   specials: Option[]
   extras: Option[]
@@ -70,7 +71,7 @@ async function printTicket() {
 const IDLE_MS = 60_000
 const DONE_MS = 5_000
 
-const step = ref<'pin' | 'dish' | 'extras' | 'confirm' | 'done'>('pin')
+const step = ref<'pin' | 'locked' | 'dish' | 'extras' | 'confirm' | 'done'>('pin')
 const pin = ref('')
 const error = ref('')
 const busy = ref(false)
@@ -152,6 +153,12 @@ async function submitPin() {
   try {
     const data = await post<Session>('session', { pin: pin.value })
     session.value = data
+    if (data.locked) {
+      // The day is already ordered: only the message, then back to the board.
+      step.value = 'locked'
+      doneTimer = setTimeout(() => emit('close'), DONE_MS * 2)
+      return
+    }
     // One pick: the current dish, else the current special.
     const current = data.dishes.find((o) => o.mealId === data.current.subscriptionMealId)
     dish.value = current ?? null
@@ -306,6 +313,38 @@ const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             0
           </button>
           <span />
+        </div>
+      </template>
+
+      <!-- Step: the day is already ordered -->
+      <template v-else-if="step === 'locked' && session && session.locked">
+        <div class="flex flex-1 flex-col items-center justify-center gap-[2.5vmin] text-center">
+          <span class="text-[12vmin]" aria-hidden="true">{{
+            session.locked.by === 'app' ? '📱' : '✅'
+          }}</span>
+          <h2 class="text-[4.5vmin] font-extrabold">
+            {{ t('board.kiosk.hello', { name: session.childName }) }}
+          </h2>
+          <p class="max-w-[80%] text-[3vmin] leading-snug text-ink-3 first-letter:uppercase">
+            {{
+              t(
+                session.locked.by === 'app' ? 'board.kiosk.locked_app' : 'board.kiosk.locked_kiosk',
+                { date: dateLabel }
+              )
+            }}
+          </p>
+          <ul class="m-0 flex list-none flex-col gap-[1vmin] p-0 text-[2.8vmin] font-extrabold">
+            <li v-for="(line, index) in session.locked.lines" :key="index">
+              {{ line.name }}<template v-if="line.quantity > 1"> × {{ line.quantity }}</template>
+            </li>
+          </ul>
+          <p class="text-[2.6vmin] font-bold text-pink-700">
+            {{
+              session.locked.by === 'app'
+                ? t('board.kiosk.locked_app_hint')
+                : t('board.kiosk.locked_kiosk_hint')
+            }}
+          </p>
         </div>
       </template>
 

@@ -44,7 +44,12 @@
     "printed": "Your ticket is printed!",
     "print_failed": "The printer did not answer.",
     "print_button": "Print my ticket again",
-    "take_ticket": "Wait for your ticket and take it!"
+    "take_ticket": "Wait for your ticket and take it!",
+    "locked_app": "Your order for {date} is already placed from your parents’ app:",
+    "locked_app_hint": "Nothing to do here. Enjoy your lunch!",
+    "locked_kiosk": "You already ordered for {date}:",
+    "locked_kiosk_hint": "To change it, ask the kitchen.",
+    "already_ordered": "This day is already ordered: ask the kitchen to change it."
   },
   "printer_pair": "Connect the printer",
   "printer_paired": "Printer connected"

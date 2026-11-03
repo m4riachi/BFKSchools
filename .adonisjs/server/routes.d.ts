@@ -130,6 +130,7 @@ export type ScannedRoutes = {
     'admin.settings.print_agent.env': { paramsTuple?: []; params?: {} }
     'admin.settings.board.enable': { paramsTuple?: []; params?: {} }
     'admin.settings.board.disable': { paramsTuple?: []; params?: {} }
+    'admin.settings.board.printer_button': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
@@ -343,6 +344,7 @@ export type ScannedRoutes = {
     'admin.users.active': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.roles.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.settings.update': { paramsTuple?: []; params?: {} }
+    'admin.settings.board.printer_button': { paramsTuple?: []; params?: {} }
   }
   DELETE: {
     'admin.children.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'parentId': ParamValue,'id': ParamValue} }

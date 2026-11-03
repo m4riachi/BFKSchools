@@ -202,6 +202,7 @@ export interface ApiDefinition {
       board: {
         enable: typeof routes['admin.settings.board.enable']
         disable: typeof routes['admin.settings.board.disable']
+        printerButton: typeof routes['admin.settings.board.printer_button']
       }
     }
     imports: {

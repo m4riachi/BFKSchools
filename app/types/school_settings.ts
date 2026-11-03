@@ -49,6 +49,8 @@ export type SchoolSettings = {
    * Null = no board. Set only by SchoolBoardService, never by the form.
    */
   board_slug: string | null
+  /** D51: the 🖨 "connect the printer" button on the board (hide it once paired). */
+  board_printer_button: boolean
   /** D50: off, direct (server → printer:port) or agent (scripts/print-agent.mjs). */
   printer_mode: PrinterMode
   printer_host: string | null

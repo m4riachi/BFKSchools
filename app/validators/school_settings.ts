@@ -54,6 +54,7 @@ export const schoolSettingsValidator = vine.create({
   printer_mode: printerMode().optional(),
   printer_host: printerHost().nullable().optional(),
   printer_port: printerPort().optional(),
+  board_printer_button: vine.boolean().optional(),
   email_notifications: vine
     .object({
       enabled: vine.boolean().optional(),

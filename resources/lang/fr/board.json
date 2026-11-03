@@ -44,7 +44,12 @@
     "printed": "Ton ticket est imprimé !",
     "print_failed": "L’imprimante n’a pas répondu.",
     "print_button": "Réimprimer mon ticket",
-    "take_ticket": "Attends ton ticket et prends-le !"
+    "take_ticket": "Attends ton ticket et prends-le !",
+    "locked_app": "Ta commande pour {date} est déjà faite depuis l’application de tes parents :",
+    "locked_app_hint": "Rien à faire ici. Bon appétit !",
+    "locked_kiosk": "Tu as déjà commandé pour {date} :",
+    "locked_kiosk_hint": "Pour changer, demande à la cuisine.",
+    "already_ordered": "Cette journée est déjà commandée : demande à la cuisine pour changer."
   },
   "printer_pair": "Connecter l’imprimante",
   "printer_paired": "Imprimante connectée"

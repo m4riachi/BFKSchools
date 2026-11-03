@@ -6,7 +6,7 @@ import Child from '#models/child'
 import MealOrder from '#models/meal_order'
 import { freezeClock, restoreClock } from '#tests/helpers/clock'
 import { builder, menuOf } from '#tests/helpers/menus'
-import { family, itemFor, orderSchool, TUE } from '#tests/helpers/orders'
+import { family, itemFor, orderSchool, orders, TUE } from '#tests/helpers/orders'
 
 const SLUG = 'bfk-kiosk-test'
 
@@ -91,16 +91,39 @@ test.group('Board kiosk (D51)', (group) => {
       ]
     )
 
-    // A second visit shows the current choice; a dish not on offer is refused.
+    // A second visit: the day is locked (ordered here), nothing can change — even with the old token.
     const again = (
       await client.post(`/board/${SLUG}/kiosk/session`).json({ pin: child.pin })
     ).body()
-    assert.equal(again.current.subscriptionMealId, ctx.main.id)
-    assert.deepEqual(again.current.specialMealIds, [ctx.juice.id])
-    const bad = await client
+    assert.equal(again.locked.by, 'kiosk')
+    assert.equal(again.token, '')
+    assert.sameMembers(
+      again.locked.lines.map((line: { name: string }) => line.name),
+      [ctx.main.nameEn, ctx.juice.nameEn]
+    )
+    const change = await client
       .post(`/board/${SLUG}/kiosk/order`)
-      .json({ token: again.token, subscriptionMealId: 999999, specialMealIds: [] })
-    bad.assertStatus(422)
+      .json({ token: session.token, subscriptionMealId: ctx.alt.id, specialMealIds: [] })
+    change.assertStatus(422)
+    assert.include(change.body().error.toLowerCase(), 'already')
+
+    // A day the parent ordered in the app is locked too, with its own message.
+    const other = await family(ctx.school)
+    await (
+      await orders()
+    ).saveDay(
+      other.child.id,
+      TUE,
+      { subscriptionMealId: ctx.alt.id, supplements: [] },
+      { user: other.parent }
+    )
+    const byApp = (
+      await client
+        .post(`/board/${SLUG}/kiosk/session`)
+        .json({ pin: (await Child.findOrFail(other.child.id)).pin })
+    ).body()
+    assert.equal(byApp.locked.by, 'app')
+    assert.deepEqual(byApp.locked.lines, [{ name: ctx.alt.nameEn, quantity: 1 }])
   })
 
   test('unknown code, tampered token, closed days and too many tries are refused', async ({

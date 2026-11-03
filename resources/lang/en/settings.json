@@ -134,7 +134,9 @@
     "save": "Save the address",
     "disable": "Turn off",
     "disable_title": "Turn the screen off?",
-    "disable_body": "The page stops working at once."
+    "disable_body": "The page stops working at once.",
+    "printer_button": "Show the “Connect the printer” button on the screen",
+    "printer_button_hint": "Keep it shown while you pair the screen’s USB printer (once), then untick so children no longer see it: the printer stays paired."
   },
   "printer_agent": {
     "title": "Install the agent on the kitchen PC (once)",

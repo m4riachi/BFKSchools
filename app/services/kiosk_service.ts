@@ -26,10 +26,19 @@ export type KioskOption = {
   photoUrl: string | null
 }
 
+/** An order already placed for the day: the kiosk only shows it (D51). */
+export type KioskLock = {
+  /** `app`: placed by the parent (or staff) in the app; `kiosk`: by the child here. */
+  by: 'app' | 'kiosk'
+  lines: { name: string; quantity: number }[]
+}
+
 export type KioskSession = {
+  /** Empty when the day is locked: nothing can be ordered. */
   token: string
   childName: string
   date: IsoDate
+  locked: KioskLock | null
   dishes: KioskOption[]
   /** The day's specials (supplements tagged D47), one portion each. */
   specials: KioskOption[]
@@ -74,8 +83,24 @@ export default class KioskService {
       throw new BusinessRuleException('board.kiosk.unknown_pin')
     }
     const { date, day } = await this.openDay(school, child, locale)
-    const token = encryption.encrypt({ childId: child.id, date }, SESSION_TTL, TOKEN_PURPOSE)
-    return { token, childName: child.firstName, date, ...this.present(day, slug) }
+    const locked = this.lockOf(day)
+    const token = locked
+      ? ''
+      : encryption.encrypt({ childId: child.id, date }, SESSION_TTL, TOKEN_PURPOSE)
+    return { token, childName: child.firstName, date, locked, ...this.present(day, slug) }
+  }
+
+  /**
+   * The kiosk never changes an order that exists: the parent's choice (or
+   * the staff's) stands, and a child who already ordered here asks the
+   * kitchen for any change.
+   */
+  protected lockOf(day: DayView): KioskLock | null {
+    if (day.order?.status !== 'active') return null
+    return {
+      by: day.order.origin === 'kiosk' ? 'kiosk' : 'app',
+      lines: day.order.lines.map((line) => ({ name: line.name, quantity: line.quantity })),
+    }
   }
 
   async order(school: School, token: string, selection: KioskSelection, locale: string) {
@@ -89,6 +114,7 @@ export default class KioskService {
       .firstOrFail()
     const { date, day } = await this.openDay(school, child, locale)
     if (date !== payload.date) throw new BusinessRuleException('board.kiosk.expired')
+    if (this.lockOf(day)) throw new BusinessRuleException('board.kiosk.already_ordered')
     const offer = this.present(day, slugOf(day))
     const dish = offer.dishes.find((option) => option.mealId === selection.subscriptionMealId)
     if (selection.subscriptionMealId !== null && !dish) {

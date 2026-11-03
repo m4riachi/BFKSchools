@@ -134,7 +134,9 @@
     "save": "Enregistrer l’adresse",
     "disable": "Désactiver",
     "disable_title": "Désactiver l’écran ?",
-    "disable_body": "La page cessera de fonctionner immédiatement."
+    "disable_body": "La page cessera de fonctionner immédiatement.",
+    "printer_button": "Afficher le bouton « Connecter l’imprimante » sur l’écran",
+    "printer_button_hint": "Laissez-le affiché le temps de connecter l’imprimante USB de l’écran (une seule fois), puis décochez pour que les enfants ne le voient plus : l’imprimante reste connectée."
   },
   "printer_agent": {
     "title": "Installer l’agent sur le PC de la cuisine (une seule fois)",

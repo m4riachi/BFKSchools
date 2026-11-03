@@ -34,6 +34,7 @@ test.group('SchoolSettingsService', (group) => {
       'delivery_order_url',
       'glovo_url',
       'board_slug',
+      'board_printer_button',
       'printer_mode',
       'printer_host',
       'printer_port',

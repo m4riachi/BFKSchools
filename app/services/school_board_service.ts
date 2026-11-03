@@ -109,6 +109,20 @@ export default class SchoolBoardService {
     await this.store(school, null)
   }
 
+  /** D51: shows or hides the board's 🖨 "connect the printer" button. */
+  async setPrinterButton(school: School, enabled: boolean): Promise<void> {
+    await db.transaction(async (trx) => {
+      const locked = await School.query({ client: trx })
+        .where('id', school.id)
+        .forUpdate()
+        .firstOrFail()
+      const next = { ...this.settings.get(locked), board_printer_button: enabled }
+      locked.settings = next as StoredSchoolSettings
+      await locked.save()
+      school.settings = locked.settings
+    })
+  }
+
   protected async store(school: School, slug: string | null): Promise<void> {
     await db.transaction(async (trx) => {
       const locked = await School.query({ client: trx })

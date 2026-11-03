@@ -764,6 +764,12 @@ const routes = {
     tokens: [[0,"admin"],[0,"settings"],[0,"board"]],
     types: placeholder as Registry['admin.settings.board.disable']['types'],
   },
+  'admin.settings.board.printer_button': {
+    methods: ["PUT"],
+    pattern: '/admin/settings/board/printer-button',
+    tokens: [[0,"admin"],[0,"settings"],[0,"board"],[0,"printer-button"]],
+    types: placeholder as Registry['admin.settings.board.printer_button']['types'],
+  },
   'admin.imports.create': {
     methods: ["GET","HEAD"],
     pattern: '/admin/imports/families',

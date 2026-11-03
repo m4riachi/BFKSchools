@@ -1646,6 +1646,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['disableBoard']>>>
     }
   }
+  'admin.settings.board.printer_button': {
+    methods: ["PUT"]
+    pattern: '/admin/settings/board/printer-button'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['setBoardPrinterButton']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['setBoardPrinterButton']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['setBoardPrinterButton']>>>
+    }
+  }
   'admin.imports.create': {
     methods: ["GET","HEAD"]
     pattern: '/admin/imports/families'

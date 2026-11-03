@@ -8,6 +8,9 @@ import SchoolBoardService, {
   boardSlugValidator,
   suggestBoardSlug,
 } from '#services/school_board_service'
+import vine from '@vinejs/vine'
+
+const boardPrinterButtonValidator = vine.create({ enabled: vine.boolean() })
 import SchoolSettingsService from '#services/school_settings_service'
 import { centsToInput, type Locale } from '#support/money'
 import { schoolSettingsFormValidator } from '#validators/school_settings'
@@ -65,6 +68,7 @@ export default class SettingsController {
       // D46: school display board (null = turned off) and a suggested address.
       board: {
         slug: values.board_slug,
+        printerButton: values.board_printer_button,
         url: values.board_slug
           ? new URL(`/board/${values.board_slug}`, env.get('APP_URL')).toString()
           : null,
@@ -182,6 +186,15 @@ export default class SettingsController {
     await this.board.enable(school, slug)
     logger.info({ schoolId: school.id, userId: ctx.auth.user!.id, slug }, 'Board enabled')
     ctx.session.flash('success', ctx.i18n.t('settings.flash.board_enabled'))
+    return ctx.response.redirect('/admin/settings')
+  }
+
+  /** D51: the 🖨 button on the board, shown until the printer is paired. */
+  async setBoardPrinterButton(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    const { enabled } = await ctx.request.validateUsing(boardPrinterButtonValidator)
+    await this.board.setPrinterButton(school, enabled)
+    ctx.session.flash('success', ctx.i18n.t('settings.flash.saved'))
     return ctx.response.redirect('/admin/settings')
   }
 

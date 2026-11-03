@@ -33,6 +33,8 @@ type BoardDay = {
 const props = defineProps<{
   slug: string
   schoolName: string
+  /** Shown until the admin hides it in the settings (once the printer is paired). */
+  printerButton: boolean
   board: {
     weekStart: string
     today: string
@@ -381,7 +383,7 @@ function initial(name: string) {
     <Kiosk v-if="kioskOpen" :slug="slug" @close="kioskOpen = false" />
 
     <button
-      v-if="printer.supported"
+      v-if="printer.supported && printerButton"
       type="button"
       class="absolute bottom-[1vmin] left-[1vmin] rounded-lg border px-[1.2vmin] py-[0.5vmin] text-[1.3vmin] font-bold"
       :class="

@@ -139,6 +139,33 @@ test.group('School display board (D46)', (group) => {
     assert.deepEqual(board.days[1].dishes, [])
   })
 
+  test('D51: the admin hides the board printer button once the printer is paired', async ({
+    client,
+    assert,
+  }) => {
+    const { admin, manager } = await setupMenuSchool()
+    const slug = await enableBoard(client, admin)
+    const shown = (await client.get(`/board/${slug}`).withInertia()).body().props
+    assert.isTrue(shown.printerButton)
+    const off = await client
+      .put('/admin/settings/board/printer-button')
+      .loginAs(admin)
+      .withCsrfToken()
+      .json({ enabled: false })
+      .redirects(0)
+    off.assertStatus(302)
+    const hidden = (await client.get(`/board/${slug}`).withInertia()).body().props
+    assert.isFalse(hidden.printerButton)
+    const refused = await client
+      .put('/admin/settings/board/printer-button')
+      .loginAs(manager)
+      .withCsrfToken()
+      .json({ enabled: true })
+      .redirects(0)
+    assert.include([302, 403], refused.status())
+    assert.isFalse((await client.get(`/board/${slug}`).withInertia()).body().props.printerButton)
+  })
+
   test('the board installs as its own app: a manifest that starts on the board', async ({
     client,
     assert,
