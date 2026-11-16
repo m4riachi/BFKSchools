@@ -792,7 +792,7 @@ test.group('Families | parent self-registration (D59)', (group) => {
       .withCsrfToken()
       .redirects(0)
     response.assertStatus(302)
-    const url = new URL(response.flashMessage('whatsappConfirmation') as string)
+    const url = new URL(String(response.flashMessage('whatsappConfirmation')))
     assert.equal(url.host, 'wa.me')
     assert.equal(url.pathname, '/212612345678')
     const text = url.searchParams.get('text')!
