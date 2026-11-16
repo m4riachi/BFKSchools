@@ -52,6 +52,8 @@ export type RegistrationRow = {
   registeredAt: string | null
   /** H1: Activer stays disabled until the parent confirmed the email. */
   emailConfirmed: boolean
+  emailConfirmedByStaff: boolean
+  hasWhatsapp: boolean
   /** M3: unconfirmed and no usable link left. */
   confirmationExpired: boolean
   children: {

@@ -25,7 +25,7 @@ export default class ParentsController {
     protected registrations: ParentRegistrationService
   ) {}
 
-  async index({ request, inertia, bouncer, auth }: HttpContext) {
+  async index({ request, inertia, bouncer, auth, session }: HttpContext) {
     await bouncer.with('ParentPolicy').authorize('viewAny')
     const schoolId = staffSchoolId(auth.getUserOrFail())!
 
@@ -51,6 +51,7 @@ export default class ParentsController {
         },
         filters: { q: '', status: 'pending' },
         statuses: [...PARENT_FILTERS],
+        whatsappConfirmation: session.flashMessages.get('whatsappConfirmation') ?? null,
       })
     }
 
@@ -76,6 +77,7 @@ export default class ParentsController {
       pendingCount: await this.registrations.pendingCount(schoolId),
       filters: { q: filters.q ?? '', status: filters.status ?? 'all' },
       statuses: [...PARENT_FILTERS],
+      whatsappConfirmation: null,
     })
   }
 
@@ -129,11 +131,14 @@ export default class ParentsController {
       hasWhatsapp: whatsappNumber(parent.phone) !== null,
       /** D43: only right after "Inviter par WhatsApp"; it holds the invitation link. */
       whatsappInvite: session.flashMessages.get('whatsappInvite') ?? null,
+      /** D59: only right after "Renvoyer par WhatsApp"; it holds the confirmation link. */
+      whatsappConfirmation: session.flashMessages.get('whatsappConfirmation') ?? null,
       /** D59: the sign-up (null for accounts created by staff or the import). */
       registration: parent.registrationStatus
         ? {
             status: parent.registrationStatus,
             emailConfirmed: parent.emailConfirmedAt !== null,
+            emailConfirmedByStaff: parent.emailConfirmedBy !== null,
             registeredAt: parent.registeredAt?.toISO() ?? null,
             reviewedAt: parent.registrationReviewedAt?.toISO() ?? null,
           }
@@ -214,6 +219,28 @@ export default class ParentsController {
       'success',
       i18n.t('families.flash.registration_confirmation_sent', { email: parent.email })
     )
+    return response.redirect().back()
+  }
+
+  /** D59: a new confirmation link, ready to send on WhatsApp (the previous link stops working). */
+  async confirmationWhatsapp({ params, response, bouncer, session, auth }: HttpContext) {
+    const staff = auth.getUserOrFail()
+    const parent = await this.findParent(params.id, staff)
+    await bouncer.with('ParentPolicy').authorize('manage', parent)
+    session.flash(
+      'whatsappConfirmation',
+      await this.registrations.whatsappConfirmation(parent, staff)
+    )
+    return response.redirect().back()
+  }
+
+  /** D59: staff confirm the sign-up's email themselves (parent checked another way). */
+  async confirmEmail({ params, response, bouncer, session, i18n, auth }: HttpContext) {
+    const staff = auth.getUserOrFail()
+    const parent = await this.findParent(params.id, staff)
+    await bouncer.with('ParentPolicy').authorize('manage', parent)
+    await this.registrations.confirmEmailByStaff(parent, staff)
+    session.flash('success', i18n.t('families.flash.registration_email_confirmed'))
     return response.redirect().back()
   }
 

@@ -54,6 +54,8 @@ export type ScannedRoutes = {
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.registration.approve': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.registration.confirmation': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.confirmation_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.confirm_email': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.registration.refuse': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -328,6 +330,8 @@ export type ScannedRoutes = {
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.registration.approve': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.registration.confirmation': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.confirmation_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.confirm_email': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.registration.refuse': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

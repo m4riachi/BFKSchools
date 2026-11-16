@@ -630,7 +630,7 @@ export class UserTokenSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'credentialsVersion', 'email', 'emailConfirmedAt', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'registeredAt', 'registrationReviewedAt', 'registrationReviewedBy', 'registrationStatus', 'role', 'schoolId', 'staffRoleId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'credentialsVersion', 'email', 'emailConfirmedAt', 'emailConfirmedBy', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'registeredAt', 'registrationReviewedAt', 'registrationReviewedBy', 'registrationStatus', 'role', 'schoolId', 'staffRoleId', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -640,6 +640,8 @@ export class UserSchema extends BaseModel {
   declare email: string
   @column.dateTime()
   declare emailConfirmedAt: DateTime | null
+  @column()
+  declare emailConfirmedBy: number | null
   @column()
   declare fullName: string
   @column({ isPrimary: true })

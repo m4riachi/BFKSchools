@@ -10,6 +10,8 @@ import EmptyState from '~/components/ui/empty_state.vue'
 import ConfirmDialog from '~/components/ui/confirm_dialog.vue'
 import ModalDialog from '~/components/ui/modal_dialog.vue'
 import AccessBadge from '~/components/families/access_badge.vue'
+import RegistrationEmailActions from '~/components/families/registration_email_actions.vue'
+import ConfirmationWhatsappDialog from '~/components/families/confirmation_whatsapp_dialog.vue'
 import type { ChildRow, ParentRow, SubscriptionRow } from '~/components/families/types'
 import { useI18n } from '~/composables/use_i18n'
 import { useFeatures, usePlacement } from '~/composables/use_features'
@@ -20,10 +22,13 @@ const props = defineProps<{
   today: string
   hasWhatsapp: boolean
   whatsappInvite: string | null
+  /** D59: only right after "Renvoyer par WhatsApp" (confirmation link). */
+  whatsappConfirmation: string | null
   /** D59: QR sign-up (null for accounts created by staff or the import). */
   registration: {
     status: 'pending' | 'approved' | 'refused'
     emailConfirmed: boolean
+    emailConfirmedByStaff: boolean
     registeredAt: string | null
     reviewedAt: string | null
   } | null
@@ -195,15 +200,16 @@ const languageLabel = computed(() =>
                     : t('families.registration.email_unconfirmed')
                 }}
               </StatusBadge>
-              <AppButton
+              <span v-if="registration.emailConfirmedByStaff" class="text-xs text-ink-4">
+                {{ t('families.registration.email_confirmed_by_staff') }}
+              </span>
+              <RegistrationEmailActions
                 v-if="!registration.emailConfirmed && registration.status !== 'approved'"
-                size="sm"
-                variant="secondary"
-                :disabled="processing"
-                @click="post(`/admin/parents/${parent.id}/registration/confirmation`)"
-              >
-                {{ t('families.registration.resend_confirmation') }}
-              </AppButton>
+                :parent-id="parent.id"
+                :full-name="parent.fullName"
+                :email="parent.email"
+                :has-whatsapp="hasWhatsapp"
+              />
             </dd>
           </template>
           <template v-if="registration?.registeredAt">
@@ -430,5 +436,6 @@ const languageLabel = computed(() =>
         </a>
       </template>
     </ModalDialog>
+    <ConfirmationWhatsappDialog :url="whatsappConfirmation" />
   </AdminLayout>
 </template>

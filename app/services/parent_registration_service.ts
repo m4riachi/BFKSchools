@@ -23,6 +23,7 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import SchoolSettingsService from '#services/school_settings_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import { whatsappNumber } from '#support/whatsapp'
+import { APP_TIMEZONE } from '#support/time'
 import type { AllergenCode } from '#enums/allergens'
 import type { AppLocale } from '#enums/locales'
 import { REGISTRATION_MAX_CHILDREN } from '#enums/parents'
@@ -293,6 +294,61 @@ export default class ParentRegistrationService {
     if (!(await this.sendConfirmation(parent, issued.token, issued.record.expiresAt))) {
       throw new BusinessRuleException('families.errors.invitation_email_failed')
     }
+  }
+
+  /**
+   * Staff "Renvoyer par WhatsApp": a new confirmation link (the previous one
+   * stops working) in a wa.me message to the phone the parent typed, in the
+   * parent's language. Nothing is sent from here: staff press send (D43).
+   */
+  async whatsappConfirmation(parent: User, actor: User): Promise<string> {
+    const number = whatsappNumber(parent.phone)
+    if (!number) throw new BusinessRuleException('families.errors.no_whatsapp_number')
+    const { token, record, locked } = await db.transaction(async (trx) => {
+      const current = await User.query({ client: trx }).where('id', parent.id).forUpdate().first()
+      if (!current || !isUnconfirmedSignUp(current)) {
+        throw new BusinessRuleException('families.registration.errors.not_unconfirmed')
+      }
+      const issued = await this.tokens.issue(current, 'email_confirmation', {
+        trx,
+        createdBy: actor.id,
+      })
+      return { ...issued, locked: current }
+    })
+    const message = i18nManager
+      .locale(locked.locale)
+      .t('families.registration.whatsapp_confirmation', {
+        name: locked.fullName,
+        url: linkUrl('email_confirmation', token),
+        date: record.expiresAt
+          .setZone(APP_TIMEZONE)
+          .setLocale(locked.locale)
+          .toLocaleString({ dateStyle: 'long', timeStyle: 'short' }),
+      })
+    logger.info(
+      { parentId: parent.id, actorId: actor.id },
+      'sign-up confirmation link sent by WhatsApp'
+    )
+    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`
+  }
+
+  /**
+   * Staff confirm the email themselves, after checking the parent another
+   * way (phone, WhatsApp, in person). Records who did; open links stop working.
+   */
+  async confirmEmailByStaff(parent: User, actor: User) {
+    await db.transaction(async (trx) => {
+      const locked = await User.query({ client: trx }).where('id', parent.id).forUpdate().first()
+      if (!locked || !isUnconfirmedSignUp(locked)) {
+        throw new BusinessRuleException('families.registration.errors.not_unconfirmed')
+      }
+      locked.merge({ emailConfirmedAt: this.clock.now(), emailConfirmedBy: actor.id })
+      await locked.save()
+      await this.tokens.revokeOpen(parent.id, trx, 'email_confirmation')
+    })
+    await parent.refresh()
+    logger.info({ parentId: parent.id, actorId: actor.id }, 'sign-up email confirmed by staff')
+    return parent
   }
 
   /**

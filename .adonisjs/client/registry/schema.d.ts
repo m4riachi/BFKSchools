@@ -658,6 +658,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['resendConfirmation']>>>
     }
   }
+  'admin.parents.registration.confirmation_whatsapp': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/registration/confirmation/whatsapp'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['confirmationWhatsapp']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['confirmationWhatsapp']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['confirmationWhatsapp']>>>
+    }
+  }
+  'admin.parents.registration.confirm_email': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/registration/email-confirmed'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['confirmEmail']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['confirmEmail']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['confirmEmail']>>>
+    }
+  }
   'admin.parents.registration.refuse': {
     methods: ["POST"]
     pattern: '/admin/parents/:id/registration/refuse'

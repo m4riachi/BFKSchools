@@ -269,6 +269,17 @@ router
       .where('id', id)
       .as('parents.registration.confirmation')
     router
+      .post('parents/:id/registration/confirmation/whatsapp', [
+        controllers.admin.Parents,
+        'confirmationWhatsapp',
+      ])
+      .where('id', id)
+      .as('parents.registration.confirmation_whatsapp')
+    router
+      .post('parents/:id/registration/email-confirmed', [controllers.admin.Parents, 'confirmEmail'])
+      .where('id', id)
+      .as('parents.registration.confirm_email')
+    router
       .post('parents/:id/registration/refuse', [controllers.admin.Parents, 'refuse'])
       .where('id', id)
       .as('parents.registration.refuse')

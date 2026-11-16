@@ -9,6 +9,7 @@ import DataTable from '~/components/ui/data_table.vue'
 import UserAvatar from '~/components/ui/user_avatar.vue'
 import AccessBadge from '~/components/families/access_badge.vue'
 import PendingRegistrations from '~/components/families/pending_registrations.vue'
+import ConfirmationWhatsappDialog from '~/components/families/confirmation_whatsapp_dialog.vue'
 import type { ParentRow, RegistrationRow } from '~/components/families/types'
 import type { PaginationMeta } from '~/components/ui/pagination_nav.vue'
 import { useI18n } from '~/composables/use_i18n'
@@ -21,6 +22,8 @@ const props = defineProps<{
   meta: PaginationMeta
   filters: { q: string; status: string }
   statuses: string[]
+  /** D59: only right after "Renvoyer par WhatsApp". */
+  whatsappConfirmation: string | null
 }>()
 
 const { t, formatDateTime } = useI18n()
@@ -202,5 +205,6 @@ const initials = (name: string) => {
         </template>
       </DataTable>
     </section>
+    <ConfirmationWhatsappDialog :url="whatsappConfirmation" />
   </AdminLayout>
 </template>

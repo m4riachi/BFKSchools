@@ -1,3 +1,4 @@
+import { whatsappNumber } from '#support/whatsapp'
 import type { DateTime } from 'luxon'
 import type User from '#models/user'
 import type Child from '#models/child'
@@ -76,6 +77,10 @@ export function presentRegistration(parent: User) {
     registeredAt: iso(parent.registeredAt),
     /** H1: Activer stays disabled until the parent clicked the email link. */
     emailConfirmed: parent.emailConfirmedAt !== null,
+    /** The email was confirmed by staff rather than through the link. */
+    emailConfirmedByStaff: parent.emailConfirmedBy !== null,
+    /** Staff can send a new confirmation link on WhatsApp. */
+    hasWhatsapp: whatsappNumber(parent.phone) !== null,
     /** M3: unconfirmed and its link expired or was used up ("lien expiré"; staff can resend). */
     confirmationExpired:
       parent.emailConfirmedAt === null && parent.$extras.confirmation_link_open !== true,

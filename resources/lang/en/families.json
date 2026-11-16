@@ -286,7 +286,8 @@
     "subscription_deleted": "Subscription period deleted.",
     "registration_approved": "Account activated. Now send the codes on WhatsApp.",
     "registration_refused": "Sign-up refused: the account stays deactivated.",
-    "registration_confirmation_sent": "New confirmation link sent to {email}."
+    "registration_confirmation_sent": "New confirmation link sent to {email}.",
+    "registration_email_confirmed": "Email confirmed by staff: you can now activate the account."
   },
   "registration": {
     "page_title": "Create an account",
@@ -339,7 +340,7 @@
     "email_label": "Email",
     "email_confirmed": "Email confirmed",
     "email_unconfirmed": "Email not confirmed",
-    "resend_confirmation": "Resend the link",
+    "resend_confirmation": "Resend by email",
     "confirm": {
       "page_title": "Confirm the email",
       "title": "Confirm your email address",
@@ -358,6 +359,28 @@
       "declined_body": "Thank you. This request will not be activated and your address will not be used."
     },
     "link_expired": "Link expired",
-    "review_hint": "Before activating: check the children are enrolled at the school under these names and the email is confirmed."
+    "review_hint": "Before activating: check the children are enrolled at the school under these names and the email is confirmed.",
+    "resend_confirmation_whatsapp": "Resend on WhatsApp",
+    "confirm_email": "Confirm the email",
+    "confirm_email_title": "Confirm this parent's email?",
+    "confirm_email_body": "Only do this if you checked that {email} really belongs to {name} (by phone, on WhatsApp or in person). Your name is recorded.",
+    "email_confirmed_by_staff": "Confirmed by staff",
+    "whatsapp_confirmation_ready_title": "Confirmation link ready",
+    "whatsapp_confirmation_ready_body": "WhatsApp opens with the message and the confirmation link. Press Send to pass it to the parent. The previous link no longer works.",
+    "whatsapp_confirmation": "Hello {name}, thank you for signing up to BFK School Meals. Confirm your request by opening this link (valid until {date}):\n{url}\n\nIf you did not sign up, open the link and choose “This wasn’t me”.",
+    "steps_label": "Sign-up steps",
+    "step_parent": "Parent",
+    "step_children": "Children",
+    "step_review": "Review",
+    "next": "Next",
+    "back": "Back",
+    "edit": "Edit",
+    "review_title": "Check, then send",
+    "client": {
+      "required": "This field is required.",
+      "email": "Enter a valid email address.",
+      "password": "The password does not follow the rules below."
+    },
+    "review_step_hint": "Check your details before sending the request. You can still change them."
   }
 }

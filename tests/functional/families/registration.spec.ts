@@ -777,6 +777,121 @@ test.group('Families | parent self-registration (D59)', (group) => {
     assert.isTrue(children.every((c) => c.isActive && /^\d{4}$/.test(c.pin ?? '')))
   })
 
+  test('staff send a new confirmation link on WhatsApp (the old one stops)', async ({
+    client,
+    assert,
+  }) => {
+    const { admin, manager } = await setup()
+    const token = await enableRegistration(client, admin)
+    const parent = await pendingParent(client, token, {}, { confirm: false })
+    const emailed = confirmationPath(parent.email)
+
+    const response = await client
+      .post(`/admin/parents/${parent.id}/registration/confirmation/whatsapp`)
+      .loginAs(manager)
+      .withCsrfToken()
+      .redirects(0)
+    response.assertStatus(302)
+    const url = new URL(response.flashMessage('whatsappConfirmation') as string)
+    assert.equal(url.host, 'wa.me')
+    assert.equal(url.pathname, '/212612345678')
+    const text = url.searchParams.get('text')!
+    assert.include(text, 'Nadia Bennani')
+    const link = text.match(/https?:\/\/\S+/)![0]
+    assert.lengthOf(confirmationMails(parent.email), 1) // nothing emailed
+
+    // The emailed link stopped working; the WhatsApp one confirms.
+    await confirmEmail(client, emailed)
+    await parent.refresh()
+    assert.isNull(parent.emailConfirmedAt)
+    ;(await confirmEmail(client, new URL(link).pathname)).assertStatus(302)
+    await parent.refresh()
+    assert.isNotNull(parent.emailConfirmedAt)
+    assert.isNull(parent.emailConfirmedBy)
+
+    // Confirmed: nothing more to send.
+    const again = await client
+      .post(`/admin/parents/${parent.id}/registration/confirmation/whatsapp`)
+      .loginAs(manager)
+      .withCsrfToken()
+      .redirects(0)
+    assert.isNull(again.flashMessage('whatsappConfirmation') ?? null)
+  })
+
+  test('staff confirm the email themselves: recorded, open links stop, Activer works', async ({
+    client,
+    assert,
+  }) => {
+    const { admin, manager } = await setup()
+    const token = await enableRegistration(client, admin)
+    const parent = await pendingParent(client, token, {}, { confirm: false })
+    const emailed = confirmationPath(parent.email)
+
+    // Activer is refused before.
+    await client
+      .post(`/admin/parents/${parent.id}/registration/approve`)
+      .loginAs(manager)
+      .withCsrfToken()
+      .redirects(0)
+    await parent.refresh()
+    assert.equal(parent.registrationStatus, 'pending')
+
+    const response = await client
+      .post(`/admin/parents/${parent.id}/registration/email-confirmed`)
+      .loginAs(manager)
+      .withCsrfToken()
+      .redirects(0)
+    response.assertStatus(302)
+    await parent.refresh()
+    assert.isNotNull(parent.emailConfirmedAt)
+    assert.equal(parent.emailConfirmedBy, manager.id)
+    assert.equal(parent.registrationStatus, 'pending') // confirming does not activate
+
+    // The emailed link can no longer be used ("This wasn't me" included).
+    assert.equal((await client.get(emailed).withInertia()).body().props.state, 'invalid')
+
+    // A second confirmation is refused; nothing changes.
+    await client
+      .post(`/admin/parents/${parent.id}/registration/email-confirmed`)
+      .loginAs(admin)
+      .withCsrfToken()
+      .redirects(0)
+    await parent.refresh()
+    assert.equal(parent.emailConfirmedBy, manager.id)
+
+    const page = await client.get(`/admin/parents/${parent.id}`).loginAs(manager).withInertia()
+    assert.isTrue(page.body().props.registration.emailConfirmedByStaff)
+
+    await client
+      .post(`/admin/parents/${parent.id}/registration/approve`)
+      .loginAs(manager)
+      .withCsrfToken()
+      .redirects(0)
+    await parent.refresh()
+    assert.equal(parent.registrationStatus, 'approved')
+    assert.isTrue(parent.isActive)
+  })
+
+  test('another school cannot confirm or resend: 404, nothing changes', async ({
+    client,
+    assert,
+  }) => {
+    const { admin } = await setup()
+    const other = await setup()
+    const token = await enableRegistration(client, admin)
+    const parent = await pendingParent(client, token, {}, { confirm: false })
+    for (const path of ['email-confirmed', 'confirmation/whatsapp']) {
+      const response = await client
+        .post(`/admin/parents/${parent.id}/registration/${path}`)
+        .loginAs(other.admin)
+        .withCsrfToken()
+        .redirects(0)
+      response.assertStatus(404)
+    }
+    await parent.refresh()
+    assert.isNull(parent.emailConfirmedAt)
+  })
+
   test('settings: admin only; the poster is a PDF', async ({ client, assert }) => {
     const { admin, manager } = await setup()
 

@@ -103,3 +103,4 @@ While a decision is **pending**, agents build with the default and keep the alte
 2026-11-03 — D57: an automatic emoji icon next to every ingredient, on all pages
 2026-11-16 — D59: parent self-registration by QR code (board + settings PDF), admin activates in /admin/parents, WhatsApp message with the Code borne; refused sign-ups stay deactivated
 2026-11-16 — D59 hardened after security review: email confirmation before activation, Code borne given at approval, per-school caps
+2026-11-16 — D59: staff can confirm a sign-up's email themselves after checking the parent (recorded in `users.email_confirmed_by`, open links revoked) and resend the confirmation link by email or on WhatsApp (wa.me, staff press Send; the previous link stops working)

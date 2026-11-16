@@ -308,6 +308,18 @@ const routes = {
     tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"registration"],[0,"confirmation"]],
     types: placeholder as Registry['admin.parents.registration.confirmation']['types'],
   },
+  'admin.parents.registration.confirmation_whatsapp': {
+    methods: ["POST"],
+    pattern: '/admin/parents/:id/registration/confirmation/whatsapp',
+    tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"registration"],[0,"confirmation"],[0,"whatsapp"]],
+    types: placeholder as Registry['admin.parents.registration.confirmation_whatsapp']['types'],
+  },
+  'admin.parents.registration.confirm_email': {
+    methods: ["POST"],
+    pattern: '/admin/parents/:id/registration/email-confirmed',
+    tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"registration"],[0,"email-confirmed"]],
+    types: placeholder as Registry['admin.parents.registration.confirm_email']['types'],
+  },
   'admin.parents.registration.refuse': {
     methods: ["POST"],
     pattern: '/admin/parents/:id/registration/refuse',

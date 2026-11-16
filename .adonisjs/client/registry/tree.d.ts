@@ -92,6 +92,8 @@ export interface ApiDefinition {
       registration: {
         approve: typeof routes['admin.parents.registration.approve']
         confirmation: typeof routes['admin.parents.registration.confirmation']
+        confirmationWhatsapp: typeof routes['admin.parents.registration.confirmation_whatsapp']
+        confirmEmail: typeof routes['admin.parents.registration.confirm_email']
         refuse: typeof routes['admin.parents.registration.refuse']
       }
       invite: typeof routes['admin.parents.invite']

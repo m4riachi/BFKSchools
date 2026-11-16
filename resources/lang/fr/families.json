@@ -286,7 +286,8 @@
     "subscription_deleted": "Période d'abonnement supprimée.",
     "registration_approved": "Compte activé. Envoyez maintenant les codes sur WhatsApp.",
     "registration_refused": "Inscription refusée : le compte reste désactivé.",
-    "registration_confirmation_sent": "Nouveau lien de confirmation envoyé à {email}."
+    "registration_confirmation_sent": "Nouveau lien de confirmation envoyé à {email}.",
+    "registration_email_confirmed": "E-mail confirmé par l’équipe : vous pouvez activer le compte."
   },
   "registration": {
     "page_title": "Créer un compte",
@@ -339,7 +340,7 @@
     "email_label": "E-mail",
     "email_confirmed": "E-mail confirmé",
     "email_unconfirmed": "E-mail non confirmé",
-    "resend_confirmation": "Renvoyer le lien",
+    "resend_confirmation": "Renvoyer par e-mail",
     "confirm": {
       "page_title": "Confirmer l’e-mail",
       "title": "Confirmez votre adresse e-mail",
@@ -358,6 +359,28 @@
       "declined_body": "Merci. Cette demande ne sera pas activée et votre adresse ne sera pas utilisée."
     },
     "link_expired": "Lien expiré",
-    "review_hint": "Avant d’activer : vérifiez que les enfants sont bien inscrits à l’école sous ces noms et que l’e-mail est confirmé."
+    "review_hint": "Avant d’activer : vérifiez que les enfants sont bien inscrits à l’école sous ces noms et que l’e-mail est confirmé.",
+    "resend_confirmation_whatsapp": "Renvoyer par WhatsApp",
+    "confirm_email": "Confirmer l’e-mail",
+    "confirm_email_title": "Confirmer l’e-mail de ce parent ?",
+    "confirm_email_body": "Faites-le seulement si vous avez vérifié que {email} appartient bien à {name} (au téléphone, sur WhatsApp ou en personne). Votre nom est enregistré.",
+    "email_confirmed_by_staff": "Confirmé par l’équipe",
+    "whatsapp_confirmation_ready_title": "Lien de confirmation prêt",
+    "whatsapp_confirmation_ready_body": "WhatsApp s’ouvre avec le message et le lien de confirmation. Appuyez sur Envoyer pour le transmettre au parent. L’ancien lien ne fonctionne plus.",
+    "whatsapp_confirmation": "Bonjour {name}, merci pour votre inscription à BFK School Meals. Confirmez votre demande en ouvrant ce lien (valable jusqu’au {date}) :\n{url}\n\nSi vous n’êtes pas à l’origine de cette inscription, ouvrez le lien et choisissez « Ce n’est pas moi ».",
+    "steps_label": "Étapes de l’inscription",
+    "step_parent": "Parent",
+    "step_children": "Enfants",
+    "step_review": "Vérifier",
+    "next": "Suivant",
+    "back": "Retour",
+    "edit": "Modifier",
+    "review_title": "Vérifiez puis envoyez",
+    "client": {
+      "required": "Ce champ est obligatoire.",
+      "email": "Saisissez une adresse e-mail valide.",
+      "password": "Le mot de passe ne respecte pas les règles ci-dessous."
+    },
+    "review_step_hint": "Vérifiez vos informations avant d’envoyer la demande. Vous pouvez encore les modifier."
   }
 }

@@ -12,6 +12,7 @@ import StatusBadge from '~/components/ui/status_badge.vue'
 import EmptyState from '~/components/ui/empty_state.vue'
 import ConfirmDialog from '~/components/ui/confirm_dialog.vue'
 import PaginationNav, { type PaginationMeta } from '~/components/ui/pagination_nav.vue'
+import RegistrationEmailActions from '~/components/families/registration_email_actions.vue'
 import type { RegistrationRow } from '~/components/families/types'
 import { useI18n } from '~/composables/use_i18n'
 import { useFeatures, usePlacement } from '~/composables/use_features'
@@ -92,6 +93,9 @@ function confirm() {
                   : t('families.registration.email_unconfirmed')
             }}
           </StatusBadge>
+          <span v-if="row.emailConfirmedByStaff" class="text-xs text-ink-4">
+            {{ t('families.registration.email_confirmed_by_staff') }}
+          </span>
           <AppButton
             size="sm"
             :disabled="!row.emailConfirmed"
@@ -107,6 +111,14 @@ function confirm() {
           </AppButton>
         </div>
       </div>
+
+      <RegistrationEmailActions
+        v-if="!row.emailConfirmed"
+        :parent-id="row.id"
+        :full-name="row.fullName"
+        :email="row.email"
+        :has-whatsapp="row.hasWhatsapp"
+      />
 
       <ul class="flex flex-col gap-2">
         <li
