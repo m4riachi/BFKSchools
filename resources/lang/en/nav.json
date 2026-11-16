@@ -23,5 +23,6 @@
   "parent_statements": "Statements",
   "parent_account": "Account",
   "meal_catalog": "Catalog",
-  "procurement": "Économat"
+  "procurement": "Économat",
+  "pending_registrations": "{count, plural, one {# sign-up to activate} other {# sign-ups to activate}}"
 }

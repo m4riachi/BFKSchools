@@ -12,6 +12,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Head, usePoll } from '@inertiajs/vue3'
 import InstallButton from '~/components/ui/install_button.vue'
 import Kiosk from '~/components/board/kiosk.vue'
+import RegistrationQr from '~/components/board/registration_qr.vue'
 import { useUsbPrinter } from '~/composables/use_usb_printer'
 import { useI18n } from '~/composables/use_i18n'
 
@@ -42,6 +43,8 @@ const props = defineProps<{
     published: boolean
     days: BoardDay[]
   }
+  /** D59: QR of the parent sign-up form, null while sign-ups are off. */
+  registration: { qr: string } | null
 }>()
 
 // Always English: BoardController overrides the shared locale.
@@ -49,6 +52,8 @@ const { t, formatDate, locale } = useI18n()
 
 /** D51: the ordering kiosk, opened from the big button. */
 const kioskOpen = ref(false)
+/** D59: the "Create an account" QR overlay. */
+const registrationOpen = ref(false)
 /** The USB receipt printer plugged into the board (paired once with the 🖨 button). */
 const printer = useUsbPrinter()
 const printerName = computed(() => printer.device.value?.productName || t('board.printer_paired'))
@@ -68,7 +73,7 @@ const SLIDE_SECONDS = 15
 /** Dishes shown on one day's slide (two per row). A longer menu is split over slides. */
 const PER_SLIDE = 4
 
-usePoll(60_000, { only: ['board'] })
+usePoll(60_000, { only: ['board', 'registration'] })
 
 type Slide = {
   key: string
@@ -373,14 +378,30 @@ function initial(name: string) {
     </Transition>
 
     <!-- D51: the children's ordering kiosk -->
-    <button
-      type="button"
-      class="board-order mx-auto flex shrink-0 items-center justify-center gap-[1.5vmin] rounded-full bg-pink-500 px-[5vmin] py-[1.6vmin] text-[2.8vmin] font-extrabold text-white shadow-overlay hover:bg-pink-600"
-      @click="kioskOpen = true"
-    >
-      <span aria-hidden="true">🍽</span>{{ t('board.kiosk.button') }}
-    </button>
+    <div class="mx-auto flex shrink-0 flex-wrap items-center justify-center gap-[2vmin]">
+      <button
+        type="button"
+        class="board-order flex items-center justify-center gap-[1.5vmin] rounded-full bg-pink-500 px-[5vmin] py-[1.6vmin] text-[2.8vmin] font-extrabold text-white shadow-overlay hover:bg-pink-600"
+        @click="kioskOpen = true"
+      >
+        <span aria-hidden="true">🍽</span>{{ t('board.kiosk.button') }}
+      </button>
+      <!-- D59: parents without an account scan the sign-up QR -->
+      <button
+        v-if="registration"
+        type="button"
+        class="flex items-center justify-center gap-[1.2vmin] rounded-full border-[0.3vmin] border-brand bg-white px-[3.5vmin] py-[1.4vmin] text-[2.2vmin] font-extrabold text-brand-strong shadow-overlay hover:bg-brand-soft"
+        @click="registrationOpen = true"
+      >
+        <span aria-hidden="true">👤</span>{{ t('board.registration.button') }}
+      </button>
+    </div>
     <Kiosk v-if="kioskOpen" :slug="slug" @close="kioskOpen = false" />
+    <RegistrationQr
+      v-if="registrationOpen && registration"
+      :qr="registration.qr"
+      @close="registrationOpen = false"
+    />
 
     <button
       v-if="printer.supported && printerButton"

@@ -1,5 +1,6 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 import DeferredTasks from '#services/deferred_tasks'
+import RegistrationTaskQueue from '#services/registration_task_queue'
 
 /**
  * Application-wide singletons (other than the Clock, see time_provider).
@@ -9,6 +10,7 @@ export default class AppServicesProvider {
 
   register() {
     this.app.container.singleton(DeferredTasks, () => new DeferredTasks())
+    this.app.container.singleton(RegistrationTaskQueue, () => new RegistrationTaskQueue())
   }
 
   /**
@@ -33,6 +35,7 @@ export default class AppServicesProvider {
   /** Let deferred work (e.g. password-reset emails) finish on a graceful shutdown (bounded). */
   async shutdown() {
     const tasks = await this.app.container.make(DeferredTasks)
-    await tasks.drain()
+    const signUps = await this.app.container.make(RegistrationTaskQueue)
+    await Promise.all([tasks.drain(), signUps.drain()])
   }
 }

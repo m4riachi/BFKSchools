@@ -7,7 +7,8 @@ import UserTokenService from '#services/user_token_service'
 import OrderCancellationService from '#services/order_cancellation_service'
 import { revokeRememberMeTokens } from '#services/account_security_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
-import type { AccessStatus, ParentFilter } from '#enums/parents'
+import type { AccessStatus, ParentFilter, RegistrationStatus } from '#enums/parents'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { AppLocale } from '#enums/locales'
 
 export const PARENTS_PER_PAGE = 20
@@ -42,9 +43,11 @@ export default class ParentService {
    * docs/ERD.md §user_tokens).
    */
   accessStatus(
-    parent: Pick<User, 'isActive' | 'password' | 'invitedAt'>,
+    parent: Pick<User, 'isActive' | 'password' | 'invitedAt' | 'registrationStatus'>,
     openInvitationExpiresAt: DateTime | null
   ): AccessStatus {
+    if (parent.registrationStatus === 'pending') return 'pending'
+    if (parent.registrationStatus === 'refused' && !parent.isActive) return 'refused'
     if (!parent.isActive) return 'inactive'
     if (parent.password) return 'active'
     if (openInvitationExpiresAt && openInvitationExpiresAt > this.clock.now()) return 'invited'
@@ -118,27 +121,56 @@ export default class ParentService {
       case 'never_logged_in':
         query.where('is_active', true).whereNull('last_login_at')
         break
+      case 'pending':
+        // D59: oldest sign-up first (the "À activer" list).
+        query.where('registration_status', 'pending').clearOrder().orderBy('registered_at', 'asc')
+        query.orderBy('id', 'asc')
+        break
       case 'inactive':
-        query.where('is_active', false)
+        query
+          .where('is_active', false)
+          .where((builder) =>
+            builder.whereNull('registration_status').orWhereNot('registration_status', 'pending')
+          )
         break
     }
 
     return query.paginate(options.page ?? 1, PARENTS_PER_PAGE)
   }
 
-  async create(schoolId: number, input: ParentInput): Promise<User> {
-    return User.create({
-      fullName: input.fullName,
-      email: input.email,
-      phone: input.phone ?? null,
-      locale: input.locale,
-      role: 'parent',
-      schoolId,
-      password: null,
-      isActive: true,
-      notificationPrefs: {},
-      credentialsVersion: 0,
-    })
+  /**
+   * A new parent account. Staff-created parents are active without a
+   * password (they get an invitation); D59 sign-ups pass `options` (their
+   * own password, inactive, `registration_status = pending`).
+   */
+  async create(
+    schoolId: number,
+    input: ParentInput,
+    options: {
+      client?: TransactionClientContract
+      password?: string
+      isActive?: boolean
+      registrationStatus?: RegistrationStatus
+      registeredAt?: DateTime
+    } = {}
+  ): Promise<User> {
+    return User.create(
+      {
+        fullName: input.fullName,
+        email: input.email,
+        phone: input.phone ?? null,
+        locale: input.locale,
+        role: 'parent',
+        schoolId,
+        password: options.password ?? null,
+        isActive: options.isActive ?? true,
+        registrationStatus: options.registrationStatus ?? null,
+        registeredAt: options.registeredAt ?? null,
+        notificationPrefs: {},
+        credentialsVersion: 0,
+      },
+      options.client ? { client: options.client } : undefined
+    )
   }
 
   /**
@@ -156,6 +188,8 @@ export default class ParentService {
         locale: input.locale,
       })
       const emailChanged = parent.$dirty.email !== undefined
+      // D59: a new address of a sign-up must be confirmed again (the old link is revoked below).
+      if (emailChanged && parent.registrationStatus) parent.emailConfirmedAt = null
       await parent.save()
       if (emailChanged) {
         await this.tokens.revokeOpen(parent.id, trx)

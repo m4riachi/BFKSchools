@@ -8,12 +8,16 @@ import AppButton from '~/components/ui/app_button.vue'
 import DataTable from '~/components/ui/data_table.vue'
 import UserAvatar from '~/components/ui/user_avatar.vue'
 import AccessBadge from '~/components/families/access_badge.vue'
-import type { ParentRow } from '~/components/families/types'
+import PendingRegistrations from '~/components/families/pending_registrations.vue'
+import type { ParentRow, RegistrationRow } from '~/components/families/types'
 import type { PaginationMeta } from '~/components/ui/pagination_nav.vue'
 import { useI18n } from '~/composables/use_i18n'
 
 const props = defineProps<{
   parents: ParentRow[]
+  /** D59: filled on the "À activer" tab only. */
+  registrations: RegistrationRow[]
+  pendingCount: number
   meta: PaginationMeta
   filters: { q: string; status: string }
   statuses: string[]
@@ -80,6 +84,7 @@ const initials = (name: string) => {
     <section class="card flex flex-col gap-4 p-4 sm:p-5">
       <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <label
+          v-if="filters.status !== 'pending'"
           class="flex h-11 w-full items-center gap-2 rounded-xl border border-line bg-surface px-3.5 text-ink-4 lg:max-w-sm"
         >
           <svg
@@ -119,12 +124,24 @@ const initials = (name: string) => {
               "
             >
               {{ t(`families.parents.filters.${status}`) }}
+              <span
+                v-if="status === 'pending' && pendingCount > 0"
+                class="ml-1.5 rounded-full bg-danger px-1.5 text-xs font-bold text-white"
+              >
+                {{ pendingCount }}
+              </span>
             </Link>
           </div>
         </nav>
       </div>
 
+      <PendingRegistrations
+        v-if="filters.status === 'pending'"
+        :registrations="registrations"
+        :meta="meta"
+      />
       <DataTable
+        v-else
         :columns="columns"
         :rows="parents"
         :meta="meta"

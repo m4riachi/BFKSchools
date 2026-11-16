@@ -5,7 +5,9 @@
     "expired": "Invitation expirée",
     "not_invited": "Pas encore invité",
     "inactive": "Désactivé",
-    "invited_until": "Lien valable jusqu'au {date}"
+    "invited_until": "Lien valable jusqu'au {date}",
+    "pending": "À activer",
+    "refused": "Refusé"
   },
   "parents": {
     "title": "Familles",
@@ -21,7 +23,8 @@
       "invited": "Invités",
       "not_invited": "Sans invitation",
       "never_logged_in": "Jamais connectés",
-      "inactive": "Désactivés"
+      "inactive": "Désactivés",
+      "pending": "À activer"
     },
     "columns": {
       "parent": "Parent",
@@ -73,7 +76,9 @@
       "invited": "Une invitation a été envoyée ; le parent n'a pas encore choisi son mot de passe.",
       "expired": "La dernière invitation a expiré ou a été annulée. Renvoyez-la pour donner l'accès.",
       "not_invited": "Le parent n'a pas encore reçu d'invitation.",
-      "inactive": "Le compte est désactivé : le parent ne peut plus se connecter."
+      "inactive": "Le compte est désactivé : le parent ne peut plus se connecter.",
+      "pending": "Ce parent s’est inscrit avec le QR code. Vérifiez ses informations puis activez ou refusez le compte.",
+      "refused": "Inscription refusée : le compte reste désactivé. Vous pouvez encore l’activer."
     },
     "invite": "Envoyer l'invitation",
     "resend": "Renvoyer l'invitation",
@@ -103,7 +108,19 @@
     "subscription": "Abonnement",
     "subscription_none": "Pas d'abonnement",
     "edit_child": "Modifier",
-    "edit_child_label": "Modifier {name}"
+    "edit_child_label": "Modifier {name}",
+    "registration": "Inscription",
+    "registered_at": "Inscrit le",
+    "reviewed_at": "Traité le",
+    "approve": "Activer",
+    "refuse": "Refuser",
+    "approve_title": "Activer ce compte ?",
+    "approve_body": "{name} pourra se connecter avec le mot de passe choisi à l’inscription. Ses enfants seront activés.",
+    "refuse_title": "Refuser cette inscription ?",
+    "refuse_body": "Le compte de {name} restera désactivé (il n’est pas supprimé).",
+    "send_codes": "Envoyer sur WhatsApp",
+    "send_codes_hint": "Ouvre WhatsApp avec un message prêt : l’adresse de connexion et le Code borne de chaque enfant.",
+    "send_codes_no_phone": "Pas de numéro WhatsApp valide pour ce parent."
   },
   "child_form": {
     "create_title": "Nouvel enfant",
@@ -235,7 +252,8 @@
       "end_without_start": "subscription_end : renseignez aussi subscription_start.",
       "parent_mismatch": "Même e-mail que la ligne {line} mais nom, téléphone ou langue différents.",
       "duplicate_child": "Cet enfant apparaît déjà ligne {line}.",
-      "email_unavailable": "parent_email : cette adresse est déjà utilisée par un autre compte."
+      "email_unavailable": "parent_email : cette adresse est déjà utilisée par un autre compte.",
+      "email_registration": "parent_email : cette adresse appartient à une inscription QR en attente ou refusée. Traitez-la dans Familles › À activer."
     }
   },
   "errors": {
@@ -249,7 +267,8 @@
     "subscription_overlap_generic": "Cette période chevauche une période existante.",
     "child_duplicate": "Ce parent a déjà un enfant avec ce prénom et ce nom.",
     "child_has_orders": "Cet enfant a des commandes : désactivez-le au lieu de le supprimer.",
-    "no_free_pin": "Impossible d’attribuer un code borne : réessayez."
+    "no_free_pin": "Impossible d’attribuer un code borne : réessayez.",
+    "pin_conflict": "Ce code borne vient d’être attribué à un autre enfant : réessayez."
   },
   "flash": {
     "parent_created": "Parent créé.",
@@ -264,6 +283,81 @@
     "child_deleted": "{name} a été supprimé.",
     "subscription_created": "Période d'abonnement ajoutée.",
     "subscription_updated": "Période d'abonnement mise à jour.",
-    "subscription_deleted": "Période d'abonnement supprimée."
+    "subscription_deleted": "Période d'abonnement supprimée.",
+    "registration_approved": "Compte activé. Envoyez maintenant les codes sur WhatsApp.",
+    "registration_refused": "Inscription refusée : le compte reste désactivé.",
+    "registration_confirmation_sent": "Nouveau lien de confirmation envoyé à {email}."
+  },
+  "registration": {
+    "page_title": "Créer un compte",
+    "title": "Créer votre compte",
+    "subtitle": "Inscrivez vos enfants aux repas de {school}. L’école validera votre compte.",
+    "parent_section": "Vos coordonnées",
+    "full_name": "Nom complet",
+    "email": "E-mail",
+    "phone": "Téléphone WhatsApp",
+    "phone_hint": "Nous vous enverrons vos codes sur WhatsApp, par ex. 06 12 34 56 78.",
+    "locale": "Langue",
+    "password": "Mot de passe",
+    "password_confirmation": "Confirmez le mot de passe",
+    "show_password": "Afficher le mot de passe",
+    "hide_password": "Masquer le mot de passe",
+    "children_section": "Vos enfants",
+    "child_title": "Enfant {number}",
+    "add_child": "Ajouter un enfant",
+    "remove_child": "Retirer",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "grade": "Niveau",
+    "class_name": "Classe",
+    "allergies": "Allergies",
+    "allergies_hint": "Cochez les allergènes à éviter.",
+    "dietary_notes": "Remarques alimentaires",
+    "dietary_notes_hint": "Facultatif : régime, intolérances…",
+    "website": "Ne remplissez pas ce champ",
+    "submit": "Envoyer ma demande",
+    "submitting": "Envoi…",
+    "sent_title": "Demande envoyée",
+    "sent_body": "Votre demande est enregistrée. Ouvrez l’e-mail que nous venons de vous envoyer et confirmez votre adresse. L’école activera ensuite votre compte et vous enverra le Code borne de vos enfants sur WhatsApp. Si cette adresse a déjà un compte, aucun e-mail n’est envoyé : connectez-vous.",
+    "back_to_login": "Aller à la connexion",
+    "too_many": "Trop de demandes depuis cette connexion. Réessayez dans {minutes} min.",
+    "errors": {
+      "children": "Ajoutez entre 1 et 6 enfants.",
+      "not_pending": "Cette inscription a déjà été traitée.",
+      "not_approved": "Activez d’abord ce compte.",
+      "email_not_confirmed": "Le parent doit d’abord confirmer son e-mail.",
+      "not_unconfirmed": "Cette inscription n’attend plus de confirmation d’e-mail."
+    },
+    "list_title": "Inscriptions à activer",
+    "list_empty_title": "Aucune inscription en attente",
+    "list_empty_body": "Les parents qui s’inscrivent avec le QR code apparaissent ici.",
+    "registered_on": "Inscrit le {date}",
+    "no_notes": "Aucune remarque",
+    "details": "Voir la fiche",
+    "whatsapp_child": "• {name} : {pin}",
+    "whatsapp_message": "Bonjour {name}, votre compte BFK School Meals est activé. Connectez-vous sur {url} avec votre e-mail {email} et le mot de passe choisi à l’inscription.\n\nCode borne (écran de l’école) :\n{children}",
+    "email_label": "E-mail",
+    "email_confirmed": "E-mail confirmé",
+    "email_unconfirmed": "E-mail non confirmé",
+    "resend_confirmation": "Renvoyer le lien",
+    "confirm": {
+      "page_title": "Confirmer l’e-mail",
+      "title": "Confirmez votre adresse e-mail",
+      "body": "Appuyez sur le bouton pour confirmer que cette adresse est bien la vôtre.",
+      "submit": "Confirmer",
+      "done_title": "E-mail confirmé",
+      "done_body": "Merci ! Votre demande est maintenant en attente de validation par l’école. Vous recevrez le Code borne de vos enfants sur WhatsApp.",
+      "invalid_title": "Lien invalide ou expiré",
+      "invalid_body": "Ce lien a déjà été utilisé ou n’est plus valable. Contactez l’école si votre compte n’est pas encore activé.",
+      "name": "Nom",
+      "phone": "Téléphone",
+      "children": "Enfants",
+      "not_me": "Ce n’est pas moi",
+      "not_me_hint": "Si vous n’avez pas fait cette demande, appuyez sur « Ce n’est pas moi » : elle sera refusée.",
+      "declined_title": "Demande refusée",
+      "declined_body": "Merci. Cette demande ne sera pas activée et votre adresse ne sera pas utilisée."
+    },
+    "link_expired": "Lien expiré",
+    "review_hint": "Avant d’activer : vérifiez que les enfants sont bien inscrits à l’école sous ces noms et que l’e-mail est confirmé."
   }
 }

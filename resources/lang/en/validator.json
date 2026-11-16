@@ -38,7 +38,10 @@
       "madRange": "The price must be between 0.01 and 10,000.00 MAD.",
       "ranges.array.minLength": "Tick at least one period to import.",
       "url.url": "Enter a valid https:// address.",
-      "calendar.file.extname": "The file must be an .ics calendar."
+      "calendar.file.extname": "The file must be an .ics calendar.",
+      "whatsappReachable": "Enter a valid WhatsApp number, e.g. +212 6 12 34 56 78.",
+      "children.minLength": "Add at least one child.",
+      "children.maxLength": "6 children at most."
     },
     "fields": {
       "currentPassword": "current password",
@@ -98,7 +101,9 @@
       "schoolDays": "school days",
       "schoolYearStart": "school year start",
       "schoolYearEnd": "school year end",
-      "board_slug": "screen address"
+      "board_slug": "screen address",
+      "children": "children",
+      "website": "website"
     }
   }
 }

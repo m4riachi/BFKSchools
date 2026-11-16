@@ -40,7 +40,10 @@ export default class AccountLinksController {
     return this.submit(ctx, 'password_reset')
   }
 
-  protected async show({ params, inertia, response }: HttpContext, type: UserTokenType) {
+  protected async show(
+    { params, inertia, response }: HttpContext,
+    type: Exclude<UserTokenType, 'email_confirmation'>
+  ) {
     const token = String(params.token ?? '')
     const record = await this.tokens.findUsable(token, type)
     response.header('cache-control', 'no-store')
@@ -54,7 +57,7 @@ export default class AccountLinksController {
     })
   }
 
-  protected async submit(ctx: HttpContext, type: UserTokenType) {
+  protected async submit(ctx: HttpContext, type: Exclude<UserTokenType, 'email_confirmation'>) {
     const { params, request, response, session, i18n, auth } = ctx
     const token = String(params.token ?? '')
     const back = `${LINK_PATHS[type]}/${token}`

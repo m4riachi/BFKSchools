@@ -33,8 +33,10 @@ declare module '@adonisjs/inertia/types' {
     'admin/statements/show': ExtractProps<(typeof import('../../inertia/pages/admin/statements/show.vue'))['default']>
     'admin/users/index': ExtractProps<(typeof import('../../inertia/pages/admin/users/index.vue'))['default']>
     'admin/users/roles': ExtractProps<(typeof import('../../inertia/pages/admin/users/roles.vue'))['default']>
+    'auth/confirm_email': ExtractProps<(typeof import('../../inertia/pages/auth/confirm_email.vue'))['default']>
     'auth/forgot_password': ExtractProps<(typeof import('../../inertia/pages/auth/forgot_password.vue'))['default']>
     'auth/login': ExtractProps<(typeof import('../../inertia/pages/auth/login.vue'))['default']>
+    'auth/register': ExtractProps<(typeof import('../../inertia/pages/auth/register.vue'))['default']>
     'auth/set_password': ExtractProps<(typeof import('../../inertia/pages/auth/set_password.vue'))['default']>
     'board/show': ExtractProps<(typeof import('../../inertia/pages/board/show.vue'))['default']>
     'errors/forbidden': ExtractProps<(typeof import('../../inertia/pages/errors/forbidden.vue'))['default']>

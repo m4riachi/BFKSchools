@@ -110,7 +110,10 @@
     "saved": "Paramètres enregistrés.",
     "api_keys_generated": "Nouvelles clés API générées.",
     "board_disabled": "Écran de l’école désactivé.",
-    "board_enabled": "Écran de l’école activé."
+    "board_enabled": "Écran de l’école activé.",
+    "registration_enabled": "Inscription des parents activée.",
+    "registration_disabled": "Inscription des parents désactivée.",
+    "registration_regenerated": "Nouveau lien créé : l’ancien QR code ne fonctionne plus."
   },
   "api": {
     "title": "API chiffre d’affaires",
@@ -158,5 +161,26 @@
     "step_autostart": "Pour qu’il démarre tout seul : Windows → Planificateur de tâches, nouvelle tâche « à l’ouverture de session », action « node C:\\bfk\\print-agent.mjs C:\\bfk\\print-agent.env ». Linux → « sudo bash print-agent-install.sh » installe un service qui démarre au boot.",
     "step_test": "Test : Cuisine › Exports › « Imprimer sur l’imprimante tickets ». La ligne passe de « En file » à « Imprimé » en quelques secondes. Si vous régénérez les clés API, téléchargez à nouveau print-agent.env.",
     "no_keys": "Générez d’abord les clés API (carte « API chiffre d’affaires »)."
+  },
+  "registration": {
+    "title": "Inscription des parents",
+    "hint": "Les parents sans compte scannent un QR code (écran de l’école ou affiche) et remplissent un formulaire. Leur compte attend votre validation dans Familles › À activer.",
+    "enabled": "Inscriptions ouvertes",
+    "enable": "Activer l’inscription",
+    "disable": "Désactiver",
+    "link": "Lien du formulaire",
+    "regenerate": "Nouveau lien",
+    "regenerate_title": "Créer un nouveau lien ?",
+    "regenerate_body": "L’ancien lien et les affiches déjà imprimées ne fonctionneront plus. Il faudra réimprimer l’affiche.",
+    "poster": {
+      "download": "Télécharger l’affiche (PDF)",
+      "title": "Créez votre compte",
+      "subtitle": "Commandez les déjeuners de vos enfants à l’école.",
+      "scan": "Scannez ce QR code avec votre téléphone",
+      "after": "L’école valide votre compte, puis vous envoie vos codes sur WhatsApp."
+    },
+    "qr_alt": "QR code du formulaire d’inscription",
+    "off": "L’inscription des parents est désactivée.",
+    "board_hint": "Quand l’inscription est ouverte, l’écran de l’école affiche un bouton « Créer un compte » avec ce QR code."
   }
 }

@@ -16,12 +16,15 @@ VineJS · Bouncer · Drive + sharp · Mail · i18n (FR/EN) · Luxon · Japa.
 | Area | What it does |
 |---|---|
 | Parent portal (`/`, mobile-first) | Week view per child: pick the main meal (included in the subscription, no price — D31) and supplements (priced, billed) per day, "no meal this day", "same choice for all my children"; allergy check (meals with a child's allergen are refused); every rule decided on the server (`OrderWindowService`). Order history, monthly statement + PDF, notification center with email preferences, **Account** tab (details, change password). FR/EN. |
-| Back-office (`/admin`, admin + manager) | Dashboard (today/tomorrow, next week's selection rate, month-to-date billed supplements, upcoming holidays). Parents and children (allergies, subscriptions, invitations, CSV import). Meal catalog with photos (WebP thumbnails). Holidays (US federal generator, optional Moroccan holidays, breaks, ICS import). Weekly menu builder (copy previous week, templates, default dish, schedule/publish). Orders per day and per child (audited staff changes). Monthly statements (all families, Excel export, PDF). Settings (admin only). |
+| Back-office (`/admin`, admin + manager) | Dashboard (today/tomorrow, next week's selection rate, month-to-date billed supplements, upcoming holidays). Parents and children (allergies, subscriptions, invitations, CSV import, QR self-registration waiting in "À activer" — D59). Meal catalog with photos (WebP thumbnails). Holidays (US federal generator, optional Moroccan holidays, breaks, ICS import). Weekly menu builder (copy previous week, templates, default dish, schedule/publish). Orders per day and per child (audited staff changes). Monthly statements (all families, Excel export, PDF). Settings (admin only). |
 | Kitchen (`/kitchen`, admin + manager + kitchen, read-only) | Production sheet per day (by grade/class), allergy sheet, printable labels PDF, Excel/CSV exports. |
 | Jobs (cron) | Automatic menu publication, deadline reminders, default meal at the deadline, outbox email dispatch, closing past weeks, yearly holiday generation. |
 
-Roles: `admin`, `manager`, `kitchen`, `parent`. Parents cannot sign up: staff create them and
-send an invitation link (or import a CSV).
+Roles: `admin`, `manager`, `kitchen`, `parent`. Staff create parents and send an invitation
+link (or import a CSV). Optionally (D59, Settings › Inscription des parents, off by default),
+parents sign up themselves from a QR code (school board button or the A4 poster PDF) at
+`/inscription/<token>`; the account waits in Familles › À activer until staff activate it, then
+staff send the children's kiosk codes on WhatsApp. A new link makes the old QR stop working.
 
 ## Requirements
 

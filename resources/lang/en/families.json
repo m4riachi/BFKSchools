@@ -5,7 +5,9 @@
     "expired": "Invitation expired",
     "not_invited": "Not invited yet",
     "inactive": "Deactivated",
-    "invited_until": "Link valid until {date}"
+    "invited_until": "Link valid until {date}",
+    "pending": "To activate",
+    "refused": "Refused"
   },
   "parents": {
     "title": "Families",
@@ -21,7 +23,8 @@
       "invited": "Invited",
       "not_invited": "Not invited",
       "never_logged_in": "Never signed in",
-      "inactive": "Deactivated"
+      "inactive": "Deactivated",
+      "pending": "To activate"
     },
     "columns": {
       "parent": "Parent",
@@ -73,7 +76,9 @@
       "invited": "An invitation was sent; the parent has not chosen a password yet.",
       "expired": "The last invitation expired or was cancelled. Send it again to give access.",
       "not_invited": "The parent has not received an invitation yet.",
-      "inactive": "The account is deactivated: the parent can no longer sign in."
+      "inactive": "The account is deactivated: the parent can no longer sign in.",
+      "pending": "This parent signed up with the QR code. Check their details, then activate or refuse the account.",
+      "refused": "Sign-up refused: the account stays deactivated. You can still activate it."
     },
     "invite": "Send invitation",
     "resend": "Resend invitation",
@@ -103,7 +108,19 @@
     "subscription": "Subscription",
     "subscription_none": "No subscription",
     "edit_child": "Edit",
-    "edit_child_label": "Edit {name}"
+    "edit_child_label": "Edit {name}",
+    "registration": "Sign-up",
+    "registered_at": "Signed up on",
+    "reviewed_at": "Reviewed on",
+    "approve": "Activate",
+    "refuse": "Refuse",
+    "approve_title": "Activate this account?",
+    "approve_body": "{name} will sign in with the password chosen at sign-up. Their children will be activated.",
+    "refuse_title": "Refuse this sign-up?",
+    "refuse_body": "{name}’s account will stay deactivated (it is not deleted).",
+    "send_codes": "Send on WhatsApp",
+    "send_codes_hint": "Opens WhatsApp with a ready message: the sign-in address and each child’s kiosk code.",
+    "send_codes_no_phone": "No valid WhatsApp number for this parent."
   },
   "child_form": {
     "create_title": "New child",
@@ -235,7 +252,8 @@
       "end_without_start": "subscription_end: also fill in subscription_start.",
       "parent_mismatch": "Same email as row {line} but a different name, phone or language.",
       "duplicate_child": "This child already appears on row {line}.",
-      "email_unavailable": "parent_email: this address is already used by another account."
+      "email_unavailable": "parent_email: this address is already used by another account.",
+      "email_registration": "parent_email: this address belongs to a QR sign-up that is pending or refused. Review it in Families › To activate."
     }
   },
   "errors": {
@@ -249,7 +267,8 @@
     "subscription_overlap_generic": "This period overlaps an existing period.",
     "child_duplicate": "This parent already has a child with this first and last name.",
     "child_has_orders": "This child has orders: deactivate them instead of deleting.",
-    "no_free_pin": "Could not assign a kiosk code: try again."
+    "no_free_pin": "Could not assign a kiosk code: try again.",
+    "pin_conflict": "This kiosk code was just given to another child: try again."
   },
   "flash": {
     "parent_created": "Parent created.",
@@ -264,6 +283,81 @@
     "child_deleted": "{name} was deleted.",
     "subscription_created": "Subscription period added.",
     "subscription_updated": "Subscription period updated.",
-    "subscription_deleted": "Subscription period deleted."
+    "subscription_deleted": "Subscription period deleted.",
+    "registration_approved": "Account activated. Now send the codes on WhatsApp.",
+    "registration_refused": "Sign-up refused: the account stays deactivated.",
+    "registration_confirmation_sent": "New confirmation link sent to {email}."
+  },
+  "registration": {
+    "page_title": "Create an account",
+    "title": "Create your account",
+    "subtitle": "Sign your children up for meals at {school}. The school will approve your account.",
+    "parent_section": "Your details",
+    "full_name": "Full name",
+    "email": "Email",
+    "phone": "WhatsApp phone",
+    "phone_hint": "We will send your codes on WhatsApp, e.g. +212 6 12 34 56 78.",
+    "locale": "Language",
+    "password": "Password",
+    "password_confirmation": "Confirm the password",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "children_section": "Your children",
+    "child_title": "Child {number}",
+    "add_child": "Add a child",
+    "remove_child": "Remove",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "grade": "Grade",
+    "class_name": "Class",
+    "allergies": "Allergies",
+    "allergies_hint": "Tick the allergens to avoid.",
+    "dietary_notes": "Dietary notes",
+    "dietary_notes_hint": "Optional: diet, intolerances…",
+    "website": "Leave this field empty",
+    "submit": "Send my request",
+    "submitting": "Sending…",
+    "sent_title": "Request sent",
+    "sent_body": "Your request is saved. Open the email we just sent you and confirm your address. The school will then activate your account and send your children’s kiosk codes on WhatsApp. If this address already has an account, no email is sent: just sign in.",
+    "back_to_login": "Go to sign in",
+    "too_many": "Too many requests from this connection. Try again in {minutes} min.",
+    "errors": {
+      "children": "Add between 1 and 6 children.",
+      "not_pending": "This sign-up has already been reviewed.",
+      "not_approved": "Activate this account first.",
+      "email_not_confirmed": "The parent must confirm their email first.",
+      "not_unconfirmed": "This sign-up is no longer waiting for an email confirmation."
+    },
+    "list_title": "Sign-ups to activate",
+    "list_empty_title": "No sign-up waiting",
+    "list_empty_body": "Parents who sign up with the QR code appear here.",
+    "registered_on": "Signed up on {date}",
+    "no_notes": "No notes",
+    "details": "Open the record",
+    "whatsapp_child": "• {name}: {pin}",
+    "whatsapp_message": "Hello {name}, your BFK School Meals account is now active. Sign in at {url} with your email {email} and the password you chose at sign-up.\n\nKiosk code (school screen):\n{children}",
+    "email_label": "Email",
+    "email_confirmed": "Email confirmed",
+    "email_unconfirmed": "Email not confirmed",
+    "resend_confirmation": "Resend the link",
+    "confirm": {
+      "page_title": "Confirm the email",
+      "title": "Confirm your email address",
+      "body": "Press the button to confirm this address is yours.",
+      "submit": "Confirm",
+      "done_title": "Email confirmed",
+      "done_body": "Thank you! Your request now waits for the school’s approval. You will get your children’s kiosk codes on WhatsApp.",
+      "invalid_title": "Invalid or expired link",
+      "invalid_body": "This link was already used or is no longer valid. Contact the school if your account is not active yet.",
+      "name": "Name",
+      "phone": "Phone",
+      "children": "Children",
+      "not_me": "This wasn’t me",
+      "not_me_hint": "If you did not make this request, press “This wasn’t me”: it will be refused.",
+      "declined_title": "Request refused",
+      "declined_body": "Thank you. This request will not be activated and your address will not be used."
+    },
+    "link_expired": "Link expired",
+    "review_hint": "Before activating: check the children are enrolled at the school under these names and the email is confirmed."
   }
 }

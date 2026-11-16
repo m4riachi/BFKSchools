@@ -16,7 +16,9 @@ import { centsToInput, type Locale } from '#support/money'
 import { schoolSettingsFormValidator } from '#validators/school_settings'
 import { readFile } from 'node:fs/promises'
 import app from '@adonisjs/core/services/app'
-import { attachmentHeader } from '#support/report_access'
+import { attachmentHeader, renderPdfForUser } from '#support/report_access'
+import ParentRegistrationService from '#services/parent_registration_service'
+import RegistrationPosterPdfService from '#services/registration_poster_pdf_service'
 
 /**
  * Admin settings screen (brief §6): school days, school year, default
@@ -33,7 +35,9 @@ export default class SettingsController {
   constructor(
     protected settings: SchoolSettingsService,
     protected apiKeys: ApiKeyService,
-    protected board: SchoolBoardService
+    protected board: SchoolBoardService,
+    protected registrations: ParentRegistrationService,
+    protected poster: RegistrationPosterPdfService
   ) {}
 
   protected async school(ctx: HttpContext) {
@@ -75,6 +79,8 @@ export default class SettingsController {
         suggestion: suggestBoardSlug(school.name),
         origin: new URL('/board/', env.get('APP_URL')).toString(),
       },
+      // D59: parent self-registration (link + QR preview only while it is on).
+      registration: await this.registrationProps(school),
       settings: {
         publish_weekday: values.publish_weekday,
         publish_time: values.publish_time,
@@ -182,6 +188,57 @@ export default class SettingsController {
     logger.info({ schoolId: school.id, userId: ctx.auth.user!.id }, 'API secret displayed')
     ctx.response.header('Cache-Control', 'no-store')
     return { secret }
+  }
+
+  protected async registrationProps(school: School) {
+    const url = this.registrations.linkOf(school)
+    return {
+      enabled: url !== null,
+      url,
+      qr: url ? await this.registrations.qrDataUrl(url) : null,
+    }
+  }
+
+  /** D59: parents can sign up from the QR code (a link is created the first time). */
+  async enableRegistration(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    await this.registrations.enable(school)
+    logger.info({ schoolId: school.id, userId: ctx.auth.user!.id }, 'Registration enabled')
+    ctx.session.flash('success', ctx.i18n.t('settings.flash.registration_enabled'))
+    return ctx.response.redirect('/admin/settings')
+  }
+
+  async disableRegistration(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    await this.registrations.disable(school)
+    logger.info({ schoolId: school.id, userId: ctx.auth.user!.id }, 'Registration disabled')
+    ctx.session.flash('success', ctx.i18n.t('settings.flash.registration_disabled'))
+    return ctx.response.redirect('/admin/settings')
+  }
+
+  /** D59: a new link; the previous QR (board, printed posters) stops working. */
+  async regenerateRegistration(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    await this.registrations.regenerateToken(school)
+    logger.info({ schoolId: school.id, userId: ctx.auth.user!.id }, 'Registration link renewed')
+    ctx.session.flash('success', ctx.i18n.t('settings.flash.registration_regenerated'))
+    return ctx.response.redirect('/admin/settings')
+  }
+
+  /** D59: the A4 poster with the QR code (PDF). */
+  async registrationPoster(ctx: HttpContext) {
+    const school = await this.school(ctx)
+    const url = this.registrations.linkOf(school)
+    if (!url) {
+      ctx.session.flash('error', ctx.i18n.t('settings.registration.off'))
+      return ctx.response.redirect('/admin/settings')
+    }
+    const buffer = await renderPdfForUser(ctx, () => this.poster.render(school, url))
+    if (buffer === null) return
+    ctx.response.header('Content-Type', 'application/pdf')
+    ctx.response.header('Content-Disposition', attachmentHeader('inscription-parents.pdf'))
+    ctx.response.header('Cache-Control', 'no-store')
+    return ctx.response.send(buffer)
   }
 
   /** Turns the display board on at `/board/<slug>` (D46), or moves it. */

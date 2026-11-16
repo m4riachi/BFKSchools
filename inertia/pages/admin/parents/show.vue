@@ -20,6 +20,15 @@ const props = defineProps<{
   today: string
   hasWhatsapp: boolean
   whatsappInvite: string | null
+  /** D59: QR sign-up (null for accounts created by staff or the import). */
+  registration: {
+    status: 'pending' | 'approved' | 'refused'
+    emailConfirmed: boolean
+    registeredAt: string | null
+    reviewedAt: string | null
+  } | null
+  /** D59: wa.me link with the login address and the children's Code borne. */
+  activationWhatsapp: string | null
 }>()
 
 const { t, formatDate, formatDateTime } = useI18n()
@@ -48,6 +57,31 @@ function post(url: string) {
       onFinish: () => {
         processing.value = false
         confirmOpen.value = false
+      },
+    }
+  )
+}
+
+/** D59: a sign-up waiting for the school (or refused earlier) is activated with its children. */
+const reviewing = computed(
+  () => props.registration?.status === 'pending' || props.registration?.status === 'refused'
+)
+const reviewAction = ref<'approve' | 'refuse'>('approve')
+const reviewOpen = ref(false)
+function askReview(action: 'approve' | 'refuse') {
+  reviewAction.value = action
+  reviewOpen.value = true
+}
+function review() {
+  router.post(
+    `/admin/parents/${props.parent.id}/registration/${reviewAction.value}`,
+    {},
+    {
+      preserveScroll: true,
+      onStart: () => (processing.value = true),
+      onFinish: () => {
+        processing.value = false
+        reviewOpen.value = false
       },
     }
   )
@@ -151,6 +185,35 @@ const languageLabel = computed(() =>
                 : t('families.parent_show.never_logged_in')
             }}
           </dd>
+          <template v-if="registration">
+            <dt class="text-ink-4">{{ t('families.registration.email_label') }}</dt>
+            <dd class="flex flex-wrap items-center gap-2 font-semibold">
+              <StatusBadge :tone="registration.emailConfirmed ? 'brand' : 'warning'">
+                {{
+                  registration.emailConfirmed
+                    ? t('families.registration.email_confirmed')
+                    : t('families.registration.email_unconfirmed')
+                }}
+              </StatusBadge>
+              <AppButton
+                v-if="!registration.emailConfirmed && registration.status !== 'approved'"
+                size="sm"
+                variant="secondary"
+                :disabled="processing"
+                @click="post(`/admin/parents/${parent.id}/registration/confirmation`)"
+              >
+                {{ t('families.registration.resend_confirmation') }}
+              </AppButton>
+            </dd>
+          </template>
+          <template v-if="registration?.registeredAt">
+            <dt class="text-ink-4">{{ t('families.parent_show.registered_at') }}</dt>
+            <dd class="font-semibold">{{ formatDateTime(registration.registeredAt) }}</dd>
+          </template>
+          <template v-if="registration?.reviewedAt">
+            <dt class="text-ink-4">{{ t('families.parent_show.reviewed_at') }}</dt>
+            <dd class="font-semibold">{{ formatDateTime(registration.reviewedAt) }}</dd>
+          </template>
           <template v-if="parent.invitedAt">
             <dt class="text-ink-4">{{ t('families.parent_show.invited_at') }}</dt>
             <dd class="font-semibold">{{ formatDateTime(parent.invitedAt) }}</dd>
@@ -173,7 +236,29 @@ const languageLabel = computed(() =>
           >
             {{ t('families.parent_show.invite_whatsapp') }}
           </AppButton>
+          <template v-if="reviewing">
+            <AppButton :disabled="!registration?.emailConfirmed" @click="askReview('approve')">
+              {{ t('families.parent_show.approve') }}
+            </AppButton>
+            <AppButton
+              v-if="registration?.status === 'pending'"
+              variant="secondary"
+              @click="askReview('refuse')"
+            >
+              {{ t('families.parent_show.refuse') }}
+            </AppButton>
+          </template>
+          <a
+            v-if="activationWhatsapp"
+            :href="activationWhatsapp"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex min-h-11 items-center rounded-xl bg-[#25D366] px-4 text-sm font-bold text-white no-underline hover:bg-[#1EBE5B] hover:text-white"
+          >
+            {{ t('families.parent_show.send_codes') }}
+          </a>
           <AppButton
+            v-if="!reviewing"
             :variant="parent.isActive ? 'secondary' : 'primary'"
             @click="confirmOpen = true"
           >
@@ -184,6 +269,15 @@ const languageLabel = computed(() =>
             }}
           </AppButton>
         </div>
+        <p v-if="activationWhatsapp" class="text-[13px] text-ink-4">
+          {{ t('families.parent_show.send_codes_hint') }}
+        </p>
+        <p
+          v-else-if="registration?.status === 'approved' && parent.isActive && !hasWhatsapp"
+          class="text-[13px] text-ink-4"
+        >
+          {{ t('families.parent_show.send_codes_no_phone') }}
+        </p>
         <p v-if="canInvite && !hasWhatsapp" class="text-[13px] text-ink-4">
           {{ t('families.parent_show.whatsapp_no_phone') }}
         </p>
@@ -289,6 +383,30 @@ const languageLabel = computed(() =>
       :danger="parent.isActive"
       :processing="processing"
       @confirm="toggleActive"
+    />
+    <ConfirmDialog
+      v-model:open="reviewOpen"
+      :title="
+        reviewAction === 'refuse'
+          ? t('families.parent_show.refuse_title')
+          : t('families.parent_show.approve_title')
+      "
+      :message="
+        t(
+          reviewAction === 'refuse'
+            ? 'families.parent_show.refuse_body'
+            : 'families.parent_show.approve_body',
+          { name: parent.fullName }
+        )
+      "
+      :confirm-label="
+        reviewAction === 'refuse'
+          ? t('families.parent_show.refuse')
+          : t('families.parent_show.approve')
+      "
+      :danger="reviewAction === 'refuse'"
+      :processing="processing"
+      @confirm="review"
     />
     <ModalDialog
       v-model:open="whatsappOpen"

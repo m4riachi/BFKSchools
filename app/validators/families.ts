@@ -1,9 +1,11 @@
 import vine from '@vinejs/vine'
 import { LOCALES } from '#enums/locales'
 import { ALLERGENS } from '#enums/allergens'
-import { PARENT_FILTERS } from '#enums/parents'
+import { PARENT_FILTERS, REGISTRATION_MAX_CHILDREN } from '#enums/parents'
+import type { FieldContext } from '@vinejs/vine/types'
+import { whatsappNumber } from '#support/whatsapp'
 import { SUBSCRIPTION_STATUSES } from '#enums/subscriptions'
-import { emailRule, isoDateRule, nameRule, phoneRule } from '#validators/rules'
+import { emailRule, isoDateRule, nameRule, newPasswordRule, phoneRule } from '#validators/rules'
 
 /**
  * Parents list query string. Unknown values fall back to the defaults.
@@ -48,4 +50,52 @@ export const subscriptionValidator = vine.create({
   endDate: isoDateRule().optional(),
   status: vine.enum(SUBSCRIPTION_STATUSES),
   notes: vine.string().trim().maxLength(500).optional(),
+})
+
+/** D59: a phone wa.me can open (local 06… numbers are read as Moroccan). */
+const whatsappReachable = vine.createRule(
+  (value: unknown, _options: undefined, field: FieldContext) => {
+    if (!field.isValid || typeof value !== 'string') return
+    if (!whatsappNumber(value)) {
+      field.report('The {{ field }} field must be a WhatsApp number', 'whatsappReachable', field)
+    }
+  }
+)
+
+/**
+ * D59: the public sign-up form. `website` is a honeypot (hidden from
+ * people): when filled, the controller answers as usual and creates nothing.
+ * Grade / class / allergies are accepted but dropped by the service when
+ * the school turned those modules off.
+ */
+export const registrationValidator = vine.create({
+  website: vine.string().maxLength(200).optional(),
+  fullName: nameRule(120),
+  email: emailRule(),
+  phone: vine
+    .string()
+    .trim()
+    .maxLength(30)
+    .regex(/^\+?[0-9 ().-]{6,30}$/)
+    .use(whatsappReachable())
+    .transform((value) => value.replace(/[ ().-]/g, '')),
+  locale: vine.enum(LOCALES),
+  password: newPasswordRule(),
+  children: vine
+    .array(
+      vine.object({
+        firstName: nameRule(80),
+        lastName: nameRule(80),
+        grade: nameRule(40).optional(),
+        className: nameRule(40).optional(),
+        allergies: vine
+          .array(vine.enum(ALLERGENS))
+          .maxLength(ALLERGENS.length)
+          .distinct()
+          .optional(),
+        dietaryNotes: vine.string().trim().maxLength(1000).optional(),
+      })
+    )
+    .minLength(1)
+    .maxLength(REGISTRATION_MAX_CHILDREN),
 })

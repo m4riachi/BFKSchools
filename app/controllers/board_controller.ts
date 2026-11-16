@@ -2,10 +2,12 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import { errors as limiterErrors } from '@adonisjs/limiter'
 import MealPhoto from '#models/meal_photo'
+import type School from '#models/school'
 import MealPhotoService from '#services/meal_photo_service'
 import SchoolBoardService from '#services/school_board_service'
 import KioskService from '#services/kiosk_service'
 import SchoolSettingsService from '#services/school_settings_service'
+import ParentRegistrationService from '#services/parent_registration_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import vine, { errors as vineErrors } from '@vinejs/vine'
 import { kioskPinLimiter, kioskKeys } from '#start/limiter'
@@ -52,7 +54,8 @@ export default class BoardController {
     protected board: SchoolBoardService,
     protected photos: MealPhotoService,
     protected kiosk: KioskService,
-    protected settings: SchoolSettingsService
+    protected settings: SchoolSettingsService,
+    protected registrations: ParentRegistrationService
   ) {}
 
   /** Rate limit, then the school of the link (null = 404 / 429 already sent). */
@@ -91,7 +94,15 @@ export default class BoardController {
       // D51: the 🖨 pairing button can be hidden once the printer is paired.
       printerButton: this.settings.get(school).board_printer_button,
       board: await this.board.week(school, slug, BOARD_LOCALE),
+      // D59: the sign-up QR (null while sign-ups are off). Only the QR image
+      // of the public form link — nothing else about the school's families.
+      registration: await this.registrationQr(school),
     })
+  }
+
+  protected async registrationQr(school: School) {
+    const url = this.registrations.linkOf(school)
+    return url ? { qr: await this.registrations.qrDataUrl(url) } : null
   }
 
   /**

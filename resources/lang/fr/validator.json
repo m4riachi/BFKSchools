@@ -38,7 +38,10 @@
       "madRange": "Le prix doit être compris entre 0,01 et 10 000,00 MAD.",
       "ranges.array.minLength": "Cochez au moins une période à importer.",
       "url.url": "Saisissez une adresse https:// valide.",
-      "calendar.file.extname": "Le fichier doit être un calendrier .ics."
+      "calendar.file.extname": "Le fichier doit être un calendrier .ics.",
+      "whatsappReachable": "Saisissez un numéro WhatsApp valide, par ex. 06 12 34 56 78 ou +212 6 12 34 56 78.",
+      "children.minLength": "Ajoutez au moins un enfant.",
+      "children.maxLength": "6 enfants au maximum."
     },
     "fields": {
       "currentPassword": "mot de passe actuel",
@@ -98,7 +101,9 @@
       "schoolDays": "jours d'école",
       "schoolYearStart": "début de l'année",
       "schoolYearEnd": "fin de l'année",
-      "board_slug": "adresse de l’écran"
+      "board_slug": "adresse de l’écran",
+      "children": "enfants",
+      "website": "site web"
     }
   }
 }

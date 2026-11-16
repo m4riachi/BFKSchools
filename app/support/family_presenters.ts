@@ -61,3 +61,33 @@ export function presentChild(child: Child) {
   }
 }
 export type ChildView = ReturnType<typeof presentChild>
+
+/**
+ * D59: a pending sign-up in the "À activer" list — what the parent typed
+ * (children preloaded). Never the password.
+ */
+export function presentRegistration(parent: User) {
+  return {
+    id: parent.id,
+    fullName: parent.fullName,
+    email: parent.email,
+    phone: parent.phone,
+    locale: parent.locale,
+    registeredAt: iso(parent.registeredAt),
+    /** H1: Activer stays disabled until the parent clicked the email link. */
+    emailConfirmed: parent.emailConfirmedAt !== null,
+    /** M3: unconfirmed and its link expired or was used up ("lien expiré"; staff can resend). */
+    confirmationExpired:
+      parent.emailConfirmedAt === null && parent.$extras.confirmation_link_open !== true,
+    children: (parent.children ?? []).map((child) => ({
+      id: child.id,
+      firstName: child.firstName,
+      lastName: child.lastName,
+      grade: child.grade,
+      className: child.className,
+      allergies: [...child.allergies],
+      dietaryNotes: child.dietaryNotes,
+    })),
+  }
+}
+export type RegistrationView = ReturnType<typeof presentRegistration>

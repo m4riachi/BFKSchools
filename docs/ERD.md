@@ -301,6 +301,10 @@ Default `publish_at` for a week = `(week_start − 7 days + (publish_weekday −
 | invited_at | timestamptz | null | | last invitation sent (list column "invited") |
 | last_login_at | timestamptz | null | | "never logged in" filter |
 | credentials_version | integer | NN | `0` | **added in Phase 2** (security follow-up). Bumped by the User model when the password or email changes or the account is deactivated; sessions (`auth_cv` session key) and the `bfk_kd` known-device cookie are bound to it. |
+| registration_status | varchar(16) | null | | **D59**: `pending` / `approved` / `refused` for QR sign-ups (null for staff-created or imported accounts). CHECK: parents only; pending/refused ⇒ `is_active = false`. Partial index `(school_id, registered_at) WHERE registration_status = 'pending'`. |
+| registered_at | timestamptz | null | | D59: when the sign-up form was sent |
+| registration_reviewed_at / registration_reviewed_by | timestamptz / FK users (SET NULL) | null | | D59: who activated or refused the sign-up, and when |
+| email_confirmed_at | timestamptz | null | | D59: a sign-up clicked its single-use `email_confirmation` link (required before approval); reset when staff change the email |
 | created_at / updated_at | timestamptz | NN | now() | |
 
 Indexes: `users_email_lower_unique (lower(email))`, `(role, is_active)`, trigram/`ILIKE` search on name/email/phone is a seq scan at this size — fine (a `pg_trgm` GIN index can be added in Phase 9 if needed).

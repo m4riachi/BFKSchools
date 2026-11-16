@@ -4,6 +4,7 @@ import { errors as authErrors } from '@adonisjs/auth'
 import User from '#models/user'
 import Clock from '#services/clock'
 import InactiveAccountException from '#exceptions/inactive_account_exception'
+import PendingRegistrationException from '#exceptions/pending_registration_exception'
 
 @inject()
 export default class LoginService {
@@ -17,7 +18,7 @@ export default class LoginService {
    * `preloaded` is the user row already looked up for `email` (the login
    * controller needs it for the known-device check); omit it to look it up.
    *
-   * @throws E_INVALID_CREDENTIALS | InactiveAccountException
+   * @throws E_INVALID_CREDENTIALS | InactiveAccountException | PendingRegistrationException
    */
   async verifyCredentials(email: string, password: string, preloaded?: User | null): Promise<User> {
     const user = preloaded === undefined ? await User.findByEmail(email) : preloaded
@@ -32,6 +33,10 @@ export default class LoginService {
     }
 
     if (!user.isActive) {
+      // D59: a sign-up the school has not activated yet gets its own message.
+      if (user.registrationStatus === 'pending') {
+        throw new PendingRegistrationException('Registration is pending')
+      }
       throw new InactiveAccountException('Account is inactive')
     }
 

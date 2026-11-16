@@ -112,6 +112,58 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth/account_links_controller').default['submitReset']>>>
     }
   }
+  'registration.confirmation.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/inscription/confirmer/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['showConfirmation']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['showConfirmation']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['showConfirmation']>>>
+    }
+  }
+  'registration.confirmation.store': {
+    methods: ["POST"]
+    pattern: '/inscription/confirmer/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['confirm']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['confirm']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['confirm']>>>
+    }
+  }
+  'registration.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/inscription/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['show']>>>
+    }
+  }
+  'registration.store': {
+    methods: ["POST"]
+    pattern: '/inscription/:token'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/families').registrationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/families').registrationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/registration_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'locale.update': {
     methods: ["POST"]
     pattern: '/locale'
@@ -578,6 +630,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['activate']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['activate']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['activate']>>>
+    }
+  }
+  'admin.parents.registration.approve': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/registration/approve'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['approve']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['approve']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['approve']>>>
+    }
+  }
+  'admin.parents.registration.confirmation': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/registration/confirmation'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['resendConfirmation']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['resendConfirmation']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['resendConfirmation']>>>
+    }
+  }
+  'admin.parents.registration.refuse': {
+    methods: ["POST"]
+    pattern: '/admin/parents/:id/registration/refuse'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['refuse']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['refuse']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/parents_controller').default['refuse']>>>
     }
   }
   'admin.parents.invite': {
@@ -1670,6 +1761,58 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentEnv']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentEnv']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['printAgentEnv']>>>
+    }
+  }
+  'admin.settings.registration.enable': {
+    methods: ["POST"]
+    pattern: '/admin/settings/registration'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['enableRegistration']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['enableRegistration']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['enableRegistration']>>>
+    }
+  }
+  'admin.settings.registration.disable': {
+    methods: ["DELETE"]
+    pattern: '/admin/settings/registration'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['disableRegistration']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['disableRegistration']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['disableRegistration']>>>
+    }
+  }
+  'admin.settings.registration.regenerate': {
+    methods: ["POST"]
+    pattern: '/admin/settings/registration/token'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['regenerateRegistration']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['regenerateRegistration']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['regenerateRegistration']>>>
+    }
+  }
+  'admin.settings.registration.poster': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/settings/registration/poster'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['registrationPoster']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['registrationPoster']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/admin/settings_controller').default['registrationPoster']>>>
     }
   }
   'admin.settings.board.enable': {

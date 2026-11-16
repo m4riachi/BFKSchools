@@ -56,6 +56,30 @@ const routes = {
     tokens: [[0,"password"],[0,"reset"],[1,"token"]],
     types: placeholder as Registry['password.reset.store']['types'],
   },
+  'registration.confirmation.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/inscription/confirmer/:token',
+    tokens: [[0,"inscription"],[0,"confirmer"],[1,"token"]],
+    types: placeholder as Registry['registration.confirmation.show']['types'],
+  },
+  'registration.confirmation.store': {
+    methods: ["POST"],
+    pattern: '/inscription/confirmer/:token',
+    tokens: [[0,"inscription"],[0,"confirmer"],[1,"token"]],
+    types: placeholder as Registry['registration.confirmation.store']['types'],
+  },
+  'registration.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/inscription/:token',
+    tokens: [[0,"inscription"],[1,"token"]],
+    types: placeholder as Registry['registration.show']['types'],
+  },
+  'registration.store': {
+    methods: ["POST"],
+    pattern: '/inscription/:token',
+    tokens: [[0,"inscription"],[1,"token"]],
+    types: placeholder as Registry['registration.store']['types'],
+  },
   'locale.update': {
     methods: ["POST"],
     pattern: '/locale',
@@ -271,6 +295,24 @@ const routes = {
     pattern: '/admin/parents/:id/activate',
     tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"activate"]],
     types: placeholder as Registry['admin.parents.activate']['types'],
+  },
+  'admin.parents.registration.approve': {
+    methods: ["POST"],
+    pattern: '/admin/parents/:id/registration/approve',
+    tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"registration"],[0,"approve"]],
+    types: placeholder as Registry['admin.parents.registration.approve']['types'],
+  },
+  'admin.parents.registration.confirmation': {
+    methods: ["POST"],
+    pattern: '/admin/parents/:id/registration/confirmation',
+    tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"registration"],[0,"confirmation"]],
+    types: placeholder as Registry['admin.parents.registration.confirmation']['types'],
+  },
+  'admin.parents.registration.refuse': {
+    methods: ["POST"],
+    pattern: '/admin/parents/:id/registration/refuse',
+    tokens: [[0,"admin"],[0,"parents"],[1,"id"],[0,"registration"],[0,"refuse"]],
+    types: placeholder as Registry['admin.parents.registration.refuse']['types'],
   },
   'admin.parents.invite': {
     methods: ["POST"],
@@ -775,6 +817,30 @@ const routes = {
     pattern: '/admin/settings/print-agent/env',
     tokens: [[0,"admin"],[0,"settings"],[0,"print-agent"],[0,"env"]],
     types: placeholder as Registry['admin.settings.print_agent.env']['types'],
+  },
+  'admin.settings.registration.enable': {
+    methods: ["POST"],
+    pattern: '/admin/settings/registration',
+    tokens: [[0,"admin"],[0,"settings"],[0,"registration"]],
+    types: placeholder as Registry['admin.settings.registration.enable']['types'],
+  },
+  'admin.settings.registration.disable': {
+    methods: ["DELETE"],
+    pattern: '/admin/settings/registration',
+    tokens: [[0,"admin"],[0,"settings"],[0,"registration"]],
+    types: placeholder as Registry['admin.settings.registration.disable']['types'],
+  },
+  'admin.settings.registration.regenerate': {
+    methods: ["POST"],
+    pattern: '/admin/settings/registration/token',
+    tokens: [[0,"admin"],[0,"settings"],[0,"registration"],[0,"token"]],
+    types: placeholder as Registry['admin.settings.registration.regenerate']['types'],
+  },
+  'admin.settings.registration.poster': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/settings/registration/poster',
+    tokens: [[0,"admin"],[0,"settings"],[0,"registration"],[0,"poster"]],
+    types: placeholder as Registry['admin.settings.registration.poster']['types'],
   },
   'admin.settings.board.enable': {
     methods: ["POST"],

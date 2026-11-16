@@ -19,6 +19,14 @@ export interface ApiDefinition {
     show: typeof routes['invitation.show']
     accept: typeof routes['invitation.accept']
   }
+  registration: {
+    confirmation: {
+      show: typeof routes['registration.confirmation.show']
+      store: typeof routes['registration.confirmation.store']
+    }
+    show: typeof routes['registration.show']
+    store: typeof routes['registration.store']
+  }
   locale: {
     update: typeof routes['locale.update']
   }
@@ -81,6 +89,11 @@ export interface ApiDefinition {
       update: typeof routes['admin.parents.update']
       deactivate: typeof routes['admin.parents.deactivate']
       activate: typeof routes['admin.parents.activate']
+      registration: {
+        approve: typeof routes['admin.parents.registration.approve']
+        confirmation: typeof routes['admin.parents.registration.confirmation']
+        refuse: typeof routes['admin.parents.registration.refuse']
+      }
       invite: typeof routes['admin.parents.invite']
       inviteWhatsapp: typeof routes['admin.parents.invite_whatsapp']
     }
@@ -206,6 +219,12 @@ export interface ApiDefinition {
       printAgent: {
         script: typeof routes['admin.settings.print_agent.script']
         env: typeof routes['admin.settings.print_agent.env']
+      }
+      registration: {
+        enable: typeof routes['admin.settings.registration.enable']
+        disable: typeof routes['admin.settings.registration.disable']
+        regenerate: typeof routes['admin.settings.registration.regenerate']
+        poster: typeof routes['admin.settings.registration.poster']
       }
       board: {
         enable: typeof routes['admin.settings.board.enable']

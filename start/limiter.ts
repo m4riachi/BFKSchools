@@ -180,3 +180,35 @@ export const uploadKeys = {
   holidayImport: (userId: number) => `uploads:holiday_import:${userId}`,
   changePassword: (userId: number) => `account:change_password:${userId}`,
 }
+
+/**
+ * D59: the public sign-up form (`/inscription/<token>`, no login). Parents
+ * at the school may share one address (school Wi-Fi), so the cap is per IP
+ * but not tight: 20 submissions / hour, plus 200 / day per school (M1);
+ * page views 60 / min per IP. The waiting list itself is capped at 200
+ * pending sign-ups per school (ParentRegistrationService).
+ */
+export const REGISTRATION_LIMITS = {
+  submitIp: { requests: 20, duration: '1 hour' },
+  viewIp: { requests: 60, duration: '1 min' },
+  /** M1: per school, whatever the address (stops a distributed flood). */
+  school: { requests: 200, duration: '1 day' },
+} as const
+
+export function registrationSchoolLimiter() {
+  return limiter.use({ ...REGISTRATION_LIMITS.school })
+}
+
+export function registrationSubmitLimiter() {
+  return limiter.use({ ...REGISTRATION_LIMITS.submitIp })
+}
+
+export function registrationViewLimiter() {
+  return limiter.use({ ...REGISTRATION_LIMITS.viewIp })
+}
+
+export const registrationKeys = {
+  submitIp: (ip: string) => `registration:submit:${rateLimitIpKey(ip)}`,
+  viewIp: (ip: string) => `registration:view:${rateLimitIpKey(ip)}`,
+  school: (schoolId: number) => `registration:school:${schoolId}`,
+}

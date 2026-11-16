@@ -14,6 +14,7 @@ import {
 import { homePathFor } from '#enums/roles'
 import LoginService from '#services/login_service'
 import InactiveAccountException from '#exceptions/inactive_account_exception'
+import PendingRegistrationException from '#exceptions/pending_registration_exception'
 import { isKnownDevice } from '#support/known_device'
 import { endSession, startUserSession } from '#support/login_session'
 import { maskEmail } from '#app/mail/log_transport'
@@ -82,6 +83,9 @@ export default class SessionController {
       }
       if (error instanceof authErrors.E_INVALID_CREDENTIALS) {
         return fail(i18n.t('auth.login.invalid'))
+      }
+      if (error instanceof PendingRegistrationException) {
+        return fail(i18n.t('auth.login.pending_registration'))
       }
       if (error instanceof InactiveAccountException) {
         return fail(i18n.t('auth.login.inactive'))

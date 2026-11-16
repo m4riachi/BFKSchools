@@ -427,6 +427,15 @@ export default class FamilyImportService {
         row.errors.push(i18n.t('families.import.errors.email_unavailable'))
         continue
       }
+      // D59 (H1): a QR sign-up waiting for the school, or refused, is never
+      // merged — its email may not belong to whoever signed up.
+      if (
+        user &&
+        (user.registrationStatus === 'pending' || user.registrationStatus === 'refused')
+      ) {
+        row.errors.push(i18n.t('families.import.errors.email_registration'))
+        continue
+      }
       const firstRowOfParent = !parentSeen.has(clean.email)
       parentSeen.add(clean.email)
       if (!user) row.parentAction = firstRowOfParent ? 'create' : 'none'

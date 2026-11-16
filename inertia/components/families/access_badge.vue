@@ -3,7 +3,8 @@ import { computed } from 'vue'
 import StatusBadge from '~/components/ui/status_badge.vue'
 import { useI18n } from '~/composables/use_i18n'
 
-export type AccessStatus = 'active' | 'invited' | 'expired' | 'not_invited' | 'inactive'
+export type AccessStatus =
+  'active' | 'invited' | 'expired' | 'not_invited' | 'inactive' | 'pending' | 'refused'
 
 const props = defineProps<{ status: AccessStatus }>()
 const { t } = useI18n()
@@ -17,6 +18,8 @@ const tone = computed(
         expired: 'warning',
         not_invited: 'neutral',
         inactive: 'danger',
+        pending: 'warning',
+        refused: 'danger',
       }) as const
     )[props.status]
 )

@@ -54,6 +54,13 @@ export type SchoolSettings = {
   board_slug: string | null
   /** D51: the 🖨 "connect the printer" button on the board (hide it once paired). */
   board_printer_button: boolean
+  /**
+   * D59: parent self-registration (QR on the board and on the settings
+   * poster, `/inscription/<token>`). Both set only by ParentRegistrationService,
+   * never by the settings form; a new token makes the old QR stop working.
+   */
+  registration_enabled: boolean
+  registration_token: string | null
   /** D52: ordering on the board's kiosk — the same day only, until this time. */
   kiosk_enabled: boolean
   kiosk_cutoff_time: string

@@ -55,6 +55,9 @@ const items = computed(() =>
   )
 )
 
+/** D59: sign-ups waiting for the school (badge next to Familles). */
+const pendingRegistrations = computed(() => page.props.access?.pendingRegistrations ?? 0)
+
 const drawerOpen = ref(false)
 watch(
   () => page.url,
@@ -118,6 +121,14 @@ const itemClass = (item: NavItem) => [
           >
             <NavIcon v-if="item.icon" :name="item.icon" />
             {{ t(item.labelKey) }}
+            <span
+              v-if="item.permission === 'families' && pendingRegistrations > 0"
+              class="ml-auto rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white"
+              :aria-label="t('nav.pending_registrations', { count: pendingRegistrations })"
+              :title="t('nav.pending_registrations', { count: pendingRegistrations })"
+            >
+              {{ pendingRegistrations }}
+            </span>
           </Link>
           <span
             v-else

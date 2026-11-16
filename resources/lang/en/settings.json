@@ -110,7 +110,10 @@
     "saved": "Settings saved.",
     "api_keys_generated": "New API keys generated.",
     "board_disabled": "School screen turned off.",
-    "board_enabled": "School screen turned on."
+    "board_enabled": "School screen turned on.",
+    "registration_enabled": "Parent sign-up turned on.",
+    "registration_disabled": "Parent sign-up turned off.",
+    "registration_regenerated": "New link created: the old QR code no longer works."
   },
   "api": {
     "title": "Revenue API",
@@ -158,5 +161,26 @@
     "step_autostart": "To start it by itself: Windows → Task Scheduler, new task “at logon”, action “node C:\\bfk\\print-agent.mjs C:\\bfk\\print-agent.env”. Linux → “sudo bash print-agent-install.sh” installs a service that starts at boot.",
     "step_test": "Test: Kitchen › Exports › “Print on the receipt printer”. The line goes from “Queued” to “Printed” within seconds. If you regenerate the API keys, download print-agent.env again.",
     "no_keys": "Generate the API keys first (“Revenue API” card)."
+  },
+  "registration": {
+    "title": "Parent sign-up",
+    "hint": "Parents without an account scan a QR code (school screen or poster) and fill in a form. Their account waits for your approval in Families › To activate.",
+    "enabled": "Sign-up open",
+    "enable": "Turn sign-up on",
+    "disable": "Turn off",
+    "link": "Form link",
+    "regenerate": "New link",
+    "regenerate_title": "Create a new link?",
+    "regenerate_body": "The old link and any printed posters will stop working. You will need to print the poster again.",
+    "poster": {
+      "download": "Download the poster (PDF)",
+      "title": "Create your account",
+      "subtitle": "Order your children’s school lunches.",
+      "scan": "Scan this QR code with your phone",
+      "after": "The school approves your account, then sends your codes on WhatsApp."
+    },
+    "qr_alt": "QR code of the sign-up form",
+    "off": "Parent sign-up is turned off.",
+    "board_hint": "While sign-up is open, the school screen shows a “Create an account” button with this QR code."
   }
 }

@@ -47,5 +47,6 @@ export const controllers = {
     OutboundLinks: () => import('#controllers/parent/outbound_links_controller'),
     Statements: () => import('#controllers/parent/statements_controller'),
   },
+  Registration: () => import('#controllers/registration_controller'),
   Session: () => import('#controllers/session_controller'),
 }

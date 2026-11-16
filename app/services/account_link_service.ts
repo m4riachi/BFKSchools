@@ -20,6 +20,7 @@ import { whatsappNumber } from '#support/whatsapp'
 export const LINK_PATHS: Record<UserTokenType, string> = {
   invitation: '/invitation',
   password_reset: '/password/reset',
+  email_confirmation: '/inscription/confirmer',
 }
 
 export function linkUrl(type: UserTokenType, token: string) {

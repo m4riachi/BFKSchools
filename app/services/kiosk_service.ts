@@ -168,8 +168,7 @@ export default class KioskService {
     const settings = this.settings.get(school)
     const dishCutoff = atLocalTime(date, settings.kiosk_cutoff_time, schoolZone(school))
     const hasDish =
-      day.order?.status === 'active' &&
-      day.order.lines.some((line) => line.type === 'subscription')
+      day.order?.status === 'active' && day.order.lines.some((line) => line.type === 'subscription')
     const extrasOnly = this.clock.now() >= dishCutoff || hasDish
     return { date, day, extrasOnly }
   }

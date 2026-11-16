@@ -5,6 +5,7 @@ import Child from '#models/child'
 import OrderCancellationService from '#services/order_cancellation_service'
 import BusinessRuleException from '#exceptions/business_rule_exception'
 import type { AllergenCode } from '#enums/allergens'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
 export type ChildInput = {
   firstName: string
@@ -14,11 +15,33 @@ export type ChildInput = {
   allergies?: AllergenCode[]
   dietaryNotes?: string | null
   isActive?: boolean
+  /** D59: created by a QR sign-up (no kiosk code until the approval). Create only. */
+  registrationPending?: boolean
 }
 
 /** PostgreSQL unique_violation / foreign_key_violation. */
 const UNIQUE_VIOLATION = '23505'
 const FOREIGN_KEY_VIOLATION = '23503'
+
+/**
+ * D51/D59: kiosk-code errors from the database — the trigger raises
+ * `children_no_free_pin` (P0001) when the school has no free 4-digit code
+ * left; a code taken by another child at the same moment answers
+ * `children_school_pin_unique`. Both become a translated business error.
+ */
+export function throwIfPinError(error: unknown) {
+  const { code, message, constraint } = error as {
+    code?: string
+    message?: string
+    constraint?: string
+  }
+  if (code === 'P0001' && message?.includes('children_no_free_pin')) {
+    throw new BusinessRuleException('families.errors.no_free_pin')
+  }
+  if (code === UNIQUE_VIOLATION && constraint === 'children_school_pin_unique') {
+    throw new BusinessRuleException('families.errors.pin_conflict')
+  }
+}
 
 /**
  * Children of a parent. The child's school is the parent's school.
@@ -27,19 +50,28 @@ const FOREIGN_KEY_VIOLATION = '23503'
 export default class ChildService {
   constructor(protected cancellations: OrderCancellationService) {}
 
-  async create(parent: User, input: ChildInput): Promise<Child> {
+  async create(
+    parent: User,
+    input: ChildInput,
+    client?: TransactionClientContract
+  ): Promise<Child> {
     const schoolId = parent.schoolId
     if (parent.role !== 'parent' || typeof schoolId !== 'number') {
       throw new BusinessRuleException('families.errors.not_a_parent')
     }
-    // D51: the kiosk code (`pin`) is assigned by the database (trigger), unique in the school.
+    // D51: the kiosk code (`pin`) is assigned by the database (trigger), unique in the school;
+    // D59: not for a sign-up child (`registrationPending`), which gets it at the approval.
     return this.guardUnique(() =>
-      Child.create({
-        parentId: parent.id,
-        schoolId,
-        ...this.attributes(input),
-        isActive: input.isActive ?? true,
-      })
+      Child.create(
+        {
+          parentId: parent.id,
+          schoolId,
+          ...this.attributes(input),
+          isActive: input.isActive ?? true,
+          registrationPending: input.registrationPending ?? false,
+        },
+        client ? { client } : undefined
+      )
     )
   }
 
@@ -99,6 +131,7 @@ export default class ChildService {
     try {
       return await callback()
     } catch (error) {
+      throwIfPinError(error)
       if ((error as { code?: string }).code === UNIQUE_VIOLATION) {
         throw new BusinessRuleException('families.errors.child_duplicate', { field: 'firstName' })
       }

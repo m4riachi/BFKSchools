@@ -51,6 +51,30 @@ router
   .as('password.reset.store')
 
 /**
+ * D59: parent self-registration from the school's QR code (no login; the
+ * token is the school's `registration_token`, 404 when unknown or turned
+ * off; rate-limited in the controller).
+ */
+const registrationToken = { match: /^[A-Za-z0-9_-]{32}$/ }
+// The link of the sign-up confirmation email (D59 security follow-up).
+router
+  .get('inscription/confirmer/:token', [controllers.Registration, 'showConfirmation'])
+  .where('token', tokenMatcher)
+  .as('registration.confirmation.show')
+router
+  .post('inscription/confirmer/:token', [controllers.Registration, 'confirm'])
+  .where('token', tokenMatcher)
+  .as('registration.confirmation.store')
+router
+  .get('inscription/:token', [controllers.Registration, 'show'])
+  .where('token', registrationToken)
+  .as('registration.show')
+router
+  .post('inscription/:token', [controllers.Registration, 'store'])
+  .where('token', registrationToken)
+  .as('registration.store')
+
+/**
  * Any visitor (guest or logged in) can switch the UI language.
  */
 router.post('locale', [controllers.Locale, 'update']).as('locale.update')
@@ -232,6 +256,22 @@ router
       .post('parents/:id/activate', [controllers.admin.Parents, 'activate'])
       .where('id', id)
       .as('parents.activate')
+    // D59: QR sign-ups ("À activer")
+    router
+      .post('parents/:id/registration/approve', [controllers.admin.Parents, 'approve'])
+      .where('id', id)
+      .as('parents.registration.approve')
+    router
+      .post('parents/:id/registration/confirmation', [
+        controllers.admin.Parents,
+        'resendConfirmation',
+      ])
+      .where('id', id)
+      .as('parents.registration.confirmation')
+    router
+      .post('parents/:id/registration/refuse', [controllers.admin.Parents, 'refuse'])
+      .where('id', id)
+      .as('parents.registration.refuse')
     router
       .post('parents/:id/invitation', [controllers.admin.Parents, 'invite'])
       .where('id', id)
@@ -503,6 +543,19 @@ router
     router
       .get('settings/print-agent/env', [controllers.admin.Settings, 'printAgentEnv'])
       .as('settings.print_agent.env')
+    // D59: parent self-registration (switch, new link, A4 QR poster)
+    router
+      .post('settings/registration', [controllers.admin.Settings, 'enableRegistration'])
+      .as('settings.registration.enable')
+    router
+      .delete('settings/registration', [controllers.admin.Settings, 'disableRegistration'])
+      .as('settings.registration.disable')
+    router
+      .post('settings/registration/token', [controllers.admin.Settings, 'regenerateRegistration'])
+      .as('settings.registration.regenerate')
+    router
+      .get('settings/registration/poster', [controllers.admin.Settings, 'registrationPoster'])
+      .as('settings.registration.poster')
     router
       .post('settings/board', [controllers.admin.Settings, 'enableBoard'])
       .as('settings.board.enable')

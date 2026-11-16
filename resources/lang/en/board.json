@@ -53,5 +53,13 @@
     "extras_only_hint": "Your order is in. You can still add a supplement."
   },
   "printer_pair": "Connect the printer",
-  "printer_paired": "Printer connected"
+  "printer_paired": "Printer connected",
+  "registration": {
+    "button": "Create an account · Créer un compte",
+    "title": "Create a parent account",
+    "body": "Scan this QR code with your phone to sign your children up.",
+    "after": "The school approves your account, then sends your codes on WhatsApp.",
+    "close": "Close",
+    "qr_alt": "QR code of the sign-up form"
+  }
 }

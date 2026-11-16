@@ -85,5 +85,14 @@
     "partner": "BFK Resto × British Academy School Marrakech",
     "preferences": "Gérer mes préférences d’e-mails",
     "automatic": "E-mail automatique, merci de ne pas y répondre"
+  },
+  "email_confirmation": {
+    "subject": "Confirmez votre adresse e-mail",
+    "title": "Confirmez votre e-mail",
+    "intro": "Vous avez demandé un compte British Academy × Beldi Fusion pour commander les déjeuners de vos enfants. Confirmez votre adresse : l’école ne peut activer votre compte qu’après cette étape.",
+    "action": "Confirmer mon e-mail",
+    "expiry": "Ce lien est valable jusqu'au {date} et ne peut être utilisé qu'une seule fois.",
+    "ignore": "Ne confirmez que si c’est vous qui avez fait cette demande. Sinon, ouvrez le lien et appuyez sur « Ce n’est pas moi » (ou ignorez cet e-mail) : aucun compte ne sera activé.",
+    "footer": "Vous recevez cet e-mail suite à une inscription faite avec le QR code de l’école."
   }
 }

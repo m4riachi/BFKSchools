@@ -9,6 +9,7 @@ import NotificationCenterService from '#services/notification_center_service'
 import SchoolSettingsService from '#services/school_settings_service'
 import StaffRoleService from '#services/staff_role_service'
 import School from '#models/school'
+import db from '@adonisjs/lucid/services/db'
 import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from '#enums/locales'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
@@ -77,11 +78,29 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
     const user = (ctx as Partial<HttpContext>).auth?.user
     if (!user || user.role === 'parent') return null
     try {
-      return await new StaffRoleService().accessOf(user)
+      const access = await new StaffRoleService().accessOf(user)
+      // D59: sign-ups waiting in "À activer" (badge of the Familles menu).
+      const pendingRegistrations =
+        access.permissions.includes('families') && typeof user.schoolId === 'number'
+          ? await this.pendingRegistrations(user.schoolId)
+          : 0
+      return { ...access, pendingRegistrations }
     } catch (error) {
       logger.warn({ error: (error as Error)?.name ?? 'Error' }, 'staff access read failed')
       return null
     }
+  }
+
+  /** One count on a partial index (users_pending_registrations_idx). */
+  protected async pendingRegistrations(schoolId: number): Promise<number> {
+    const row = await db
+      .from('users')
+      .where('school_id', schoolId)
+      .where('role', 'parent')
+      .where('registration_status', 'pending')
+      .count('* as total')
+      .first()
+    return Number(row?.total ?? 0)
   }
 
   /** One primary-key read; a database hiccup hides the modules, not the page. */

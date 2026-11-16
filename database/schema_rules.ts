@@ -46,6 +46,11 @@ export default {
           imports: [],
           decorators: [{ name: '@column' }],
         },
+        registration_status: {
+          tsType: 'RegistrationStatus',
+          imports: [{ source: '#enums/parents', typeImports: ['RegistrationStatus'] }],
+          decorators: [{ name: '@column' }],
+        },
       },
     },
     user_tokens: {

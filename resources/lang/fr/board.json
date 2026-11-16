@@ -53,5 +53,13 @@
     "extras_only_hint": "La commande est passée. Tu peux encore ajouter un supplément."
   },
   "printer_pair": "Connecter l’imprimante",
-  "printer_paired": "Imprimante connectée"
+  "printer_paired": "Imprimante connectée",
+  "registration": {
+    "button": "Créer un compte",
+    "title": "Créer un compte parent",
+    "body": "Scannez ce QR code avec votre téléphone pour inscrire vos enfants.",
+    "after": "L’école valide votre compte, puis vous envoie vos codes sur WhatsApp.",
+    "close": "Fermer",
+    "qr_alt": "QR code du formulaire d’inscription"
+  }
 }

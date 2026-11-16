@@ -38,7 +38,7 @@ test.group('Board kiosk (D51)', (group) => {
     await enableBoard(client, ctx.admin)
     const home = await family(ctx.school)
     const child = await Child.findOrFail(home.child.id)
-    assert.match(child.pin, /^\d{4}$/)
+    assert.match(child.pin!, /^\d{4}$/)
     const menu = await menuOf(ctx.school)
     await (
       await builder()

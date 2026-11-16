@@ -12,6 +12,10 @@ export type ScannedRoutes = {
     'invitation.accept': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.confirmation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.confirmation.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
@@ -48,6 +52,9 @@ export type ScannedRoutes = {
     'admin.parents.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.approve': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.confirmation': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.refuse': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.children.create': { paramsTuple: [ParamValue]; params: {'parentId': ParamValue} }
@@ -132,6 +139,10 @@ export type ScannedRoutes = {
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.settings.print_agent.script': { paramsTuple?: []; params?: {} }
     'admin.settings.print_agent.env': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.enable': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.disable': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.regenerate': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.poster': { paramsTuple?: []; params?: {} }
     'admin.settings.board.enable': { paramsTuple?: []; params?: {} }
     'admin.settings.board.disable': { paramsTuple?: []; params?: {} }
     'admin.settings.board.printer_button': { paramsTuple?: []; params?: {} }
@@ -161,6 +172,8 @@ export type ScannedRoutes = {
     'password.forgot': { paramsTuple?: []; params?: {} }
     'invitation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.confirmation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'api.print_jobs.next': { paramsTuple?: []; params?: {} }
@@ -206,6 +219,7 @@ export type ScannedRoutes = {
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.settings.print_agent.script': { paramsTuple?: []; params?: {} }
     'admin.settings.print_agent.env': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.poster': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -227,6 +241,8 @@ export type ScannedRoutes = {
     'password.forgot': { paramsTuple?: []; params?: {} }
     'invitation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.confirmation.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.show': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'outbound.show': { paramsTuple: [ParamValue]; params: {'link': ParamValue} }
     'api.revenue.daily': { paramsTuple?: []; params?: {} }
     'api.print_jobs.next': { paramsTuple?: []; params?: {} }
@@ -272,6 +288,7 @@ export type ScannedRoutes = {
     'admin.settings.api_keys.secret': { paramsTuple?: []; params?: {} }
     'admin.settings.print_agent.script': { paramsTuple?: []; params?: {} }
     'admin.settings.print_agent.env': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.poster': { paramsTuple?: []; params?: {} }
     'admin.imports.create': { paramsTuple?: []; params?: {} }
     'admin.imports.template': { paramsTuple?: []; params?: {} }
     'admin.imports.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -293,6 +310,8 @@ export type ScannedRoutes = {
     'password.forgot.store': { paramsTuple?: []; params?: {} }
     'invitation.accept': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'password.reset.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.confirmation.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'registration.store': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'locale.update': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'api.print_jobs.ack': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -307,6 +326,9 @@ export type ScannedRoutes = {
     'admin.parents.store': { paramsTuple?: []; params?: {} }
     'admin.parents.deactivate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.activate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.approve': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.confirmation': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.parents.registration.refuse': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.parents.invite_whatsapp': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.children.store': { paramsTuple: [ParamValue]; params: {'parentId': ParamValue} }
@@ -341,6 +363,8 @@ export type ScannedRoutes = {
     'admin.users.invite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.roles.store': { paramsTuple?: []; params?: {} }
     'admin.settings.api_keys.generate': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.enable': { paramsTuple?: []; params?: {} }
+    'admin.settings.registration.regenerate': { paramsTuple?: []; params?: {} }
     'admin.settings.board.enable': { paramsTuple?: []; params?: {} }
     'admin.imports.upload': { paramsTuple?: []; params?: {} }
     'admin.imports.confirm': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -379,6 +403,7 @@ export type ScannedRoutes = {
     'admin.menus.items.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'week': ParamValue,'id': ParamValue} }
     'admin.menu_templates.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'admin.roles.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.settings.registration.disable': { paramsTuple?: []; params?: {} }
     'admin.settings.board.disable': { paramsTuple?: []; params?: {} }
   }
 }

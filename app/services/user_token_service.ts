@@ -57,14 +57,21 @@ export default class UserTokenService {
    * The usable token row for a raw token (not consumed), with its user, or
    * null when unknown, used, revoked, expired or the user is inactive.
    */
-  async findUsable(raw: string, type: UserTokenType): Promise<UserToken | null> {
+  async findUsable(
+    raw: string,
+    type: UserTokenType,
+    options: { allowInactive?: boolean } = {}
+  ): Promise<UserToken | null> {
     if (!RAW_TOKEN_RE.test(raw)) return null
     const record = await UserToken.query()
       .where('token_hash', UserTokenService.hash(raw))
       .where('type', type)
       .preload('user')
       .first()
-    return record && this.isUsable(record) && record.user.isActive ? record : null
+    // D59: a sign-up confirms its email while the account is still inactive.
+    return record && this.isUsable(record) && (record.user.isActive || options.allowInactive)
+      ? record
+      : null
   }
 
   /** The user id a raw token belongs to (no lock, no usability check), or null. */

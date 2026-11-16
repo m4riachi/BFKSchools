@@ -4,10 +4,10 @@ import type User from '#models/user'
 import { BrandedMail, type EmailContent } from '#mails/branded_mail'
 import { APP_TIMEZONE } from '#support/time'
 
-export type AccountLinkKind = 'invitation' | 'password_reset'
+export type AccountLinkKind = 'invitation' | 'password_reset' | 'email_confirmation'
 
 /**
- * Invitation and password-reset emails (shared branded layout). Sent in
+ * Invitation, password-reset and (D59) sign-up email-confirmation emails (shared branded layout). Sent in
  * the recipient's language to their stored, validated address.
  *
  * The link carries the raw token: these mails are sent directly, never

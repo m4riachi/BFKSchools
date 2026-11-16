@@ -6,8 +6,9 @@ import User from '#models/user'
 import ParentService from '#services/parent_service'
 import Clock from '#services/clock'
 import AccountLinkService from '#services/account_link_service'
+import ParentRegistrationService from '#services/parent_registration_service'
 import { parentListValidator, parentValidator } from '#validators/families'
-import { presentChild, presentParent } from '#support/family_presenters'
+import { presentChild, presentParent, presentRegistration } from '#support/family_presenters'
 import { staffSchoolId } from '#policies/parent_policy'
 import { PARENT_FILTERS, type ParentFilter } from '#enums/parents'
 import BusinessRuleException from '#exceptions/business_rule_exception'
@@ -20,7 +21,8 @@ export default class ParentsController {
   constructor(
     protected parents: ParentService,
     protected accountLinks: AccountLinkService,
-    protected clock: Clock
+    protected clock: Clock,
+    protected registrations: ParentRegistrationService
   ) {}
 
   async index({ request, inertia, bouncer, auth }: HttpContext) {
@@ -32,6 +34,24 @@ export default class ParentsController {
       filters = await parentListValidator.validate(request.qs())
     } catch {
       filters = {}
+    }
+
+    // D59: the "À activer" tab lists sign-ups with what the parent typed.
+    if (filters.status === 'pending') {
+      const pending = await this.registrations.pending(schoolId, filters.page ?? 1)
+      return inertia.render('admin/parents/index', {
+        parents: [],
+        registrations: pending.all().map(presentRegistration),
+        pendingCount: pending.total,
+        meta: {
+          total: pending.total,
+          perPage: pending.perPage,
+          currentPage: pending.currentPage,
+          lastPage: pending.lastPage,
+        },
+        filters: { q: '', status: 'pending' },
+        statuses: [...PARENT_FILTERS],
+      })
     }
 
     const page = await this.parents.list(schoolId, filters)
@@ -52,6 +72,8 @@ export default class ParentsController {
         currentPage: page.currentPage,
         lastPage: page.lastPage,
       },
+      registrations: [],
+      pendingCount: await this.registrations.pendingCount(schoolId),
       filters: { q: filters.q ?? '', status: filters.status ?? 'all' },
       statuses: [...PARENT_FILTERS],
     })
@@ -107,6 +129,20 @@ export default class ParentsController {
       hasWhatsapp: whatsappNumber(parent.phone) !== null,
       /** D43: only right after "Inviter par WhatsApp"; it holds the invitation link. */
       whatsappInvite: session.flashMessages.get('whatsappInvite') ?? null,
+      /** D59: the sign-up (null for accounts created by staff or the import). */
+      registration: parent.registrationStatus
+        ? {
+            status: parent.registrationStatus,
+            emailConfirmed: parent.emailConfirmedAt !== null,
+            registeredAt: parent.registeredAt?.toISO() ?? null,
+            reviewedAt: parent.registrationReviewedAt?.toISO() ?? null,
+          }
+        : null,
+      /** D59: wa.me link with the login address and the children's Code borne. */
+      activationWhatsapp:
+        parent.registrationStatus === 'approved' && parent.isActive && whatsappNumber(parent.phone)
+          ? await this.registrations.whatsappActivation(parent)
+          : null,
     })
   }
 
@@ -149,9 +185,47 @@ export default class ParentsController {
   async activate({ params, response, bouncer, session, i18n, auth }: HttpContext) {
     const parent = await this.findParent(params.id, auth.getUserOrFail())
     await bouncer.with('ParentPolicy').authorize('manage', parent)
+    // D59: a QR sign-up is activated with its children.
+    if (parent.registrationStatus === 'pending' || parent.registrationStatus === 'refused') {
+      await this.registrations.approve(parent, auth.getUserOrFail())
+      session.flash('success', i18n.t('families.flash.registration_approved'))
+      return response.redirect(`/admin/parents/${parent.id}`)
+    }
     await this.parents.activate(parent)
     session.flash('success', i18n.t('families.flash.parent_activated'))
     return response.redirect(`/admin/parents/${parent.id}`)
+  }
+
+  /** D59: "Activer" a sign-up — parent and children active, then the WhatsApp button. */
+  async approve({ params, response, bouncer, session, i18n, auth }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
+    await bouncer.with('ParentPolicy').authorize('manage', parent)
+    await this.registrations.approve(parent, auth.getUserOrFail())
+    session.flash('success', i18n.t('families.flash.registration_approved'))
+    return response.redirect(`/admin/parents/${parent.id}`)
+  }
+
+  /** D59: a new email-confirmation link for a sign-up that has not confirmed yet. */
+  async resendConfirmation({ params, response, bouncer, session, i18n, auth }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
+    await bouncer.with('ParentPolicy').authorize('manage', parent)
+    await this.registrations.resendConfirmation(parent)
+    session.flash(
+      'success',
+      i18n.t('families.flash.registration_confirmation_sent', { email: parent.email })
+    )
+    return response.redirect().back()
+  }
+
+  /** D59: "Refuser" a sign-up — kept, deactivated, status refused. */
+  async refuse({ params, request, response, bouncer, session, i18n, auth }: HttpContext) {
+    const parent = await this.findParent(params.id, auth.getUserOrFail())
+    await bouncer.with('ParentPolicy').authorize('manage', parent)
+    await this.registrations.refuse(parent, auth.getUserOrFail())
+    session.flash('success', i18n.t('families.flash.registration_refused'))
+    return request.input('from') === 'list'
+      ? response.redirect('/admin/parents?status=pending')
+      : response.redirect(`/admin/parents/${parent.id}`)
   }
 
   /** Sends or re-sends the invitation (the previous link stops working). */

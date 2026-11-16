@@ -13,6 +13,7 @@ import SelectInput from '~/components/ui/select_input.vue'
 import CheckboxField from '~/components/ui/checkbox_field.vue'
 import ApiKeysCard from '~/components/settings/api_keys_card.vue'
 import BoardCard from '~/components/settings/board_card.vue'
+import RegistrationCard from '~/components/settings/registration_card.vue'
 import { useI18n } from '~/composables/use_i18n'
 
 type Settings = {
@@ -66,6 +67,8 @@ const props = defineProps<{
   }
   subscriptionMealPrice: string
   api: { endpoint: string; publicKey: string | null; generatedAt: string | null }
+  /** D59: parent self-registration. */
+  registration: { enabled: boolean; url: string | null; qr: string | null }
   board: {
     slug: string | null
     url: string | null
@@ -581,6 +584,7 @@ function submit() {
     </form>
 
     <BoardCard class="mt-5" :board="board" />
+    <RegistrationCard class="mt-5" :registration="registration" />
     <ApiKeysCard class="mt-5" :api="api" />
   </AdminLayout>
 </template>

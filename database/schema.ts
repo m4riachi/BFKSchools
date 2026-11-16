@@ -15,10 +15,11 @@ import type { AppLocale } from '#enums/locales'
 import type { StoredSchoolSettings } from '#types/school_settings'
 import type { SubscriptionStatus } from '#enums/subscriptions'
 import type { UserTokenType } from '#enums/user_tokens'
+import type { RegistrationStatus } from '#enums/parents'
 import type { Role } from '#enums/roles'
 
 export class ChildSchema extends BaseModel {
-  static $columns = ['allergies', 'className', 'createdAt', 'dietaryNotes', 'dislikedIngredients', 'firstName', 'grade', 'id', 'isActive', 'lastName', 'parentId', 'pin', 'schoolId', 'updatedAt'] as const
+  static $columns = ['allergies', 'className', 'createdAt', 'dietaryNotes', 'dislikedIngredients', 'firstName', 'grade', 'id', 'isActive', 'lastName', 'parentId', 'pin', 'registrationPending', 'schoolId', 'updatedAt'] as const
   $columns = ChildSchema.$columns
   @column()
   declare allergies: AllergenCode[]
@@ -43,7 +44,9 @@ export class ChildSchema extends BaseModel {
   @column()
   declare parentId: number
   @column()
-  declare pin: string
+  declare pin: string | null
+  @column()
+  declare registrationPending: boolean
   @column()
   declare schoolId: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -627,7 +630,7 @@ export class UserTokenSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'credentialsVersion', 'email', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'role', 'schoolId', 'staffRoleId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'credentialsVersion', 'email', 'emailConfirmedAt', 'fullName', 'id', 'invitedAt', 'isActive', 'lastLoginAt', 'locale', 'notificationPrefs', 'password', 'phone', 'registeredAt', 'registrationReviewedAt', 'registrationReviewedBy', 'registrationStatus', 'role', 'schoolId', 'staffRoleId', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -635,6 +638,8 @@ export class UserSchema extends BaseModel {
   declare credentialsVersion: number
   @column()
   declare email: string
+  @column.dateTime()
+  declare emailConfirmedAt: DateTime | null
   @column()
   declare fullName: string
   @column({ isPrimary: true })
@@ -653,6 +658,14 @@ export class UserSchema extends BaseModel {
   declare password: string | null
   @column()
   declare phone: string | null
+  @column.dateTime()
+  declare registeredAt: DateTime | null
+  @column.dateTime()
+  declare registrationReviewedAt: DateTime | null
+  @column()
+  declare registrationReviewedBy: number | null
+  @column()
+  declare registrationStatus: RegistrationStatus | null
   @column()
   declare role: Role
   @column()
