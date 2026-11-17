@@ -83,6 +83,8 @@
     "kiosk_title": "Orders on the school screen (kiosk)",
     "kiosk_hint": "The child orders for the same day only, with their code, until the time below — even when parents’ changes are already closed. A meal already set by the parent is never changed on the screen.",
     "kiosk_enabled": "Allow orders on the screen",
+    "kiosk_time_limit_enabled": "Limit screen orders to a cutoff time",
+    "kiosk_time_limit_enabled_hint": "Unchecked: the child can order (dish and supplements) for today at any time of the day.",
     "kiosk_cutoff_time": "Screen cutoff time (same day)",
     "kiosk_cutoff_time_hint": "For example 09:00: after that time the screen takes no more orders for today.",
     "delivery_button_enabled": "Show the “Home delivery” button",

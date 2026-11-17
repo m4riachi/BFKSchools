@@ -92,6 +92,7 @@ export default class SettingsController {
         edit_cutoff_days_before: values.edit_cutoff_days_before,
         edit_cutoff_time: values.edit_cutoff_time,
         kiosk_enabled: values.kiosk_enabled,
+        kiosk_time_limit_enabled: values.kiosk_time_limit_enabled,
         kiosk_cutoff_time: values.kiosk_cutoff_time,
         kiosk_extras_cutoff_time: values.kiosk_extras_cutoff_time,
         auto_assign_default_meal: values.auto_assign_default_meal,

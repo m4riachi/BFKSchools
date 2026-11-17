@@ -24,6 +24,7 @@ export type WindowSettings = Pick<
   | 'edit_cutoff_days_before'
   | 'edit_cutoff_time'
   | 'kiosk_enabled'
+  | 'kiosk_time_limit_enabled'
   | 'kiosk_cutoff_time'
   | 'kiosk_extras_cutoff_time'
 >
@@ -130,12 +131,25 @@ export function evaluate(input: WindowInput): WindowDecision {
   // until `kiosk_cutoff_time`; supplements stay orderable until the later
   // `kiosk_extras_cutoff_time` (after the dish cutoff it is extras-only).
   if (input.channel === 'kiosk') {
+    if (!settings.kiosk_enabled || date !== today) return refuse('KIOSK_CLOSED')
+    // Time limit turned off: the board takes today's orders at any hour,
+    // dish and supplements alike, until the end of the day.
+    if (!settings.kiosk_time_limit_enabled) {
+      return {
+        allowed: true,
+        reason: null,
+        cutoffAt,
+        deadlinePassed,
+        editableUntil: atLocalTime(addDays(today, 1), '00:00', zone),
+        kioskExtrasOnly: false,
+      }
+    }
     const dishCutoff = atLocalTime(today, settings.kiosk_cutoff_time, zone)
     const extrasCutoff = latest(
       dishCutoff,
       atLocalTime(today, settings.kiosk_extras_cutoff_time, zone)
     )
-    if (!settings.kiosk_enabled || date !== today || now >= extrasCutoff) {
+    if (now >= extrasCutoff) {
       return refuse('KIOSK_CLOSED')
     }
     return {

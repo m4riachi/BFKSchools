@@ -32,6 +32,7 @@ const D5: WindowSettings = {
   edit_cutoff_days_before: 1,
   edit_cutoff_time: '18:00',
   kiosk_enabled: true,
+  kiosk_time_limit_enabled: true,
   kiosk_cutoff_time: '09:00',
   kiosk_extras_cutoff_time: '13:00',
 }
@@ -666,5 +667,38 @@ test.group('OrderWindowService.checkSelection', () => {
     })
     assert.isTrue(main.noSubscription)
     assert.equal(main.maxQty, 0)
+  })
+})
+
+test.group('OrderWindowService | kiosk time limit switch', () => {
+  const kiosk = (now: string, settings: Partial<WindowSettings>) =>
+    evaluate(input({ date: TUE, now: at(now), channel: 'kiosk', settings }))
+
+  test('with the limit on, the board closes at the supplements cutoff', ({ assert }) => {
+    assert.isTrue(kiosk('2026-11-24T08:59', {}).allowed)
+    assert.isTrue(kiosk('2026-11-24T09:30', {}).kioskExtrasOnly)
+    assert.equal(kiosk('2026-11-24T13:00', {}).reason, 'KIOSK_CLOSED')
+  })
+
+  test('with the limit off, the board takes dish and supplements all day', ({ assert }) => {
+    const late = kiosk('2026-11-24T23:30', { kiosk_time_limit_enabled: false })
+    assert.isTrue(late.allowed)
+    assert.isFalse(late.kioskExtrasOnly)
+    // Still today only, and still off when the kiosk itself is off.
+    assert.equal(
+      evaluate(
+        input({
+          date: '2026-11-25',
+          now: at('2026-11-24T10:00'),
+          channel: 'kiosk',
+          settings: { kiosk_time_limit_enabled: false },
+        })
+      ).reason,
+      'KIOSK_CLOSED'
+    )
+    assert.equal(
+      kiosk('2026-11-24T10:00', { kiosk_time_limit_enabled: false, kiosk_enabled: false }).reason,
+      'KIOSK_CLOSED'
+    )
   })
 })

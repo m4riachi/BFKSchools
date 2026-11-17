@@ -27,6 +27,7 @@ type Settings = {
   edit_cutoff_days_before: number
   edit_cutoff_time: string
   kiosk_enabled: boolean
+  kiosk_time_limit_enabled: boolean
   kiosk_cutoff_time: string
   kiosk_extras_cutoff_time: string
   auto_assign_default_meal: boolean
@@ -295,7 +296,13 @@ function submit() {
             v-model="form.settings.kiosk_enabled"
             :label="t('settings.fields.kiosk_enabled')"
           />
-          <div class="grid gap-4 sm:grid-cols-2">
+          <CheckboxField
+            id="kiosk_time_limit_enabled"
+            v-model="form.settings.kiosk_time_limit_enabled"
+            :label="t('settings.fields.kiosk_time_limit_enabled')"
+            :hint="t('settings.fields.kiosk_time_limit_enabled_hint')"
+          />
+          <div v-if="form.settings.kiosk_time_limit_enabled" class="grid gap-4 sm:grid-cols-2">
             <TextInput
               id="kiosk_cutoff_time"
               v-model="form.settings.kiosk_cutoff_time"

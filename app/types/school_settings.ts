@@ -63,6 +63,8 @@ export type SchoolSettings = {
   registration_token: string | null
   /** D52: ordering on the board's kiosk — the same day only, until this time. */
   kiosk_enabled: boolean
+  /** When false the board takes today's orders at any hour (both cutoff times are ignored). */
+  kiosk_time_limit_enabled: boolean
   kiosk_cutoff_time: string
   /** D58: supplements orderable on the board until this (later) time. */
   kiosk_extras_cutoff_time: string

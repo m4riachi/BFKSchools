@@ -37,6 +37,7 @@ export const schoolSettingsValidator = vine.create({
   edit_cutoff_days_before: vine.number().withoutDecimals().range([0, 7]).optional(),
   edit_cutoff_time: time().optional(),
   kiosk_enabled: vine.boolean().optional(),
+  kiosk_time_limit_enabled: vine.boolean().optional(),
   kiosk_cutoff_time: time().optional(),
   kiosk_extras_cutoff_time: time().optional(),
   auto_assign_default_meal: vine.boolean().optional(),
@@ -116,6 +117,7 @@ export const schoolSettingsFormValidator = vine.create({
     edit_cutoff_time: time(),
     // D52: the board's window (absent from older forms: the stored value stays).
     kiosk_enabled: vine.boolean().optional(),
+    kiosk_time_limit_enabled: vine.boolean().optional(),
     kiosk_cutoff_time: time().optional(),
     kiosk_extras_cutoff_time: time().optional(),
     auto_assign_default_meal: vine.boolean(),

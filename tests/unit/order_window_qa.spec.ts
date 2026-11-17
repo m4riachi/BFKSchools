@@ -17,6 +17,7 @@ const D5: S = {
   edit_cutoff_days_before: 1,
   edit_cutoff_time: '18:00',
   kiosk_enabled: true,
+  kiosk_time_limit_enabled: true,
   kiosk_cutoff_time: '09:00',
   kiosk_extras_cutoff_time: '13:00',
 }

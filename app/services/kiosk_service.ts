@@ -159,8 +159,12 @@ export default class KioskService {
     const view = await this.weeks.week(child, weekStart(date), locale, { channel: 'kiosk' })
     const day = view.days.find((candidate) => candidate.date === date)
     if (!day || day.state !== 'open' || !day.editable) {
+      const settings = this.settings.get(school)
+      if (!settings.kiosk_time_limit_enabled) {
+        throw new BusinessRuleException('board.kiosk.closed_day')
+      }
       throw new BusinessRuleException('board.kiosk.closed', {
-        values: { time: this.settings.get(school).kiosk_extras_cutoff_time },
+        values: { time: settings.kiosk_extras_cutoff_time },
       })
     }
     // D58: the dish is fixed — only supplements can be added — after the dish
@@ -169,7 +173,8 @@ export default class KioskService {
     const dishCutoff = atLocalTime(date, settings.kiosk_cutoff_time, schoolZone(school))
     const hasDish =
       day.order?.status === 'active' && day.order.lines.some((line) => line.type === 'subscription')
-    const extrasOnly = this.clock.now() >= dishCutoff || hasDish
+    const pastDishCutoff = settings.kiosk_time_limit_enabled && this.clock.now() >= dishCutoff
+    const extrasOnly = pastDishCutoff || hasDish
     return { date, day, extrasOnly }
   }
 

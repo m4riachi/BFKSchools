@@ -48,6 +48,7 @@ export const DEFAULT_SCHOOL_SETTINGS: Readonly<SchoolSettings> = Object.freeze({
   registration_enabled: false, // D59
   registration_token: null,
   kiosk_enabled: true, // D52
+  kiosk_time_limit_enabled: true,
   kiosk_cutoff_time: '09:00',
   kiosk_extras_cutoff_time: '13:00', // D58
   printer_mode: 'off', // D50

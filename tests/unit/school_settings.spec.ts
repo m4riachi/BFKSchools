@@ -40,6 +40,7 @@ test.group('SchoolSettingsService', (group) => {
       'registration_enabled',
       'registration_token',
       'kiosk_enabled',
+      'kiosk_time_limit_enabled',
       'kiosk_cutoff_time',
       'kiosk_extras_cutoff_time',
       'printer_mode',
